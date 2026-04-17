@@ -1,23 +1,7 @@
-# [PROJECT TITLE]
+<h1 align="center"># WAM-survey
+[![NVIDIA](https://img.shields.io/badge/NVIDIA-76B900?style=flat&logo=nvidia&logoColor=white)](https://www.nvidia.com)
 
 <p align="center">[ONE-LINE DESCRIPTION]</p>
-
-<p align="center">
-  [BADGE AREA PLACEHOLDER]
-</p>
-
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <strong>Paper</strong><br>
-      <a href="[PAPER LINK]">[PAPER / PDF LINK]</a>
-    </td>
-    <td align="center" width="50%">
-      <strong>Website</strong><br>
-      <a href="[WEBSITE LINK]">[PROJECT WEBSITE LINK]</a>
-    </td>
-  </tr>
-</table>
 
 这是一个围绕 `[TOPIC / PROBLEM SETTING]` 持续整理的 survey repository。它将路线图、论文条目、阅读方法和 HTML 精读报告放在同一个入口中，目标不是简单堆论文，而是提供一个有组织、可导航、可扩展的学术项目首页。
 
@@ -34,7 +18,7 @@
 ## Roadmap
 
 <p align="center">
-  <img src="[ROADMAP FIGURE PATH]" alt="[ROADMAP ALT TEXT]" width="100%">
+  <img src="[这里可以放figrue1]" alt="[ROADMAP ALT TEXT]" width="100%">
 </p>
 
 Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名保持一致，这样 README、网页和报告目录可以长期对齐。
