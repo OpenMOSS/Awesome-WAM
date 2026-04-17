@@ -59,8 +59,8 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 [ONE-SENTENCE DESCRIPTION OF THIS BRANCH]
 
 | Paper | Released | Links | Report |
-| ------ | ---- | --- | ---- |
-| **DreamZero** - [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)<br>*World Action Models are Zero-shot Policies* | 2026-02 | [[🌍 Web](https://openai.com/index/instruction-following/)]<br>[[💻 Code](https://github.com/google-research/bert)]<br>[[🤗 Model](https://huggingface.co/google-bert)] | [🌟Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) |
+| ------ | --- | ----- | ----- |
+| **DreamZero** - [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)<br>*World Action Models are Zero-shot Policies* | 2026-02 | [[🌍 Web](https://openai.com/index/instruction-following/)]<br>[[💻 Code](https://github.com/google-research/bert)]<br>[[🤗Model](https://huggingface.co/google-bert)] | [🌟Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) |
 | **Cosmos Policy** - [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)<br>*Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning* | 2026-01 | [[🌍 Web](https://openai.com/index/instruction-following/)]<br>[[💻 Code](https://github.com/google-research/bert)] | [🌟Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) |
 
 ### [BRANCH B TITLE]
