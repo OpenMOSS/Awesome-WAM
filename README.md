@@ -1,20 +1,16 @@
+<div align="center">
+
 # WAM-survey
 
-[![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)
+[![arXiv](https://img.shields.io/badge/arXiv-2509.07996-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2509.07996) [![WebPage](https://img.shields.io/badge/Website-Link-blue)](https://dreamzero0.github.io)
 
 [[Project Page](https://dreamzero0.github.io/)] [[Paper](https://arxiv.org/abs/2602.15922)]
+
+</div>
 
 这是一个围绕 `[TOPIC / PROBLEM SETTING]` 持续整理的 survey repository。它将路线图、论文条目、阅读方法和 HTML 精读报告放在同一个入口中，目标不是简单堆论文，而是提供一个有组织、可导航、可扩展的学术项目首页。
 
 示例定位：`[e.g., world models / action models / policy learning / planning / evaluation]`。
-
-## Contents
-
-- [Roadmap](#roadmap)
-- [Reading Skill](#reading-skill)
-- [Survey Branches](#survey-branches)
-- [Update Notes](#update-notes)
-- [Repository Pointers](#repository-pointers)
 
 ## Roadmap
 
@@ -26,8 +22,17 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 示例：如果路线图中有 `[Branch A] -> [Branch B] -> [Branch C]`，那么下方就按相同层级组织对应论文与报告。
 
+## Contents
+
+- [Roadmap](#roadmap)
+- [Reading Skill](#reading-skill)
+- [Survey Branches](#survey-branches)
+- [Update Notes](#update-notes)
+- [Repository Pointers](#repository-pointers)
+
 ## Reading Skill
 
+说明一下 SKILL.md 的亮点？
 本仓库的精读报告遵循 `Skill/SKILL.md` 中的工作流。重点不是写一段泛泛摘要，而是尽量保留论文的结构信息、实现细节和附录内容。
 
 ### Core Practice
@@ -53,31 +58,39 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 [ONE-SENTENCE DESCRIPTION OF THIS BRANCH]
 
-示例：这一分支可用于整理 `[EXAMPLE SUBTOPIC]` 方向的工作。
-
-| Short | Full Paper Name | Released | Links | Report |
-| --- | --- | --- | --- | --- |
-| `[SHORT NAME]` | `[FULL PAPER NAME]` | `[YYYY-MM / VENUE / STATUS]` | `[PAPER LINK]` · `[PROJECT PAGE LINK]` · `[GITHUB LINK]` · `[HF LINK]` | `[HTML REPORT LINK]` |
+| Paper | Released | Links | Report |
+| ------ | ---- | ---- | ---- |
+| **DreamZero** - [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)<br>*World Action Models are Zero-shot Policies* | 2026-02 | [[🌍 Web](https://openai.com/index/instruction-following/)] · [[💻 Code](https://github.com/google-research/bert)]<br>[[🤗 Model](https://huggingface.co/google-bert)] | [🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) |
+| **Cosmos Policy** - [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)<br>*Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning* | 2026-01 | [[🌍 Web](https://openai.com/index/instruction-following/)] · [[💻 Code](https://github.com/google-research/bert)] | [🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) |
 
 ### [BRANCH B TITLE]
 
 [ONE-SENTENCE DESCRIPTION OF THIS BRANCH]
 
-示例：这一分支可用于整理围绕 `[EXAMPLE RESEARCH QUESTION]` 展开的工作。
+***
+#### DreamZero - *World Action Models are Zero-shot Policies*  
+[![arXiv](https://img.shields.io/badge/arXiv-2509.07996-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2509.07996)
 
-| Paper | Released | Links | Report |
-| ------ | --- | --- | --- |
-| **DreamZero**, World Action Models are Zero-shot Policies | `[2026-02 / arXiv]` | [[📄 Paper](https://arxiv.org/abs/1706.03762)] · [[🌍 Webpage](https://openai.com/index/instruction-following/)] · [[💻 Code](https://github.com/google-research/bert)] · [[🤗 Model](https://huggingface.co/google-bert)] | `[HTML REPORT LINK]` |
+**Released:** 2026-02 · arXiv
+
+**Tags:** Single DiT · Classical DiT · Joint Prediction
+
+[[🌍 Webpage](https://openai.com/index/instruction-following/)] · [[💻 Code](https://github.com/google-research/bert)] · [[🤗 Model](https://huggingface.co/google-bert)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) ]
+***
+#### Cosmos Policy - *Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning*  
+**Released:** 2026-02 · [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2602.15922)
+
+**Tags:** Single DiT · Classical DiT · Joint Prediction
+
+[[🌍 Webpage](https://openai.com/index/instruction-following/)] · [[💻 Code](https://github.com/google-research/bert)] · [[🤗 Model](https://huggingface.co/google-bert)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) ]
+***
 
 ### [BRANCH C TITLE]
 
 [ONE-SENTENCE DESCRIPTION OF THIS BRANCH]
 
-示例：这一分支可用于整理 `[EXAMPLE METHOD FAMILY / TASK / SETTING]`。
-
-| Short | Full Paper Name | Released | Links | Report |
-| --- | --- | --- | --- | --- |
-| `[SHORT NAME]` | `[FULL PAPER NAME]` | `[YYYY-MM / VENUE / STATUS]` | `[PAPER LINK]` · `[PROJECT PAGE LINK]` · `[GITHUB LINK]` · `[HF LINK]` | `[HTML REPORT LINK]` |
+- **DreamZero**, *World Action Models are Zero-shot Policies*, 2026.02, NIPS 2017. [[📄 Paper](https://arxiv.org/abs/1706.03762)] · [[💻 Code](https://github.com/google-research/bert)] · [[🤗 Model](https://huggingface.co/google-bert)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) ]
+- **Cosmos Policy**, *Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning*, 2026.02, NIPS 2017. [[📄 Paper](https://arxiv.org/abs/1706.03762)] · [[💻 Code](https://github.com/google-research/bert)] · [[🤗 Model](https://huggingface.co/google-bert)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Cosmos%20Policy/index.html) ]
 
 ### Entry Format
 
