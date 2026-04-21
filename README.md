@@ -1,10 +1,8 @@
 <div align="center">
 
-# WAM-survey
+# World Action Models for Generalist Robotics: From Next Token Prediction to Next State Synthesis
 
-[![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2509.07996) [![WebPage](https://img.shields.io/badge/Website-Link-blue)](https://dreamzero0.github.io)
-
-[[Project Page](https://dreamzero0.github.io/)] [[Paper](https://arxiv.org/abs/2602.15922)]
+[![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2509.07996) [![ProjectPage](https://img.shields.io/badge/Website-Link-blue)](https://dreamzero0.github.io)
 
 </div>
 
@@ -17,9 +15,14 @@
 ## Contents
 
 - [Roadmap](#roadmap)
-- [Survey Branches](#survey-branches)
-- [Update Notes](#update-notes)
-- [Repository Pointers](#repository-pointers)
+- [World Action Models for Generalist Robotics](#world-action-models-for-generalist-robotics)
+  - [Background](#background)
+  - [World Model](#world-model)
+  - [World Action Model](#world-action-model)
+    - [Cascaded World-Action-Model](#cascaded-world-action-model)
+    - [Joint World-Action-Model](#joint-world-action-model)
+  - [Training Data](#training-data)
+  - [Evaluation](#evaluation)
 
 ## Roadmap
 
@@ -31,13 +34,14 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 示例：如果路线图中有 `[Branch A] -> [Branch B] -> [Branch C]`，那么下方就按相同层级组织对应论文与报告。
 
-## Survey Branches
-
+## World Action Models for Generalist Robotics
 下面的每个分支都应对应 roadmap 中的一个节点。建议每个分支只保留一段简短说明和一个紧凑表格，方便后续持续补充。
+### Background
+### World Model
+### World Action Model
+#### Cascaded World-Action-Model
 
-### Cascaded World-Action-Model
-
-### Joint World-Action-Model
+#### Joint World-Action-Model
 
 ***
 #### PAD - *Prediction with Action: Visual Policy Learning via Joint Denoising Process* - [![arXiv](https://img.shields.io/badge/arXiv-2411.18179-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2411.18179)
@@ -142,7 +146,8 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PhysGen/index.html) ]
 ***
-***
+### Training Data
+### Evaluation
 
 
 
