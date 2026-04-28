@@ -41,11 +41,203 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 ## World Model
 ### Action-conditioned
+
+***
+#### Physical Interaction - *Unsupervised Learning for Physical Interaction through Video Prediction* - [![arXiv](https://img.shields.io/badge/arXiv-1605.07157-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1605.07157)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Pixel-level Prediction
+
+[[🌍 Webpage](https://research.google/pubs/unsupervised-learning-for-physical-interaction-through-video-prediction/)]
+***
+#### MCNet - *Decomposing Motion and Content for Natural Video Sequence Prediction* - [![arXiv](https://img.shields.io/badge/arXiv-1706.08033-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1706.08033)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Pixel-level Prediction
+
+[[🌍 Webpage](https://research.google/pubs/pub45930)]
+***
+#### ContextVP - *ContextVP: Fully Context-Aware Video Prediction* - [![arXiv](https://img.shields.io/badge/arXiv-1710.08518-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1710.08518)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Pixel-level Prediction
+
+[[🌍 Webpage](https://wonmin-byeon.github.io/publication/2018-contextvp)]
+***
+#### VideoGPT - *VideoGPT: Video Generation using VQ-VAE and Transformers* - [![arXiv](https://img.shields.io/badge/arXiv-2104.10157-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2104.10157)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Autoregressive Video WMs
+
+[[🌍 Webpage](https://wilson1yan.github.io/videogpt/index.html)] · [[💻 Code](https://github.com/wilson1yan/VideoGPT)]
+***
+#### iVideoGPT - *iVideoGPT: Interactive VideoGPTs are Scalable World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2405.15223-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2405.15223)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Autoregressive Video WMs
+
+[[🌍 Webpage](https://thuml.github.io/iVideoGPT/)] · [[💻 Code](https://github.com/thuml/iVideoGPT)] · [[🤗 Model](https://huggingface.co/thuml/ivideogpt-oxe-64-act-free)]
+***
+#### Genie - *Genie: Generative Interactive Environments* - [![arXiv](https://img.shields.io/badge/arXiv-2402.15391-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2402.15391)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Autoregressive Video WMs
+
+[[🌍 Webpage](https://deepmind.google/research/publications/genie-generative-interactive-environments/)]
+***
+#### DWM - *Diffusion World Model: Future Modeling Beyond Step-by-Step Rollout for Offline Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2402.03570-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2402.03570)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
+
+***
+#### Unified World Models - *Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets* - [![arXiv](https://img.shields.io/badge/arXiv-2504.02792-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2504.02792)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
+
+[[🌍 Webpage](https://weirdlabuw.github.io/uwm/)] · [[💻 Code](https://github.com/WEIRDLabUW/unified-world-model)]
+***
+#### FlowDreamer - *FlowDreamer: A RGB-D World Model with Flow-based Motion Representations for Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2505.10075-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2505.10075)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
+
+[[🌍 Webpage](https://sharinka0715.github.io/FlowDreamer/)] · [[💻 Code](https://github.com/sharinka0715/FlowDreamer)]
+***
+#### GPC - *Inference-Time Enhancement of Generative Robot Policies via Predictive World Modeling* - [![arXiv](https://img.shields.io/badge/arXiv-2502.00622-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2502.00622)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
+
+[[🌍 Webpage](https://computationalrobotics.seas.harvard.edu/GPC/)]
+***
+#### EnerVerse - *EnerVerse: Envisioning Embodied Future Space for Robotics Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2501.01895-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2501.01895)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
+
+[[🌍 Webpage](https://sites.google.com/view/enerverse)]
+***
+#### Cosmos-Transfer1 - *Cosmos-Transfer1: Conditional World Generation with Adaptive Multimodal Control* - [![arXiv](https://img.shields.io/badge/arXiv-2503.14492-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2503.14492)
+
+**Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
+
+[[🌍 Webpage](https://research.nvidia.com/labs/cosmos-lab/cosmos-transfer1/)] · [[💻 Code](https://github.com/nvidia-cosmos/cosmos-transfer1)] · [[🤗 Model](https://huggingface.co/nvidia/Cosmos-Transfer1-7B)]
+***
+#### World Models - *World Models* - [![arXiv](https://img.shields.io/badge/arXiv-1803.10122-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1803.10122)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://worldmodels.github.io/)] · [[💻 Code](https://github.com/hardmaru/WorldModelsExperiments)]
+***
+#### Recurrent World Models - *Recurrent World Models Facilitate Policy Evolution* - [![arXiv](https://img.shields.io/badge/arXiv-1809.01999-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1809.01999)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://research.google/pubs/recurrent-world-models-facilitate-policy-evolution/)]
+***
+#### PlaNet - *Learning Latent Dynamics for Planning from Pixels* - [![arXiv](https://img.shields.io/badge/arXiv-1811.04551-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1811.04551)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://danijar.com/project/planet/)] · [[💻 Code](https://github.com/google-research/planet)]
+***
+#### Dreamer - *Dream to Control: Learning Behaviors by Latent Imagination* - [![arXiv](https://img.shields.io/badge/arXiv-1912.01603-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1912.01603)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://danijar.com/project/dreamer/)]
+***
+#### DreamerV2 - *Mastering Atari with Discrete World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2010.02193-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2010.02193)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://danijar.com/project/dreamerv2/)]
+***
+#### Dreamer4 - *Training Agents Inside of Scalable World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24527-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24527)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://danijar.com/project/dreamer4/)]
+***
+#### DreamerV3 - *Mastering Diverse Domains through World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2301.04104-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2301.04104)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://danijar.com/dreamerv3/)] · [[💻 Code](https://github.com/danijar/dreamerv3)]
+***
+#### DayDreamer - *DayDreamer: World Models for Physical Robot Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2206.14176-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2206.14176)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
+
+[[🌍 Webpage](https://danijar.com/project/daydreamer/)] · [[💻 Code](https://github.com/danijar/daydreamer)]
+***
+#### TransDreamer - *TransDreamer: Reinforcement Learning with Transformer World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2202.09481-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2202.09481)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - TSSM
+
+[[💻 Code](https://github.com/changchencc/TransDreamer)]
+***
+#### IRIS - *Transformers are Sample-Efficient World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2209.00588-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2209.00588)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - TSSM
+
+[[💻 Code](https://github.com/eloialonso/iris)]
+***
+#### TWM - *Transformer-based World Models Are Happy With 100k Interactions* - [![arXiv](https://img.shields.io/badge/arXiv-2303.07109-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2303.07109)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - TSSM
+
+[[💻 Code](https://github.com/jrobine/twm)]
+***
+#### STORM - *STORM: Efficient Stochastic Transformer based World Models for Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2310.09615-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2310.09615)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - TSSM
+
+[[💻 Code](https://github.com/weipu-zhang/STORM)]
+***
+#### V-JEPA-2 - *V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning* - [![arXiv](https://img.shields.io/badge/arXiv-2506.09985-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.09985)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+[[💻 Code](https://github.com/facebookresearch/vjepa2)] · [[🤗 Model](https://huggingface.co/facebook/vjepa2-vitl-fpc64-256)]
+***
+#### JEPA - *Introduction to latent variable energy-based models: a path toward autonomous machine intelligence* - [![arXiv](https://img.shields.io/badge/arXiv-2306.02572-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2306.02572)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+***
+#### V-JEPA - *Revisiting Feature Prediction for Learning Visual Representations from Video* - [![arXiv](https://img.shields.io/badge/arXiv-2404.08471-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2404.08471)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+[[💻 Code](https://github.com/facebookresearch/jepa)]
+***
+#### Rethinking JEPA - *Rethinking JEPA: Compute-Efficient Video SSL with Frozen Teachers* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24317-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24317)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+[[🌍 Webpage](https://machinelearning.apple.com/research/rethinking-jepa)]
+***
+#### V-JEPA-2.1 - *V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2603.14482-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.14482)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+[[💻 Code](https://github.com/facebookresearch/vjepa2)]
+***
+#### Drive-JEPA - *Drive-JEPA: Video JEPA Meets Multimodal Trajectory Distillation for End-to-End Driving* - [![arXiv](https://img.shields.io/badge/arXiv-2601.22032-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2601.22032)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+[[💻 Code](https://github.com/linhanwang/Drive-JEPA)]
+***
+#### JEPA-VLA - *JEPA-VLA: Video Predictive Embedding is Needed for VLA Models* - [![arXiv](https://img.shields.io/badge/arXiv-2602.11832-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.11832)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+***
+#### VLA-JEPA - *VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.10098-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.10098)
+
+**Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
+
+[[🌍 Webpage](https://ginwind.github.io/VLA-JEPA/)] · [[💻 Code](https://github.com/ginwind/VLA-JEPA)] · [[🤗 Model](https://huggingface.co/ginwind/VLA-JEPA)]
+***
 ### Language-conditioned and Multimodal
 ### Embodied World Model
 
 ## World Action Model
 ### Cascaded World-Action-Model
+
 ***
 #### UniPi - *Learning Universal Policies via Text-Guided Video Generation* - [![arXiv](https://img.shields.io/badge/arXiv-2302.00111-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2302.00111)
 
@@ -117,7 +309,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Cascaded - Explicit Visual Planning via Pixel-Space Representations - Geometric Action Extraction
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/3DFlowAction/index.html) ]
+[[💻 Code](https://github.com/Hoyyyaard/3DFlowAction/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/3DFlowAction/index.html) ]
 ***
 #### NovaFlow - *NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2510.08568-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.08568)
 
@@ -190,14 +382,12 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 **Tags:** Cascaded - Implicit Planning via Latent Representations
 
 [[🌍 Webpage](https://microsoft.github.io/villa-x/)] · [[💻 Code](https://github.com/microsoft/villa-x)] · [[🤗 Model](https://huggingface.co/microsoft/villa-x)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/villa-X/index.html) ]
-
-
-
-
+***
 
 
 
 ### Joint World-Action-Model
+
 ***
 #### GR-1 - *Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2312.13139-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2312.13139)
 
@@ -252,7 +442,6 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 **Tags:** Discrete Tokenization - Parallel Decoding
 
 [[🌍 Webpage](https://aopolin-lv.github.io/F1-VLA/)] · [[💻 Code](https://github.com/InternRobotics/F1-VLA)] · [[🤗 Model](https://huggingface.co/InternRobotics/F1-VLA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/F1/index.html) ]
-
 ***
 #### PAD - *Prediction with Action: Visual Policy Learning via Joint Denoising Process* - [![arXiv](https://img.shields.io/badge/arXiv-2411.18179-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2411.18179)
 
@@ -300,7 +489,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Continuous Diffusion Structure - Multi DiT - Cross-Attention Coupled Branches
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CoVAR/index.html) ]
+[[🌍 Webpage](https://mcml.ai/publications/ybe%2B26/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CoVAR/index.html) ]
 ***
 #### LDA-1B - *LDA-1B: Scaling Latent Dynamics Action Model via Universal Embodied Data Ingestion* - [![arXiv](https://img.shields.io/badge/arXiv-2602.12215-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.12215)
 
@@ -312,7 +501,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Continuous Diffusion Structure - Multi DiT - Cross-Attention Coupled Branches
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DUST/index.html) ]
+[[🌍 Webpage](https://openreview.net/forum?id=mK1SdO7j3t)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DUST/index.html) ]
 ***
 #### LingBot-VA - *Causal World Modeling for Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2601.21998-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2601.21998)
 
