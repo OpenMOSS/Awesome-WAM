@@ -47,13 +47,11 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Pixel-level Prediction
 
-[[🌍 Webpage](https://research.google/pubs/unsupervised-learning-for-physical-interaction-through-video-prediction/)]
 ***
 #### MCNet - *Decomposing Motion and Content for Natural Video Sequence Prediction* - [![arXiv](https://img.shields.io/badge/arXiv-1706.08033-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1706.08033)
 
 **Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Pixel-level Prediction
 
-[[🌍 Webpage](https://research.google/pubs/pub45930)]
 ***
 #### ContextVP - *ContextVP: Fully Context-Aware Video Prediction* - [![arXiv](https://img.shields.io/badge/arXiv-1710.08518-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1710.08518)
 
@@ -77,7 +75,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Autoregressive Video WMs
 
-[[🌍 Webpage](https://deepmind.google/research/publications/genie-generative-interactive-environments/)]
+[[🌍 Webpage](https://sites.google.com/view/genie-2024/)]
 ***
 #### DWM - *Diffusion World Model: Future Modeling Beyond Step-by-Step Rollout for Offline Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2402.03570-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2402.03570)
 
@@ -100,7 +98,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Action-conditioned - Explicit Pixel-level Prediction and Video-based WMs - Diffusion-based Video WMs
 
-[[🌍 Webpage](https://computationalrobotics.seas.harvard.edu/GPC/)]
+[[🌍 Webpage](https://computationalrobotics.seas.harvard.edu/GPC/)] · [[💻 Code](https://github.com/han20192019/gpc_code)] · [[🤗 Model](https://huggingface.co/han2019/gpc_checkpoints)]
 ***
 #### EnerVerse - *EnerVerse: Envisioning Embodied Future Space for Robotics Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2501.01895-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2501.01895)
 
@@ -124,7 +122,6 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
 
-[[🌍 Webpage](https://research.google/pubs/recurrent-world-models-facilitate-policy-evolution/)]
 ***
 #### PlaNet - *Learning Latent Dynamics for Planning from Pixels* - [![arXiv](https://img.shields.io/badge/arXiv-1811.04551-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1811.04551)
 
@@ -136,13 +133,13 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
 
-[[🌍 Webpage](https://danijar.com/project/dreamer/)]
+[[🌍 Webpage](https://danijar.com/project/dreamer/)] · [[💻 Code](https://github.com/google-research/dreamer)]
 ***
 #### DreamerV2 - *Mastering Atari with Discrete World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2010.02193-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2010.02193)
 
 **Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - RSSM
 
-[[🌍 Webpage](https://danijar.com/project/dreamerv2/)]
+[[🌍 Webpage](https://danijar.com/project/dreamerv2/)] · [[💻 Code](https://github.com/danijar/dreamerv2)]
 ***
 #### Dreamer4 - *Training Agents Inside of Scalable World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24527-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24527)
 
@@ -207,7 +204,6 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
 
-[[🌍 Webpage](https://machinelearning.apple.com/research/rethinking-jepa)]
 ***
 #### V-JEPA-2.1 - *V-JEPA 2.1: Unlocking Dense Features in Video Self-Supervised Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2603.14482-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.14482)
 
@@ -231,9 +227,18 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 **Tags:** Action-conditioned - Implicit Latent-space Dynamics Models - Predictive Representation Learning
 
 [[🌍 Webpage](https://ginwind.github.io/VLA-JEPA/)] · [[💻 Code](https://github.com/ginwind/VLA-JEPA)] · [[🤗 Model](https://huggingface.co/ginwind/VLA-JEPA)]
-***
+
 ### Language-conditioned and Multimodal
+
 ### Embodied World Model
+
+
+
+
+
+
+
+
 
 ## World Action Model
 ### Cascaded World-Action-Model
