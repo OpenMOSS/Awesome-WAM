@@ -828,64 +828,65 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 
 ### Training Data
+
 ***
-#### QT-Opt - *QT-Opt: Scalable Deep Reinforcement Learning for Vision-Based Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-1806.10293-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/1806.10293)
+#### QT-Opt - *QT-Opt: Scalable Deep Reinforcement Learning for Vision-Based Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-1806.10293-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1806.10293)
 
 **Tags:** Robot-centric
 
 Dataset: Not publicly available
 ***
-#### MIME - *Multiple Interactions Made Easy (MIME): Large Scale Demonstrations Data for Imitation* - [![arXiv](https://img.shields.io/badge/arXiv-1810.07121-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/1810.07121)
+#### MIME - *Multiple Interactions Made Easy (MIME): Large Scale Demonstrations Data for Imitation* - [![arXiv](https://img.shields.io/badge/arXiv-1810.07121-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1810.07121)
 
 **Tags:** Robot-centric
 
 Dataset: No stable official public download found
 ***
-#### RoboNet - *RoboNet: Large-Scale Multi-Robot Learning* - [![arXiv](https://img.shields.io/badge/arXiv-1910.11215-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/1910.11215)
+#### RoboNet - *RoboNet: Large-Scale Multi-Robot Learning* - [![arXiv](https://img.shields.io/badge/arXiv-1910.11215-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1910.11215)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://www.robonet.wiki/)]
 ***
-#### RoboTurk - *Scaling Robot Supervision to Hundreds of Hours with RoboTurk: Robotic Manipulation Dataset through Human Reasoning and Dexterity* - [![arXiv](https://img.shields.io/badge/arXiv-1911.04052-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/1911.04052)
+#### RoboTurk - *Scaling Robot Supervision to Hundreds of Hours with RoboTurk: Robotic Manipulation Dataset through Human Reasoning and Dexterity* - [![arXiv](https://img.shields.io/badge/arXiv-1911.04052-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1911.04052)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://roboturk.stanford.edu/realrobotdataset.html)] · [[🌍 Webpage](https://roboturk.stanford.edu/)]
 ***
-#### Bridge - *Bridge Data: Boosting Generalization of Robotic Skills with Cross-Domain Datasets* - [![arXiv](https://img.shields.io/badge/arXiv-2109.13396-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2109.13396)
+#### Bridge - *Bridge Data: Boosting Generalization of Robotic Skills with Cross-Domain Datasets* - [![arXiv](https://img.shields.io/badge/arXiv-2109.13396-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2109.13396)
 
 **Tags:** Robot-centric
 
 Dataset: Not publicly available
 [[🌍 Webpage](https://bair.berkeley.edu/blog/2021/11/18/bridge-data/)]
 ***
-#### MT-Opt - *MT-Opt: Continuous Multi-Task Robotic Reinforcement Learning at Scale* - [![arXiv](https://img.shields.io/badge/arXiv-2104.08212-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2104.08212)
+#### MT-Opt - *MT-Opt: Continuous Multi-Task Robotic Reinforcement Learning at Scale* - [![arXiv](https://img.shields.io/badge/arXiv-2104.08212-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2104.08212)
 
 **Tags:** Robot-centric
 
 Dataset: Not publicly available
 [[🌍 Webpage](https://mt-opt.github.io/)]
 ***
-#### BC-Z - *BC-Z: Zero-Shot Task Generalization with Robotic Imitation Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2202.02005-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2202.02005)
+#### BC-Z - *BC-Z: Zero-Shot Task Generalization with Robotic Imitation Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2202.02005-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2202.02005)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://www.kaggle.com/datasets/google/bc-z-robot)] · [[🌍 Webpage](https://sites.google.com/view/bc-z/home)]
 ***
-#### RT-1 - *RT-1: Robotics Transformer for Real-World Control at Scale* - [![arXiv](https://img.shields.io/badge/arXiv-2212.06817-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2212.06817)
+#### RT-1 - *RT-1: Robotics Transformer for Real-World Control at Scale* - [![arXiv](https://img.shields.io/badge/arXiv-2212.06817-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2212.06817)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://console.cloud.google.com/storage/browser/gresearch/rt-1-data-release)] · [[🌍 Webpage](https://robotics-transformer1.github.io/)]
 ***
-#### Language-Table - *Interactive Language: Talking to Robots in Real Time* - [![arXiv](https://img.shields.io/badge/arXiv-2210.06407-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2210.06407)
+#### Language-Table - *Interactive Language: Talking to Robots in Real Time* - [![arXiv](https://img.shields.io/badge/arXiv-2210.06407-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2210.06407)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://github.com/google-research/language-table)] · [[🌍 Webpage](https://interactive-language.github.io/)]
 ***
-#### BridgeData_V2 - *BridgeData V2: A Dataset for Robot Learning at Scale* - [![arXiv](https://img.shields.io/badge/arXiv-2308.12952-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2308.12952)
+#### BridgeData_V2 - *BridgeData V2: A Dataset for Robot Learning at Scale* - [![arXiv](https://img.shields.io/badge/arXiv-2308.12952-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2308.12952)
 
 **Tags:** Robot-centric
 
@@ -897,31 +898,31 @@ Dataset: Not publicly available
 
 [[📦 Dataset](https://github.com/clvrai/clvr_jaco_play_dataset)]
 ***
-#### Cable-Routing-Dataset - *Multi-Stage Cable Routing through Hierarchical Imitation Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2307.08927-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2307.08927)
+#### Cable-Routing-Dataset - *Multi-Stage Cable Routing through Hierarchical Imitation Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2307.08927-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2307.08927)
 
 **Tags:** Robot-centric
 
 Dataset: Not publicly available
 ***
-#### RH20T - *RH20T: A Comprehensive Robotic Dataset for Learning Diverse Skills in One-Shot* - [![arXiv](https://img.shields.io/badge/arXiv-2307.00595-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2307.00595)
+#### RH20T - *RH20T: A Comprehensive Robotic Dataset for Learning Diverse Skills in One-Shot* - [![arXiv](https://img.shields.io/badge/arXiv-2307.00595-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2307.00595)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://rh20t.github.io/)]
 ***
-#### OXE - *Open X-Embodiment: Robotic Learning Datasets and RT-X Models* - [![arXiv](https://img.shields.io/badge/arXiv-2310.08864-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2310.08864)
+#### OXE - *Open X-Embodiment: Robotic Learning Datasets and RT-X Models* - [![arXiv](https://img.shields.io/badge/arXiv-2310.08864-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2310.08864)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://github.com/google-deepmind/open_x_embodiment)] · [[🌍 Webpage](https://robotics-transformer-x.github.io/)]
 ***
-#### DROID - *DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset* - [![arXiv](https://img.shields.io/badge/arXiv-2403.12945-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2403.12945)
+#### DROID - *DROID: A Large-Scale In-The-Wild Robot Manipulation Dataset* - [![arXiv](https://img.shields.io/badge/arXiv-2403.12945-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2403.12945)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://droid-dataset.github.io/)]
 ***
-#### RH20T-P - *RH20T-P: A Primitive-Level Robotic Dataset Towards Composable Generalization Agents* - [![arXiv](https://img.shields.io/badge/arXiv-2403.19622-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2403.19622)
+#### RH20T-P - *RH20T-P: A Primitive-Level Robotic Dataset Towards Composable Generalization Agents* - [![arXiv](https://img.shields.io/badge/arXiv-2403.19622-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2403.19622)
 
 **Tags:** Robot-centric
 
@@ -933,43 +934,43 @@ Dataset: Not publicly available
 
 [[📦 Dataset](https://huggingface.co/datasets/x-humanoid-robomind/RoboMIND)] · [[🌍 Webpage](https://x-humanoid-robomind.github.io/)]
 ***
-#### ARIO - *All Robots in One: A New Standard and Unified Dataset for Versatile, General-Purpose Embodied Agents* - [![arXiv](https://img.shields.io/badge/arXiv-2408.10899-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2408.10899)
+#### ARIO - *All Robots in One: A New Standard and Unified Dataset for Versatile, General-Purpose Embodied Agents* - [![arXiv](https://img.shields.io/badge/arXiv-2408.10899-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2408.10899)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://ario-dataset.github.io/)] · [[🌍 Webpage](https://imaei.github.io/project_pages/ario/)]
 ***
-#### RoboData - *RoboTron-Mani: All-in-One Multimodal Large Model for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2412.07215-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2412.07215)
+#### RoboData - *RoboTron-Mani: All-in-One Multimodal Large Model for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2412.07215-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2412.07215)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://huggingface.co/datasets/liufanfanlff/RoboData)] · [[💻 Code](https://github.com/RoboUniview/RoboMM)]
 ***
-#### DexCap - *DexCap: Scalable and Portable Mocap Data Collection System for Dexterous Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2403.07788-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2403.07788)
+#### DexCap - *DexCap: Scalable and Portable Mocap Data Collection System for Dexterous Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2403.07788-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2403.07788)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://dex-cap.github.io/)] · [[🌍 Webpage](https://dex-cap.github.io/)]
 ***
-#### FuSe - *Beyond Sight: Finetuning Generalist Robot Policies with Heterogeneous Sensors via Language Grounding* - [![arXiv](https://img.shields.io/badge/arXiv-2501.04693-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2501.04693)
+#### FuSe - *Beyond Sight: Finetuning Generalist Robot Policies with Heterogeneous Sensors via Language Grounding* - [![arXiv](https://img.shields.io/badge/arXiv-2501.04693-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2501.04693)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://huggingface.co/datasets/oier-mees/FuSe)] · [[🌍 Webpage](https://fuse-model.github.io/)]
 ***
-#### AgiBot_World_Colosseo - *AgiBot World Colosseo: A Large-scale Manipulation Platform for Scalable and Intelligent Embodied Systems* - [![arXiv](https://img.shields.io/badge/arXiv-2503.06669-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2503.06669)
+#### AgiBot_World_Colosseo - *AgiBot World Colosseo: A Large-scale Manipulation Platform for Scalable and Intelligent Embodied Systems* - [![arXiv](https://img.shields.io/badge/arXiv-2503.06669-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2503.06669)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://huggingface.co/datasets/agibot-world/AgiBotWorld-Alpha)] · [[🌍 Webpage](https://agibot-world.com/)]
 ***
-#### REASSEMBLE - *REASSEMBLE: A Multimodal Dataset for Contact-rich Robotic Assembly and Disassembly* - [![arXiv](https://img.shields.io/badge/arXiv-2502.05086-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2502.05086)
+#### REASSEMBLE - *REASSEMBLE: A Multimodal Dataset for Contact-rich Robotic Assembly and Disassembly* - [![arXiv](https://img.shields.io/badge/arXiv-2502.05086-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2502.05086)
 
 **Tags:** Robot-centric
 
 [[📦 Dataset](https://researchdata.tuwien.ac.at/records/0ewrv-8cb44)] · [[🌍 Webpage](https://tuwien-asl.github.io/REASSEMBLE_page/)]
 ***
-#### OmniAction - *RoboOmni: Proactive Robot Manipulation in Omni-modal Context* - [![arXiv](https://img.shields.io/badge/arXiv-2510.23763-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2510.23763)
+#### OmniAction - *RoboOmni: Proactive Robot Manipulation in Omni-modal Context* - [![arXiv](https://img.shields.io/badge/arXiv-2510.23763-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.23763)
 
 **Tags:** Robot-centric
 
@@ -981,6 +982,7 @@ Dataset: Not publicly available
 
 [[📦 Dataset](https://huggingface.co/collections/unitreerobotics/unifolm-wbt-dataset)]
 ***
+
 
 
 
