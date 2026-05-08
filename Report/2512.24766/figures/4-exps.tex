@@ -1,0 +1,158 @@
+\section{Experiments}
+We seek to answer the following research questions through our experiments:
+$\mathbf{\mathcal{Q}1}$: What are properties of 3D object flow when used as an interface to bridge videos and robot control? 
+$\mathbf{\mathcal{Q}2}$: How does \algo perform compared to alternative interfaces?
+$\mathbf{\mathcal{Q}3}$: How effective is \flow as a reward for learning sensimotor policies?
+$\mathbf{\mathcal{Q}4}$: How does the choice of video model affect \algo in simulation and in real-world tasks?
+$\mathbf{\mathcal{Q}5}$: How does the choice of dynamics model affect the performance of \algo?
+
+\subsection{Tasks}
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{figs/tasks.pdf}
+    \caption{\textbf{Evaluation Tasks.} (a) The initial states of each task used in the evaluation trials. (b) For one of the initial states, the corresponding final state after the robot performs the task. For Push-T only, the desired final state is the same for all initial states.}
+    \label{fig:tasks}
+\end{figure}
+
+For evaluation, we consider several tasks involving different types of objects and manipulation strategies (Fig.~\ref{fig:tasks}).
+
+\subsubsection{Push-T} 
+We develop a simulated Push-T task in OmniGibson~\cite{li2024behavior1k}, where a T-shaped block is placed with a random position and yaw angle on the wooden platform. It is a success if the T-block ends up within 2cm translation and 15 degrees rotation from the goal position, where the T-shaped block is in the center of the board facing forwards.
+
+\subsubsection{Put Bread in Bowl}
+The Put Bread in Bowl task consists of a fake piece of bread and a green bowl placed randomly on the workspace. A trial is a success if the bread is inside the bowl at the end.
+
+\subsubsection{Open Oven}
+In the Open Oven task, the toaster oven is randomly placed in a semi-circular arc with the orientation towards the base of the robot. A trial is considered a success if the opening angle is at least 60 degrees.
+
+\subsubsection{Cover Bowl}
+The Cover Bowl task starts with a folded scarf placed at a random position and orientation on the workspace, with a blue bowl placed next to it. The trial is a success if the scarf is covering at least 25\% of the top of the bowl after the robot finishes execution.
+
+\subsubsection{Open Door}
+In the Open Door task from Robosuite~\cite{robosuite2020}, a door is placed at random positions and orientations on top of a table. Rotating the handle and pulling the door open by at least $17^\circ$ without timing out is a success.
+
+\subsection{Properties of 3D Object Flow
+as a Video-Control Interface}
+
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/generalization.pdf}
+    \caption{\textbf{Robustness evaluations.} Relative performance across instance, background, and task variations, showing \algo remains robust under various different settings.}
+    \label{fig:generalization}
+\end{figure}
+
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=\linewidth]{figs/same_scene_multi_task.pdf}
+    \caption{\textbf{Multiple tasks in the same scene.} With different language goals, \algo adapts object-flow targets to produce distinct behaviors in the same environment.}
+    \label{fig:same_scene_multi_task}
+    \vspace{-0.5em}
+\end{figure}
+
+We run \algo on the simulated Push-T task with Wan2.1~\cite{wan2025} as the video generation model. For this task only, we allow prompting with a goal image of the T-block in the center, similar to the example final state in Fig.~\ref{fig:tasks}, as this task requires accurate movement. We consider 10 different initial states with the same final state. We then proceed to run 10 trials for each initial configuration on different seeds to properly evaluate performance due to the stochastic nature of random shooting, yielding 100 total trials. The result appears in Table~\ref{tab:push_t_ablation}. We note that in this task, 6 generated videos included substantial morphing of the T-block, which consequently ruined the tracking and downstream execution. 
+
+We evaluate \algo's ability to perform manipulation with different types of objects with Veo 3~\cite{Veo3TechReport2025} as the video generation model in the real world for 10 trials per task, and report the results in Table~\ref{tab:real_results}. 
+
+To assess \algo's generalization to different object instances, backgrounds, and viewing angles, we conduct an additional five trials each for six different scenarios, as shown in Fig.~\ref{fig:generalization}. Compared to the reference setting, with exception of putting a large piece of bread, there is not a significant drop off in performance, suggesting that \algo inherits some generalization through the use of video generation models. We additionally show that \algo can perform different tasks from the same scene in Fig.~\ref{fig:same_scene_multi_task} due to the ability of video generation models to follow different task instructions given the same input image. We have additional case studies demonstrating that 3D object flow can be used for downstream manipulation in in-the-wild settings for tasks such as pulling a chair, opening a drawer, sweeping pasta, and recycling a can, as shown in Fig.~\ref{fig:pull_fig} and Appendix~\ref{sec:in_the_wild_desc}.
+
+For all 60 trials of \algo executed in the real world, we provide a breakdown of failures in Fig.~\ref{fig:failures}. In the 12 video generation failures, for half the time, the generated video either morphs an object in an implausible way or hallucinates new objects, causing tracking to unreasonably fail or making the robot move an object to an incorrect 3D location. The four flow extraction failures occurred because of severe rotations or objects temporarily going out of view of the camera, leading to tracks with no visibility in the end. The four robot execution failures occurred in the Bowl Covering task, where the robot either did not grasp at the correct point or did not move enough.
+
+\subsection{How does Dream2Flow perform compared to alternative
+interfaces?}
+For the three tasks in the real world, we consider the following alternative interfaces related to extracting object trajectories from videos:
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|ccc}
+    \toprule
+    Task & AVDC & RIGVID & \algo \\
+    \midrule
+    Bread in Bowl & 7/10 & 6/10 & \textbf{8/10}\\
+    Open Oven & 0/10 & 6/10 & \textbf{8/10} \\
+    Cover Bowl & 2/10 & 1/10 & \textbf{3/10} \\
+    \bottomrule
+    \end{tabular}
+\caption{\textbf{Comparisons of intermediate representations on real robot.} Dream2Flow outperforms AVDC and RIGVID across three tasks by following 3D object flow rather than rigid transforms alone.}
+\label{tab:real_results}
+\vspace{-0.3cm}
+\end{table}
+
+\subsubsection{AVDC} AVDC~\cite{ko2023learning} leverages generated videos by computing dense optical flow between frames to track points on a rigid object. Then, using the initial depth and the point correspondences, it solves for a sequence of rigid transforms of the relevant object, allowing for trajectory playback after a grasp has occurred. In our implementation, we utilize the video depth corresponding to the tracks from the optical flow, and optimize for rigid transforms relative to the initial frame, as we empirically found that to be less noisy than the original optimization procedure. 
+
+\subsubsection{RIGVID} 
+RIGVID~\cite{patel2025rigvid} uses 6D object pose tracking to generate a rigid object trajectory from a generated video. Since it is ill-defined to have such a pose for deformable objects, we do not use a 6D pose tracker, but instead adapt their approach by solving for a rigid pose transformation between the initial 3D points and visible 3D points from our 3D Object Flow computation in the same manner as AVDC. 
+
+We present the results in Table~\ref{tab:real_results}. While AVDC does a reasonable job at tracking the bread, the dense optical flow does not keep up with the motion of the oven, resulting in insufficient motion. Under certain circumstances, there are only a few visible points for RIGVID and AVDC, making transform estimation noisy. Attempting to follow the noisy transform trajectories leads to execution failures or optimization instability. \algo is less affected by this issue, because there is typically not a heavy cost when most of the points are occluded, allowing the planned end-effector poses to smoothly move between areas of high point visibility. The Cover Bowl task remains a challenge for AVDC and RIGVID, as in addition to video generation and tracking failures, the transform estimates are incorrect since the points are now on a deformable object.
+
+\subsection{How effective is 3D
+object flow as a reward for learning sensimotor policies?}
+The 3D object flow extracted by \algo can be used in an RL reward for training policies across different embodiments. We evaluate SAC~\cite{haarnojaSAC2018} policies trained using handcrafted object state reward from Robosuite and 3D object flow rewards on a Franka Panda, a Spot with floating base, and a GR1 with the right arm only across 100 random door positions, and report the results in Table~\ref{tab:rl_results} with corresponding episode visualizations in Figure~\ref{fig:rl_rollout_vis}. The policies trained with the object state and 3D object flow reward have comparable performance across all the embodiments. The learned strategies are different between the embodiments, as the Spot is able to move its base for better reachability and kinematic range, and the GR1 uses the area between the fingers and palm for pulling the door as opposed to individual fingers for better stability.
+
+\begin{table}[!tbp]
+    \centering
+    \begin{tabular}{c|ccc}
+    \toprule
+    Reward Type & Franka & Spot & GR1 \\
+    \midrule
+    Object State & 99/100 & 99/100 & \textbf{96/100}\\
+    3D Object Flow & \textbf{100/100} & \textbf{100/100} & 94/100 \\
+    \bottomrule
+    \end{tabular}
+\caption{\textbf{Comparison of policies trained using different rewards.} The policies trained using the 3D object flow reward perform comparably to those trained with the object state reward across different embodiments.}
+\label{tab:rl_results}
+\end{table}
+
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{figs/diverse_embodiment_fig.pdf}
+    \caption{\textbf{Rollouts from policies trained using 3D object flow as a reward.} Different embodiments such as the (a) Panda, (b) Spot, or (c) GR1 use different strategies to open the door. The Spot is able move its base for better reachability while the GR1 uses the area between its fingers and palm to pull for better stability.}
+    \label{fig:rl_rollout_vis}
+    \vspace{-0.5em}
+\end{figure}
+
+\subsection{How does the choice of video model affect Dream2Flow in simulation and in real-world tasks?}
+\begin{table}[!thbp]
+    \centering
+    \begin{tabular}{c|cc}
+    \toprule
+    Video Generation Model & Push-T & Open Oven\\
+    \midrule
+    Wan2.1~\cite{wan2025} & \textbf{52/100} & 2/10\\
+    Kling 2.1 & 31/100 & 4/10\\
+    Veo 3~\cite{Veo3TechReport2025} &  - & \textbf{8/10} \\
+    \bottomrule
+    \end{tabular}
+\caption{\textbf{Effect of video generator.} Veo 3 excels on real-world domains such as ``Open Oven'', while Wan 2.1 performs better on simulated domains such as ``Push-T''.}
+\label{tab:vid_gen_comparison}
+\vspace{-0.3cm}
+\end{table}
+
+To evaluate how well different video generation models capture physically plausible object trajectories, we run \algo on the simulated Push-T task and the real Open Oven task using three models: Wan2.1~\cite{wan2025}, Kling 2.1, and Veo 3~\cite{Veo3TechReport2025}. The results are shown in Table~\ref{tab:vid_gen_comparison}. Note that there are no results for Veo 3 on Push-T because at the time of evaluation, Veo 3 did not support prompting with a goal image.
+
+For the Push-T task, Kling 2.1 had more videos that had substantial morphing, throwing off the tracking, resulting in more downstream failures. For the Open Oven task, Wan2.1 tends to produce more videos with substantial camera motion, which violates the still camera assumption. Additionally, both Kling 2.1 and Wan2.1 produce videos where the direction of articulation is incorrect, such as revolving around the wrong axis, leading to far more failures than Veo 3.
+
+\subsection{How does the choice of dynamics model affect the performance of Dream2Flow?}
+\begin{table}
+    \centering
+    \begin{tabular}{ccc}
+    \toprule
+    Dynamics Model Type & Success Rate\\
+    \midrule
+    Pose &  12/100\\
+    Heuristic & 17/100\\
+    Particle & \textbf{52/100}\\
+    \bottomrule
+    \end{tabular}
+\caption{\textbf{Dynamics model ablation.} Particle dynamics substantially outperform pose and heuristic models, highlighting the importance of per-point predictions.}
+\label{tab:push_t_ablation}
+\end{table}
+
+For the Push-T task, we compare the effect of different dynamics models used for planning. In addition to the particle-based dynamics model, we consider another learned dynamics model which takes in the block pose and push skill parameters and predicts the delta pose of the T-block, trained on the same data as the particle based dynamics model, as well as a heuristic dynamics model, which translates the points of the T-block in the direction and amount of the push without any rotation. We present the results in Table~\ref{tab:push_t_ablation}, and find that the particle representation for this dynamics model is crucial to ensure success, as despite having the same 3D object flow guidance, the pose and heuristic based dynamics models could not sufficiently account for the rotation needed.  
+
+\begin{figure}[!tbp]
+    \centering
+    \includegraphics[width=0.96\linewidth]{figs/failures.png}
+    \caption{\textbf{Failure breakdown on real-robot experiments.} Common causes include video artifacts (object morphing, object hallucination), tracking errors, and grasp selection mismatches.}
+    \label{fig:failures}
+    \vspace{-0.3cm}
+\end{figure}

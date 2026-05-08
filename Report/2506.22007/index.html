@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --paper: #ffffff;
+      --ink: #20242c;
+      --muted: #647184;
+      --line: #d8e0ea;
+      --accent: #1e6d8f;
+      --accent-2: #2d8765;
+      --soft: #edf6fb;
+      --soft-2: #edf8f3;
+      --warn: #fff5e5;
+      --code: #f3f5f8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.72;
+      font-size: 16px;
+    }
+    header {
+      background: linear-gradient(180deg, #eaf3f8 0%, #f7f8fb 100%);
+      border-bottom: 1px solid var(--line);
+      padding: 40px 24px 26px;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 26px 24px 72px; }
+    .hero { max-width: 1180px; margin: 0 auto; }
+    h1 { margin: 0 0 14px; font-size: 34px; line-height: 1.22; letter-spacing: 0; }
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    h3 { margin: 24px 0 10px; font-size: 19px; }
+    h4 { margin: 18px 0 8px; font-size: 16px; color: #2f3b4a; }
+    p { margin: 8px 0 12px; }
+    a { color: var(--accent); }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px 18px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tag {
+      display: inline-block;
+      margin: 0 8px 8px 0;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #3d4b5c;
+      font-size: 13px;
+    }
+    section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin: 18px 0;
+      box-shadow: 0 1px 2px rgba(20, 30, 45, 0.04);
+    }
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 8px 18px;
+      padding-left: 18px;
+      margin: 8px 0 0;
+    }
+    .toc li { margin: 2px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    th { background: #eef4f8; text-align: left; }
+    tr:nth-child(even) td { background: #fbfcfe; }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .good {
+      border-left: 4px solid var(--accent-2);
+      background: var(--soft-2);
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .warn {
+      border-left: 4px solid #d4932f;
+      background: var(--warn);
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    code {
+      background: var(--code);
+      border: 1px solid #e4e8ef;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    .formula {
+      overflow-x: auto;
+      background: #fbfcff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+    figure {
+      margin: 18px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+    figure img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 4px;
+    }
+    figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fcfdff;
+    }
+    ul, ol { padding-left: 22px; }
+    li { margin: 5px 0; }
+    .small { color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <h1>RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation</h1>
+      <div>
+        <span class="tag">arXiv:2506.22007</span>
+        <span class="tag">long-horizon video generation</span>
+        <span class="tag">robot manipulation</span>
+        <span class="tag">keyframe diffusion</span>
+        <span class="tag">policy from video</span>
+      </div>
+      <div class="meta">
+        <div><strong>作者：</strong>Liudi Yang, Yang Bai, George Eskandar, Fengyi Shen, Mohammad Altillawi, Dong Chen, Soumajit Majumder, Ziyuan Liu, Gitta Kutyniok, Abhinav Valada</div>
+        <div><strong>机构：</strong>University of Freiburg; LMU Munich; Technical University of Munich; Huawei Munich Research Center</div>
+        <div><strong>核心关键词：</strong>VLM task decomposition, OpenSora, 3D attention, semantics preserving attention, LHMM</div>
+        <div><strong>源码结构：</strong><code>root.tex</code> 为主文件；无正式 appendix；表格和图注分散在 <code>table/</code> 与 <code>figure/</code></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>目录</h2>
+      <ol class="toc">
+        <li><a href="#overview">论文速览</a></li>
+        <li><a href="#motivation">动机与问题定义</a></li>
+        <li><a href="#related">相关工作脉络</a></li>
+        <li><a href="#method">方法详解</a></li>
+        <li><a href="#experiments">实验与结果</a></li>
+        <li><a href="#repro">复现要点</a></li>
+        <li><a href="#analysis">分析、局限与边界</a></li>
+        <li><a href="#qa">组会问答准备</a></li>
+      </ol>
+    </section>
+
+    <section id="overview">
+      <h2>1. 论文速览</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 170px;">论文要解决什么</th>
+            <td>现有机器人视频扩散方法多生成短时段视频；要做长程任务时通常把短视频 autoregressive 串起来，导致视频中物体数量、形状、位置和任务语义逐步漂移，执行动作也会累积错误。论文要解决的是：给定一个高层长程指令和初始图像，如何一次性生成语义一致、对象稳定、可用于动作回归的长程机器人操作视频。</td>
+          </tr>
+          <tr>
+            <th>作者的方法抓手</th>
+            <td>RoboEnvision 把长程任务拆成“计划锚点 + 局部补帧 + 动作回归”：先用 GPT4-o1/DeepSeek/人工将高层指令分解为原子指令；keyframe diffusion 生成每个子任务结束状态的关键帧；filling diffusion 在相邻关键帧之间补齐短视频；最后用轻量 spatio-temporal Transformer policy model 从生成视频回归机器人关节和夹爪状态。</td>
+          </tr>
+          <tr>
+            <th>最重要的结果</th>
+            <td>在视频质量上，RoboEnvision 在 LHMM 数据集五项指标均最优：LPIPS 0.1282、SSIM 0.5820、PSNR 17.27、FVD 205.78、CLIP 23.99；在 LanguageTable 上除 CLIP 外四项最优。动作执行上，LHMM 45 个长程任务成功率达到 67.4%，明显高于 UniPi 23.5%、RDT1B 34.1%、Ours-Autoregressive 27.0%。</td>
+          </tr>
+          <tr>
+            <th>阅读时要注意的点</th>
+            <td>不要只看“长视频生成更好”这句话，要追问三个环节：VLM 分解是否可靠；keyframe diffusion 是否真的按每条子指令生成对应结束状态；policy model 的成功率提升来自长程视频分布、decoder 架构，还是 MuJoCo/LHMM 数据设置。另一个重点是该方法仍是 open-loop 执行，不是闭环纠错。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>一句话版本：</strong>RoboEnvision 用 VLM 把长程指令拆成子任务，让扩散模型先生成子任务关键帧，再并行补齐关键帧之间的视频，并用一个轻量策略模型把长程视频计划转为机器人关节轨迹。
+      </div>
+
+      <figure>
+        <img src="figures/figure_RoboEnvission_teaser_with_action.png" alt="RoboEnvision teaser" />
+        <figcaption>Teaser. 上方是过去短视频逐段串接的范式；下方是 RoboEnvision 的高层指令分解、关键帧生成、补帧和动作回归范式。</figcaption>
+      </figure>
+    </section>
+
+    <section id="motivation">
+      <h2>2. 动机与问题定义</h2>
+      <h3>2.1 为什么短视频串接不够</h3>
+      <p>机器人视频生成已经被用于规划、验证、策略学习和模拟数据生成，但多数工作处理的是短期动作，例如一个 pick 或一个 place。长程任务如“清理桌子”或“做一道菜”包含多个子目标、对象状态跨阶段变化、操作顺序约束和大范围运动。若每一段只根据上一段最后一帧继续生成，误差会沿时间累积：物体可能消失、形状变形、数量变化，后续视频也会越来越偏离高层目标。</p>
+      <p>作者认为长程机器人视频不只是“帧数更多”，而是“多个任务阶段的语义和空间状态必须同时稳定”。因此他们引入 keyframes 作为全局锚点，而不是逐段滚动生成。</p>
+
+      <h3>2.2 问题定义</h3>
+      <p>长程视频生成任务输入初始图像 $x^0$ 和高层指令 $l_{HL}$，后者可分解为 $K$ 个原子指令 $l^i$。目标是生成完整视频：</p>
+      <div class="formula">$$x = \mathrm{VideoDiff}\left(x^0, l_{HL}=\bigoplus_{i=1}^{K} l^i\right),$$</div>
+      <p>其中 $x\in\mathbb{R}^{N\times3\times H\times W}$。关键不是直接让一个模型吃下很长 prompt 和生成 $N$ 帧，而是先生成 $K$ 个关键帧：</p>
+      <div class="formula">$$x_k=\mathrm{KeyframeDiff}(x^0,(l^1,\ldots,l^K)),\qquad x_k\in\mathbb{R}^{K\times3\times H\times W},$$</div>
+      <p>再对相邻关键帧补帧：</p>
+      <div class="formula">$$x^{k_{i-1}:k_i}=\mathrm{FillingDiff}(x^{k_{i-1}},x^{k_i},l^i).$$</div>
+
+      <h3>2.3 贡献定位</h3>
+      <ul>
+        <li>提出面向机器人长程操作的 hierarchical video generation pipeline，结合 VLM、keyframe diffusion、filling diffusion 和 policy model。</li>
+        <li>设计 keyframe-instruction cross-attention，让每个关键帧只关注对应原子指令，增强指令-关键帧对齐。</li>
+        <li>提出 3D attention 与 semantics preserving attention，用初始图像 VAE 特征增强关键帧对象形状、位置和数量一致性。</li>
+        <li>提出轻量 transformer-based policy model，从生成的长程视频中回归机器人关节和夹爪状态，并在 LHMM 长程任务中超过 UniPi、RDT1B 等基线。</li>
+      </ul>
+    </section>
+
+    <section id="related">
+      <h2>3. 相关工作脉络</h2>
+      <div class="grid-2">
+        <div class="mini">
+          <h3>3.1 Robotics Video Generation</h3>
+          <p>UniPi、Video Language Planning、This&amp;That、RoboDreamer、GR-2、UniSim、Gen2Act 等工作把视频作为机器人规划、模拟或策略学习的中间表示。RoboEnvision 的判断是，这些方法多聚焦短时段或短任务，长程视频会遭遇跨阶段一致性问题。</p>
+        </div>
+        <div class="mini">
+          <h3>3.2 Video-Driven Policy Learning</h3>
+          <p>视频包含动作信息，可用于 VLA 预训练、Diffusion Policy、AVDC、Track2Act 等策略学习。但 tracking/flow 方法易受遮挡和视频质量影响；大型 VLA 需要巨量预训练和高质量微调数据；UniPi 的 inverse dynamics 在生成视频不一致时动作估计会变差。</p>
+        </div>
+        <div class="mini">
+          <h3>3.3 Long-Horizon Video Generation</h3>
+          <p>OpenSora、StreamingT2V、FreeNoise、FreeLong、VDT 等处理长视频生成，多用 autoregressive、memory bank、noise rescheduling 或 temporal mask。机器人场景更难，因为小物体多、运动范围大、接触和空间关系更精细。</p>
+        </div>
+        <div class="mini">
+          <h3>3.4 与 UniPi 的关系</h3>
+          <p>RoboEnvision 继承了“视频计划转动作”的思想，但明确批评 UniPi 类方法依赖短程视频和 open-loop 动作执行；它把生成侧换成长程关键帧锚定，并把 policy model 训练在长程关键帧和插值帧分布上。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <h2>4. 方法详解</h2>
+      <h3>4.1 总体框架</h3>
+      <p>RoboEnvision 的流程是：</p>
+      <ol>
+        <li>用 VLM 或 reasoning model 将高层任务拆成低层原子指令。</li>
+        <li>Keyframe diffusion 根据初始图像和原子指令链生成关键帧，每个关键帧对应一个子任务结束状态。</li>
+        <li>Filling diffusion 在每对相邻关键帧之间生成短视频，所有段可并行补帧。</li>
+        <li>Policy model 从关键帧和部分插值帧回归机器人 joint states 和 gripper states。</li>
+      </ol>
+      <figure>
+        <img src="figures/figure_RoboEnvision_MethodFixed.png" alt="RoboEnvision method" />
+        <figcaption>Method. A: keyframe diffusion；B: keyframe-instruction cross-attention mask；C: semantics preserving attention；D: video-to-joint policy model。</figcaption>
+      </figure>
+
+      <h3>4.2 VLM 子任务分解</h3>
+      <p>高层指令如“place all objects in the box”或“push all blocks to the left”会先被拆成 $K$ 个低层指令。论文说 GPT4-o1 在空间推理上优于传统 VLM，且可通过 in-context template 提高稳定性，例如 LanguageTable 中使用类似 <code>pick the {color} {object}</code> 或 <code>push the {color} {shape} block at the {top,bottom,left,right} of {color} {shape} block</code> 的模板。</p>
+      <p>这一步是整条 pipeline 的任务规划入口。若原子指令顺序或空间关系错了，后续视频生成和动作回归都会跟着错。</p>
+
+      <h3>4.3 Keyframe Diffusion</h3>
+      <p>Keyframe diffusion 接收 $B$ 个 batch、$K$ 个关键帧的视频 $x_k\in\mathbb{R}^{B\times K\times3\times H\times W}$。VAE 将其压缩到 latent：</p>
+      <div class="formula">$$z\in\mathbb{R}^{B\times K\times C\times H_z\times W_z}.$$</div>
+      <p>forward diffusion 添加高斯噪声：</p>
+      <div class="formula">$$z_t=\sqrt{\alpha_t}z+\sqrt{1-\alpha_t}\epsilon,\qquad \epsilon\sim\mathcal{N}(0,I).$$</div>
+      <p>训练目标是标准噪声预测：</p>
+      <div class="formula">$$\min_\theta \mathbb{E}_{t,(z,\tau),\epsilon}\left\|\epsilon-\epsilon_\theta(z_t,t,\bigoplus_{i=1}^{K}\tau^i)\right\|_2^2.$$</div>
+      <p>base architecture 来自 OpenSora 的 Diffusion Transformer，包括 spatial attention、temporal attention、text cross-attention 和 FFN。</p>
+
+      <h3>4.4 Keyframe-Instruction Cross-Attention</h3>
+      <p>普通 cross-attention 会让所有 keyframe token 同时看所有文本 token，容易出现“第 2 个关键帧跟第 3 条指令混在一起”的情况。作者用 diagonal block mask $\mathcal{M}$，让第 $i$ 个 keyframe 的 feature 只和第 $i$ 条 instruction embedding cross-attend：</p>
+      <div class="formula">$$\mathcal{A}=\mathrm{softmax}(\mathcal{Q}\mathcal{K}^{T}+\mathcal{M})\mathcal{V}.$$</div>
+      <p>$\mathcal{M}$ 对角块为 0，非对角块为 $-\infty$。这使关键帧序列更像“子任务结束状态列表”，而不是一个模糊的长 prompt 视频。</p>
+
+      <h3>4.5 3D Attention 与 Semantics Preserving Attention</h3>
+      <p>即使有 keyframe 和 instruction 对齐，机器人视频仍会出现小物体消失、形状变形和位置漂移。作者认为原因是相邻关键帧间隔大、物体运动幅度大，超出了普通短视频 temporal attention 的训练分布。</p>
+      <p><strong>3D attention</strong> 将 attention 从仅时间维或空间维扩展到所有 spatio-temporal tokens：$(B,KH_zW_z,C)$。它更贵，但更适合建模跨帧大运动。</p>
+      <p><strong>Semantics Preserving Attention, SPA</strong> 在每个 transformer block 的 spatial attention 中重新注入初始图像的 VAE feature。相比 CLIP hidden state，VAE feature 保留更细粒度空间细节，且与 DiT latent 在同一特征空间。公式为：</p>
+      <div class="formula">$$\mathrm{feature}=\mathrm{Attention}(\mathcal{Q}_S,\mathcal{K}_S,\mathcal{V}_S)+\mathrm{Attention}(\mathcal{Q}'_S,\mathcal{K}_{z^0},\mathcal{V}_{z^0}).$$</div>
+      <p>这里 $z^0$ 是初始图像 VAE feature。直觉上，它不断提醒模型：“初始场景里有哪些物体，它们长什么样”。</p>
+
+      <h3>4.6 Filling Diffusion</h3>
+      <p>Filling diffusion 以两帧相邻关键帧 $(x^{k_{i-1}},x^{k_i})$ 和对应原子指令 $l^i$ 为条件，生成两帧之间的短视频：</p>
+      <div class="formula">$$x^{k_{i-1}:k_i}\in\mathbb{R}^{F_i\times3\times H\times W}.$$</div>
+      <p>由于每个 gap 的条件都已确定，阶段 2 可以并行运行，比 autoregressive 一段段等待前一段生成更利于推理加速，也降低了误差传递。</p>
+
+      <h3>4.7 Robot Policy Model</h3>
+      <p>Policy model 是一个 spatio-temporal transformer-based 架构，用生成视频回归机器人 joint states 和 gripper state。它与视频模型独立训练，训练数据来自 simulator 的 ground truth。作者强调，训练时选取 ground-truth keyframes 和部分 interpolated frames，而不是只用短程连续帧；原因是长程关键帧之间机器人关节变化更大，更接近 long-horizon distribution。</p>
+      <p>架构包含 spatial attention、temporal attention 和 FFN 的 transformer blocks；decoder 使用 ResNet 下采样到关节空间，而不是 MLP 或 global average pooling。推理时生成长程视频后，policy model 输出关节状态，再在 MuJoCo 中 open-loop 执行。</p>
+    </section>
+
+    <section id="experiments">
+      <h2>5. 实验与结果</h2>
+      <h3>5.1 数据集与训练设置</h3>
+      <table>
+        <thead>
+          <tr><th>项目</th><th>设置</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LanguageTable</td><td>作者将短程 video clips 通过 optical flow consistency check 拼成长程视频；每个 clip 的最后帧作为 keyframe。</td></tr>
+          <tr><td>LHMM</td><td>Long-Horizon Manipulation in MuJoCo，新建仿真数据集，包含 grocery/tool 相关长程任务；keyframe annotation 由 simulator 中 grasp detection 得到。</td></tr>
+          <tr><td>数据规模</td><td>LanguageTable 50k；LHMM 90k；instruction 数量从 3 到 18。</td></tr>
+          <tr><td>训练分辨率</td><td>LanguageTable: $360\times640$；LHMM: $180\times320$。</td></tr>
+          <tr><td>代码和模型</td><td>基于 OpenSora 开发；video diffusion 模型约 800M 参数。</td></tr>
+          <tr><td>视频评估样本</td><td>LanguageTable 124 个生成视频；LHMM 100 个生成视频。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 长程视频质量结果</h3>
+      <p>评估指标包括 LPIPS、SSIM、PSNR、FVD 和 CLIP Score。基线包含 OpenSora 的 hierarchical、autoregressive、naive 版本，以及 AVDC。</p>
+      <table>
+        <thead>
+          <tr><th>Dataset</th><th>Method</th><th>LPIPS ↓</th><th>SSIM ↑</th><th>PSNR ↑</th><th>FVD ↓</th><th>CLIP ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="5">LanguageTable</td><td>OpenSora Hierarchical</td><td>0.1445</td><td>0.8269</td><td>22.82</td><td>147.37</td><td>24.57</td></tr>
+          <tr><td>OpenSora Autoregressive</td><td>0.1795</td><td>0.7839</td><td>21.77</td><td>176.61</td><td>24.15</td></tr>
+          <tr><td>OpenSora Naive</td><td>0.1723</td><td>0.8053</td><td>21.77</td><td>138.31</td><td><strong>25.49</strong></td></tr>
+          <tr><td>AVDC</td><td>0.1857</td><td>0.7687</td><td>21.32</td><td>189.64</td><td>23.32</td></tr>
+          <tr><td><strong>Ours</strong></td><td><strong>0.1324</strong></td><td><strong>0.8273</strong></td><td><strong>23.12</strong></td><td><strong>136.75</strong></td><td>24.45</td></tr>
+          <tr><td rowspan="5">LHMM</td><td>OpenSora Hierarchical</td><td>0.1564</td><td>0.5257</td><td>16.61</td><td>231.02</td><td>23.51</td></tr>
+          <tr><td>OpenSora Autoregressive</td><td>0.1701</td><td>0.5232</td><td>16.46</td><td>241.35</td><td>23.58</td></tr>
+          <tr><td>OpenSora Naive</td><td>0.2086</td><td>0.4983</td><td>15.52</td><td>274.85</td><td>22.55</td></tr>
+          <tr><td>AVDC</td><td>0.2343</td><td>0.4729</td><td>15.33</td><td>267.93</td><td>21.37</td></tr>
+          <tr><td><strong>Ours</strong></td><td><strong>0.1282</strong></td><td><strong>0.5820</strong></td><td><strong>17.27</strong></td><td><strong>205.78</strong></td><td><strong>23.99</strong></td></tr>
+        </tbody>
+      </table>
+      <p>结果说明：hierarchical alone 不够，RoboEnvision 的 attention 设计进一步提升一致性；LanguageTable 的 CLIP 最高是 Naive，但其视觉质量和一致性差，说明 CLIP 不能单独代表机器人视频可用性。</p>
+      <figure>
+        <img src="figures/figure_qualitative_2.png" alt="Qualitative comparison" />
+        <figcaption>Qualitative comparison. RoboEnvision 在 LanguageTable 和 LHMM 上比基线更能保持物体数量、形状、位置以及指令-关键帧对齐。</figcaption>
+      </figure>
+
+      <h3>5.3 指令顺序重排与数据增强潜力</h3>
+      <p>作者展示了改变原子指令顺序后，keyframe diffusion 可以生成不同顺序的长程执行视频。这一点被用来支持“数据增强”潜力：在已有视频数据基础上，通过打乱任务顺序可以生成更多视觉观察与机器人 joint states 的配对数据，扩展 VLA 预训练分布。</p>
+      <figure>
+        <img src="figures/figure_change_order_figure.png" alt="Change order generation" />
+        <figcaption>Changing instruction order. 改变子任务执行顺序后，模型能生成对应顺序的长程视频。</figcaption>
+      </figure>
+
+      <h3>5.4 Policy Model 成功率</h3>
+      <p>作者在 LHMM 的 45 个长程任务上评估动作执行，任务是 pick/place 多个 grocery 和 tool objects。长程视频先由模型生成，policy model 将视频逐帧转为 joint control commands，并导入 MuJoCo 执行。</p>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Success Rate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UniPi</td><td>23.5%</td></tr>
+          <tr><td>RDT1B</td><td>34.1%</td></tr>
+          <tr><td><strong>Ours</strong></td><td><strong>67.4%</strong></td></tr>
+          <tr><td>Ours (short-horizon)</td><td>49.4%</td></tr>
+          <tr><td>Ours (Autoregressive)</td><td>27.0%</td></tr>
+        </tbody>
+      </table>
+      <p>关键解读：Ours short-horizon 仍比 UniPi/RDT1B 高，但比完整模型低 18 个点，说明 policy model 需要在长程关键帧分布上训练；Ours-Autoregressive 只有 27.0%，说明只换更好 decoder 并不能解决长程问题，生成范式本身很关键。</p>
+
+      <h3>5.5 VLM 长程规划</h3>
+      <p>论文定性展示了 GPT4-o1 作为 subtask director 的效果。它根据初始观察和模板知识分解高层指令，keyframe diffusion 再根据 instruction chain 生成长程视频计划。</p>
+      <figure>
+        <img src="figures/figure_high-level-figure.png" alt="High-level planning" />
+        <figcaption>High-level planning. GPT4-o1 将高层指令分解为可执行步骤，视频模型据此生成长程计划。</figcaption>
+      </figure>
+
+      <h3>5.6 Ablation: 3D Attention 与 SPA</h3>
+      <table>
+        <thead>
+          <tr><th>Model</th><th>LPIPS ↓</th><th>SSIM ↑</th><th>PSNR ↑</th><th>FVD ↓</th><th>CLIP ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>base</td><td>0.1498</td><td>0.6924</td><td>20.07</td><td>184.71</td><td>24.10</td></tr>
+          <tr><td>w/o SPA</td><td>0.1415</td><td>0.7032</td><td>20.36</td><td>169.50</td><td>24.19</td></tr>
+          <tr><td>w/o 3D</td><td>0.1430</td><td>0.7102</td><td>20.11</td><td>168.83</td><td>24.21</td></tr>
+          <tr><td><strong>ours</strong></td><td><strong>0.1305</strong></td><td><strong>0.7178</strong></td><td><strong>20.51</strong></td><td><strong>167.57</strong></td><td><strong>24.24</strong></td></tr>
+        </tbody>
+      </table>
+      <p>定量和定性都支持两个组件互补：3D attention 更有助于物体数量和位置一致；SPA 更有助于小物体形状和语义细节保持。</p>
+      <figure>
+        <img src="figures/figure_ablation_c.png" alt="Ablation qualitative results" />
+        <figcaption>Ablation. 移除 SPA 或 3D attention 后，小物体形状、数量和位置更容易漂移。</figcaption>
+      </figure>
+    </section>
+
+    <section id="repro">
+      <h2>6. 复现要点</h2>
+      <h3>6.1 数据准备</h3>
+      <ul>
+        <li>LanguageTable: 需要短程 clips，并通过 optical flow consistency check 拼接成长程视频。</li>
+        <li>每个短 clip 的最后帧作为 keyframe，形成 keyframe diffusion 的监督。</li>
+        <li>LHMM: 需要 MuJoCo 长程任务数据、关键帧标注和机器人 joint states；论文用 grasp detection 产生 keyframe annotation。</li>
+        <li>高层指令需要可分解为 3 到 18 条原子指令。</li>
+      </ul>
+
+      <h3>6.2 模型训练</h3>
+      <table>
+        <thead>
+          <tr><th>模块</th><th>训练/实现要点</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Keyframe diffusion</td><td>基于 OpenSora DiT；输入初始图像和 instruction chain；引入 keyframe-instruction cross-attention。</td></tr>
+          <tr><td>3D attention</td><td>替换 temporal attention，使 attention 覆盖所有 spatio-temporal tokens。</td></tr>
+          <tr><td>SPA</td><td>每个 transformer block 中将初始图像 VAE feature 投影为 key/value，参与 spatial attention。</td></tr>
+          <tr><td>Filling diffusion</td><td>条件为相邻关键帧和对应低层指令；各段可并行补帧。</td></tr>
+          <tr><td>Policy model</td><td>独立训练；输入 keyframes 和部分 interpolated frames；输出 joint states 和 gripper states。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.3 评估指标</h3>
+      <ul>
+        <li>视频质量：LPIPS、SSIM、PSNR、FVD、CLIP Score。</li>
+        <li>动作执行：LHMM 45 个长程任务成功率。</li>
+        <li>定性检查：物体数量是否保持、形状是否变形、关键帧是否对齐子指令、改变指令顺序是否改变执行顺序。</li>
+      </ul>
+
+      <div class="warn">
+        <strong>复现风险：</strong>论文没有正式 appendix 展开所有训练超参；GPT4-o1/DeepSeek 的分解行为和 prompt template 对结果有影响；LHMM 是作者新建数据集，若未公开完整数据和脚本，成功率复现会受限。
+      </div>
+    </section>
+
+    <section id="analysis">
+      <h2>7. 分析、局限与边界</h2>
+      <h3>7.1 这篇论文最有价值的地方</h3>
+      <p>这篇论文最有价值的地方是它把机器人长程视频生成拆成了更符合任务结构的中间表示：关键帧不是均匀抽样的视频帧，而是每个子任务结束状态的语义锚点。这样一来，长程生成不再是“从上一帧往后滚”，而是先确定整条任务链的全局结构，再局部补齐动态。</p>
+      <p>第二个价值点是把视频质量和动作可执行性放在一起检验。论文不只报告 LPIPS/FVD/CLIP，还训练 policy model 从视频回归关节并在 MuJoCo 中执行。这让“生成视频能不能用于机器人”有了更接近控制的证据。</p>
+
+      <h3>7.2 结果为什么站得住</h3>
+      <ul>
+        <li>视频评估覆盖两个数据集，且 LHMM 中五项指标全部最优，说明不是单数据集偶然提升。</li>
+        <li>与 OpenSora naive、hierarchical、autoregressive 都比较，能区分“层级范式本身”和“本文新增 attention 设计”的贡献。</li>
+        <li>policy model 成功率包含多个 ablation：short-horizon training 和 autoregressive inference 都明显下降，支持长程训练和长程生成都重要。</li>
+        <li>Ablation 表中 base、w/o SPA、w/o 3D、ours 逐步对比，并有定性图展示小物体形状/数量/位置问题。</li>
+        <li>改变 instruction order 的定性实验说明模型不是只记固定轨迹，而能根据子任务顺序调整生成。</li>
+      </ul>
+
+      <h3>7.3 主要局限</h3>
+      <ul>
+        <li><strong>依赖 VLM 分解：</strong>如果高层指令被分解错，关键帧生成会从第一步就偏离真实目标。论文主要给定性展示，没有系统评估 VLM decomposition accuracy。</li>
+        <li><strong>执行仍是 open-loop：</strong>生成视频和关节轨迹后在 MuJoCo 中开环执行，没有在线视觉反馈纠错；真实机器人长程任务中误差可能更严重。</li>
+        <li><strong>真实机器人验证不足：</strong>动作成功率在 LHMM/MuJoCo 上评估，并非真实硬件长程执行。</li>
+        <li><strong>数据集构造依赖模拟器和规则：</strong>LHMM keyframes 由 grasp detection 得到，LanguageTable 由 optical flow 拼接，和真实长程演示分布仍有差距。</li>
+        <li><strong>物理一致性仍间接：</strong>LPIPS/FVD/CLIP 与真实可执行性不完全等价；policy model 成功率提供补充，但仍可能受模拟器和训练分布影响。</li>
+        <li><strong>计算成本与参数细节不完整：</strong>模型约 800M，但论文没有给出完整训练资源、epoch、优化器等细节，复现难度偏高。</li>
+      </ul>
+
+      <h3>7.4 边界条件</h3>
+      <table>
+        <thead>
+          <tr><th>适用条件</th><th>需要谨慎的条件</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>任务可自然分解为若干原子子任务，每个子任务有明确结束状态。</td><td>任务需要连续反馈、没有清晰 keyframe，或中间状态难以用图像锚定。</td></tr>
+          <tr><td>场景中关键物体可见，且 simulator 能提供 keyframe/joint supervision。</td><td>真实环境强遮挡、可变形物体、接触状态不可见。</td></tr>
+          <tr><td>目标是生成长程视觉计划或仿真训练数据。</td><td>要求安全闭环执行的真实机器人部署。</td></tr>
+          <tr><td>可接受 VLM 作为上游 planner，并能调 prompt/template。</td><td>高层指令模糊，或 VLM 空间推理容易出错的任务。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="qa">
+      <h2>8. 组会问答准备</h2>
+      <h3>Q1: RoboEnvision 和 autoregressive long video 最大区别是什么？</h3>
+      <p>Autoregressive 是逐段用上一段最后帧继续生成，错误会传递；RoboEnvision 先生成所有子任务关键帧作为全局锚点，再局部补帧。它牺牲了一些单段自由度，但换来更好的长程结构和对象一致性。</p>
+
+      <h3>Q2: keyframe-instruction cross-attention 解决什么问题？</h3>
+      <p>它让第 $i$ 个关键帧只看第 $i$ 条原子指令，避免所有关键帧混合关注整条 prompt。这样关键帧更明确地对应每个子任务的完成状态。</p>
+
+      <h3>Q3: 3D attention 和 SPA 分别管什么？</h3>
+      <p>3D attention 更偏向跨时空建模，帮助维持物体数量和位置；SPA 用初始图像 VAE feature 提供细粒度语义和形状信息，帮助小物体不变形、不丢失。ablation 显示两者组合最好。</p>
+
+      <h3>Q4: 为什么 policy model 要在长程 keyframes 上训练？</h3>
+      <p>长程关键帧之间关节变化更大，分布比短程连续帧更丰富。只用 short-horizon frames 训练，即使用长程视频推理也会掉到 49.4%；autoregressive 生成再执行更低，只有 27.0%。</p>
+
+      <h3>Q5: 最强的结果是哪一个？</h3>
+      <p>LHMM 成功率 67.4% 是最贴近机器人控制的结果；视频指标则以 LHMM 五项全优最有说服力。二者合在一起说明它不只是生成图像更像，也更能支持关节轨迹回归。</p>
+
+      <h3>Q6: 最可能被质疑的地方是什么？</h3>
+      <p>真实机器人验证不足、VLM 分解没有系统量化、以及 open-loop 执行。论文证明了仿真长程视频计划和动作回归有价值，但距离真实长程机器人闭环部署还有明显距离。</p>
+    </section>
+  </main>
+</body>
+</html>

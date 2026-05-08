@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Large Video Planner Enables Generalizable Robot Control - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    body { max-width: 1080px; margin: 0 auto; padding: 32px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; line-height: 1.78; color: #243043; background: #fff; }
+    h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 10px; color: #14213d; }
+    h2 { font-size: 1.45rem; margin-top: 42px; padding-left: 12px; border-left: 4px solid #2563eb; color: #1d4ed8; }
+    h3 { font-size: 1.15rem; margin-top: 24px; color: #1e3a5f; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .meta { background: #eef5ff; border: 1px solid #cfe0ff; border-radius: 8px; padding: 16px 18px; margin: 18px 0 24px; }
+    .meta p { margin: 4px 0; }
+    .tldr { background: #fff8db; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 14px 16px; margin: 18px 0; font-size: 1.04rem; }
+    .toc { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin: 20px 0; }
+    .toc ul { margin: 0; padding-left: 22px; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 0.94rem; }
+    th, td { border: 1px solid #dbe3ef; padding: 8px 10px; vertical-align: top; }
+    th { background: #f1f5f9; color: #1f2937; text-align: left; }
+    .tag { display: inline-block; background: #e0f2fe; color: #075985; border-radius: 999px; padding: 2px 9px; margin: 2px 4px 2px 0; font-size: 0.86rem; }
+    .figure { margin: 22px 0; text-align: center; }
+    .figure img { max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; }
+    .caption { color: #64748b; font-size: 0.9rem; margin-top: 7px; text-align: left; }
+    .formula-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+    .formula-block .intuition { font-weight: 700; color: #1e3a8a; margin: 0 0 8px; }
+    .impl-note { background: #fff7ed; border-left: 4px solid #f97316; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 12px 0; }
+    .check { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+    .warn { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+    code { background: #eef2f7; padding: 1px 5px; border-radius: 4px; }
+    ul { padding-left: 22px; }
+    li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Large Video Planner Enables Generalizable Robot Control</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Boyuan Chen, Tianyuan Zhang, Haoran Geng, Kiwhan Song, Caiyi Zhang, Peihao Li, William T. Freeman, Jitendra Malik, Pieter Abbeel, Russ Tedrake, Vincent Sitzmann, Yilun Du</p>
+      <p><strong>机构：</strong>MIT; UC Berkeley; Harvard</p>
+      <p><strong>论文：</strong><a href="https://arxiv.org/abs/2512.15840">arXiv:2512.15840</a> | <a href="https://arxiv.org/pdf/2512.15840">PDF</a> | <a href="https://www.boyuan.space/large-video-planner/">项目主页</a></p>
+      <p><strong>关键词：</strong><span class="tag">Large Video Planner</span><span class="tag">Video Foundation Model</span><span class="tag">Robot Planning</span><span class="tag">Diffusion Forcing</span><span class="tag">Retargeting</span></p>
+    </div>
+  </header>
+
+  <div class="tldr">
+    <strong>一句话总结：</strong>这篇论文提出 Large Video Planner (LVP)，用 14B 视频生成模型从初始图像和任务文本生成“人手/机器人如何完成任务”的视频计划，再通过手部 4D 重建、姿态估计和重定向把视频计划转成真实机器人动作，用于零样本任务级泛化。
+  </div>
+
+  <div class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 论文速览</a></li>
+      <li><a href="#sec2">2. 背景与问题设定</a></li>
+      <li><a href="#sec3">3. 相关工作脉络</a></li>
+      <li><a href="#sec4">4. 方法细节</a></li>
+      <li><a href="#sec5">5. 实验与结果</a></li>
+      <li><a href="#sec6">6. 复现与实现要点</a></li>
+      <li><a href="#sec7">7. 分析、局限与边界</a></li>
+    </ul>
+  </div>
+
+  <section id="sec1">
+    <h2>1. 论文速览</h2>
+    <table>
+      <tr><th>阅读定位</th><th>内容</th></tr>
+      <tr>
+        <td><strong>论文要解决什么</strong></td>
+        <td>现有 VLA 主要从静态图文预训练迁移到动作输出，但机器人动作数据稀缺，导致任务级泛化弱。论文要探索另一条路线：把视频作为机器人 foundation model 的主模态，用互联网规模视频中的时空动作轨迹来学习通用规划。</td>
+      </tr>
+      <tr>
+        <td><strong>作者的方法抓手</strong></td>
+        <td>训练 14B LVP 视频模型，输入一张或几张场景图和任务文本，输出 3 秒左右的视频计划；再用 HaMeR、MegaSAM、Dex-Retargeting、GraspNet、cuRobo 等模块把生成视频中的手/夹爪运动转为机器人 wrist trajectory、finger joint 或 gripper action。</td>
+      </tr>
+      <tr>
+        <td><strong>最重要的结果</strong></td>
+        <td>在 100 个第三方 in-the-wild manipulation prompts 上，LVP 的 Level 3 Task Complete 平均成功率为 59.3%，Best@4 为 82.0%，Level 4 Perfect 为 44.0%，明显高于 Wan 2.1、Cosmos-Predict 2、Hunyuan。真实机器人上，LVP 在 Franka+gripper 的多项任务中超过 $\pi_0$ 和 OpenVLA，并在 G1+Inspire dexterous hand 上完成开门、擦桌、扫球、撕胶带等 VLA baseline 不适用的任务。</td>
+      </tr>
+      <tr>
+        <td><strong>阅读时要注意的点</strong></td>
+        <td>这不是端到端闭环策略，而是“视频生成计划 + 开源重建/重定向 + 开环执行”的 pipeline。论文的强项是任务级零样本泛化和视频计划能力，弱项是实时性、重建误差、retargeting 失败和缺少闭环反馈。</td>
+      </tr>
+    </table>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>LVP 模型：</strong>一个面向 embodied planning 的 14B 视频 foundation model，基于 Wan I2V 14B 权重继续训练。</li>
+      <li><strong>LVP-1M 数据集：</strong>1.4M action-centric clips，来自 4 个机器人数据源和 4 个人类活动数据源，并配有多样化动作 caption。</li>
+      <li><strong>视频到动作 pipeline：</strong>把生成的人手视频通过 4D hand trajectory、finger retargeting、gripper grasp extraction 转成真实机器人动作。</li>
+      <li><strong>任务级泛化评估：</strong>使用第三方自由提出的 100 个野外任务，并用真实机器人验证视频计划能被执行。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/fig_figure_teaser.png" alt="LVP teaser">
+      <div class="caption">Figure 1：LVP 从单张图像和任务指令生成视频计划，再把预测的人手运动重定向到机器人手，实现零样本视觉规划。</div>
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 背景与问题设定</h2>
+    <h3>2.1 任务级泛化比物体级泛化更难</h3>
+    <p>论文区分了三种泛化：物体级泛化、配置级泛化、任务级泛化。很多机器人 foundation model 的评估仍接近训练分布，例如“pick”或“fold”这类动词在训练中大量出现，只是对象或位置变化。作者关心的是更强的 zero-shot task-level generalization：模型能否在没有见过的场景中完成完全不同的任务动词，例如 flush the toilet、tear the tape、grab gas nozzle。</p>
+
+    <h3>2.2 为什么选择视频作为主模态</h3>
+    <p>文本和静态图像提供语义与视觉识别，但不直接包含动作如何展开。视频天然记录状态随时间变化，包含物体接触、移动、形变和人类动作程序。因此，作者把视频看成更接近机器人规划的数据模态：视频生成模型可以在像素空间中“想象”任务完成过程，再由动作抽取模块执行。</p>
+
+    <h3>2.3 与 VLA 的核心差异</h3>
+    <p>VLA 通过 MLLM 的静态图文知识初始化，然后在少量机器人数据上学习 vision+language 到 action 的映射。LVP 则先在大量人类和机器人动作视频上学习 image/text 到 future video 的映射，再把生成视频作为 action plan。它的迁移不是“图文语义到动作”，而是“视频动态到机器人动作”。</p>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的定位</th><th>LVP 的区别</th></tr>
+      <tr>
+        <td>Video Diffusion</td>
+        <td>Wan、Sora、Hunyuan 等视频生成模型擅长内容生成，但不一定能遵守机器人初始观察和物理动作约束。</td>
+        <td>LVP 针对 embodied planning 继续训练，并引入 Diffusion Forcing 与 History Guidance 改善图像条件和时序一致性。</td>
+      </tr>
+      <tr>
+        <td>Robot Foundation Models / VLA</td>
+        <td>RT-2、OpenVLA、$\pi_0$ 等从视觉语言模型扩展到动作输出。</td>
+        <td>LVP 不直接预测动作 token，而是生成可解释的视频计划，再经后处理变成动作。</td>
+      </tr>
+      <tr>
+        <td>Learning from Video Demonstration</td>
+        <td>已有工作用视频生成指导控制、用 world model 做预测或评估。</td>
+        <td>LVP 追求 foundation-model scale 的开放视频规划模型和大规模 action-centric 数据集，并在真实机器人上重定向执行。</td>
+      </tr>
+    </table>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 方法细节</h2>
+    <h3>4.1 总体 pipeline</h3>
+    <p>整体是两阶段设计：第一阶段 LVP 在视频空间中生成视觉动作计划；第二阶段 action extraction 把视频计划转为具体机器人动作。论文用“开门”作为例子：机器人看到门把手并接收 “Open this door” 指令，LVP 生成手伸向把手、旋转、推门的视频；然后动作抽取模块把这个视觉计划转成五指灵巧手或平行夹爪可执行的轨迹。</p>
+
+    <div class="figure">
+      <img src="figures/fig_figure_pipeline_new_font.png" alt="video to action pipeline">
+      <div class="caption">Figure 2：视频到动作 pipeline。生成视频后，先恢复/跟踪 3D hand，再做 wrist motion 与 finger retargeting，最后进入机器人执行。</div>
+    </div>
+
+    <h3>4.2 Latent Video Diffusion</h3>
+    <p>LVP 使用 temporally causal 3D VAE 将像素视频压缩为 3D latent。VAE 将 $8\times8\times4$ 的时空 patch 编码为 16-channel embedding，把输入 $[1+T,3,H,W]$ 压到 $[1+\lceil T/4\rceil,16,\lceil H/4\rceil,\lceil W/4\rceil]$。第一帧会重复 4 次，使模型可同时处理单帧图像条件。</p>
+    <div class="formula-block">
+      <p class="intuition">训练目标是 flow matching：在 clean latent 和高斯噪声之间插值，让模型预测从 noisy latent 回到 clean latent 所需的 flow。</p>
+      $$
+      z_k=(1-k)z_0+k\epsilon,\qquad \epsilon\sim\mathcal{N}(0,1)
+      $$
+      $$
+      \mathcal{L}= \| f_\theta(z_k,c,k)-k(\epsilon-z_0)\|_2
+      $$
+      <p>其中 $c$ 包含输入图像和文本指令，$k$ 是噪声水平。模型从 Wan I2V 14B 初始化，在压缩 latent 空间训练视频 DiT。</p>
+    </div>
+
+    <h3>4.3 Diffusion Forcing Transformer</h3>
+    <p>标准视频 diffusion 对所有帧施加统一噪声，而 LVP 使用 Diffusion Forcing：对历史 segment 和未来 segment 施加不同噪声水平。训练时随机选择历史长度 $\{0,1,\ldots,6\}$ 个 latent frames，把视频分成 history 与 future；history segment 有 50% 概率设为零噪声。这样同一模型可统一学习 I2V 和 V2V。</p>
+    <p>这个设计有两个好处：一是无需给可变长度 context frames 额外设计 cross-attention；二是在 sampling 时可以灵活设定历史帧为 clean context，从而做单帧 image-to-video 或多帧 video-to-video extension。</p>
+    <div class="figure">
+      <img src="figures/fig_figure_video_diffusion.png" alt="LVP video diffusion">
+      <div class="caption">Figure 3：LVP latent video diffusion 与 diffusion forcing。随机 history length 与独立噪声水平让模型同时学习 I2V/V2V，并提升对 OOD 条件帧的鲁棒性。</div>
+    </div>
+
+    <h3>4.4 History Guidance</h3>
+    <p>LVP 用 History Guidance 增强对初始图像/历史帧的遵循。若 $x_k$ 是未来 segment，$x_{\mathrm{hist}}$ 是历史条件帧，文本为 $c_{\mathrm{text}}$，则模型可分别估计有历史条件和无历史条件的 score：</p>
+    <div class="formula-block">
+      $$
+      s_{\mathrm{hist}}=(1+w_{\mathrm{hist}})\nabla\log p(x_k|x_{\mathrm{hist}},c_{\mathrm{text}})
+      -w_{\mathrm{hist}}\nabla\log p(x_k|c_{\mathrm{text}})
+      $$
+      <p>最终 sampling 还叠加 text CFG，使生成视频同时遵循文本和初始图像。作者认为这能显著提升 plan quality，尤其是物理可行性和 instruction following。</p>
+    </div>
+
+    <h3>4.5 Autoregressive Extension</h3>
+    <p>由于模型支持最多 24 帧，即 6 个 VAE latent frames 作为 context，可以反复把已生成视频的末尾作为历史条件，迭代生成多阶段视频计划。论文给出三阶段例子，例如先移动鼠标，再堆叠黄色物体，再移动到桌上。</p>
+    <div class="figure">
+      <img src="figures/fig_figure_video_multistage.png" alt="multi-stage video plans">
+      <div class="caption">Figure 4：多阶段视频计划。LVP 通过反复 V2V extension 生成更长 horizon 的视觉规划。</div>
+    </div>
+
+    <h3>4.6 Video Plan 到 Robot Action</h3>
+    <p>对人手视频，LVP 的动作抽取流程如下：</p>
+    <ul>
+      <li><strong>HaMeR：</strong>逐帧估计 MANO hand vertices $\mathbf{V}_t$ 和 wrist orientation $\mathbf{R}_t$。</li>
+      <li><strong>MegaSAM：</strong>估计深度、相机内参和外参，用 4D reconstruction 解决单目尺度歧义和时间漂移。</li>
+      <li><strong>4D alignment：</strong>用 wrist pixel 和 depth backprojection 得到 wrist trajectory，保留 HaMeR orientation，用 Savitzky-Golay 和 SLERP 做平滑。</li>
+      <li><strong>Dex-Retargeting：</strong>将人手关键点映射到灵巧手关节配置 $\mathbf{q}^R_t$。</li>
+      <li><strong>Robot execution：</strong>将 wrist pose 从相机坐标变换到机器人坐标，cuRobo 解 arm IK，finger joints 直接驱动 hand controller。</li>
+    </ul>
+    <p>对平行夹爪，附录说明五指到两指是欠约束问题，因此用 GraspNet 预测候选 grasp poses，并用人手动作中的 grasp intent heuristic 触发夹取。</p>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 第三方任务选择</h3>
+    <p>作者让第三方参与者从日常环境中自由提出操作任务：拍摄包含手和目标物体的照片，写下 3-5 秒可完成的短任务，并鼓励场景和任务多样、困难。初始收集约 200 个任务，包括加油站、冲厕所、撕胶带等 OOD 场景和任务。另一批 annotators 过滤低质量、模糊或与常见 tabletop pick-and-push 过近的样本，最终保留 100 个高质量任务，并用 Gemini 改写成更详细的 task descriptions。</p>
+
+    <h3>5.2 视频计划评估</h3>
+    <p>模型输入 observation image 和重写后的 instruction，生成视频计划。对比对象包括 Wan 2.1 I2V 14B、Cosmos-Predict 2 14B、Hunyuan I2V 13B。每个 prompt 每个方法生成 4 个视频，第三方 annotators 按四级标准评分：</p>
+    <ul>
+      <li><strong>Level 1 Correct contact：</strong>手是否接触正确物体和正确位置。</li>
+      <li><strong>Level 2 Correct end state：</strong>最后一帧是否达成目标。</li>
+      <li><strong>Level 3 Task complete：</strong>正确接触和正确终态，同时动作连续可行，允许小物理瑕疵。</li>
+      <li><strong>Level 4 Perfect：</strong>任务完成且物理和视觉无明显伪影。</li>
+    </ul>
+    <table>
+      <tr><th>方法</th><th>L1 Avg</th><th>L1 Best@4</th><th>L2 Avg</th><th>L2 Best@4</th><th>L3 Avg</th><th>L3 Best@4</th><th>L4 Avg</th><th>L4 Best@4</th></tr>
+      <tr><td>Wan 2.1 I2V 14B</td><td>83.9</td><td>99.0</td><td>47.0</td><td>80.0</td><td>39.3</td><td>76.0</td><td>20.5</td><td>53.0</td></tr>
+      <tr><td>Cosmos-Predict 2 14B</td><td>45.3</td><td>81.0</td><td>11.9</td><td>35.0</td><td>7.5</td><td>24.0</td><td>2.5</td><td>9.0</td></tr>
+      <tr><td>Hunyuan I2V 14B</td><td>68.7</td><td>96.0</td><td>27.3</td><td>65.0</td><td>13.5</td><td>42.0</td><td>7.2</td><td>27.0</td></tr>
+      <tr><td><strong>LVP</strong></td><td><strong>87.3</strong></td><td><strong>100.0</strong></td><td><strong>63.2</strong></td><td><strong>85.0</strong></td><td><strong>59.3</strong></td><td><strong>82.0</strong></td><td><strong>44.0</strong></td><td><strong>71.0</strong></td></tr>
+    </table>
+    <p>最关键的是 Level 3/4。Wan 在 Level 1 还很高，说明能接触对物体，但在终态和完整动作上下降明显；LVP 在 Level 3 达到 59.3%，说明它更能生成连续、可行、语义正确的动作计划。</p>
+    <div class="figure">
+      <img src="figures/fig_figure_video_results.png" alt="baseline comparison">
+      <div class="caption">Figure 5：视频基线对比。LVP 在 pull tissue、open gate 等零样本任务中更少出现空间/语义不一致。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/fig_figure_video_test_set.png" alt="in-the-wild generated plans">
+      <div class="caption">Figure 6：100 个第三方测试任务中的生成计划示例，包括加油枪、叉子入杯、开烤箱、开书盖等。</div>
+    </div>
+
+    <h3>5.3 真实机器人执行</h3>
+    <p>真实实验覆盖两个平台：Franka Emika Arm + parallel-jaw gripper，以及 Unitree G1 Arm + Inspire dexterous hand。VLA baseline $\pi_0$ 和 OpenVLA 只适用于平行夹爪任务，不支持多指灵巧手设置。</p>
+    <table>
+      <tr><th>任务</th><th>LVP</th><th>$\pi_0$</th><th>OpenVLA</th></tr>
+      <tr><td>Pick Objects</td><td><strong>5/10</strong></td><td>3/10</td><td>0/10</td></tr>
+      <tr><td>Pick A into B</td><td><strong>3/10</strong></td><td>1/10</td><td>0/10</td></tr>
+      <tr><td>Open Drawer</td><td><strong>2/10</strong></td><td>1/10</td><td>0/10</td></tr>
+      <tr><td>Press Button</td><td><strong>4/10</strong></td><td>0/10</td><td>0/10</td></tr>
+      <tr><td>Pick Objects (OOD Object)</td><td><strong>4/10</strong></td><td>0/10</td><td>0/10</td></tr>
+      <tr><td>Pick A into B (OOD Object)</td><td><strong>2/10</strong></td><td>0/10</td><td>0/10</td></tr>
+      <tr><td>Pick Objects (OOD Scene)</td><td><strong>6/10</strong></td><td>1/10</td><td>0/10</td></tr>
+      <tr><td>Pick A into B (OOD Scene)</td><td><strong>1/10</strong></td><td>0/10</td><td>0/10</td></tr>
+    </table>
+    <table>
+      <tr><th>G1 + Inspire dexterous hand 任务</th><th>LVP 成功率</th></tr>
+      <tr><td>Pick Objects</td><td>4/10</td></tr>
+      <tr><td>Press Elevator Button</td><td>4/5</td></tr>
+      <tr><td>Sweep Tennis Ball into Bucket</td><td>5/5</td></tr>
+      <tr><td>Open Box</td><td>2/10</td></tr>
+      <tr><td>Open Door</td><td>6/10</td></tr>
+      <tr><td>Wipe Table</td><td>8/10</td></tr>
+      <tr><td>Scoop Coffee Beans</td><td>3/5</td></tr>
+      <tr><td>Tear off Clear Tape</td><td>2/5</td></tr>
+    </table>
+    <p>结果显示 LVP 在平行夹爪任务上总体优于 $\pi_0$ 和 OpenVLA，但成功率绝对值并不高，说明 pipeline 仍很脆弱。灵巧手结果更体现任务级泛化：开门、擦桌、扫球、撕胶带这类任务不在常见 pick-and-place 分布内，baseline 也无法直接适配多指手。</p>
+    <div class="figure">
+      <img src="figures/fig_gallery_with_title.png" alt="robot execution gallery">
+      <div class="caption">Figure 7：真实机器人任务可视化，包含平行夹爪和 G1 灵巧手任务。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/figText_figure_video_and_robot_results.png" alt="video and robot paired results">
+      <div class="caption">Figure 8：生成视频与真实机器人执行的配对结果，展示 LVP 计划可以被重定向到不同机器人形态。</div>
+    </div>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 复现与实现要点</h2>
+    <h3>6.1 数据集 LVP-1M</h3>
+    <table>
+      <tr><th>来源</th><th>过滤后 clips</th><th>机器人？</th><th>视角</th><th>形态</th><th>in-the-wild</th><th>双手/双臂</th></tr>
+      <tr><td>Bridge</td><td>25k</td><td>Yes</td><td>Third-person</td><td>Gripper</td><td>No</td><td>No</td></tr>
+      <tr><td>DROID</td><td>192k</td><td>Yes</td><td>Third-person</td><td>Gripper</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Language-Tables</td><td>71k</td><td>Yes</td><td>Third-person</td><td>Gripper</td><td>No</td><td>No</td></tr>
+      <tr><td>AgiBot-World</td><td>863k</td><td>Yes</td><td>Third-person</td><td>Gripper</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Ego4D</td><td>39k</td><td>No</td><td>Egocentric</td><td>Human Hand</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Epic-Kitchens</td><td>7k</td><td>No</td><td>Egocentric</td><td>Human Hand</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Something-Something</td><td>93k</td><td>No</td><td>Third-person</td><td>Human Hand</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Panda-70M filtered</td><td>196k</td><td>No</td><td>Third-person</td><td>Human Hand</td><td>Yes</td><td>Yes</td></tr>
+    </table>
+    <p>处理流程包括质量过滤、动作中心 caption、时间频率对齐。机器人数据往往动作慢、帧率不一，作者不是简单统一 FPS，而是把 clips 对齐到“人类完成同类原子动作的速度”，例如 3 秒动作 clip。</p>
+    <div class="figure">
+      <img src="figures/fig_figure_appendix_data_pipeline.png" alt="data pipeline">
+      <div class="caption">附录图：LVP-1M 数据处理 pipeline，包括数据来源、过滤、Gemini 动作 caption 和时间频率对齐。</div>
+    </div>
+
+    <h3>6.2 训练配置</h3>
+    <ul>
+      <li>训练样本：49-frame video clip，分辨率 832×480。</li>
+      <li>VAE latent shape：104×60×13。</li>
+      <li>Continue pretraining：batch size 128，60,000 iterations，warmup 1000 steps 后学习率 $1\times10^{-5}$。</li>
+      <li>Low camera motion finetuning：batch size 128，10,000 iterations，学习率 $2.5\times10^{-6}$。</li>
+      <li>总训练：128 张 H100 SXM5 GPU，约 14 天。</li>
+      <li>第一阶段数据 reweighting：AgiBot-World 0.375、DROID 0.75、Ego4D 1.5、Pandas 0.5、Something-Something 0.5、Bridge 1.0、Epic-Kitchens 2.0、Language Table 0.05。</li>
+    </ul>
+
+    <h3>6.3 Panda-70M 子集抽取</h3>
+    <p>附录给出 Panda-70M hand interaction 子集的提取流程：先用 108 个白名单关键词和 84 个黑名单关键词做 caption 过滤，下载约 692K videos；再切成 4 秒 clips，并在 768×1024 resize frames 上以 1 FPS 跑 human pose detection；最后用 Gemini-2.0 Flash 评估是否有丰富手部运动、是否有有意义动作、是否正常速度、是否没有镜头切换，只有 True/True/True/False 的样本保留，最终得到 196K clips。</p>
+
+    <h3>6.4 真实机器人设置</h3>
+    <table>
+      <tr><th>任务集</th><th>机器人</th><th>控制频率</th></tr>
+      <tr><td>Task Set 1</td><td>Franka Panda Arm + Parallel-Jaw Gripper</td><td>15 Hz</td></tr>
+      <tr><td>Task Set 2</td><td>Unitree G1 Arm + Inspire Hand (DH56DFX)</td><td>5 Hz</td></tr>
+    </table>
+    <p>G1 与 Inspire hand 通过 flange 机械连接，基于 Unitree teleoperation 框架做同步 arm-hand control。dex-retargeting 输出的关节角还要重映射到 Inspire Hand 的有效电机命令范围，才能实时执行。</p>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是把“视频模型作为机器人规划器”的路线推到了 foundation-model scale，并配套开源数据和真实执行 pipeline。相比只在模拟任务上报告策略分数，论文让第三方自由提出任务、用视频模型生成计划、再把其中一部分计划转成真实机器人动作。这让读者能更清楚地看到视频预训练的任务级泛化潜力，以及它与传统 VLA 的差异。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <div class="check">
+      <ul>
+        <li><strong>测试任务不是作者自选小集合：</strong>100 个 in-the-wild prompts 来自第三方参与者，且经过独立过滤，避免完全按模型能力设计评估。</li>
+        <li><strong>四级评分细分了失败类型：</strong>Level 1 到 Level 4 区分接触、终态、完整动作和物理完美性，可以看出基线常能接触目标，但难以完成连续可行 motion plan。</li>
+        <li><strong>对比模型强且同尺度：</strong>视频评估对比 Wan 2.1 I2V 14B、Cosmos-Predict 2 14B、Hunyuan I2V 13B，均是强视频生成模型。</li>
+        <li><strong>有真实机器人闭环外验证：</strong>虽然执行是开环 pipeline，但它确实把生成视频转成 Franka 和 G1 灵巧手动作，并和 $\pi_0$/OpenVLA 在平行夹爪任务上比较。</li>
+        <li><strong>附录披露了工程细节：</strong>数据过滤、Panda 子集抽取、训练超参、MegaSAM/HaMeR 对齐、gripper retargeting 和机器人控制频率都有说明。</li>
+      </ul>
+    </div>
+
+    <h3>7.3 作者明确给出的局限</h3>
+    <ul>
+      <li><strong>实时性不足：</strong>单个视频计划在单张 A100 上生成需要数分钟，无法直接实时部署。</li>
+      <li><strong>动作抽取链路会出错：</strong>4D reconstruction 和 hand pose estimation 都依赖开源模型，任何一步出错都会导致任务失败。</li>
+      <li><strong>Retargeting 有形态瓶颈：</strong>五指人手到灵巧手尚可，但转到低自由度平行夹爪时严重欠约束。</li>
+      <li><strong>开环执行：</strong>整体机器人执行框架是 open-loop，不足以处理长程、动态或需要反馈纠错的灵巧任务。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>LVP 更适合生成“人类可以在几秒内完成、视觉上可观察、动作程序清楚”的短时 manipulation plan。它当前不适合需要实时闭环控制、强触觉反馈、精确力控或长程动态交互的任务。真实机器人表格中的低成功率也说明，这条路线的计划能力已很有启发性，但执行可靠性仍远未解决。</p>
+
+    <h3>7.5 组会阅读提醒</h3>
+    <ul>
+      <li>不要只看 Level 1，真正说明规划能力的是 Level 3 Task Complete 和 Level 4 Perfect。</li>
+      <li>读方法时把“视频模型训练”和“视频到动作重定向”分开：前者是 foundation model 贡献，后者是工程 pipeline。</li>
+      <li>读真实机器人结果时同时看绝对成功率和任务类型。LVP 胜过 baseline 重要，但 1/10、2/10 这类结果也说明系统仍非常不稳定。</li>
+    </ul>
+  </section>
+</body>
+</html>

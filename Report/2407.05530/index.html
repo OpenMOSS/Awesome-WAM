@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>This&That - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --paper: #ffffff;
+      --soft: #f8fafc;
+      --blue: #2563eb;
+      --navy: #17325c;
+      --green: #15803d;
+      --amber: #b45309;
+      --violet: #6d28d9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eef2f7;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.78;
+    }
+    main {
+      max-width: 1080px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+      background: var(--paper);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      line-height: 1.25;
+      color: #0f172a;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 38px 0 14px;
+      padding-left: 12px;
+      border-left: 4px solid var(--blue);
+      font-size: 1.45rem;
+      line-height: 1.35;
+      color: var(--navy);
+    }
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 1.18rem;
+      color: #1e3a5f;
+    }
+    h4 {
+      margin: 20px 0 8px;
+      font-size: 1.02rem;
+      color: #334155;
+    }
+    p { margin: 9px 0; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.1rem 0.3rem;
+      background: #edf2f7;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    header {
+      border-bottom: 2px solid #dbeafe;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+    }
+    .meta {
+      background: #f1f5f9;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #334155;
+    }
+    .meta p { margin: 4px 0; }
+    .toc, .note, .audit-card, .formula-block {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 15px;
+      margin: 12px 0;
+    }
+    .toc ul {
+      margin: 6px 0 0;
+      padding-left: 20px;
+      columns: 2;
+    }
+    .toc li { margin: 2px 0; break-inside: avoid; }
+    .tldr {
+      background: #fff7ed;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      padding: 13px 16px;
+      margin: 16px 0;
+      font-size: 1.03rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .appendix-ref {
+      color: var(--violet);
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 4px;
+      padding: 0.05rem 0.35rem;
+      font-size: 0.86rem;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 700;
+      color: #164e63;
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 28%;
+      font-family: ui-monospace, Consolas, monospace;
+      color: #1d4ed8;
+    }
+    figure {
+      margin: 20px auto;
+      text-align: center;
+    }
+    figure img {
+      max-width: 100%;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: white;
+    }
+    figcaption {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      text-align: left;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      font-size: 0.94rem;
+    }
+    th, td {
+      border: 1px solid #dbe3ef;
+      padding: 8px 9px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #eef2f7; color: #24324a; }
+    tbody tr:nth-child(even) td { background: #fbfdff; }
+    .best { font-weight: 700; color: var(--green); }
+    .warn { color: var(--amber); font-weight: 700; }
+    .pseudocode {
+      background: #172033;
+      color: #e5edf7;
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.9rem;
+      line-height: 1.58;
+      margin: 12px 0;
+    }
+    @media (max-width: 760px) {
+      main { padding: 20px 14px 48px; }
+      h1 { font-size: 1.55rem; }
+      .toc ul { columns: 1; }
+      .grid { grid-template-columns: 1fr; }
+      table { font-size: 0.86rem; }
+      th, td { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>This&That: Language-Gesture Controlled Video Generation for Robot Planning</h1>
+    <div class="meta">
+      <p><strong>中文精读报告：</strong>面向 junior PhD 组会准备，重点解释方法、公式、实现与实验复现细节。</p>
+      <p><strong>作者：</strong>Boyang Wang, Nikhil Sridhar, Chao Feng, Mark Van der Merwe, Adam Fishman, Nima Fazeli, Jeong Joon Park</p>
+      <p><strong>机构：</strong>University of Michigan, University of Washington</p>
+      <p><strong>arXiv：</strong><a href="https://arxiv.org/abs/2407.05530">2407.05530</a>；项目页：<a href="https://this-and-that-vid.github.io/this-and-that/">this-and-that-vid.github.io/this-and-that</a></p>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#formulation">4. 问题形式化</a></li>
+      <li><a href="#method">5. 方法详解</a></li>
+      <li><a href="#experiments">6. 实验与结果</a></li>
+      <li><a href="#discussion">7. 分析、局限与边界</a></li>
+      <li><a href="#repro">8. 可复现性审计</a></li>
+    </ul>
+  </nav>
+
+  <section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>This&That 用“语言 + 手势点”控制视频扩散模型生成机器人视觉计划，再用 DiVA 行为克隆模型把视频计划和实时观测融合成动作，目标是在模糊场景里让机器人理解“this/that/there”这类人类自然指令。
+    </div>
+    <table>
+      <thead>
+        <tr><th>速览问题</th><th>简明回答</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>论文要解决什么</td>
+          <td>视频生成可作为机器人计划，但语言-only 指令在复杂或不确定场景中常有歧义，尤其是“把这个放到那里”这类 deictic language。论文要解决的是：如何用简单的人类语言和指向手势无歧义地控制视频计划，并把计划转成机器人动作。</td>
+        </tr>
+        <tr>
+          <td>作者的方法抓手</td>
+          <td>两个模块：一是基于 Stable Video Diffusion 微调的 language-gesture conditioned VDM，用初始帧、文本和两个 2D gesture points 生成视频计划；二是 DiVA，一个 video-conditioned behavior cloning Transformer，用视频计划 tokens 和实时观测 cross-attention 输出动作 chunk。</td>
+        </tr>
+        <tr>
+          <td>最重要的结果</td>
+          <td>Bridge 视频质量上，Ours 达到 FID 17.28、FVD 84.58、PSNR 21.71、SSIM 0.787、LPIPS 0.112，全部优于 SVD、StreamingT2V、DragAnything 和 AVDC；Isaac Gym rollout 中，完整 Video-based (V.+Lang.+Gesture) 在 ID/OOD 场景达到 Pick 95/87、Place 93/80，明显高于语言-only 版本。</td>
+        </tr>
+        <tr>
+          <td>阅读时要注意的点</td>
+          <td>这篇论文不是长程规划论文，而是单步/模块化任务中的“指令消歧 + 视频条件执行”论文。它的 real-robot 部分只评估了视频生成质量，动作执行实验目前在 Isaac Gym simulation；因此要区分“视频生成对齐真实机器人数据”和“真实机器人闭环执行”。</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>难度评级：</strong>★★★☆☆。需要熟悉 latent video diffusion、ControlNet/FiLM/CLIP conditioning、behavior cloning、ACT/Transformer policy、机器人视觉数据集与 rollout 评估。</p>
+    <p><strong>关键词：</strong>language-gesture conditioning, deictic language, video diffusion model, Stable Video Diffusion, DiVA, video-conditioned behavior cloning, Bridge dataset, Isaac Gym。</p>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>语言-手势条件 VDM。</strong>在 SVD 基础上微调机器人视频，并加入稀疏 gesture conditioning，使模型能理解“this/that/there”。</li>
+      <li><strong>自动手势标注流程。</strong>用 Bridge metadata、YoloV8 gripper detector 和 TrackAnything 自动恢复真实数据中的 pick/release gesture points。</li>
+      <li><strong>DiVA 执行模型。</strong>把生成视频作为 dense visual goal sequence，通过 TokenLearner 压缩、cross-attention 融合实时观测，输出动作 chunk。</li>
+      <li><strong>系统性验证手势价值。</strong>用户对齐、视频质量、VDM ablation、DiVA ablation 和 simulation rollout 都显示语言+手势优于单一模态。</li>
+    </ul>
+
+    <figure>
+      <img src="figures/figures_Teaser.png" alt="This&That teaser">
+      <figcaption><strong>Teaser.</strong>同一初始帧下，模型可根据不同语言和手势点生成不同动作序列。手势提供了语言无法精确表达的空间消歧信息。</figcaption>
+    </figure>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 为什么语言不够</h3>
+    <p>人类给指令时常常说“拿这个”“放到那里”，同时用手指指向目标。单独用自然语言描述同一个任务可能很冗长，而且在真实桌面、柜子、洗衣区这类复杂环境中容易歧义。例如“拿第三排蓝色杯子”依赖准确的空间描述和物体识别，而指向手势可以直接补上空间参照。</p>
+
+    <h3>2.2 为什么视频计划适合机器人</h3>
+    <p>视频计划比单张目标图更稠密，能描述从初始状态到目标状态的中间过程。对于机器人执行来说，这些中间帧可以作为 dense sequence of visual goals，减少单图目标的歧义，也比直接从语言预测动作更贴近视觉控制。</p>
+
+    <h3>2.3 已有视频机器人方法的缺口</h3>
+    <p>UniPi、UniSim 等方法展示了视频生成可模拟机器人交互，但常通过 inverse dynamics 将视频转动作。AVDC 用低分辨率视频计划并从 optical flow 提取离散动作。这些方法在模糊场景中很难只靠语言精确指定对象和目标位置，本文通过 language + gesture 进行定向视频生成，并通过 BC 架构直接引用视频计划。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <thead>
+        <tr><th>方向</th><th>已有工作</th><th>This&That 的区别</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Imitation Learning / BC</td>
+          <td>ACT、Diffusion Policy、RT-1 等直接从状态/图像和目标信息学习动作。</td>
+          <td>本文不是只把语言或单图作为 goal，而是把 VDM 生成的多帧视频计划作为 dense goal sequence 输入 DiVA。</td>
+        </tr>
+        <tr>
+          <td>条件视频扩散</td>
+          <td>现有 VDM 可由文本、轨迹、mask、camera pose 等控制，但常需要密集空间或时间条件。</td>
+          <td>This&That 只需要非常稀疏的两个 2D gesture points，加上简短 deictic language 即可控制机器人视频。</td>
+        </tr>
+        <tr>
+          <td>Video diffusion in robotics</td>
+          <td>UniPi/UniSim 用 text/image-to-video 生成机器人视频；AVDC 生成低分辨率 video plans 并用 optical flow 转动作。</td>
+          <td>本文同时改进定向视频预测和视频条件控制：语言+手势解决歧义，DiVA 用 BC cross-attention 执行动作。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="formulation">
+    <h2>4. 问题形式化</h2>
+    <h3>4.1 视频生成目标</h3>
+    <p>模型从初始帧 $I_0$ 出发，生成 $T$ 个未来帧，条件包括语言 $C_{\text{text}}$ 和手势 $C_{\text{gest}}$：</p>
+    <div class="formula-block">
+      <p class="intuition">这个分布表示：在给定当前图像、文本和指向手势时，未来视频应该如何变化。</p>
+      $$p_{\theta}(I_0,\ldots,I_T \mid I_0, C_{\text{text}}, C_{\text{gest}})$$
+      <table class="symbol-table">
+        <tr><td>$I_0$</td><td>初始图像，也作为 image conditioning。</td></tr>
+        <tr><td>$C_{\text{text}}$</td><td>任务文本，可以是常规描述，也可以是 deictic prompt，如 “put this to there”。</td></tr>
+        <tr><td>$C_{\text{gest}}$</td><td>稀疏手势图像，通常由 pick 点和 place/release 点构成。</td></tr>
+        <tr><td>$I_{1:T}$</td><td>VDM 生成的机器人未来视觉计划。</td></tr>
+      </table>
+    </div>
+
+    <h3>4.2 DiVA 动作条件分布</h3>
+    <p>DiVA 学习从实时观测、机器人状态和视频计划中预测下一个 action chunk：</p>
+    <div class="formula-block">
+      $$\pi_\theta(a_{t:t+k} \mid o_t, s_t, \tau)$$
+      <table class="symbol-table">
+        <tr><td>$a_{t:t+k}$</td><td>从时间 $t$ 开始要执行的动作片段。实验中 action chunk size $k=10$。</td></tr>
+        <tr><td>$o_t$</td><td>当前 live image observation。</td></tr>
+        <tr><td>$s_t$</td><td>机器人 end-effector pose。</td></tr>
+        <tr><td>$\tau$</td><td>视频计划 $\mathcal{I}=[I_0,\ldots,I_T]$ 的子集，作为 dense visual goals。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="method">
+    <h2>5. 方法详解</h2>
+    <h3>5.1 系统总览</h3>
+    <p>This&That 包含两个模块：language-gesture conditioned video generation 和 video-conditioned behavioral cloning。前者用简短文本和手势生成视觉计划；后者将视觉计划和实时观测映射为机器人动作。</p>
+    <figure>
+      <img src="figures/figures_VDM_comparison.png" alt="Video-based planning qualitative results">
+      <figcaption><strong>Video-based Planning Qualitative Results.</strong>与 AVDC 相比，This&That 在 deictic language 和复杂场景中生成更清晰、更贴合用户意图的视频。</figcaption>
+    </figure>
+
+    <h3>5.2 Language-conditioned finetuning</h3>
+    <p>作者以 Stable Video Diffusion (SVD) 为基础。SVD 是 latent VDM，利用 encoder $\mathcal{E}$ 和 decoder $\mathcal{D}$ 在像素空间和 latent space 之间转换。由于开域 SVD 并不适合机器人任务，作者先用 Bridge 机器人视频对 SVD 的核心结构做 initial finetuning。</p>
+    <p>文本 $C_{\text{text}}$ 和初始帧 $I_0$ 通过 CLIP encoder 提取 token，再通过 cross-attention 和 FiLM 生成调制参数，作用于 UNet 中间特征。训练时对 $I_{0:T}$ 加 Gaussian noise，并优化 noise reconstruction loss。</p>
+
+    <h3>5.3 Gesture-conditioned branch</h3>
+    <p>标准 ControlNet 式稀疏点条件在这里不够，因为两个 2D 点太稀疏，直接输入容易被网络忽略。作者在 gesture conditioning branch 的第一层卷积前，将三个 latent 级别输入 channel-wise concatenate：</p>
+    <div class="formula-block">
+      $$[\mathcal{E}(I_0);\epsilon_t;\mathcal{E}(C_{\text{gest}})]$$
+      <p>其中 $\mathcal{E}(I_0)$ 是初始帧 latent，$\epsilon_t$ 是 denoising step 的 noisy video latent，$\mathcal{E}(C_{\text{gest}})$ 是 gesture image latent。补充材料给出形状：三者都是 $\mathbb{R}^{(B\times T)\times4\times H\times W}$，拼接后为 $\mathbb{R}^{(B\times T)\times12\times H\times W}$。</p>
+    </div>
+    <p>两阶段训练中，第二阶段初始化 conditioning branch，并接入 zero convolution；gesture branch 的输出加到 UNet decoder，类似 ControlNet。手势点会被 2D Gaussian dilation 或 10x10 pixel block 扩展，降低稀疏性。</p>
+    <figure>
+      <img src="figures/figures_Diffusion.png" alt="VDM architecture">
+      <figcaption><strong>Video Diffusion Model Architecture.</strong>主文 VDM 架构图：初始帧、语言和 gesture conditioning 共同控制视频扩散模型。</figcaption>
+    </figure>
+
+    <h3>5.4 自动手势标注</h3>
+    <p>Bridge 数据没有人工 gesture labels。作者用 robot metadata 找到 gripper close/open 的关键时刻，再定位 pick/release 目标点。具体流程：</p>
+    <ul>
+      <li>用 450 张人工标注图训练 YoloV8 gripper detector，检测 gripper bounding box。</li>
+      <li>根据关键帧恢复 gripper 与物体交互位置。</li>
+      <li>用 TrackAnything 跟踪物体运动，尤其处理物体被中途释放后继续移动的情况。</li>
+      <li>过滤 tracking 失败、过短或超过目标帧数 5 倍的视频。</li>
+    </ul>
+    <p>这个流程让真实 Bridge 数据可用于自监督训练语言-手势 VDM。</p>
+
+    <h3>5.5 DiVA: Diffusion Video to Action</h3>
+    <p>DiVA 是 Transformer encoder-decoder BC 模型。它不是把视频逐帧做 inverse dynamics，而是把视频计划当作参考目标，与 live observation 做 cross-attention。</p>
+    <figure>
+      <img src="figures/figures_DiVA_architecture.png" alt="DiVA architecture">
+      <figcaption><strong>DiVA architecture.</strong>DiVA 用 ResNet-18 提取图像 token，TokenLearner 压缩每张图到 16 tokens，再由 Transformer encoder-decoder 输出动作 chunk。</figcaption>
+    </figure>
+    <p>关键设计：</p>
+    <ul>
+      <li><strong>ResNet-18 embedding。</strong>每张 $256\times384\times3$ 图像变成 $8\times12\times512$ latent embedding。</li>
+      <li><strong>TokenLearner 压缩。</strong>将每张图的 96 个空间 token 压到 16 个动态 token，避免视频帧过多导致 token 爆炸。</li>
+      <li><strong>Observation-token 与 goal-token cross-attention。</strong>当前观测和 end-effector pose 形成 $O\in\mathbb{R}^{17\times512}$，Transformer encoder 通过 4 层 self/cross-attention 引用 goal tokens。</li>
+      <li><strong>Decoder 输出动作 chunk。</strong>Transformer decoder 使用 7 层 self/cross-attention，将固定 positional embeddings 转为 $k=10$ 个动作。</li>
+      <li><strong>Temporal noise。</strong>训练时从 $N$ 个连续 observation groups 中随机采样目标帧，使 DiVA 对生成视频和真实轨迹之间的小时间错位更鲁棒。</li>
+    </ul>
+    <p>作者曾尝试 inverse dynamics，但因为 VDM 固定输出帧数，而真实 demonstration 长度变化，导致固定帧到动作插值困难；DiVA 避免了额外 temporal interpolation diffusion model。</p>
+
+    <h3>5.6 附录训练细节</h3>
+    <table>
+      <thead>
+        <tr><th>模块</th><th>配置</th><th>来源</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bridge VDM stage 1</td>
+          <td>8 Nvidia L40S GPUs，每张 48GB；UNet 训练 99K iterations；batch size 1/GPU；默认 SVD 14-frame 权重。</td>
+          <td><span class="appendix-ref">补充材料 VDM Training Details</span></td>
+        </tr>
+        <tr>
+          <td>Bridge VDM stage 2</td>
+          <td>4 GPUs，gesture conditioning 训练 30K iterations。</td>
+          <td><span class="appendix-ref">补充材料 VDM Training Details</span></td>
+        </tr>
+        <tr>
+          <td>Isaac Gym VDM</td>
+          <td>stage 1 用 8 GPUs 训练 30K iterations；stage 2 用 4 GPUs 训练 15K iterations；初始权重是 SVD-XT 25-frame version。</td>
+          <td><span class="appendix-ref">补充材料 VDM Training Details</span></td>
+        </tr>
+        <tr>
+          <td>优化器</td>
+          <td>AdamW；两阶段 constant learning rate 分别为 $1e^{-5}$ 与 $5e^{-6}$；使用 8-bit Adam 降低显存；无 EMA。</td>
+          <td><span class="appendix-ref">补充材料 VDM Training Details</span></td>
+        </tr>
+        <tr>
+          <td>DiVA 训练</td>
+          <td>900 training instances，100 heldout testing；每个 demo 约 75-100 observation-action pairs；单张 Nvidia RTX 6000 Ada GPU；2000 epochs；batch size 8；learning rate $1e^{-5}$；weight decay $1e^{-4}$；action chunk size 10。</td>
+          <td><span class="appendix-ref">补充材料 DiVA Training Details</span></td>
+        </tr>
+        <tr>
+          <td>数据增强</td>
+          <td>horizontal flip 概率 0.45；若 prompt 包含 left/right 等位置词，则不翻转。</td>
+          <td><span class="appendix-ref">补充材料 VDM Training Details</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="experiments">
+    <h2>6. 实验与结果</h2>
+    <p>实验验证三件事：视频是否真实并对齐用户意图；语言-手势 conditioning 是否必要；生成视频是否能帮助下游机器人动作学习。</p>
+
+    <h3>6.1 Bridge 视频质量评估</h3>
+    <p>作者在 Bridge V1/V2 上训练，前视角数据经过长度筛选。用于 initial finetuning 的视频为 25,767 条，用于 gesture-conditioned training 的视频为 14,735 条。评估使用 Bridge test videos，其中主表使用 646 个 gesture label filtering 后的 Bridge V1 视频。</p>
+    <table>
+      <thead>
+        <tr><th>Method</th><th>FID ↓</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SVD</td><td>29.49</td><td>657.49</td><td>12.47</td><td>0.334</td><td>0.391</td></tr>
+        <tr><td>StreamingT2V</td><td>42.57</td><td>780.81</td><td>11.35</td><td>0.324</td><td>0.504</td></tr>
+        <tr><td>DragAnything</td><td>34.38</td><td>764.58</td><td>12.76</td><td>0.364</td><td>0.466</td></tr>
+        <tr><td>AVDC</td><td>163.93</td><td>1512.25</td><td>20.23</td><td>0.663</td><td>0.507</td></tr>
+        <tr><td>Ours</td><td class="best">17.28</td><td class="best">84.58</td><td class="best">21.71</td><td class="best">0.787</td><td class="best">0.112</td></tr>
+      </tbody>
+    </table>
+    <p>该结果说明：开域视频模型直接用在机器人场景上不够，AVDC 虽然是 robotics VDM 但分辨率和视觉质量较差；本文 VDM 在视觉质量、时序质量和 perceptual loss 上都显著更好。补充材料还在 AVDC 原生低分辨率 $48\times64$ 下比较，Ours resized 到 $48\times64$ 仍优于 AVDC。</p>
+
+    <h3>6.2 用户意图对齐实验</h3>
+    <p>用户研究由 3 名有 robotics 经验的参与者完成。测试集 24 个 Bridge cases：8 个 pick-and-place、5 个 stacking、6 个 folding、5 个 open/close。参与者看到初始图、非 deictic prompt 和 gesture points，判断生成视频是否正确完成意图。使用文本的方法同时测试 regular text 和 deictic text。</p>
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">Modality</th>
+          <th colspan="2">Pick&Place</th>
+          <th colspan="2">Stacking</th>
+          <th colspan="2">Folding</th>
+          <th colspan="2">Open/Close</th>
+          <th colspan="2">Average</th>
+        </tr>
+        <tr><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Vision</td><td>0.0</td><td>-</td><td>6.6</td><td>-</td><td>11.1</td><td>-</td><td>60.0</td><td>-</td><td>16.7</td><td>-</td></tr>
+        <tr><td>AVDC (V.+Lang.)</td><td>8.3</td><td>8.3</td><td>0.0</td><td>0.0</td><td>5.6</td><td>5.6</td><td>40.0</td><td>40.0</td><td>12.5</td><td>12.5</td></tr>
+        <tr><td>V.+Lang.</td><td>37.5</td><td>4.2</td><td>26.7</td><td>6.6</td><td>50.0</td><td>33.3</td><td>100.0</td><td>66.7</td><td>51.4</td><td>25.0</td></tr>
+        <tr><td>V.+Gesture</td><td>58.3</td><td>-</td><td>66.7</td><td>-</td><td>55.6</td><td>-</td><td>100.0</td><td>-</td><td>68.1</td><td>-</td></tr>
+        <tr><td>V.+Lang.+Gesture</td><td class="best">95.8</td><td class="best">91.6</td><td class="best">80.0</td><td class="best">66.7</td><td class="best">88.9</td><td class="best">94.4</td><td class="best">100.0</td><td class="best">93.3</td><td class="best">91.7</td><td class="best">87.5</td></tr>
+      </tbody>
+    </table>
+    <p>最关键的观察是：deictic text 下，language-only 平均只有 25.0%，而 language+gesture 仍有 87.5%。这正对应论文要解决的“this/that/there 指令需要手势消歧”。Open/Close 任务歧义较低，所以 language-only 也较强。</p>
+
+    <h3>6.3 Isaac Gym rollout 实验</h3>
+    <p>模拟环境中桌面上有四个 blocks，形状为 cube/cylinder，颜色 8 种。任务通过两个随机物体和五种关系构造：in front of、behind、to the right of、to the left of、on top of。动作是 7D command：end-effector frame 下的 delta pose，加一个连续 gripper open/close 标量。</p>
+    <table>
+      <thead>
+        <tr><th>Goal Conditioning</th><th>Pick Success ID/OOD (%)</th><th>Place Success ID/OOD (%)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>ACT (Vision-only)</td><td>5 / 3</td><td>0 / 1</td></tr>
+        <tr><td>ACT (V.+Lang.)</td><td>3 / 3</td><td>0 / 0</td></tr>
+        <tr><td>ACT (V.+Lang.+Gesture)</td><td>57 / 56</td><td>35 / 35</td></tr>
+        <tr><td>AVDC-retrain (V.+Lang.)</td><td>67 / 40</td><td>46 / 14</td></tr>
+        <tr><td>Video-based (V.+Lang.)</td><td>93 / 60</td><td>82 / 26</td></tr>
+        <tr><td>Video-based (V.+Lang.+Gesture)</td><td class="best">95 / 87</td><td class="best">93 / 80</td></tr>
+      </tbody>
+    </table>
+    <p>这个表说明两层结论：第一，video-based planning + DiVA 明显优于直接 ACT，即视频计划作为中间表示是有用的；第二，在 OOD identical blocks 场景中，gesture 极大提升 place success，从 language-only 的 26% 到 language+gesture 的 80%。</p>
+    <figure>
+      <img src="figures/figures_Rollout.png" alt="Simulation rollout comparison">
+      <figcaption><strong>Simulation Rollout Qualitative Comparison.</strong>AVDC 和 language-only baseline 在复杂文本和相同物体场景中容易失败；This&That 用手势消歧后能生成并执行更正确的计划。</figcaption>
+    </figure>
+
+    <h3>6.4 VDM ablation</h3>
+    <table>
+      <thead>
+        <tr><th>Method</th><th>FID ↓</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Regular ControlNet</td><td>22.158</td><td>124.710</td><td>19.975</td><td>0.758</td><td>0.134</td></tr>
+        <tr><td>With SAM Segmentation Mask</td><td>17.922</td><td>88.757</td><td>21.554</td><td>0.785</td><td>0.115</td></tr>
+        <tr><td>No LayerNorm on CLIP Embeddings</td><td>17.566</td><td>92.527</td><td>21.559</td><td>0.786</td><td>0.114</td></tr>
+        <tr><td>Larger Gesture Conditioning</td><td>18.844</td><td>96.794</td><td>21.180</td><td>0.778</td><td>0.122</td></tr>
+        <tr><td>Smaller Gesture Conditioning</td><td>19.813</td><td>106.953</td><td>21.506</td><td>0.782</td><td>0.119</td></tr>
+        <tr><td>Ours</td><td class="best">17.278</td><td class="best">84.580</td><td class="best">21.716</td><td class="best">0.787</td><td class="best">0.112</td></tr>
+      </tbody>
+    </table>
+    <p>ablation 支持三点：普通 ControlNet conditioning 不适合极稀疏 gesture；用 SAM mask 增加空间信息不一定更好，因为 segmentation 可能圈出桌面等无关区域；gesture 区域太大或太小都会变差。</p>
+
+    <h3>6.5 DiVA ablation</h3>
+    <p>补充材料中 DiVA ablation 研究了 goal frame 数量 $N$ 和 temporal noise。只用最后一帧 $N=1$ 几乎无法成功；随着目标帧数增加，表现大致线性提升，在 $N=15$ 到 $N=25$ 附近趋于平台期。加入 temporal noise 后，DiVA 更准确、更鲁棒。</p>
+    <figure>
+      <img src="figures/figures_supple_DiVA_ablation.png" alt="DiVA ablation">
+      <figcaption><strong>DiVA Ablation Studies.</strong>DiVA 使用 25 个 goal frames 并加入 temporal noise 时整体最好，说明 dense video goals 和时间错位鲁棒性很关键。</figcaption>
+    </figure>
+
+    <h3>6.6 补充定性结果</h3>
+    <figure>
+      <img src="figures/figures_supple_VDM_comparison_supplement.png" alt="Supplement VDM comparison">
+      <figcaption><strong>Video-based Planning Qualitative Results.</strong>补充材料中对比 This&That、AVDC 和 language-only VDM，展示手势点对用户意图对齐的帮助。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_supple_rollout_supp1.png" alt="Supplement rollout">
+      <figcaption><strong>Simulation Rollout Qualitative Comparison.</strong>DiVA 执行生成视频计划后的 rollout 结果，完整 language-gesture 方法比语言-only baselines 更准确。</figcaption>
+    </figure>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>这篇论文最有价值的地方是把“人类自然指令”里的指向行为系统性地接入视频规划。它没有把用户要求变成越来越长的语言描述，而是承认日常指令中手势和 deictic words 是一体的：语言提供任务语义，手势提供空间参照。这个接口设计比单纯提高语言模型空间推理能力更直接。</p>
+    <p>第二个价值是 DiVA 的执行设计。许多视频规划论文把视频转动作留给 inverse dynamics，但本文发现固定帧数视频和变长 demonstration 不好对齐，于是把视频计划作为 dense goal tokens 放进 BC Transformer。这个设计把视频计划和模仿学习更自然地接了起来。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>首先，论文的三个实验层次对应三项主张：Bridge 定量指标证明视频生成质量，用户研究证明语言+手势对齐意图，Isaac Gym rollout 证明视频计划能帮助动作执行。不是只在一个指标上好看。</p>
+    <p>其次，关键对照覆盖了不同替代路线：开域 SVD、StreamingT2V、DragAnything，机器人 VDM AVDC，直接 ACT 变体，language-only video-based baseline。完整方法在视频质量、用户对齐和 rollout 都优于这些 baseline，尤其 OOD identical blocks 场景中手势带来的提升非常明显。</p>
+    <p>第三，补充 ablation 支持具体设计选择：regular ControlNet、SAM mask、去掉 CLIP LayerNorm、改变 gesture area 都不如最终 VDM；DiVA 中增加 goal frames 和 temporal noise 也有明确趋势。因此结果不仅是“多模态更多所以更好”，而是几个实现细节都被拆开验证过。</p>
+
+    <h3>7.3 论文明确给出的结果解释</h3>
+    <ul>
+      <li>语言-only 在空间歧义和相同物体场景中不足，加入 gesture 能显著消歧。</li>
+      <li>视频计划作为 dense sequence of images 比单张 goal image 更适合下游策略学习。</li>
+      <li>DiVA 的成功来自 TokenLearner 压缩、observation-goal cross-attention、temporal noise 三个因素。</li>
+      <li>gesture-only 也不完美，因为 2D 手势点无法唯一确定 3D 点；简单语言 cue 可以补足这种 3D ambiguity。</li>
+    </ul>
+
+    <h3>7.4 作者自述局限</h3>
+    <table>
+      <thead>
+        <tr><th>局限</th><th>论文中的说明</th><th>影响范围</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>物体形状随时间变化</td>
+          <td>模型有时生成高保真视频但 object shape 会改变，作者认为可能来自缺少 3D geometry constraints。</td>
+          <td>需要精确几何、姿态或接触状态的执行任务。</td>
+        </tr>
+        <tr>
+          <td>短模块化任务</td>
+          <td>预测目前限制在 short, modular tasks；扩展到 cooking 等长任务仍是机会。</td>
+          <td>长程多阶段任务、需要 memory 和 replanning 的任务。</td>
+        </tr>
+        <tr>
+          <td>gesture-only 的 3D ambiguity</td>
+          <td>2D image-plane coordinate 不完全决定 3D point，图中展示 gesture-only 可能失败，语言 cue 可以解决。</td>
+          <td>有深度歧义、遮挡、多物体重叠的场景。</td>
+        </tr>
+        <tr>
+          <td>真实机器人执行未测试</td>
+          <td>视频生成在 Bridge 真实数据上评估，但 video-based BC rollout 目前限于 simulation，原因是缺少 WidowX 250 arm。</td>
+          <td>真实闭环机器人部署结论仍需进一步验证。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>7.5 适用边界</h3>
+    <p>This&That 最适合单步或短模块化 manipulation，尤其是用户能通过指向手势明确对象和目标位置、但语言描述会冗长或歧义的场景。它不适合纯语言即可无歧义的简单任务，也不适合需要精确 3D 几何、强接触物理、长程多阶段规划或已要求真实机器人闭环验证的任务。</p>
+  </section>
+
+  <section id="repro">
+    <h2>8. 可复现性审计</h2>
+    <div class="audit-card">
+      <h3>8.1 数据</h3>
+      <ul>
+        <li><span class="best">已给出：</span>Bridge V1/V2 前视角数据；initial finetuning 25,767 videos；gesture-conditioned training 14,735 videos；test split 使用 10% 数据，主 VDM 表用 646 Bridge V1 videos。</li>
+        <li><span class="best">已给出：</span>Isaac Gym 数据生成方式：四个 blocks，2 shapes、8 colors、5 spatial relations，scripted policy 收集 demos。</li>
+        <li><span class="warn">部分缺失：</span>完整训练/测试样本 ID、自动过滤阈值细节和全部 prompt 脚本未在报告源码中完整列出。</li>
+      </ul>
+    </div>
+
+    <div class="audit-card">
+      <h3>8.2 模型与训练</h3>
+      <ul>
+        <li>VDM 以 SVD/SVD-XT 为初始权重，两阶段训练，给出 GPU 数、iteration 数、学习率、优化器和 batch size。</li>
+        <li>DiVA 给出 ResNet-18 embedding shape、TokenLearner tokens、Transformer encoder/decoder 层数、action chunk size、训练样本量、epoch、batch size、learning rate、weight decay。</li>
+        <li>手势自动标注给出 YoloV8 gripper detector、450 manual images、TrackAnything tracking 和过滤规则。</li>
+      </ul>
+    </div>
+
+    <div class="audit-card">
+      <h3>8.3 评估</h3>
+      <ul>
+        <li>视频质量指标包括 FID、FVD、PSNR、SSIM、LPIPS；FID 从 generated/GT frames 中随机采样 9000 images。</li>
+        <li>用户研究包含 3 名有 robotics 经验参与者、24 cases、regular/deictic prompts、多个 modality conditions。</li>
+        <li>rollout 评估给出 pick/place 成功规则、250 timesteps、成功后 5 timesteps 终止、block diameter 5cm。</li>
+      </ul>
+    </div>
+
+    <div class="audit-card">
+      <h3>8.4 最小复现路径</h3>
+      <p>最现实的复现可从 Isaac Gym 开始：构建四块积木 pick-place 数据，训练一个 SVD-XT 初始化的低成本 language-only 和 language-gesture VDM，再训练 DiVA。核心验证是 OOD identical blocks 中，手势是否显著改善生成视频与 rollout success；不必一开始复现完整 Bridge 训练和用户研究。</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

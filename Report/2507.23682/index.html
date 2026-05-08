@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>villa-X: Enhancing Latent Action Modeling in Vision-Language-Action Models - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #5d6876;
+      --bg: #f5f7fb;
+      --paper: #ffffff;
+      --line: #dbe4ef;
+      --blue: #245b96;
+      --green: #257052;
+      --orange: #a45d1f;
+      --panel: #eef5fb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font: 16px/1.72 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 34px 0 64px;
+    }
+    header, section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 18px 0;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(24, 39, 75, 0.05);
+    }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 30px; letter-spacing: 0; }
+    h2 { font-size: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
+    h3 { font-size: 19px; margin-top: 24px; color: #1f4d83; }
+    p { margin: 10px 0; }
+    a { color: var(--blue); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 20px;
+      font-size: 15px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #edf3f9; color: #173f68; }
+    .overview th { width: 190px; }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tag {
+      display: inline-block;
+      margin: 0 6px 8px 0;
+      padding: 2px 8px;
+      border: 1px solid #b7c7d8;
+      border-radius: 999px;
+      color: #1f4d83;
+      background: #f2f7fd;
+      font-size: 13px;
+    }
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 8px 20px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc a { text-decoration: none; }
+    .callout {
+      margin: 14px 0;
+      padding: 12px 16px;
+      border-left: 4px solid var(--blue);
+      border-radius: 0 8px 8px 0;
+      background: var(--panel);
+    }
+    .warn { border-left-color: var(--orange); background: #fff5ec; }
+    figure {
+      margin: 20px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+    }
+    figcaption {
+      padding: 10px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: #fbfcfe;
+      font-size: 14px;
+    }
+    code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #f1f4f8;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    ul, ol { padding-left: 22px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>villa-X: Enhancing Latent Action Modeling in Vision-Language-Action Models</h1>
+    <p><strong>中文精读报告</strong>：villa-X 是一篇关于 Vision-Language-Action (VLA) 模型中 latent action modeling 的论文。它的主张是：latent action 不应只压缩视觉变化，还要用机器人 proprioception 让它和真实物理动作对齐；并且策略模型应显式地先规划 latent action，再条件化生成 robot action。</p>
+    <div>
+      <span class="tag">arXiv:2507.23682v3</span>
+      <span class="tag">VLA</span>
+      <span class="tag">Latent Action</span>
+      <span class="tag">Joint Diffusion</span>
+      <span class="tag">SIMPLER / LIBERO / Real Robots</span>
+    </div>
+    <div class="meta">
+      <div>作者：Xiaoyu Chen, Hangxing Wei, Pushi Zhang, Chuheng Zhang, Kaixin Wang 等</div>
+      <div>机构：Microsoft Research, Tsinghua University, Wuhan University, HKUST, Nanjing University</div>
+      <div>代码：<a href="https://github.com/microsoft/villa-x">https://github.com/microsoft/villa-x</a></div>
+      <div>项目页：<a href="https://aka.ms/villa-x">https://aka.ms/villa-x</a></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>目录</h2>
+    <ul class="toc">
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#problem">2. 背景与问题设定</a></li>
+      <li><a href="#method">3. 方法细节</a></li>
+      <li><a href="#experiments">4. 实验与结果</a></li>
+      <li><a href="#appendix">5. 附录关键信息</a></li>
+      <li><a href="#reproduce">6. 复现与实现要点</a></li>
+      <li><a href="#analysis">7. 分析、局限与边界</a></li>
+    </ul>
+  </section>
+
+  <section id="overview">
+    <h2>1. 论文速览</h2>
+    <table class="overview">
+      <tr>
+        <th>论文要解决什么</th>
+        <td>已有 VLA 通过 latent action 利用无动作视频数据，但 latent action 往往只由视觉重建学到，容易忽略末端旋转、夹爪开合等像素变化小但控制关键的动作。同时，很多方法只是把 latent action 当预训练中间任务或独立 token，未能充分把它用于 robot action 生成。villa-X 要解决“latent action 怎么学得更物理”和“怎么更有效地接入 VLA policy”这两件事。</td>
+      </tr>
+      <tr>
+        <th>作者的方法抓手</th>
+        <td>两个抓手：第一，在 Latent Action Model (LAM) 里加入 proprioceptive FDM，让 latent action 不只重建未来图像，还预测未来机器人 proprio states 和 actions，并用 embodiment context 区分不同机器人/控制频率；第二，在 ACT policy 中用 joint diffusion 同时预测 latent actions 和 robot actions，让 robot action expert 显式条件化在 latent action expert 的计划上。</td>
+      </tr>
+      <tr>
+        <th>最重要的结果</th>
+        <td>SIMPLER 上 villa-X 达到 Google Robot 平均 77.7%、WidowX 平均 62.5%，优于多类 VLA/latent-action/visual-trace baseline；LIBERO 四套件平均 90.1%，高于 w/o latent 的 81.9%；真实 Realman 和 XHand 平台上也整体优于 GR00T、GR-1 和 w/o latent 版本。ACT-latent 还展示了对未见 Realman 机械臂和开放词汇符号卡片的 zero-shot latent planning。</td>
+      </tr>
+      <tr>
+        <th>阅读时要注意的点</th>
+        <td>不要把 villa-X 理解为单纯“多加一个 latent token”。它的关键在于 latent action 的训练目标被 proprio-FDM 物理约束，且 policy 结构把 latent action 和 robot action 放进同一个 flow/diffusion 生成过程。也要注意，latent expert 的 zero-shot 展示是经 world/FDM 渲染验证的“计划能力”，并不等同于所有新平台上无微调真实执行。</td>
+      </tr>
+    </table>
+    <figure>
+      <img src="figures/figs_lam_overview2.png" alt="LAM overview">
+      <figcaption>Figure 1：普通 LAM 只做视觉未来重建；villa-X 加入 proprio-FDM，让 latent action 对未来 proprio state/action 也有预测能力。</figcaption>
+    </figure>
+  </section>
+
+  <section id="problem">
+    <h2>2. 背景与问题设定</h2>
+    <h3>为什么 latent action 重要</h3>
+    <p>VLA 模型需要从视觉和语言生成机器人动作，但真实 robot action 标注昂贵、跨机器人形态不统一。latent action 的想法是从相邻帧或短视频片段中抽象出“发生了什么动作”的中间 token，把大量 action-free human/robot videos 转化成 pseudo-action supervision，从而帮助 VLA 预训练。</p>
+    <p>问题在于：如果 latent action 只服务于图像重建，它学到的可能是“视觉上变化大的东西”，而不是“控制上重要的东西”。例如夹爪开合、末端旋转、微小接触动作在像素上变化不大，却决定任务成败。</p>
+    <div class="callout">
+      villa-X 的核心判断是：latent action 必须同时对视觉变化和物理动力学有解释力，才适合作为 vision 和 control 之间的桥。
+    </div>
+
+    <h3>两大问题</h3>
+    <ul>
+      <li><strong>如何更好地学习 latent action</strong>：从纯视觉压缩变成视觉 + proprioceptive dynamics 的联合约束。</li>
+      <li><strong>如何更好地使用 latent action</strong>：不是只做预训练头、teacher forcing 或独立规划，而是在 policy 内联合建模 latent action sequence 与 robot action chunk。</li>
+    </ul>
+  </section>
+
+  <section id="method">
+    <h2>3. 方法细节</h2>
+    <h3>3.1 总体训练流程</h3>
+    <p>villa-X 包含两个核心模块：LAM 负责从 observation pair 中提取 physically grounded latent actions；ACT 负责基于 VLM 特征、latent actions、proprio state 和 embodiment context 生成真实 robot action。训练分三阶段：LAM pretraining、ACT joint latent-robot pretraining、embodiment-specific finetuning。</p>
+
+    <h3>3.2 Latent Action Model (LAM)</h3>
+    <p>标准 LAM 通常由 IDM + visual FDM 构成。IDM 从两帧预测 latent token，FDM 用当前帧和 latent token 重建未来帧：</p>
+    <p>$$z_t=\text{IDM}(o_t,o_{t+K}),\quad \hat{o}_{t+K}=\text{FDM}(o_t,z_t)$$</p>
+    <p>villa-X 加入 proprio-FDM，让同一个 \(z_t\) 还必须预测未来 K 步机器人状态和动作：</p>
+    <p>$$(\hat{q}_{t+1},...,\hat{q}_{t+K},\hat{a}_{t+1},...,\hat{a}_{t+K})=\text{proprio-FDM}(q_t,z_t,c_e)$$</p>
+    <p>其中 \(c_e=f(\text{dataset ID},\text{control frequency})\)，dataset ID 用 learnable embedding，控制频率用 sinusoidal features + MLP。这样做的目的不是把不同机器人的差异塞进 latent action，而是把 embodiment-specific dynamics 交给 context，保留更一致的 latent action space。</p>
+
+    <h3>3.3 LAM 实现细节</h3>
+    <ul>
+      <li>IDM 是 ST-Transformer，输入默认 \(8\times224\times224\) video clip，patch size 14，12 个 ST blocks，hidden dim 768，32 heads。</li>
+      <li>VQ codebook size 为 32；训练时使用离散 token，但下游采用 codebook center 的连续向量作为 latent action。</li>
+      <li>Image reconstruction FDM 是 12-layer ViT-base；proprio-FDM 是 2-layer MLP，双输出头预测 future states/actions。</li>
+      <li>LAM batch size 512，学习率 \(1.5\times10^{-4}\)，2000 step warmup，约 128 张 A100 训练 4 天。</li>
+      <li>人类视频没有 proprio labels 时，省略 proprio-FDM loss，只使用视觉 FDM 目标。</li>
+    </ul>
+
+    <h3>3.4 Actor Module (ACT)</h3>
+    <p>ACT 把 latent action 与 robot action 放入一个显式分解的 policy：</p>
+    <p>$$\pi(a_{t:t+m-1},z^K_{t:t+(n-1)K}|o_t,l,q_t,c_e)=\pi_{\text{robot}}(a_{t:t+m-1}|z^K_{t:t+(n-1)K},o_t,l,q_t,c_e)\cdot\pi_{\text{latent}}(z^K_{t:t+(n-1)K}|o_t,l)$$</p>
+    <p>ACT 包含三部分：VLM 编码视觉语言输入；ACT-latent 预测 mid-level latent action plan；ACT-robot 在 VLM 特征、predicted latent actions、proprio state 和 embodiment context 条件下生成低层动作 chunk。</p>
+    <figure>
+      <img src="figures/figs_act.png" alt="ACT architecture">
+      <figcaption>Figure 2：ACT 架构。latent action expert 先做中层计划，robot action expert 在其条件下输出真实动作，并使用 embodiment context 与 attention mask。</figcaption>
+    </figure>
+
+    <h3>3.5 Joint diffusion / flow matching</h3>
+    <p>实现上，villa-X 用 conditional flow matching 建模 latent actions 和 robot actions 的 joint distribution。将目标动作组记作 \(x_t\)，条件输入记作 \(O_t=(o_t,l,q_t,c_e)\)，训练目标为：</p>
+    <p>$$L_\tau(\theta)=\mathbb{E}_{p(x_t|O_t),q(x_t^\tau|x_t)}\|v_\tau^\theta(x_t^\tau,O_t)-u(x_t^\tau|x_t)\|^2$$</p>
+    <p>其中 \(x_t^\tau=\tau x_t+(1-\tau)\epsilon\)，网络预测 denoising vector field \(u(x_t^\tau|x_t)=\epsilon-x_t\)。显式 factorization 通过 block-wise causal attention mask 实现。</p>
+
+    <h3>3.6 防止 latent shortcut 的 masking</h3>
+    <p>如果 robot action branch 过度依赖 latent tokens，可能学习到脆弱捷径。作者在训练中随机 mask robot-to-latent attention：50% 情况下完全 mask robot-to-latent attention；否则随机 mask 50% latent tokens。附录消融显示 attention mask 和 embodiment context 都有帮助。</p>
+  </section>
+
+  <section id="experiments">
+    <h2>4. 实验与结果</h2>
+    <h3>4.1 LAM 是否学到更好的 latent actions</h3>
+    <p>作者比较加入 proprio-FDM 的 \texttt{w/pp} 和不加入的 \texttt{wo/pp}。在 LIBERO 上冻结 LAM 后，用 3-layer MLP 从 latent action 预测 robot action，并统计最大 L1 error。结果显示 \texttt{w/pp} 在小误差 bin 中样本更多，高误差 bin 中样本更少，说明 proprio-FDM 让 latent action 携带更多低层动作信息。</p>
+    <figure>
+      <img src="figures/figs_probing.png" alt="Probing experiment">
+      <figcaption>Figure 3：Probing 实验。加入 proprio-FDM 的 latent action 更容易被线性/MLP probe 解码出低层动作。</figcaption>
+    </figure>
+
+    <h3>4.2 SIMPLER 消融</h3>
+    <table>
+      <tr><th>方法</th><th>Google Avg.</th><th>WidowX Avg.</th><th>含义</th></tr>
+      <tr><td>Ours</td><td><strong>58.5</strong></td><td><strong>40.8</strong></td><td>完整 LAM + ACT 设计。</td></tr>
+      <tr><td>wo/pp</td><td>57.4</td><td>32.3</td><td>没有 proprio-FDM，WidowX 上下降明显。</td></tr>
+      <tr><td>wo/LAM</td><td>35.0</td><td>33.1</td><td>不使用 latent action，Google 上大幅下降。</td></tr>
+      <tr><td>LAPA-style</td><td>43.8</td><td>1.0</td><td>两阶段 latent-action 预训练后换 action head，结构性传递弱。</td></tr>
+      <tr><td>Go-1-style</td><td>32.8</td><td>14.8</td><td>独立 latent planner + robot action prediction，不如 joint diffusion。</td></tr>
+    </table>
+    <p>这张表对应两个结论：proprio-FDM 改善 latent action 质量；ACT 的 joint latent-robot modeling 比 LAPA/Go-1 风格接入更有效。</p>
+
+    <h3>4.3 ACT-latent 的 zero-shot 计划能力</h3>
+    <p>作者在未见过的 Realman 机械臂上测试 ACT-latent。给定起始图和语言命令，如 “touch the corn”，ACT-latent 先生成 latent action sequence，再通过单独训练的 world/image FDM 渲染成视频。结果显示模型能识别开放词汇符号卡片并生成合理触碰/移动计划。</p>
+    <figure>
+      <img src="figures/figs_emoji_pic2.png" alt="Zero-shot latent plan visualization">
+      <figcaption>Figure 4：未见 Realman embodiment + open-vocabulary symbol cards 上的 zero-shot latent planning 可视化。</figcaption>
+    </figure>
+
+    <h3>4.4 SIMPLER 主结果</h3>
+    <table>
+      <tr><th>方法</th><th>Google Avg.</th><th>WidowX Avg.</th><th>备注</th></tr>
+      <tr><td>RT-1-X*</td><td>49.4</td><td>1.1</td><td>pretraining 后直接评估。</td></tr>
+      <tr><td>RoboVLMs</td><td>60.8</td><td>37.5</td><td>VLA baseline。</td></tr>
+      <tr><td>π0-FAST</td><td>61.9</td><td>32.1</td><td>强 VLA/action baseline。</td></tr>
+      <tr><td>GR00T-N1.5</td><td>57.9</td><td>62.0</td><td>world modeling / future embedding alignment。</td></tr>
+      <tr><td>Magma</td><td>62.3</td><td>44.8</td><td>visual trace 方法。</td></tr>
+      <tr><td>MoTo</td><td>59.2</td><td>N/A</td><td>latent-action 方法。</td></tr>
+      <tr><td>LAPA</td><td>N/A</td><td>57.3</td><td>latent-action 方法。</td></tr>
+      <tr><td>Ours w/o latent</td><td>36.5</td><td>49.0</td><td>移除 latent action expert。</td></tr>
+      <tr><td><strong>Ours</strong></td><td><strong>77.7</strong></td><td><strong>62.5</strong></td><td>Google/WidowX 平均最高。</td></tr>
+    </table>
+    <p>SIMPLER 结果说明：villa-X 在两类机器人上都达到强性能，且与 w/o latent 的差距证明 latent-action expert 对最终策略有实质贡献。</p>
+
+    <h3>4.5 真实机器人结果</h3>
+    <p>真实平台有两个：Realman RM75 + Inspire gripper，以及 XArm + 12-DoF XHand dexterous hand。Realman 用 375 条 teleop trajectories 微调，5 个任务各 75 条；XHand 使用 4000 条、13 类任务的 XHand Dataset 微调，预训练中未使用 dexterous-hand 数据，因此能测试 embodiment transfer。</p>
+    <figure>
+      <img src="figures/figs_real_robot.png" alt="Real robot platforms">
+      <figcaption>Figure 5：真实机器人平台与任务：上方 Realman 夹爪平台，下方 XArm + XHand 灵巧手平台。</figcaption>
+    </figure>
+    <table>
+      <tr><th>Realman 指标</th><th>GR00T</th><th>Ours w/o latent</th><th>Ours</th></tr>
+      <tr><td>Pick in</td><td>30</td><td><strong>40</strong></td><td>30</td></tr>
+      <tr><td>Pick out</td><td>70</td><td>80</td><td><strong>100</strong></td></tr>
+      <tr><td>Push</td><td>10</td><td>30</td><td><strong>50</strong></td></tr>
+      <tr><td>Stack</td><td>10</td><td><strong>60</strong></td><td>50</td></tr>
+      <tr><td>Unstack</td><td>60</td><td>70</td><td><strong>100</strong></td></tr>
+      <tr><td>Change block color</td><td>50</td><td>40</td><td><strong>60</strong></td></tr>
+      <tr><td>Change table cover</td><td>30</td><td>30</td><td><strong>60</strong></td></tr>
+    </table>
+    <table>
+      <tr><th>XHand 任务</th><th>Ours seen</th><th>Ours unseen</th><th>关键结论</th></tr>
+      <tr><td>Pick & Place</td><td>84</td><td>68</td><td>优于 GR-1、GR00T、w/o latent。</td></tr>
+      <tr><td>Stack Cube</td><td>75</td><td>50</td><td>unseen object/background 仍保持优势。</td></tr>
+      <tr><td>Place Cup Upright</td><td>60</td><td>30</td><td>seen/unseen 均为最高或并列最高。</td></tr>
+      <tr><td>Pour Water</td><td>60</td><td>30</td><td>复杂灵巧操作上仍优于 baseline。</td></tr>
+      <tr><td>Flick Ball</td><td>50</td><td>40</td><td>unseen 下高于 baseline。</td></tr>
+    </table>
+
+    <h3>4.6 LIBERO 结果</h3>
+    <p>附录在 LIBERO-Spatial、Object、Goal、Long 四个套件上评估。villa-X 平均 90.1%，高于 π0-FAST 的 85.5%、OpenVLA 的 76.5、Octo-base 的 75.1，也高于自身 w/o latent 的 81.9。四个套件中 full model 分别为 Spatial 97.5、Object 97.0、Goal 91.5、Long 74.5。</p>
+  </section>
+
+  <section id="appendix">
+    <h2>5. 附录关键信息</h2>
+    <h3>数据规模</h3>
+    <p>预训练数据混合包含 robot data 和 action-free human videos。Robot data 约 1.6M trajectories / 223.5M frames，主要来自 OpenX mixture 和 AgiBot；human videos 约 3.6M clips，来自 Ego4D/EgoHOD、EgoPAT3D、EGTEA、EPIC-KITCHENS、HO-Cap、HOI4D、HoloAssist、RH20T、Something-Something V2 等。</p>
+
+    <h3>LAM 额外可视化</h3>
+    <p>附录展示相同 latent action 对应的图像对，说明不同 embodiment（包括人类和机器人）中相似 latent action 能对应相似低层行为。还展示了通过 LAM + proprio-FDM 把 robot/human video demonstrations 转成 SIMPLER 机器人动作并执行，验证 latent actions 可以从视频迁移到 robot action。</p>
+    <figure>
+      <img src="figures/figs_simpler_fdm_part1.png" alt="Video to SIMPLER action part 1">
+      <figcaption>Figure 6：通过 LAM 和 proprio-FDM 将机器人视频示范转成 SIMPLER 动作。</figcaption>
+    </figure>
+
+    <h3>Embodiment context 消融</h3>
+    <p>去掉 embodiment context 会增加 visual FDM/proprio FDM validation loss。对未见 Realman embodiment 做 action probing 时，Ours 相比 w/o context 在 overall probing loss、xyz、rotation、gripper 上均更低，说明 context 帮助模型分离 embodiment-specific dynamics 并提升新 embodiment 泛化。</p>
+
+    <h3>policy 消融</h3>
+    <p>附录 policy ablation 显示：Ours 在 Google Avg. 58.5、WidowX Avg. 40.8；w/o mask 下降到 53.2 / 34.0；w/o context 下降到 49.1 / 38.5。说明 attention mask 和 embodiment context 都不是装饰，而是影响 policy 稳定性的关键设计。</p>
+  </section>
+
+  <section id="reproduce">
+    <h2>6. 复现与实现要点</h2>
+    <h3>最小复现路径</h3>
+    <ol>
+      <li>准备 robot trajectories 和 human videos；robot 数据需包含 observation、state、action、dataset ID、control frequency。</li>
+      <li>训练 LAM：ST-Transformer IDM 从 \(T_{\text{LAM}}=8\) 帧预测 latent tokens；visual FDM 重建未来图像；proprio-FDM 预测 future states/actions；人类视频跳过 proprio loss。</li>
+      <li>将 VQ codebook centers 作为连续 latent actions，给 ACT pretraining 使用。</li>
+      <li>构建 ACT：PaliGemma 3B VLM 编码视觉语言；ACT-latent 和 ACT-robot 分别是 18-layer Transformer experts。</li>
+      <li>用 conditional flow matching 联合训练 latent action sequence 和 robot action chunk；设置 block-wise causal attention 和 robot-to-latent stochastic masking。</li>
+      <li>按目标 embodiment 微调 state/action projection、action decoder 等模块，必要时加入 wrist camera feature。</li>
+      <li>在 SIMPLER/LIBERO/真实机器人上按任务分布评估。</li>
+    </ol>
+    <div class="callout warn">
+      复现成本非常高：LAM 约 128 张 A100 训练 4 天，ACT pretraining 约 64 张 A100 训练 4 天。更现实的复现方式是先用开源 checkpoint 做下游 finetune 和消融，而不是从零预训练全部模块。
+    </div>
+  </section>
+
+  <section id="analysis">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>这篇论文最有价值的地方</h3>
+    <p>它把 latent action 从“视频压缩出来的伪动作 token”推进到“被物理状态和动作监督校准过的中间动作表示”。这很重要，因为机器人控制不是单纯视觉预测：很多关键动作在像素上很隐蔽，但在 proprio/action 空间里非常明确。villa-X 的第二个价值是 policy 结构设计，它没有把 latent action 当旁路辅助任务，而是让 ACT-latent 和 ACT-robot 在 joint diffusion 中形成明确依赖，真正把中层计划接到低层控制。</p>
+
+    <h3>结果为什么站得住</h3>
+    <ul>
+      <li>证据链比较完整：probing 证明 latent action 更能预测 robot action；SIMPLER 消融证明 proprio-FDM 和 latent action expert 对 policy 有效；主结果证明相对多类 baseline 有优势。</li>
+      <li>评估面宽：SIMPLER 覆盖 Google Robot/WidowX，LIBERO 覆盖 Spatial/Object/Goal/Long，真实世界覆盖夹爪和灵巧手两种 embodiment。</li>
+      <li>w/o latent、wo/pp、LAPA-style、Go-1-style、w/o mask、w/o context 等消融能把主要设计逐一拆开验证。</li>
+      <li>附录的数据规模、架构和训练细节较充分，解释了性能来源并暴露了复现成本。</li>
+    </ul>
+
+    <h3>主要局限</h3>
+    <ul>
+      <li><strong>训练成本极高</strong>：百卡级预训练门槛高，普通实验室难以完整复现。</li>
+      <li><strong>latent expert 的 zero-shot 还不是完整闭环执行</strong>：符号卡片实验主要通过 world/FDM 渲染检验 latent plan，不等同于任意未见机器人上直接成功执行。</li>
+      <li><strong>仍需要 embodiment-specific finetuning</strong>：真实 Realman/XHand 都需要对应平台数据微调，不能理解为完全免数据跨机器人泛化。</li>
+      <li><strong>proprio grounding 依赖 robot state/action 标注</strong>：人类视频没有 proprio 分支，只能通过视觉目标参与 LAM 训练。</li>
+      <li><strong>一些任务仍不完美</strong>：Realman Pick in、XHand unseen pour/cup 等仍有明显失败空间，说明 latent action 不是万能桥梁。</li>
+    </ul>
+
+    <h3>阅读时可追问的问题</h3>
+    <ul>
+      <li>proprio-FDM 学到的物理 grounding 到底对哪些动作最有帮助：旋转、夹爪、接触还是长程移动？</li>
+      <li>continuous codebook centers 比离散 token 在 ACT 中更稳定的原因是什么？</li>
+      <li>ACT-latent 预测的 latent plan 是否可被单独评估、筛选或用 VLM critic 纠错？</li>
+      <li>如果用 hand pose、end-effector keypoints 替代 proprio state，能否更好利用人类视频？</li>
+      <li>w/o latent 在某些真实任务上也不差，哪些场景 latent action expert 真正提供最大收益？</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dream2Flow: Bridging Video Generation and Open-World Manipulation with 3D Object Flow - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --ink: #18212f;
+      --muted: #5e6b7a;
+      --bg: #f5f7fb;
+      --paper: #ffffff;
+      --line: #dbe4ee;
+      --blue: #245b96;
+      --green: #236e55;
+      --orange: #a85f1e;
+      --panel: #eef5fb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font: 16px/1.72 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 34px 0 64px;
+    }
+    header, section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 18px 0;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(24, 39, 75, 0.05);
+    }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 30px; letter-spacing: 0; }
+    h2 { font-size: 24px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
+    h3 { font-size: 19px; margin-top: 24px; color: #1f4d83; }
+    p { margin: 10px 0; }
+    a { color: var(--blue); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 20px;
+      font-size: 15px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #edf3f9; color: #173f68; }
+    .overview th { width: 180px; }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tag {
+      display: inline-block;
+      margin: 0 6px 8px 0;
+      padding: 2px 8px;
+      border: 1px solid #b7c7d8;
+      border-radius: 999px;
+      color: #1f4d83;
+      background: #f2f7fd;
+      font-size: 13px;
+    }
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 8px 20px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc a { text-decoration: none; }
+    .callout {
+      margin: 14px 0;
+      padding: 12px 16px;
+      border-left: 4px solid var(--blue);
+      border-radius: 0 8px 8px 0;
+      background: var(--panel);
+    }
+    .good { border-left-color: var(--green); background: #edf8f3; }
+    .warn { border-left-color: var(--orange); background: #fff5ec; }
+    figure {
+      margin: 20px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+    }
+    figcaption {
+      padding: 10px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: #fbfcfe;
+      font-size: 14px;
+    }
+    code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #eef2f7;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    ul, ol { padding-left: 22px; }
+    li { margin: 6px 0; }
+    .cols {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .mini {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+    .mini h3 { margin-top: 0; }
+    @media (max-width: 720px) {
+      main { width: min(100% - 24px, 1120px); padding-top: 18px; }
+      header, section { padding: 18px; }
+      h1 { font-size: 24px; }
+      h2 { font-size: 20px; }
+      table { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <span class="tag">arXiv:2512.24766</span>
+      <span class="tag">Video Generation</span>
+      <span class="tag">3D Object Flow</span>
+      <span class="tag">Open-World Manipulation</span>
+    </div>
+    <h1>Dream2Flow: Bridging Video Generation and Open-World Manipulation with 3D Object Flow</h1>
+    <p>这篇论文提出 Dream2Flow：把文本条件视频生成模型产生的“任务应该怎样发生”的视频，蒸馏成 3D object flow，再让机器人通过轨迹优化或强化学习去跟踪这个物体运动。</p>
+    <div class="meta">
+      <div><strong>作者</strong>：Karthik Dharmarajan, Wenlong Huang, Jiajun Wu, Li Fei-Fei, Ruohan Zhang</div>
+      <div><strong>机构</strong>：Stanford University</div>
+      <div><strong>版本</strong>：arXiv v1, 31 Dec 2025</div>
+      <div><strong>项目页</strong>：<a href="https://dream2flow.github.io/">https://dream2flow.github.io/</a></div>
+    </div>
+    <ul class="toc">
+      <li><a href="#s1">1. 论文速览</a></li>
+      <li><a href="#s2">2. 问题设定与动机</a></li>
+      <li><a href="#s3">3. 相关工作定位</a></li>
+      <li><a href="#s4">4. 方法精读</a></li>
+      <li><a href="#s5">5. 实验与结果</a></li>
+      <li><a href="#s6">6. 复现与实现细节</a></li>
+      <li><a href="#s7">7. 分析、局限与边界</a></li>
+      <li><a href="#s8">8. 组会问答准备</a></li>
+    </ul>
+  </header>
+
+  <section id="s1">
+    <h2>1. 论文速览</h2>
+    <table class="overview">
+      <tr>
+        <th>论文要解决什么</th>
+        <td>解决视频生成模型到机器人控制之间的接口问题。视频模型能生成合理的人类/物体交互视频，但机器人需要低层动作；直接模仿人手动作会遇到 embodiment gap，因此作者要把“世界中物体该如何运动”从“哪个机器人来实现”中解耦。</td>
+      </tr>
+      <tr>
+        <th>作者的方法抓手</th>
+        <td>使用 3D object flow 作为 video-control interface：先从生成视频中通过深度估计、分割和点跟踪恢复任务相关物体的 3D 点轨迹，再把操作写成 object trajectory tracking，用轨迹优化、粒子动力学规划或 SAC reward 生成动作。</td>
+      </tr>
+      <tr>
+        <th>最重要的结果</th>
+        <td>真实机器人三任务中 Dream2Flow 均优于 AVDC 和 RIGVID：Bread in Bowl 为 8/10，Open Oven 为 8/10，Cover Bowl 为 3/10；在 Open Door RL 中，3D object flow reward 达到 Franka 100/100、Spot 100/100、GR1 94/100，接近手工 object-state reward。</td>
+      </tr>
+      <tr>
+        <th>阅读时要注意的点</th>
+        <td>注意它和 NovaFlow 的相似与差异：两者都用生成视频到 3D flow 的接口，但 Dream2Flow 更强调 3D object flow 作为统一 reward/target，可服务于随机 shooting 规划、真实机器人刚性抓取轨迹优化，以及跨 embodiment 的强化学习。</td>
+      </tr>
+    </table>
+    <figure>
+      <img src="figures/figs_method.png" alt="Dream2Flow method overview">
+      <figcaption>图 2：Dream2Flow 管线。任务语言和初始 RGB-D 观测进入视频生成模型，随后通过 mask、depth、tracks 重建 3D object flow，最后由机器人策略或优化器跟踪该 flow。</figcaption>
+    </figure>
+  </section>
+
+  <section id="s2">
+    <h2>2. 问题设定与动机</h2>
+    <p>论文的动机很直接：视频生成模型已经能在开放场景中想象“物体怎样被操作”，但这些视频通常以人手为交互主体，而机器人和人手的动作空间、运动学、接触方式都不同。作者认为不应该直接模仿视频中的人手动作，而应该抽取视频中任务相关物体的 3D 运动。</p>
+    <p>因此 Dream2Flow 把任务转成 object trajectory tracking：视频模型负责给出“应该发生什么状态变化”，机器人模块负责决定“本体怎样实现这个状态变化”。这使得同一个 3D object flow 可以被 Franka、Spot 或 GR1 用不同动作策略实现。</p>
+    <div class="callout">
+      <strong>核心抽象：</strong>3D object flow 是一个介于语言意图和低层控制之间的中间层。它既比 RGB 视频更几何化，也比机器人动作更少依赖本体。
+    </div>
+  </section>
+
+  <section id="s3">
+    <h2>3. 相关工作定位</h2>
+    <h3>3.1 Manipulation 的任务规格</h3>
+    <p>任务规格可以来自符号规划、语言条件策略、目标图像、关键点约束、3D value maps、affordance maps 等。Dream2Flow 属于 object-centric specification：语言指令先被视频模型解释为物体运动，再由机器人执行。</p>
+    <h3>3.2 2D/3D Flow in Robotics</h3>
+    <p>Dense motion fields、point tracks 和 3D scene/object flow 都可作为 embodiment-agnostic 的中层接口。本文沿着 object-centric 路线，把 desired object motion 从视频中恢复出来，再在机器人约束下跟踪它。相较于 2D optical flow 或刚体 pose，3D object flow 能覆盖更多形变、遮挡和非刚性场景。</p>
+    <h3>3.3 Video Models for Robotics</h3>
+    <p>视频模型可以被用作辅助训练目标、奖励模型、策略、视觉模拟器或数据生成器。Dream2Flow 的位置是：不把视频模型当作动作策略，也不直接用它训练 imitation policy，而是把它当作开放世界任务的“物体运动生成器”。</p>
+  </section>
+
+  <section id="s4">
+    <h2>4. 方法精读</h2>
+    <h3>4.1 Problem Formulation</h3>
+    <p>输入是任务语言 $\ell$、初始 RGB-D 观测 $(I_0, D_0)$，以及相机到机器人坐标系的投影 $\Pi$。输出是动作序列 $u_{0:H-1}$。动作空间不固定，可以是推的 skill primitive、末端位姿，也可以是低层控制。</p>
+    <p>从视频中抽取的核心表示是 $P_{1:T} \in \mathbb{R}^{T \times n \times 3}$，即 $n$ 个任务相关物体点在 $T$ 个时间步上的 3D 轨迹。动作推断被写成如下优化：</p>
+    <div class="callout">
+      $$\min_{\{u_t\}} \sum_{t=0}^{H-1} \lambda_{\text{task}}(\hat{x}^{\text{obj}}_t, \tilde{P}_t) + \lambda_{\text{control}}(\hat{x}_t, u_t)$$
+      $$\lambda_{\text{task}}(\hat{x}^{\text{obj}}_t, \tilde{P}_t) = \sum_{i=1}^{n} \|\hat{x}^{\text{obj}}_t[i] - \tilde{P}_t[i]\|_2^2$$
+    </div>
+    <p>这就是说，机器人只要找到一串动作，让预测出来的物体点位置尽量贴近视频 flow 中的目标点位置，同时满足控制平滑性、可达性等约束。</p>
+
+    <h3>4.2 Extracting 3D Object Flow</h3>
+    <p>视频生成阶段只给图像和任务语言，不把机器人放入初始图，也不在 prompt 中提机器人。作者观察到，当前 image-to-video 模型如果被要求生成机器人细粒度交互，反而更容易生成物理不合理的轨迹；让模型生成“人手完成任务”的视频更稳定。</p>
+    <p>生成视频后，系统使用 SpatialTrackerV2 估计每帧深度。由于单目视频深度有 scale-shift ambiguity，Dream2Flow 用第一帧对齐真实初始深度 $D_0$，求全局 $s^\star, b^\star$，得到标定深度 $Z_t = s^\star\tilde{Z}_t + b^\star$。</p>
+    <p>然后系统使用 Grounding DINO 从初始图和语言中定位任务相关物体，用 SAM 2 得到 binary mask，再从 mask 区域采样像素，使用 CoTracker3 在生成视频中跟踪 2D 轨迹和可见性。最后根据标定深度和相机内外参把可见点 lifting 到机器人坐标系中的 3D object flow。</p>
+
+    <h3>4.3 Action Inference: 三种执行域</h3>
+    <table>
+      <tr><th>域</th><th>动作/动力学</th><th>怎么使用 3D object flow</th></tr>
+      <tr><td>Simulated Push-T</td><td>push skill primitive：起始位置、推方向、推距离；学习粒子动力学模型</td><td>随机 shooting 采样多个推，选择预测粒子位置最接近 flow subgoal 的动作；每次推后重规划。</td></tr>
+      <tr><td>Real World</td><td>绝对末端位姿；rigid-grasp dynamics model</td><td>先用 AnyGrasp 抓取目标物体或可动部件，再优化末端位姿，使被抓部件的点运动贴近 3D flow。</td></tr>
+      <tr><td>Simulated Open Door</td><td>SAC 学 sensorimotor policy；不同 embodiment 有不同动作空间</td><td>把 3D object flow 写成 reward，鼓励门/把手粒子沿着视频生成的 flow 前进。</td></tr>
+    </table>
+
+    <h3>4.4 Push-T 的粒子动力学与规划</h3>
+    <p>Push-T 是非抓取推动任务。appendix 说明，粒子动力学输入是 $\tilde{x}_t \in \mathbb{R}^{N \times 14}$，每个粒子包含位置、RGB、法向量和 push 参数，输出每个粒子的下一步位置增量。架构是小型 Point Transformer V3 backbone，前后接 MLP 做维度投影。</p>
+    <p>训练数据来自 500 个随机 pushing transition。场景由 4 个虚拟 RGB-D 相机合成点云，去掉木板范围外点，再以 1.5 cm voxel downsample，每个 voxel 保留 1 个粒子。规划时 Dream2Flow 每次推后重规划，使用 lookahead subgoal；appendix 给出的 lookahead 为 $L = 20$。这样避免只追最终状态导致 T-block 平移误差小但旋转误差大。</p>
+
+    <h3>4.5 真实机器人：抓取选择、可动部件过滤与轨迹优化</h3>
+    <p>真实任务中，系统使用 AnyGrasp 提出最多 40 个 top-down grasps：20 个来自真实相机坐标系点云，20 个来自一个从上往下看的虚拟相机坐标系，以增加垂直抓取候选。对于有可动部件的对象，例如烤箱门，抓哪里很关键。Dream2Flow 用 HaMer 检测生成视频中人手的 thumb 位置，如果某个候选 grasp 在 thumb 2 cm 内，则选择最早满足条件的 grasp；否则退回到“离可动部件点最近”的 heuristic。</p>
+    <p>可动部件过滤也很实用：如果某些 2D track 平均每帧移动超过 1 pixel，就把它视为 movable flow；之后用 SAM 2 的正/负点 prompt 约束可动部件 mask。这样可以减少把背景或固定部件错误 lift 到 3D 后导致执行失败的情况。</p>
+    <p>真实轨迹优化在 7 维 Franka 关节角上进行，控制项由 reachability、pose smoothness 和 manipulability 三部分组成，权重分别是 $w_r=100$、$w_s=1$、$w_m=0.01$；flow task weight 为 $w_f=10$。优化后的末端轨迹用 B-spline 拟合并采样，采样条件是相邻 pose 至少相差 1 cm 或 20 度。执行时用 PyBullet IK 和 Deoxys joint impedance controller。</p>
+    <p><a href="figures/figs_grasp_selection.pdf">查看 appendix grasp selection 原图 PDF</a></p>
+
+    <h3>4.6 Open Door RL Reward</h3>
+    <p>Open Door 使用 SAC 训练跨 embodiment 策略。appendix 给出的 SAC 超参包括：learning rate $3 \times 10^{-4}$、discount $0.99$、batch size 256、buffer size $10^6$、target update rate $0.005$、hidden layers 2、hidden units 256、training iterations 5000、episode horizon 500；GR1 因动作空间更大，训练 10000 iterations。</p>
+    <p>3D object flow reward 包含粒子进度项和末端靠近物体项：</p>
+    <div class="callout">
+      $$r_{\text{particle}} = 0.75 \cdot \frac{t^\star}{t_{\text{end}}}$$
+      $$r_{\text{ee}} = 0.25 \cdot (1 - \tanh(10 \cdot \|ee_{\text{door}} - \bar{x}\|_2))$$
+      $$R_{\text{flow}} = r_{\text{particle}} + r_{\text{ee}}$$
+    </div>
+    <p>其中 $t^\star$ 是当前物体粒子状态最接近参考 3D flow 的时间步。这个 reward 的意义是：不需要手写“门把手转多少、门铰链开多少”的状态 reward，而是直接奖励机器人让物体沿着生成视频中的物体轨迹前进。</p>
+  </section>
+
+  <section id="s5">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 任务</h3>
+    <p>实验覆盖模拟和真实机器人。Push-T 在 OmniGibson 中评估，成功标准是 T-block 到目标位置的平移误差小于 2 cm、旋转误差小于 15 度。真实任务包括 Put Bread in Bowl、Open Oven、Cover Bowl；Open Door 在 Robosuite 中评估，要求门把手旋转并将门打开至少 17 度且不 timeout。</p>
+    <figure>
+      <img src="figures/figs_generalization.png" alt="Robustness evaluations">
+      <figcaption>图 4：鲁棒性评估。Dream2Flow 在不同物体实例、背景、视角和相机观测变化下总体保持可用，除了大块面包等个别设置出现明显下降。</figcaption>
+    </figure>
+
+    <h3>5.2 真实机器人上的中间表示对比</h3>
+    <p>对比方法是 AVDC 和 RIGVID。AVDC 从生成视频中取 dense optical flow，再求刚体变换；RIGVID 基于 6D pose / rigid transform 思路，这里被改造成用 Dream2Flow 的 3D 点估计刚体变换。结果如下：</p>
+    <table>
+      <tr><th>Task</th><th>AVDC</th><th>RIGVID</th><th>Dream2Flow</th></tr>
+      <tr><td>Bread in Bowl</td><td>7/10</td><td>6/10</td><td><strong>8/10</strong></td></tr>
+      <tr><td>Open Oven</td><td>0/10</td><td>6/10</td><td><strong>8/10</strong></td></tr>
+      <tr><td>Cover Bowl</td><td>2/10</td><td>1/10</td><td><strong>3/10</strong></td></tr>
+    </table>
+    <p>AVDC 对 bread 这种较简单刚体运动还可以，但在 oven 上 optical flow 跟不上门的运动，导致动作幅度不足。RIGVID 和 AVDC 在可见点少时刚体变换估计很噪，容易让执行优化不稳定。Cover Bowl 对所有方法都难，因为 scarf 是 deformable，刚体 transform 本身就不适合。</p>
+
+    <h3>5.3 3D object flow 作为 RL reward</h3>
+    <table>
+      <tr><th>Reward Type</th><th>Franka</th><th>Spot</th><th>GR1</th></tr>
+      <tr><td>Object State</td><td>99/100</td><td>99/100</td><td><strong>96/100</strong></td></tr>
+      <tr><td>3D Object Flow</td><td><strong>100/100</strong></td><td><strong>100/100</strong></td><td>94/100</td></tr>
+    </table>
+    <p>这个结果很关键：3D object flow reward 与手工 object-state reward 几乎持平，但不需要针对每个任务设计显式状态 reward。更有意思的是，不同 embodiment 学出不同策略：Spot 会移动底盘获得更好可达性，GR1 则用手指和手掌之间的区域拉门以提高稳定性。</p>
+    <figure>
+      <img src="figures/figs_diverse_embodiment_fig.png" alt="Diverse embodiment rollouts">
+      <figcaption>图 6：用 3D object flow reward 训练出的不同 embodiment 开门策略。相同物体运动目标可以由不同机器人形态以不同动作实现。</figcaption>
+    </figure>
+
+    <h3>5.4 视频生成器选择</h3>
+    <table>
+      <tr><th>Video Generation Model</th><th>Push-T</th><th>Open Oven</th></tr>
+      <tr><td>Wan2.1</td><td><strong>52/100</strong></td><td>2/10</td></tr>
+      <tr><td>Kling 2.1</td><td>31/100</td><td>4/10</td></tr>
+      <tr><td>Veo 3</td><td>-</td><td><strong>8/10</strong></td></tr>
+    </table>
+    <p>Wan2.1 在 Push-T 上最好，因为该任务需要目标图像提示，而当时 Veo 3 不支持 end-frame conditioning。Open Oven 中 Veo 3 最好；Wan2.1 更容易产生 camera motion，违反静止相机假设，Wan2.1 和 Kling 也会生成错误开合轴。</p>
+
+    <h3>5.5 Dynamics model 消融</h3>
+    <table>
+      <tr><th>Dynamics Model Type</th><th>Success Rate</th></tr>
+      <tr><td>Pose</td><td>12/100</td></tr>
+      <tr><td>Heuristic</td><td>17/100</td></tr>
+      <tr><td>Particle</td><td><strong>52/100</strong></td></tr>
+    </table>
+    <p>这个消融说明，3D object flow 本身不是万能的；下游 dynamics model 也必须足够表达任务需要的旋转和接触效果。Push-T 中 pose model 和 heuristic model 都无法充分处理旋转，particle dynamics 明显更强。</p>
+
+    <h3>5.6 失败分析</h3>
+    <p>论文对 60 次真实机器人试验给出失败分解：12 次 video generation failure，其中一半来自 object morphing 或 hallucination；4 次 flow extraction failure，主要由严重旋转或物体离开视野导致最终 tracks 不可见；4 次 robot execution failure 都发生在 Cover Bowl，原因是抓取点错误或移动幅度不足。</p>
+    <figure>
+      <img src="figures/figs_failures.png" alt="Failure breakdown">
+      <figcaption>图 7：真实机器人失败分解。主要失败来自视频伪影、跟踪错误和抓取选择不匹配。</figcaption>
+    </figure>
+  </section>
+
+  <section id="s6">
+    <h2>6. 复现与实现细节</h2>
+    <div class="cols">
+      <div class="mini">
+        <h3>Prompt</h3>
+        <p>真实任务 prompt 模板为：<code>&lt;TASK&gt; by one hand. The camera holds a still pose, not zooming in or out.</code>。“by one hand”用于帮助 HaMer 找手/拇指位置，“camera holds a still pose”用于减少相机运动。</p>
+      </div>
+      <div class="mini">
+        <h3>Real-world tasks</h3>
+        <p>Put Bread in Bowl、Open Oven、Cover Bowl，以及 in-the-wild 的 Pull Out Chair、Open Drawer、Sweep Pasta、Recycle Can。</p>
+      </div>
+      <div class="mini">
+        <h3>Push-T planning</h3>
+        <p>每次 pushing 后重新规划；当前 tracked particles 与全场景 feature-augmented particles 做 nearest neighbor matching；subgoal 使用 $t^\star + L$，其中 $L=20$。</p>
+      </div>
+      <div class="mini">
+        <h3>Particle dynamics</h3>
+        <p>4 个虚拟 RGB-D 相机合成点云，1.5 cm voxel downsample；500 个随机 pushing transitions 训练小型 Point Transformer V3。</p>
+      </div>
+      <div class="mini">
+        <h3>Real-world optimizer</h3>
+        <p>PyRoki 优化关节角，B-spline 拟合末端轨迹，PyBullet IK 求目标关节角，Deoxys joint impedance controller 执行。</p>
+      </div>
+      <div class="mini">
+        <h3>Failure modes</h3>
+        <p>生成视频的 morphing / hallucination，遮挡和离开视野导致 tracking dropout，抓取点或移动幅度不足导致真实执行失败。</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <strong>源码状态：</strong>这篇源包包含完整正文与 appendix LaTeX。报告中的实验表、prompt、planning、reward、limitations 均从 <code>tmp/source_tex_dump_2512.24766.txt</code> 与 <code>tmp/pdf_text_2512.24766.txt</code> 核对；图像资源来自 <code>Report/2512.24766/figures/</code>。
+    </div>
+  </section>
+
+  <section id="s7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是把“生成视频里的物体运动”提升为一个可复用的控制接口，而不是只把视频当可视化结果或训练数据。3D object flow 既能驱动真实机器人 trajectory optimization，也能变成 RL reward，还能跨 Franka、Spot、GR1 等不同 embodiment。这使论文的贡献不只是一个 pipeline，而是一个较通用的表示层。</p>
+    <p>第二个价值是实验拆得很清楚：它分别问中间表示是否比 2D flow / rigid transform 好、flow reward 是否接近手写 reward、视频生成器是否影响结果、dynamics model 是否关键。这些问题刚好对应系统中最容易被质疑的环节。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果站得住，首先因为对比不是只和弱 baseline 比。AVDC 和 RIGVID 都是从视频抽取轨迹的直接替代方案，能检验 3D object flow 相比 optical flow 或 rigid transform 的价值。其次，RL reward 结果在三种 embodiment、每种 100 个随机门位置上评估，说明 3D object flow 不是只适用于单一机器人。</p>
+    <p>此外，作者没有回避系统依赖：视频模型选择、dynamics model 选择和失败类型都被单独报告。尤其是 Push-T 中 particle dynamics 52/100、pose 12/100、heuristic 17/100 的差距，说明成功不是“有 flow 就够”，而是 flow 和下游动力学模型共同决定。</p>
+
+    <h3>7.3 局限</h3>
+    <ul>
+      <li><strong>真实世界依赖 rigid-grasp assumption：</strong>真实机器人部分主要假设被抓部件随末端刚性运动，这限制了强形变、滑移和复杂接触任务。</li>
+      <li><strong>真实世界粒子动力学尚未扩展：</strong>Push-T 用了粒子动力学，但在真实世界训练和规模化这类模型仍然困难。</li>
+      <li><strong>耗时较长：</strong>生成并处理 3D object flow 需要 3 到 11 分钟，主要瓶颈是视频生成，实时交互性不足。</li>
+      <li><strong>单视角生成视频容易受遮挡影响：</strong>如果人手遮住小物体大部分区域，2D tracking 和 lifting 会不稳定；论文建议未来考虑 3D point trackers 或 full 4D representations。</li>
+      <li><strong>生成视频伪影会传导到执行：</strong>morphing、hallucination、错误 articulation axis 或 camera motion 都会直接污染 flow。</li>
+    </ul>
+
+    <h3>7.4 边界条件</h3>
+    <p>Dream2Flow 最适合目标物体可见、任务能用物体点运动表达、视频模型能生成静止相机下合理交互的视频、机器人有可靠抓取/规划模块的场景。它不适合需要高速闭环控制、强触觉反馈、复杂多物体接触或长期不可见状态估计的任务。</p>
+  </section>
+
+  <section id="s8">
+    <h2>8. 组会问答准备</h2>
+    <h3>Q1：Dream2Flow 和 NovaFlow 的差异是什么？</h3>
+    <p>两者都用生成视频到 3D flow 的路线。NovaFlow 更强调 actionable flow 到机器人动作的零样本执行和 VLM rejection sampling；Dream2Flow 更强调 3D object flow 作为统一 interface，可以用于真实轨迹优化、Push-T 粒子规划和 RL reward。</p>
+
+    <h3>Q2：为什么不用视频中的手部轨迹直接控制机器人？</h3>
+    <p>因为人手和机器人有 embodiment gap，动作空间和可达性不同。手部轨迹也可能不适合机器人。Dream2Flow 只使用手部信息辅助抓取选择，例如用 thumb 位置选可动部件，而真正跟踪的是物体运动。</p>
+
+    <h3>Q3：3D object flow 和 rigid transform 的区别在哪里？</h3>
+    <p>Rigid transform 假设目标是刚体且可见点足够稳定；3D object flow 是点级轨迹，可以在遮挡、非刚性、颗粒或局部可动部件场景中表达更细的运动。实验中 Cover Bowl 就说明 rigid transform 对 deformable 对象不合适。</p>
+
+    <h3>Q4：为什么 flow reward 能接近手工 object-state reward？</h3>
+    <p>因为 flow reward 编码的是任务相关物体状态变化，而不是机器人动作。只要生成视频给出的物体轨迹合理，策略就能从 reward 中学到不同 embodiment 各自可行的实现方式。</p>
+
+    <h3>Q5：最主要的失败源是什么？</h3>
+    <p>上游是视频 morphing、hallucination、camera motion 和错误关节轴；中游是遮挡导致 tracking dropout；下游是真实抓取点错误或移动幅度不足。论文的失败分析说明，目前瓶颈不是单一模块，而是开放世界视频到真实执行的链式误差。</p>
+  </section>
+</main>
+</body>
+</html>

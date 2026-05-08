@@ -1,0 +1,36 @@
+\section{Introduction}
+\begingroup
+  \setlength{\skip\footins}{0pt}    
+  \setlength{\footnotesep}{0pt}     
+  \let\thefootnote\relax
+  \begin{NoHyper}
+  \footnotetext{
+    *Equal Advising. Correspondence:
+    \href{mailto:wenlongh@stanford.edu}{Wenlong Huang}
+  }
+  \end{NoHyper}
+\endgroup
+Robotic manipulation in the open world could greatly benefit from visual world models that predict how an environment would evolve given an agent's interactions.
+Recent advances in generative video modeling have produced systems capable of zero-shot synthesizing minute-long, high-fidelity clips of physical interactions in pixel space, conditioned on an unseen initial image and an open-ended task instruction~\cite{brooks2024video}.
+Such video models implicitly capture intuitive physics and rich priors of object properties and interactions, making them compelling for open-world manipulation settings where a robot is tasked to complete novel tasks in unseen environments through partial observations.
+
+Despite their promise, it remains unclear what role such models should serve in a robot manipulation system. 
+Most frontier video generators produce the best interaction clips with a human embodiment. This reflects where supervision is most abundant as human interactions are significantly more broadly documented than those of robots. But this becomes a challenge for using them in robotic manipulation due to the embodiment gap and hence the different action spaces.
+
+We propose extracting actionable signals from their visual predictions of human interactions, which will then be enacted by a robot. 
+This essentially separates the state changes in the real world from the actuators that realize those changes. 
+Our proposed method, \textbf{\algo}, employs \textbf{\flow} as an intermediate interface that bridges high-level video simulation with low-level robot actions.
+\algo works because, despite occasional visual artifacts, state-of-the-art video generation models often predict physically plausible object motions that align with the task intent in open-world manipulation tasks.
+Then, given generated videos, instead of trying to directly mimic the human motions for completing a given task, we focus on reconstructing and reproducing the object flows in 3D.
+
+The problem is thus reduced to object trajectory tracking: the robot’s job is to manipulate the object to closely follow the generated flow that the video model imagined. This approach cleanly separates what needs to happen (i.e., state changes in an environment) from how a particular embodiment achieves it with respect to its kinematic and dynamic constraints (i.e., actions). Importantly, it seamlessly interfaces with both motion planners and sensorimotor policies---the extracted object motion in 3D serves as the tracking goal for trajectory optimization or a reinforcement learning policy, which then yields a sequence of low-level robot joint commands.
+
+Leveraging off-the-shelf models and tools, we demonstrate an autonomous pipeline that 1) generates a text-conditioned video of plausible interaction~\cite{brooks2024video}, 2) obtains \flow by performing depth estimation and point tracking using vision foundation models~\cite{ravi2024sam2,karaev2024cotracker3}, and 3) synthesizes robot actions that realize this flow using trajectory optimization and reinforcement learning.
+Notably, this design enjoys a number of desirable benefits in manipulation tasks. By first leveraging video models---pre-trained on large corpora of human activities---to interpret and ground open-ended language commands in visual predictions, our system inherits a scalable mechanism for task specification. These predictions are then distilled into reconstructed \flow, a representation that naturally captures diverse object interactions spanning rigid, articulated, deformable, and granular objects. Together, this synergy enables an end-to-end pipeline that performs open-world manipulation directly from visual perception and language, without task-specific data or training.
+
+In summary, our key contributions are:
+\begin{itemize}
+    \item We propose \flow as an interface for adapting off-the-shelf video generation models for open-world manipulation by formulating it as an object trajectory tracking problem.
+    \item We demonstrate its effectiveness by implementing the approach in both simulated and real domains, which performs diverse tasks given only RGB-D observations and language instructions in a zero-shot manner.
+    \item We examine the properties of \flow by comparing it with alternative intermediate representations and by studying its key design choices as well as generalization properties.
+\end{itemize}

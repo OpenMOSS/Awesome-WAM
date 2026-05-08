@@ -1,0 +1,288 @@
+\begin{thebibliography}{10}
+
+\bibitem{brown2020language}
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared~D Kaplan, Prafulla
+  Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell,
+  et~al.
+\newblock Language models are few-shot learners.
+\newblock {\em Advances in neural information processing systems},
+  33:1877--1901, 2020.
+
+\bibitem{chowdhery2022palm}
+Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra,
+  Adam Roberts, Paul Barham, Hyung~Won Chung, Charles Sutton, Sebastian
+  Gehrmann, et~al.
+\newblock Palm: Scaling language modeling with pathways.
+\newblock {\em arXiv preprint arXiv:2204.02311}, 2022.
+
+\bibitem{hoffmann2022training}
+Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor
+  Cai, Eliza Rutherford, Diego de~Las Casas, Lisa~Anne Hendricks, Johannes
+  Welbl, Aidan Clark, et~al.
+\newblock Training compute-optimal large language models.
+\newblock {\em arXiv preprint arXiv:2203.15556}, 2022.
+
+\bibitem{radford2021learning}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh,
+  Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark,
+  et~al.
+\newblock Learning transferable visual models from natural language
+  supervision.
+\newblock In {\em International Conference on Machine Learning}, pages
+  8748--8763. PMLR, 2021.
+
+\bibitem{alayrac2022flamingo}
+Jean-Baptiste Alayrac, Jeff Donahue, Pauline Luc, Antoine Miech, Iain Barr,
+  Yana Hasson, Karel Lenc, Arthur Mensch, Katie Millican, Malcolm Reynolds,
+  et~al.
+\newblock Flamingo: {A} visual language model for few-shot learning.
+\newblock {\em NeurIPS}, 2022.
+
+\bibitem{reed2022generalist}
+Scott Reed, Konrad Zolna, Emilio Parisotto, Sergio~Gomez Colmenarejo, Alexander
+  Novikov, Gabriel Barth-Maron, Mai Gimenez, Yury Sulsky, Jackie Kay,
+  Jost~Tobias Springenberg, et~al.
+\newblock A generalist agent.
+\newblock {\em arXiv preprint arXiv:2205.06175}, 2022.
+
+\bibitem{puterman1994markov}
+Martin~L Puterman.
+\newblock {\em Markov Decision Processes: Discrete Stochastic Dynamic
+  Programming}.
+\newblock John Wiley \& Sons, Inc., 1994.
+
+\bibitem{haarnoja2018soft}
+Tuomas Haarnoja, Aurick Zhou, Pieter Abbeel, and Sergey Levine.
+\newblock Soft actor-critic: Off-policy maximum entropy deep reinforcement
+  learning with a stochastic actor.
+\newblock In {\em International conference on machine learning}, pages
+  1861--1870. PMLR, 2018.
+
+\bibitem{hafner2020mastering}
+Danijar Hafner, Timothy Lillicrap, Mohammad Norouzi, and Jimmy Ba.
+\newblock Mastering atari with discrete world models.
+\newblock {\em arXiv preprint arXiv:2010.02193}, 2020.
+
+\bibitem{zhang2022making}
+Tianjun Zhang, Tongzheng Ren, Mengjiao Yang, Joseph Gonzalez, Dale Schuurmans,
+  and Bo~Dai.
+\newblock Making linear mdps practical via contrastive representation learning.
+\newblock In {\em International Conference on Machine Learning}, pages
+  26447--26466. PMLR, 2022.
+
+\bibitem{kingma2013vae}
+Diederik~P. Kingma and Max Welling.
+\newblock Auto-encoding variational bayes.
+\newblock {\em CoRR}, abs/1312.6114, 2013.
+
+\bibitem{du2019implicit}
+Yilun Du and Igor Mordatch.
+\newblock Implicit generation and generalization in energy-based models.
+\newblock {\em arXiv preprint arXiv:1903.08689}, 2019.
+
+\bibitem{dai2019exponential}
+Bo~Dai, Zhen Liu, Hanjun Dai, Niao He, Arthur Gretton, Le~Song, and Dale
+  Schuurmans.
+\newblock Exponential family estimation via adversarial dynamics embedding.
+\newblock {\em Advances in Neural Information Processing Systems}, 32, 2019.
+
+\bibitem{goodfellow2014gan}
+Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley,
+  Sherjil Ozair, Aaron Courville, and Yoshua Bengio.
+\newblock Generative adversarial nets.
+\newblock In {\em Advances in Neural Information Processing Systems}. 2014.
+
+\bibitem{sohldickstein2015nonequilibrium}
+Jascha Sohl-Dickstein, Eric Weiss, Niru Maheswaranathan, and Surya Ganguli.
+\newblock Deep unsupervised learning using nonequilibrium thermodynamics.
+\newblock In {\em International Conference on Machine Learning}, 2015.
+
+\bibitem{ho2020denoising}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock In {\em Advances in Neural Information Processing Systems}, 2020.
+
+\bibitem{song2020denoising}
+Jiaming Song, Chenlin Meng, and Stefano Ermon.
+\newblock Denoising diffusion implicit models.
+\newblock {\em arXiv preprint arXiv:2010.02502}, 2020.
+
+\bibitem{ho2022classifier}
+Jonathan Ho and Tim Salimans.
+\newblock Classifier-free diffusion guidance.
+\newblock {\em arXiv preprint arXiv:2207.12598}, 2022.
+
+\bibitem{ho2022imagen}
+Jonathan Ho, William Chan, Chitwan Saharia, Jay Whang, Ruiqi Gao, Alexey
+  Gritsenko, Diederik~P Kingma, Ben Poole, Mohammad Norouzi, David~J Fleet,
+  et~al.
+\newblock Imagen video: High definition video generation with diffusion models.
+\newblock {\em arXiv preprint arXiv:2210.02303}, 2022.
+
+\bibitem{villegas2022phenaki}
+Ruben Villegas, Mohammad Babaeizadeh, Pieter-Jan Kindermans, Hernan Moraldo,
+  Han Zhang, Mohammad~Taghi Saffar, Santiago Castro, Julius Kunze, and Dumitru
+  Erhan.
+\newblock Phenaki: Variable length video generation from open domain textual
+  description.
+\newblock {\em arXiv preprint arXiv:2210.02399}, 2022.
+
+\bibitem{janner2022planning}
+Michael Janner, Yilun Du, Joshua Tenenbaum, and Sergey Levine.
+\newblock Planning with diffusion for flexible behavior synthesis.
+\newblock In {\em International Conference on Machine Learning}, 2022.
+
+\bibitem{raffel2020exploring}
+Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael
+  Matena, Yanqi Zhou, Wei Li, Peter~J Liu, et~al.
+\newblock Exploring the limits of transfer learning with a unified text-to-text
+  transformer.
+\newblock {\em J. Mach. Learn. Res.}, 21(140):1--67, 2020.
+
+\bibitem{Mao2022PDSketch}
+Jiayuan Mao, Tomas Lozano-Perez, Joshua~B. Tenenbaum, and Leslie~Pack Kaelbing.
+\newblock {PDSketch: Integrated Domain Programming, Learning, and Planning}.
+\newblock In {\em Advances in Neural Information Processing Systems (NeurIPS)},
+  2022.
+
+\bibitem{brohan2022rt}
+Anthony Brohan, Noah Brown, Justice Carbajal, Yevgen Chebotar, Joseph Dabis,
+  Chelsea Finn, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Jasmine
+  Hsu, et~al.
+\newblock Rt-1: Robotics transformer for real-world control at scale.
+\newblock {\em arXiv preprint arXiv:2212.06817}, 2022.
+
+\bibitem{janner2021offline}
+Michael Janner, Qiyang Li, and Sergey Levine.
+\newblock Offline reinforcement learning as one big sequence modeling problem.
+\newblock {\em Advances in neural information processing systems},
+  34:1273--1286, 2021.
+
+\bibitem{lee2022multi}
+Kuang-Huei Lee, Ofir Nachum, Mengjiao Yang, Lisa Lee, Daniel Freeman, Winnie
+  Xu, Sergio Guadarrama, Ian Fischer, Eric Jang, Henryk Michalewski, et~al.
+\newblock Multi-game decision transformers.
+\newblock {\em arXiv preprint arXiv:2205.15241}, 2022.
+
+\bibitem{ajay2022conditional}
+Anurag Ajay, Yilun Du, Abhi Gupta, Joshua Tenenbaum, Tommi Jaakkola, and Pulkit
+  Agrawal.
+\newblock Is conditional generative modeling all you need for decision-making?
+\newblock {\em arXiv preprint arXiv:2211.15657}, 2022.
+
+\bibitem{shridhar2022cliport}
+Mohit Shridhar, Lucas Manuelli, and Dieter Fox.
+\newblock Cliport: What and where pathways for robotic manipulation.
+\newblock In {\em Conference on Robot Learning}, pages 894--906. PMLR, 2022.
+
+\bibitem{ebert2021bridge}
+Frederik Ebert, Yanlai Yang, Karl Schmeckpeper, Bernadette Bucher, Georgios
+  Georgakis, Kostas Daniilidis, Chelsea Finn, and Sergey Levine.
+\newblock Bridge data: Boosting generalization of robotic skills with
+  cross-domain datasets.
+\newblock {\em arXiv preprint arXiv:2109.13396}, 2021.
+
+\bibitem{zhang2021autoregressive}
+Michael~R Zhang, Thomas Paine, Ofir Nachum, Cosmin Paduraru, George Tucker,
+  ziyu wang, and Mohammad Norouzi.
+\newblock Autoregressive dynamics models for offline policy evaluation and
+  optimization.
+\newblock In {\em International Conference on Learning Representations}, 2021.
+
+\bibitem{micheli2022transformers}
+Vincent Micheli, Eloi Alonso, and Fran{\c{c}}ois Fleuret.
+\newblock Transformers are sample efficient world models.
+\newblock {\em arXiv preprint arXiv:2209.00588}, 2022.
+
+\bibitem{baker2022video}
+Bowen Baker, Ilge Akkaya, Peter Zhokhov, Joost Huizinga, Jie Tang, Adrien
+  Ecoffet, Brandon Houghton, Raul Sampedro, and Jeff Clune.
+\newblock Video pretraining (vpt): Learning to act by watching unlabeled online
+  videos.
+\newblock {\em arXiv preprint arXiv:2206.11795}, 2022.
+
+\bibitem{wang2022diffusion}
+Zhendong Wang, Jonathan~J Hunt, and Mingyuan Zhou.
+\newblock Diffusion policies as an expressive policy class for offline
+  reinforcement learning.
+\newblock {\em arXiv preprint arXiv:2208.06193}, 2022.
+
+\bibitem{zhang2022lad}
+Edwin Zhang, Yujie Lu, William Wang, and Amy Zhang.
+\newblock Lad: Language augmented diffusion for reinforcement learning.
+\newblock {\em arXiv preprint arXiv:2210.15629}, 2022.
+
+\bibitem{urain2022se}
+Julen Urain, Niklas Funk, Georgia Chalvatzaki, and Jan Peters.
+\newblock Se (3)-diffusionfields: Learning cost functions for joint grasp and
+  motion optimization through diffusion.
+\newblock {\em arXiv preprint arXiv:2209.03855}, 2022.
+
+\bibitem{zhong2022guided}
+Ziyuan Zhong, Davis Rempe, Danfei Xu, Yuxiao Chen, Sushant Veer, Tong Che,
+  Baishakhi Ray, and Marco Pavone.
+\newblock Guided conditional diffusion for controllable traffic simulation.
+\newblock {\em arXiv preprint arXiv:2210.17366}, 2022.
+
+\bibitem{kapelyukh2022dall}
+Ivan Kapelyukh, Vitalis Vosylius, and Edward Johns.
+\newblock Dall-e-bot: Introducing web-scale diffusion models to robotics.
+\newblock {\em arXiv preprint arXiv:2210.02438}, 2022.
+
+\bibitem{kumar2022offline}
+Aviral Kumar, Rishabh Agarwal, Xinyang Geng, George Tucker, and Sergey Levine.
+\newblock Offline q-learning on diverse multi-task data both scales and
+  generalizes.
+\newblock {\em arXiv preprint arXiv:2211.15144}, 2022.
+
+\bibitem{huang2022inner}
+Wenlong Huang, Fei Xia, Ted Xiao, Harris Chan, Jacky Liang, Pete Florence, Andy
+  Zeng, Jonathan Tompson, Igor Mordatch, Yevgen Chebotar, et~al.
+\newblock Inner monologue: Embodied reasoning through planning with language
+  models.
+\newblock {\em arXiv preprint arXiv:2207.05608}, 2022.
+
+\bibitem{ahn2022can}
+Michael Ahn, Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron
+  David, Chelsea Finn, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog,
+  et~al.
+\newblock Do as i can, not as i say: Grounding language in robotic affordances.
+\newblock {\em arXiv preprint arXiv:2204.01691}, 2022.
+
+\bibitem{lynch2020language}
+Corey Lynch and Pierre Sermanet.
+\newblock Language conditioned imitation learning over unstructured data.
+\newblock {\em arXiv preprint arXiv:2005.07648}, 2020.
+
+\bibitem{mahmoudieh2022zero}
+Parsa Mahmoudieh, Deepak Pathak, and Trevor Darrell.
+\newblock Zero-shot reward specification via grounded natural language.
+\newblock In {\em ICLR 2022 Workshop on Generalizable Policy Learning in
+  Physical World}, 2022.
+
+\bibitem{liu2022instruction}
+Hao Liu, Lisa Lee, Kimin Lee, and Pieter Abbeel.
+\newblock Instruction-following agents with jointly pre-trained vision-language
+  models.
+\newblock {\em arXiv preprint arXiv:2210.13431}, 2022.
+
+\bibitem{salimans2022progressive}
+Tim Salimans and Jonathan Ho.
+\newblock Progressive distillation for fast sampling of diffusion models.
+\newblock {\em arXiv preprint arXiv:2202.00512}, 2022.
+
+\bibitem{ho2022video}
+Jonathan Ho, Tim Salimans, Alexey Gritsenko, William Chan, Mohammad Norouzi,
+  and David~J Fleet.
+\newblock Video diffusion models.
+\newblock {\em arXiv preprint arXiv:2204.03458}, 2022.
+
+\bibitem{saharia2022photorealistic}
+Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily
+  Denton, Seyed Kamyar~Seyed Ghasemipour, Burcu~Karagol Ayan, S~Sara Mahdavi,
+  Rapha~Gontijo Lopes, et~al.
+\newblock Photorealistic text-to-image diffusion models with deep language
+  understanding.
+\newblock {\em arXiv preprint arXiv:2205.11487}, 2022.
+
+\end{thebibliography}

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3DFlowAction: Learning Cross-Embodiment Manipulation from 3D Flow World Model</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --paper: #ffffff;
+      --ink: #20242c;
+      --muted: #647184;
+      --line: #d8e0ea;
+      --accent: #1e6d8f;
+      --accent-2: #2d8765;
+      --soft: #edf6fb;
+      --soft-2: #edf8f3;
+      --warn: #fff5e5;
+      --code: #f3f5f8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.72;
+      font-size: 16px;
+    }
+    header {
+      background: linear-gradient(180deg, #eaf3f8 0%, #f7f8fb 100%);
+      border-bottom: 1px solid var(--line);
+      padding: 40px 24px 26px;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 26px 24px 72px; }
+    .hero { max-width: 1180px; margin: 0 auto; }
+    h1 { margin: 0 0 14px; font-size: 34px; line-height: 1.22; letter-spacing: 0; }
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    h3 { margin: 24px 0 10px; font-size: 19px; }
+    h4 { margin: 18px 0 8px; font-size: 16px; color: #2f3b4a; }
+    p { margin: 8px 0 12px; }
+    a { color: var(--accent); }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px 18px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tag {
+      display: inline-block;
+      margin: 0 8px 8px 0;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #3d4b5c;
+      font-size: 13px;
+    }
+    section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin: 18px 0;
+      box-shadow: 0 1px 2px rgba(20, 30, 45, 0.04);
+    }
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 8px 18px;
+      padding-left: 18px;
+      margin: 8px 0 0;
+    }
+    .toc li { margin: 2px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    th { background: #eef4f8; text-align: left; }
+    tr:nth-child(even) td { background: #fbfcfe; }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .good {
+      border-left: 4px solid var(--accent-2);
+      background: var(--soft-2);
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .warn {
+      border-left: 4px solid #d4932f;
+      background: var(--warn);
+      padding: 12px 14px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+    code {
+      background: var(--code);
+      border: 1px solid #e4e8ef;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    .formula {
+      overflow-x: auto;
+      background: #fbfcff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 12px 0;
+    }
+    figure {
+      margin: 18px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+    figure img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 4px;
+    }
+    figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fcfdff;
+    }
+    ul, ol { padding-left: 22px; }
+    li { margin: 5px 0; }
+    .small { color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <h1>3DFlowAction: Learning Cross-Embodiment Manipulation from 3D Flow World Model</h1>
+      <div>
+        <span class="tag">arXiv:2506.06199</span>
+        <span class="tag">3D optical flow</span>
+        <span class="tag">cross-embodiment manipulation</span>
+        <span class="tag">flow world model</span>
+        <span class="tag">optimization policy</span>
+      </div>
+      <div class="meta">
+        <div><strong>作者：</strong>Hongyan Zhi, Peihao Chen, Siyuan Zhou, Yubo Dong, Quanxi Wu, Lei Han, Mingkui Tan</div>
+        <div><strong>机构：</strong>South China University of Technology; Tencent Robotics X; HKUST; Pazhou Laboratory</div>
+        <div><strong>代码/数据：</strong><a href="https://github.com/Hoyyyaard/3DFlowAction/">github.com/Hoyyyaard/3DFlowAction</a></div>
+        <div><strong>材料说明：</strong>arXiv 源包只含图 PDF，正文基于本地 PDF 文本提取；报告保留 PDF 和可用 PNG 图像。</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>目录</h2>
+      <ol class="toc">
+        <li><a href="#overview">论文速览</a></li>
+        <li><a href="#motivation">动机与问题定义</a></li>
+        <li><a href="#related">相关工作脉络</a></li>
+        <li><a href="#method">方法详解</a></li>
+        <li><a href="#experiments">实验与结果</a></li>
+        <li><a href="#repro">复现要点</a></li>
+        <li><a href="#analysis">分析、局限与边界</a></li>
+        <li><a href="#qa">组会问答准备</a></li>
+      </ol>
+    </section>
+
+    <section id="overview">
+      <h2>1. 论文速览</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 170px;">论文要解决什么</th>
+            <td>机器人数据动作空间不统一，例如关节角、末端位姿、坐标系和硬件形态各不相同，导致跨机器人学习困难；同时直接从视频生成未来 RGB 状态又容易受背景、机械臂外观和 2D 平面限制影响。论文要解决的是：能否用一种对象中心、3D、跨 embodiment 的运动表示，从人类和机器人视频中学习可用于真实机器人操作的动作线索。</td>
+          </tr>
+          <tr>
+            <th>作者的方法抓手</th>
+            <td>核心抓手是 3D optical flow。作者构建 ManiFlow-110k，将开源人类/机器人视频中的被操作物体运动抽成 3D 光流；训练一个基于 AnimateDiff 的 3D flow world model，按语言和当前场景预测被操作物体未来 3D 运动；再通过 rendering + GPT-4o 验证形成闭环规划，并把 3D flow 作为优化约束求解末端执行器动作。</td>
+          </tr>
+          <tr>
+            <th>最重要的结果</th>
+            <td>四个真实操作任务总成功率达到 70.0%，高于 AVDC 20.0%、ReKep 20.0%、Im2Flow2Act* 25.0%；与模仿学习方法相比，3DFlowAction 为 70.0%，高于 PI0 50.0% 和 Im2Flow2Act 27.5%。跨平台上，Franka 67.5%、XTrainer 70.0%，且不需要硬件特定微调。</td>
+          </tr>
+          <tr>
+            <th>阅读时要注意的点</th>
+            <td>重点不是“又一个 world model”，而是 3D flow 是否真的能作为统一动作接口。要特别看：2D flow 与 3D flow 的差异、GPT-4o rendering 验证是否可靠、optimization policy 是否能处理接触/遮挡/非刚体，以及实验只有每任务 10 次 trial，统计稳定性需要谨慎。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>一句话版本：</strong>3DFlowAction 不让模型直接预测机器人动作，而是预测被操作物体在 3D 空间中该怎么动，再把这条 3D 光流轨迹渲染验证并转成机器人末端执行器轨迹。
+      </div>
+
+      <figure>
+        <img src="figures/fig_2025_teaser.png" alt="3DFlowAction teaser" />
+        <figcaption>Teaser: 3DFlowAction 学习 flow world model，用 3D optical flow 作为下游真实机器人操作的动作指导。</figcaption>
+      </figure>
+
+      <figure>
+        <img src="figures/fig_2025_flow2act.png" alt="3DFlowAction pipeline" />
+        <figcaption>Flow-guided action generation pipeline: 先闭环生成 3D flow，再选择 task-aware grasp pose，最后用 3D flow 约束优化动作。</figcaption>
+      </figure>
+    </section>
+
+    <section id="motivation">
+      <h2>2. 动机与问题定义</h2>
+      <h3>2.1 为什么需要 3D flow</h3>
+      <p>作者从人类操作的直觉出发：人在执行“把杯子挂到杯架上”之前，往往先想象物体在空间中如何移动，而不是先想关节角怎么变化。这个物体运动轨迹对人类和不同机器人都是相对通用的。因此，论文把“物体未来 3D 运动”当成 embodiment-agnostic 的 action representation。</p>
+      <p>相比 RGB 视频 world model，3D flow 更对象中心，能减少背景和机器人外观的干扰；相比 2D optical flow，3D flow 能表达深度方向移动、旋转、倾倒等 3D 轨迹，对倒茶、插笔、挂杯这类任务尤其重要。</p>
+
+      <h3>2.2 问题设定</h3>
+      <p>输入是当前 RGB 观察、任务语言和初始物体点集，输出是时序 3D optical flow：</p>
+      <div class="formula">$$F \in \mathbb{R}^{T\times H\times W\times4},$$</div>
+      <p>其中前两个通道为图像平面 2D 坐标，第三个通道为深度，第四个通道为 visibility。该 flow 描述被操作物体表面点在未来各时刻的 3D 位置变化。</p>
+      <p>之后，系统不训练一个硬件绑定动作头，而是把 flow 变成约束函数，通过优化求解一串 end-effector poses in SE(3)。</p>
+
+      <h3>2.3 贡献定位</h3>
+      <ul>
+        <li>提出 3DFlowAction，将 3D optical flow 作为统一、对象中心、跨 embodiment 的机器人操作表示。</li>
+        <li>构建 ManiFlow-110k，通过 moving object auto-detect pipeline 从多源人类和机器人视频中合成 110k 个 3D flow 样本。</li>
+        <li>训练 3D flow world model，从大规模 flow demonstrations 中学习语言条件下的物体 3D 运动模式。</li>
+        <li>提出 flow-guided rendering + GPT-4o 验证的闭环规划，以及 task-aware grasp pose generation 和 flow-conditioned optimization policy。</li>
+        <li>在四个复杂真实任务、跨机器人平台、OOD 物体和背景上验证泛化。</li>
+      </ul>
+    </section>
+
+    <section id="related">
+      <h2>3. 相关工作脉络</h2>
+      <div class="grid-2">
+        <div class="mini">
+          <h3>3.1 Imitation Learning / VLA</h3>
+          <p>Diffusion Policy、PI0、OpenVLA 等方法直接从视觉和语言生成动作，但通常需要大量机器人示范，且动作空间与具体机器人硬件强绑定。3DFlowAction 的策略是绕过动作标签，用 3D 物体运动作为中间接口。</p>
+        </div>
+        <div class="mini">
+          <h3>3.2 Video World Model</h3>
+          <p>UniPi、AVDC、Uni-Sim、TesserAct 等用视频预测作为机器人 world model。作者认为 RGB/视频 world model 需要建模背景和机器人外观，分辨率和计算成本高，未来状态也容易不稳定。</p>
+        </div>
+        <div class="mini">
+          <h3>3.3 Optical Flow for Manipulation</h3>
+          <p>Track2Act、Im2Flow2Act、General-Flow 等使用 2D flow 或点轨迹指导操作。3DFlowAction 的差异是从 2D 提升到 3D，试图表达深度方向、旋转和空间轨迹。</p>
+        </div>
+        <div class="mini">
+          <h3>3.4 Constraint Optimization Methods</h3>
+          <p>ReKep、OmniManip 等利用 VLM/keypoints/code constraints 优化动作。本文认为 GPT-4o 生成的 code constraints 难以表达复杂旋转和高质量 keypoint 不稳定，因此改用 3D flow 本身作为约束。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <h2>4. 方法详解</h2>
+      <h3>4.1 ManiFlow-110k: 从原始视频抽取 3D flow</h3>
+      <p>论文首先需要大量“物体如何运动”的数据。开源机器人/人类视频常有杂乱背景、相似物体和机械臂夹爪，标准 detector 很容易检测错。作者提出 moving object detection pipeline：</p>
+      <ol>
+        <li>用 Grounding-SAM2 在第一帧分割 gripper mask。</li>
+        <li>在第一帧全图采样点，并排除落在 gripper mask 内的点。</li>
+        <li>用 CoTracker3 跟踪这些点，找出视频中显著运动的点。</li>
+        <li>用这些运动点的最大 bounding box 定位被操作物体。</li>
+        <li>再次用 CoTracker3 提取物体 2D optical flow。</li>
+        <li>必要时移除 camera motion flow。</li>
+        <li>用 DepthAnythingV2 预测深度，将 2D flow 投影到 3D。</li>
+      </ol>
+      <p>作者在 BridgeV2 上验证该 pipeline 的 moving object detection accuracy 超过 80%。最终从 BridgeV2、RT1、AgiWorld、Libero、RH20T-Human、HOI4D、DROID 等开源数据生成 110k 个 3D flow 实例。</p>
+
+      <figure>
+        <img src="figures/fig_2025_img2flow.png" alt="3D flow generation pipeline" />
+        <figcaption>3D flow generation pipeline: 从多源人类/机器人视频中检测运动物体，构建 ManiFlow-110k，并预训练 flow world model。</figcaption>
+      </figure>
+
+      <h3>4.2 3D Flow World Model</h3>
+      <p>模型目标是根据初始 RGB observation、任务 prompt 和初始点 $F_0$，生成时变 3D flow $F$。作者沿用 Im2Flow2Act 的思路，使用 AnimateDiff 作为 optical flow generator，但做了关键调整：</p>
+      <ul>
+        <li>RGB observation 和 task prompt 用 CLIP encoder 编码。</li>
+        <li>初始点 $F_0$ 用 sinusoidal positional encoding。</li>
+        <li>不把 3D flow 压缩进 Stable Diffusion 的 image VAE latent，因为作者发现 VAE 难以编码深度信息。</li>
+        <li>直接把 3D flow 输入 U-Net，并训练 motion module 建模时间动态。</li>
+        <li>SD 主体只插入 LoRA 层，以保留预训练生成能力；motion module 从零训练。</li>
+      </ul>
+      <figure>
+        <img src="figures/fig_2025_exp_setting.png" alt="3D flow generation and experiments" />
+        <figcaption>3D flow generation / experiment settings. 图中展示 ManiFlow-110k 构建、flow world model 和任务设置等核心流程。</figcaption>
+      </figure>
+
+      <figure>
+        <img src="figures/fig_2025_fwm_viz.png" alt="3DFlowAction qualitative visualization" />
+        <figcaption>Flow world model 可视化：论文展示了 3DFlowAction 在四个任务中的预测与执行效果。</figcaption>
+      </figure>
+
+      <h3>4.3 Closed-Loop Motion Planning</h3>
+      <p>3D flow 预测仍可能出错。为提高稳定性，作者设计 object-centric target state rendering machine。设第一时刻的 flow points 为 $P_1$，最后时刻为 $P_2$，通过 SVD 估计二者之间的刚体变换：</p>
+      <div class="formula">$$T=\mathrm{SVD}(P_2,P_1).$$</div>
+      <p>然后将 $T$ 应用于被操作物体初始点云，得到预测目标状态，再放回当前 3D scene point cloud 并重投影为 2D 图像。最后把任务指令和预测图像输入 GPT-4o，判断该 flow 是否与任务对齐；若失败则重新预测 flow。这个机制把一次性 world model 采样改成了带验证的闭环规划。</p>
+
+      <h3>4.4 Task-Aware Grasp Pose Generation</h3>
+      <p>抓取位姿如果选错，目标位置可能不可达或任务不可完成。作者让 GPT-4o 根据任务输出应该抓取的物体部位，再用 AnyGrasp 在该部位周围生成候选抓取姿态。由于 AnyGrasp 本身不知道任务，系统会用前面估计的变换矩阵 $T$ 将候选抓取姿态变换到目标状态，并用机器人 IK 检查可达性，从而选择任务相关且可达的抓取姿态。</p>
+
+      <h3>4.5 Flow-Based Action Generation</h3>
+      <p>动作生成被表述为约束优化。首先从物体表面通过 farthest point sampling 选 $N$ 个关键点，获得这些点对应的预测 3D flow。每个时间步 $t$ 的目标是让当前物体关键点到达 flow world model 预测的位置：</p>
+      <div class="formula">$$f^{(t)}(k_{\mathrm{initial}})=\min \sum_{i=1}^{N}\left\|k^i_{\mathrm{initial}}-k^i_{\mathrm{pred}}(t)\right\|_2.$$</div>
+      <p>真实场景中还加入 IK 和碰撞检测。单臂机器人的决策变量是 end-effector pose，即位置和 Euler angles 的 6 维变量；位置受 workspace bounds 限制，旋转限制在下半球。优化实现沿用 ReKep 风格，初次迭代用 Dual Annealing 做全局搜索，再用 SLSQP 局部优化；后续迭代用上一阶段解初始化并只做局部优化。</p>
+    </section>
+
+    <section id="experiments">
+      <h2>5. 实验与结果</h2>
+      <h3>5.1 实验设置</h3>
+      <p>实验集中在四个基础但空间要求较高的任务：从茶壶倒茶到杯中、把笔插入笔筒、把杯子挂到杯架、打开上层抽屉。每个设置 10 次 trial，物体位姿随机，报告成功率。真实硬件使用 Dobot XTrainer，感知使用一个 Femto Bolt camera，位于机器人对侧，提供第三人称视角。</p>
+      <p>微调数据方面，作者每个任务手动收集 30 条人类手部示范，不包含机器人 action labels，约每任务 10 分钟，用于 fine-tune 3DFlowAction。</p>
+
+      <h3>5.2 与 manipulation world models 比较</h3>
+      <table>
+        <thead>
+          <tr><th>Task</th><th>AVDC</th><th>ReKep</th><th>Im2Flow2Act*</th><th>3DFlowAction</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pour tea from teapot to cup</td><td>1/10</td><td>2/10</td><td>2/10</td><td><strong>6/10</strong></td></tr>
+          <tr><td>Insert pen in holder</td><td>2/10</td><td>1/10</td><td>2/10</td><td><strong>7/10</strong></td></tr>
+          <tr><td>Hang cup to mug rack</td><td>0/10</td><td>3/10</td><td>0/10</td><td><strong>5/10</strong></td></tr>
+          <tr><td>Open top drawer</td><td>5/10</td><td>2/10</td><td>6/10</td><td><strong>10/10</strong></td></tr>
+          <tr><td><strong>Total</strong></td><td>20.0%</td><td>20.0%</td><td>25.0%</td><td><strong>70.0%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>Im2Flow2Act* 是把原方法的 learnable action policy 替换为优化过程后的 2D flow 基线。3DFlowAction 全任务领先，说明 3D flow 对倒茶、插笔、挂杯这类涉及深度和旋转的任务更有表达力。</p>
+
+      <figure>
+        <img src="figures/fig_2025_l1viz.png" alt="Planning and execution comparison for pouring tea" />
+        <figcaption>倒茶任务中的规划与执行可视化：baseline 的 2D/code-based 规划难以完整表达 3D 空间中的物体运动。</figcaption>
+      </figure>
+
+      <h3>5.3 跨 embodiment 实验</h3>
+      <table>
+        <thead>
+          <tr><th>Task</th><th>Franka</th><th>XTrainer</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pour tea from teapot to cup</td><td>7/10</td><td>6/10</td></tr>
+          <tr><td>Insert pen in holder</td><td>7/10</td><td>7/10</td></tr>
+          <tr><td>Hang cup to mug rack</td><td>4/10</td><td>5/10</td></tr>
+          <tr><td>Open top drawer</td><td>9/10</td><td>10/10</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>67.5%</strong></td><td><strong>70.0%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>作者强调该实验没有 robot-related fine-tuning。由于 3D flow 描述的是物体运动而不是机器人动作，理论上只要新机器人能通过 IK 和优化实现该物体运动，就可以跨平台执行。</p>
+
+      <h3>5.4 与模仿学习方法比较</h3>
+      <table>
+        <thead>
+          <tr><th>Task</th><th>PI0</th><th>Im2Flow2Act</th><th>3DFlowAction</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pour tea from teapot to cup</td><td>5/10</td><td>4/10</td><td><strong>6/10</strong></td></tr>
+          <tr><td>Insert pen in holder</td><td>5/10</td><td>2/10</td><td><strong>7/10</strong></td></tr>
+          <tr><td>Hang cup to mug rack</td><td>4/10</td><td>0/10</td><td><strong>5/10</strong></td></tr>
+          <tr><td>Open top drawer</td><td>6/10</td><td>5/10</td><td><strong>10/10</strong></td></tr>
+          <tr><td><strong>Total</strong></td><td>50.0%</td><td>27.5%</td><td><strong>70.0%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>PI0 作为 VLA/flow action model 基线，表现不错但仍低于 3DFlowAction。这里的关键比较是：3DFlowAction 没有用机器人 teleoperation action labels，而 PI0/Im2Flow2Act 类方法需要动作数据或模拟数据。</p>
+
+      <h3>5.5 OOD 物体与背景泛化</h3>
+      <table>
+        <thead>
+          <tr><th rowspan="2">Task</th><th colspan="3">Object Generalization</th><th colspan="3">Background Generalization</th></tr>
+          <tr><th>AVDC</th><th>PI0</th><th>3DFlowAction</th><th>AVDC</th><th>PI0</th><th>3DFlowAction</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pour tea</td><td>0/10</td><td>3/10</td><td><strong>4/10</strong></td><td>0/10</td><td>4/10</td><td><strong>4/10</strong></td></tr>
+          <tr><td>Insert pen</td><td>2/10</td><td>6/10</td><td><strong>6/10</strong></td><td>0/10</td><td>1/10</td><td><strong>4/10</strong></td></tr>
+          <tr><td>Hang cup</td><td>0/10</td><td>2/10</td><td><strong>4/10</strong></td><td>0/10</td><td>3/10</td><td><strong>4/10</strong></td></tr>
+          <tr><td>Open drawer</td><td>4/10</td><td>5/10</td><td><strong>8/10</strong></td><td>0/10</td><td>5/10</td><td><strong>8/10</strong></td></tr>
+          <tr><td><strong>Total</strong></td><td>15.0%</td><td>40.0%</td><td><strong>55.0%</strong></td><td>0.0%</td><td>32.5%</td><td><strong>50.0%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>AVDC 在背景泛化中掉到 0，说明 RGB future state generation 受到背景变化干扰很大。3DFlowAction 虽然也下降，但保持 50% 左右，符合对象中心表示更抗背景变化的预期。</p>
+
+      <figure>
+        <img src="figures/fig_2025_l2viz.png" alt="Object generalization visualization" />
+        <figcaption>OOD 物体泛化可视化：展示不同目标物体条件下的 flow 预测和执行结果。</figcaption>
+      </figure>
+
+      <figure>
+        <img src="figures/fig_2025_l3viz.png" alt="Background generalization visualization" />
+        <figcaption>背景泛化可视化：展示背景变化下 3DFlowAction 的预测与执行表现。</figcaption>
+      </figure>
+
+      <h3>5.6 Ablation: 闭环规划与大规模预训练</h3>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Large-scale Pretrain</th><th>Rendering Machine</th><th>Success Rate</th><th>Pour tea</th><th>Insert pen</th><th>Hang cup</th><th>Open drawer</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Variant 1</td><td>Yes</td><td>No</td><td>50.0%</td><td>3/10</td><td>5/10</td><td>3/10</td><td>9/10</td></tr>
+          <tr><td>Variant 2</td><td>No</td><td>Yes</td><td>30.0%</td><td>3/10</td><td>3/10</td><td>2/10</td><td>4/10</td></tr>
+          <tr><td><strong>3DFlowAction</strong></td><td>Yes</td><td>Yes</td><td><strong>70.0%</strong></td><td><strong>6/10</strong></td><td><strong>7/10</strong></td><td><strong>5/10</strong></td><td><strong>10/10</strong></td></tr>
+        </tbody>
+      </table>
+      <p>关闭 rendering machine 后平均下降 20 个点，说明 GPT-4o 验证和重新预测确实有用；去掉 ManiFlow-110k 大规模预训练后下降 40 个点，说明下游每任务 10 到 30 条人类示范不足以从零学到稳定 3D flow。</p>
+    </section>
+
+    <section id="repro">
+      <h2>6. 复现要点</h2>
+      <h3>6.1 数据和标注流程</h3>
+      <ul>
+        <li>收集多源人类/机器人视频，包括 BridgeV2、RT1、AgiWorld、Libero、RH20T-Human、HOI4D、DROID。</li>
+        <li>用 Grounding-SAM2 识别 gripper 并过滤夹爪点。</li>
+        <li>用 CoTracker3 找运动点和提取 2D object flow。</li>
+        <li>用 DepthAnythingV2 把 2D flow 投影为 3D flow。</li>
+        <li>下游任务每个任务收集 10 到 30 条人类手部示范，论文主实验为每任务 30 条、约 10 分钟。</li>
+      </ul>
+
+      <figure>
+        <img src="figures/fig_2025_render.png" alt="ManiFlow rendering visualization" />
+        <figcaption>ManiFlow-110k 的 in-domain flow generation 与 target state rendering 可视化。</figcaption>
+      </figure>
+
+      <h3>6.2 训练细节</h3>
+      <table>
+        <thead>
+          <tr><th>参数</th><th>值</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Model base</td><td>AnimateDiff + Stable Diffusion v1.5 layers + motion module + LoRA</td></tr>
+          <tr><td>Training data</td><td>ManiFlow-110k</td></tr>
+          <tr><td>Learning rate</td><td>0.0001</td></tr>
+          <tr><td>Batch size</td><td>512</td></tr>
+          <tr><td>Epochs</td><td>500</td></tr>
+          <tr><td>Optimizer</td><td>AdamW</td></tr>
+          <tr><td>Weight decay</td><td>0.01</td></tr>
+          <tr><td>Epsilon</td><td>1e-8</td></tr>
+          <tr><td>Compute</td><td>8x8 V100，约 2 天</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.3 优化过程</h3>
+      <ul>
+        <li>单臂机器人决策变量是 6D end-effector pose，包括位置和 Euler angles。</li>
+        <li>初次求解用 Dual Annealing 全局搜索，再用 SLSQP 局部优化。</li>
+        <li>后续迭代用上一阶段解初始化，只做局部优化以提高频率。</li>
+        <li>优化目标是让物体关键点到达 flow world model 预测的 3D 位置，同时考虑 IK 和碰撞检测。</li>
+      </ul>
+
+      <div class="warn">
+        <strong>源码说明：</strong>已从 arXiv 源包重新完整解压 LaTeX 与全部 <code>fig_2025/*.pdf</code> 图，并将 9 张论文图转换为可直接在 HTML 中打开的 PNG 图片。
+      </div>
+    </section>
+
+    <section id="analysis">
+      <h2>7. 分析、局限与边界</h2>
+      <h3>7.1 这篇论文最有价值的地方</h3>
+      <p>这篇论文最有价值的地方是把跨机器人动作学习的问题从“统一机器人动作空间”转成“统一物体 3D 运动空间”。3D flow 既比 RGB 视频更对象中心，又比 2D flow 更能表达深度和旋转，因此确实有潜力成为 human video、robot video 和不同硬件之间的共同接口。</p>
+      <p>第二个价值点是系统链路比较完整：数据构建、flow world model、闭环 flow 验证、抓取位姿选择和动作优化都连起来了。它不是只展示 flow 预测可视化，而是把 flow 用到真实机器人任务成功率上。</p>
+
+      <h3>7.2 结果为什么站得住</h3>
+      <ul>
+        <li>主实验包含四个空间要求不同的任务：倒茶、插笔、挂杯、开抽屉，覆盖倾倒、旋转、对齐和拉动。</li>
+        <li>同时和 video world model、VLM code constraints、2D flow world model、VLA/模仿学习方法比较，不是只打单一基线。</li>
+        <li>跨平台 Franka 与 XTrainer 的成功率接近，支持 3D flow 作为 cross-embodiment 表示的主张。</li>
+        <li>OOD 物体和背景实验显示对象中心 3D flow 比 RGB 视频生成更抗背景变化。</li>
+        <li>Ablation 明确显示 rendering machine 和 large-scale pretraining 都对最终成功率有大幅贡献。</li>
+      </ul>
+
+      <h3>7.3 主要局限</h3>
+      <ul>
+        <li><strong>非刚体和严重遮挡：</strong>作者明确指出柔性物体、强遮挡和复杂非刚体变形会让 3D optical flow 难以建模，进而导致 action policy 无法输出有效动作。</li>
+        <li><strong>依赖深度估计质量：</strong>DepthAnythingV2 从单目视频估深，再投影成 3D flow；深度偏差会直接污染 3D 轨迹。</li>
+        <li><strong>依赖 GPT-4o 验证：</strong>closed-loop rendering 用 GPT-4o 判断 predicted final state 是否符合任务，评估标准不完全透明，也会引入延迟和外部服务依赖。</li>
+        <li><strong>trial 数较少：</strong>每个任务 10 次，成功率差异虽大，但统计置信区间仍应谨慎。</li>
+        <li><strong>优化 policy 仍需工程假设：</strong>IK、collision、workspace bounds、grasp candidate、rigid transform 等假设对真实任务很关键，不是纯学习模型端到端解决。</li>
+        <li><strong>主要是单臂刚性物体操作：</strong>双臂协作、可变形物体、工具接触和长期闭环操作还未证明。</li>
+      </ul>
+
+      <h3>7.4 边界条件</h3>
+      <table>
+        <thead>
+          <tr><th>适用条件</th><th>需要谨慎的条件</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>被操作对象可近似刚体，关键表面点可跟踪。</td><td>布料、绳子、液体、软体物体或强非刚体变形。</td></tr>
+          <tr><td>任务可通过物体目标位姿/轨迹表达。</td><td>任务依赖力控、触觉、隐状态或复杂接触模式。</td></tr>
+          <tr><td>单臂机器人可通过 IK 实现预测物体轨迹。</td><td>末端不可达、抓取点不稳定或需要重抓。</td></tr>
+          <tr><td>允许 GPT-4o 做计划验证和重新预测。</td><td>实时、安全关键、离线部署或不能调用外部 VLM 的系统。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="qa">
+      <h2>8. 组会问答准备</h2>
+      <h3>Q1: 3DFlowAction 和 Im2Flow2Act 最大区别是什么？</h3>
+      <p>Im2Flow2Act 主要使用 2D optical flow，无法完整表达深度方向移动和 3D 旋转；3DFlowAction 用 2D 坐标、深度和 visibility 组成 3D flow，并直接用该 3D flow 作为优化约束。</p>
+
+      <h3>Q2: 为什么不用 RGB 视频 world model？</h3>
+      <p>RGB 视频 world model 要生成背景、机器人外观和无关物体，计算量大且容易受 OOD 背景影响。3D flow 只关注被操作物体的运动轨迹，更对象中心，也更适合直接转成动作约束。</p>
+
+      <h3>Q3: GPT-4o 在系统里做什么？</h3>
+      <p>两处关键使用：一是 flow-guided rendering 后，判断预测最终状态是否符合任务，决定是否重新预测 flow；二是根据任务说明输出应该抓取的物体部位，辅助选择 task-aware grasp pose。</p>
+
+      <h3>Q4: 方法为什么能跨 embodiment？</h3>
+      <p>因为 world model 输出的是物体在 3D 空间中的运动，而不是某个机器人专属动作。不同机器人只需通过自己的 IK、workspace bounds 和优化器实现同一物体轨迹。</p>
+
+      <h3>Q5: 最强证据是什么？</h3>
+      <p>跨平台实验和 ablation 最关键：Franka 67.5%、XTrainer 70.0% 支持跨 embodiment；去掉大规模预训练从 70% 掉到 30%，说明 ManiFlow-110k 是核心支撑。</p>
+
+      <h3>Q6: 最容易被质疑的地方是什么？</h3>
+      <p>每任务只有 10 次 trial、依赖 GPT-4o、依赖单目深度和刚体/可跟踪物体假设。真实部署中，这些环节都可能成为失败来源。</p>
+    </section>
+  </main>
+</body>
+</html>

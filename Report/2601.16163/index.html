@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmos Policy - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --paper: #fffdf8;
+      --ink: #1f2933;
+      --muted: #5b6570;
+      --line: #d9d0c3;
+      --brand: #0f766e;
+      --brand-soft: #dff4f1;
+      --accent: #b45309;
+      --accent-soft: #fff1df;
+      --appendix: #6d28d9;
+      --appendix-soft: #f3e8ff;
+      --shadow: 0 24px 80px rgba(31, 41, 51, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(180, 83, 9, 0.08), transparent 24%),
+        linear-gradient(180deg, #f7f2ea 0%, var(--bg) 100%);
+      color: var(--ink);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
+    }
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .card {
+      background: var(--paper);
+      border: 1px solid rgba(217, 208, 195, 0.7);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    header {
+      padding: 36px 40px 24px;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.95), rgba(17, 94, 89, 0.85)),
+        linear-gradient(135deg, #134e4a, #0f766e);
+      color: #f8fffe;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2.15rem;
+      line-height: 1.3;
+    }
+    .meta {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px 20px;
+      font-size: 0.96rem;
+    }
+    .meta p { margin: 0; }
+    .meta a { color: #dcfce7; }
+    main { padding: 0 40px 40px; }
+    section { margin-top: 34px; }
+    h2 {
+      margin: 0 0 14px;
+      padding-left: 14px;
+      border-left: 5px solid var(--brand);
+      font-size: 1.45rem;
+      line-height: 1.4;
+    }
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.14rem;
+      color: #163f3a;
+    }
+    h4 {
+      margin: 18px 0 8px;
+      font-size: 1rem;
+      color: #31414e;
+    }
+    p, li { font-size: 0.98rem; }
+    .toc {
+      margin-top: -22px;
+      padding: 24px 28px;
+      background: linear-gradient(180deg, #fbf8f2 0%, #f8f3ea 100%);
+      border-bottom: 1px solid var(--line);
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px 20px;
+    }
+    .toc a {
+      color: var(--brand);
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .tldr {
+      margin: 18px 0;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fff6e5, #fffdf4);
+      border: 1px solid #f1d5aa;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: #115e59;
+      font-size: 0.9rem;
+      border: 1px solid rgba(15, 118, 110, 0.2);
+    }
+    .info-box, .impl-note, .audit-card, .obstacle-box {
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fcfaf6;
+    }
+    .impl-note {
+      background: var(--accent-soft);
+      border-color: #f3c48b;
+    }
+    .audit-card {
+      background: #f2faf8;
+      border-color: #b6ddd7;
+    }
+    .obstacle-box {
+      background: #fff4f4;
+      border-color: #f0b6b6;
+    }
+    .appendix-ref {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: var(--appendix-soft);
+      color: var(--appendix);
+      font-size: 0.84rem;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      vertical-align: baseline;
+    }
+    .figure {
+      margin: 18px 0 24px;
+      text-align: center;
+    }
+    .figure img {
+      max-width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(31, 41, 51, 0.08);
+      box-shadow: 0 12px 32px rgba(31, 41, 51, 0.1);
+    }
+    .caption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: left;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 22px;
+      font-size: 0.94rem;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #e6ddd0;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+    th {
+      background: #f7f1e8;
+      text-align: left;
+      font-weight: 700;
+    }
+    .highlight-row td {
+      background: #ecfdf5;
+      font-weight: 600;
+    }
+    .formula-block {
+      margin: 16px 0;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: #f8fbfb;
+      border: 1px solid #d7e7e4;
+    }
+    .formula-block .intuition {
+      margin: 0 0 10px;
+      color: #115e59;
+      font-weight: 700;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      color: #0f766e;
+      white-space: nowrap;
+    }
+    details {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px dashed #c8d8d5;
+    }
+    summary {
+      cursor: pointer;
+      color: #0f766e;
+      font-weight: 600;
+    }
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .tl-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 14px;
+      padding: 14px 16px;
+      border-left: 4px solid #7dd3c7;
+      background: #f7fbfb;
+      border-radius: 0 14px 14px 0;
+    }
+    .tl-item.current {
+      border-left-color: var(--brand);
+      background: #eefaf8;
+    }
+    .tl-label {
+      font-weight: 700;
+      color: #115e59;
+    }
+    .muted { color: var(--muted); }
+    ul { padding-left: 20px; }
+    .footnote {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .small { font-size: 0.9rem; }
+    code {
+      padding: 2px 5px;
+      border-radius: 6px;
+      background: rgba(15, 118, 110, 0.08);
+      color: #115e59;
+    }
+    @media (max-width: 720px) {
+      header, main { padding-left: 20px; padding-right: 20px; }
+      .tl-item { grid-template-columns: 1fr; }
+      h1 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <article class="card">
+      <header>
+        <div class="eyebrow">组会论文精读报告 / junior PhD 版</div>
+        <h1>Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning</h1>
+        <div class="meta">
+          <p><strong>作者</strong>：Moo Jin Kim, Yihuai Gao, Tsung-Yi Lin, Yen-Chen Lin, Yunhao Ge, Grace Lam, Percy Liang, Shuran Song, Ming-Yu Liu, Chelsea Finn, Jinwei Gu</p>
+          <p><strong>机构</strong>：NVIDIA；Stanford University</p>
+          <p><strong>arXiv</strong>：<a href="https://arxiv.org/abs/2601.16163">2601.16163</a>，提交日期 2026-01-22</p>
+          <p><strong>项目页</strong>：<a href="https://research.nvidia.com/labs/dir/cosmos-policy/">research.nvidia.com/labs/dir/cosmos-policy/</a></p>
+        </div>
+      </header>
+
+      <div class="toc">
+        <h2 style="margin-top:0">目录</h2>
+        <div class="toc-grid">
+          <div>
+            <div><a href="#sec1">1. 论文速览</a></div>
+            <div><a href="#sec2">2. 动机</a></div>
+            <div><a href="#sec3">3. 相关工作梳理</a></div>
+            <div><a href="#sec4">4. 关键术语表</a></div>
+          </div>
+          <div>
+            <div><a href="#sec5">5. 方法详解</a></div>
+            <div><a href="#sec6">6. 实验</a></div>
+            <div><a href="#sec7">7. 分析与讨论</a></div>
+          </div>
+        </div>
+      </div>
+
+      <main>
+        <section id="sec1">
+          <h2>1. 论文速览</h2>
+          <div class="tldr">
+            <strong>一句话总结</strong>：这篇论文把一个预训练视频扩散模型 <code>Cosmos-Predict2-2B</code> 直接微调成机器人策略，不改模型结构，只靠“把动作、未来状态和值函数都编码成潜变量帧”这一个统一接口，同时支持直接控制和基于模型的规划。
+          </div>
+
+          <div class="grid-2">
+            <div class="info-box">
+              <p><strong>难度评级</strong>：★★★★☆</p>
+              <p class="small">需要熟悉扩散模型、latent video model、imitation learning、world model / value function，以及机器人策略评测。</p>
+              <p><strong>关键词</strong></p>
+              <div class="chip-list">
+                <span class="chip">Video Foundation Model</span>
+                <span class="chip">Latent Diffusion</span>
+                <span class="chip">Visuomotor Policy</span>
+                <span class="chip">World Model</span>
+                <span class="chip">Best-of-N Planning</span>
+              </div>
+            </div>
+            <div class="audit-card">
+              <p><strong>核心贡献清单</strong></p>
+              <ul>
+                <li>提出 <code>Cosmos Policy</code>：单阶段后训练，把预训练视频模型直接适配成机器人控制策略，不再额外设计 action head、inverse dynamics 或单独的 action diffuser。</li>
+                <li>提出 <code>latent frame injection</code>：把动作、机器人本体状态、未来状态和值函数都表示成视频潜空间里的“帧”，使同一扩散模型同时承担 policy、world model、value function 三种角色。</li>
+                <li>提出双模型部署：基础 checkpoint 负责出动作，利用 rollout 再微调的 checkpoint 负责预测未来状态和值，并在测试时做 best-of-N 规划。</li>
+                <li>在 LIBERO、RoboCasa 和真实双臂 ALOHA 上取得强结果；其中 LIBERO 平均 98.5%，RoboCasa 平均 67.1%，ALOHA 四任务平均得分 93.6。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="figure">
+            <img src="figures/cosmos_policy_figure1.jpeg" alt="Cosmos Policy overview">
+            <div class="caption">Figure 1。总览图：输入多视角图像、机器人状态和文本任务描述；输出动作块、未来状态和值。报告后文会把这张图拆成“输入组织方式”和“训练/推理职责分配”两部分来讲。</div>
+          </div>
+        </section>
+
+        <section id="sec2">
+          <h2>2. 动机</h2>
+
+          <h3>2.1 要解决什么问题</h3>
+          <p>论文关心的是：视频基础模型已经学到时序因果、隐式物理和运动模式，这些先验能不能直接拿来做机器人控制，而不是只用静态图文预训练的 VLA 作为骨干。作者希望得到一种既能输出动作，又能想象未来状态、还能评估未来是否值得执行的统一策略模型。</p>
+          <p>这里的具体痛点不是“机器人控制不够强”这么泛，而是两件事同时存在：第一，很多任务的动作分布是多模态的，比如抓糖果时可以先左手再右手，也可以反过来；第二，很多任务对精度极敏感，比如夹链袋滑扣，毫米级差异就会导致失败。作者认为视频模型在建模复杂、高维、多峰时序分布上有天然优势，因此值得直接迁移到控制里。</p>
+
+          <h3>2.2 已有方法的局限</h3>
+          <ul>
+            <li>视频策略路线通常是多阶段的：先把视频模型适配到机器人数据，再单独训练动作模块，或者再加 inverse dynamics / action diffuser。这样训练链条更长、模块更多、误差来源也更多。</li>
+            <li>统一视频-动作模型虽然避免了多模块结构，但往往不是从大规模预训练视频模型初始化，而是自定义结构从头训，拿不到互联网视频上学到的时空先验。</li>
+            <li>VLA 很强，但它们主要建立在静态图文预训练上。作者的判断是，这类骨干更偏语义，而不是动态物理过程本身，所以在高多模态、长时序、精细操控上未必是最自然的归纳偏置。</li>
+            <li>规划方面，如果只看 demonstration，world model 和 value function 看到的大多是成功轨迹；一旦真实执行进入失败或偏离分布的状态，它们的泛化会变差。作者在正文和规划实验里都强调：要让规划有用，必须引入 rollout 经验。<span class="appendix-ref">[正文 §4.3]</span></li>
+          </ul>
+
+          <h3>2.3 本文的解决思路（高层次）</h3>
+          <p>作者的核心思路是“不要给视频模型外挂新头，而是把机器人任务所需的一切都塞回它最熟悉的 latent sequence 里”。具体做法是：把当前观测 $s$、动作块 $a$、未来观测 $s'$、未来值 $V(s')$ 全部排成潜变量帧序列，让扩散模型继续做它最熟悉的事：从噪声恢复这些帧。</p>
+          <p>这样同一个模型在训练时可以通过不同的条件掩码分别学习三种条件分布：策略 $p(a,s',V(s')\mid s)$、世界模型 $p(s',V(s')\mid s,a)$ 和值函数 $p(V(s')\mid s,a,s')$。测试时可以只把它当 direct policy 用，也可以在 rollout 微调后，把它接成 best-of-N 的规划器。</p>
+        </section>
+
+        <section id="sec3">
+          <h2>3. 相关工作梳理</h2>
+
+          <h3>3.1 论文自述的相关工作</h3>
+          <ul>
+            <li><strong>Video-based robot policies</strong>：一类先微调视频模型，再训练独立动作模块；另一类直接训练联合视频-动作模型。作者把自己定位成第三条线：仍然保留统一生成，但直接从大视频模型初始化，并且不加结构修改。</li>
+            <li><strong>Vision-language-action models</strong>：RT-2、OpenVLA、π<sub>0.5</sub>、UniVLA、CogVLA 代表的是大骨干 + 机器人微调路线。论文的区别不在于“也有大骨干”，而在于骨干是视频生成模型而不是静态图文模型。</li>
+            <li><strong>World models and value functions</strong>：传统 Dyna/MBPO/TD-MPC/Dreamer 到近年的 FLARE、SAILOR、Latent Policy Steering 都说明规划有价值，但通常要分开建 policy/world model/value。本文的区分点是：同一预训练视频模型同时承担三者功能。</li>
+          </ul>
+
+          <h3>3.2 直接前作对比</h3>
+          <table>
+            <tr>
+              <th>维度</th>
+              <th>Video Policy / UVA 类</th>
+              <th>UWM 类统一视频动作模型</th>
+              <th>VLA（OpenVLA / π<sub>0.5</sub>）</th>
+              <th>Cosmos Policy</th>
+            </tr>
+            <tr>
+              <td>预训练骨干</td>
+              <td>视频模型，常需额外动作模块</td>
+              <td>自定义统一模型，通常不直接继承大视频模型</td>
+              <td>静态图文大模型</td>
+              <td>Cosmos-Predict2-2B 视频扩散模型</td>
+            </tr>
+            <tr>
+              <td>结构改动</td>
+              <td>通常需要</td>
+              <td>模型本身就是为动作设计</td>
+              <td>动作头/微调策略依方法不同而异</td>
+              <td>不改结构，只改 latent sequence 的内容组织</td>
+            </tr>
+            <tr>
+              <td>动作表示</td>
+              <td>单独动作模块或逆动力学</td>
+              <td>联合视频-动作输出</td>
+              <td>直接回归或其他动作头</td>
+              <td>动作块被编码成 latent frame</td>
+            </tr>
+            <tr>
+              <td>是否统一建模 future state / value</td>
+              <td>通常不统一</td>
+              <td>不一定含 value</td>
+              <td>通常无显式 world model / value</td>
+              <td>统一建模动作、未来状态和值</td>
+            </tr>
+            <tr>
+              <td>规划能力</td>
+              <td>往往需要额外模块</td>
+              <td>未必支持</td>
+              <td>通常偏 model-free</td>
+              <td>rollout 微调后可直接 best-of-N 规划</td>
+            </tr>
+            <tr>
+              <td>论文内给出的代表结果</td>
+              <td>Video Policy 在 RoboCasa 66.0，LIBERO Long 94.0</td>
+              <td>UWM 在 RoboCasa 60.8</td>
+              <td>OpenVLA-OFT 在 LIBERO 97.1；π<sub>0.5</sub> 在 ALOHA 平均 88.6</td>
+              <td>LIBERO 98.5，RoboCasa 67.1，ALOHA 93.6</td>
+            </tr>
+          </table>
+        </section>
+
+        <section id="sec4">
+          <h2>4. 关键术语表</h2>
+          <table>
+            <tr>
+              <th>术语</th>
+              <th>中文</th>
+              <th>通俗解释</th>
+              <th>首次出处</th>
+            </tr>
+            <tr>
+              <td>latent frame injection</td>
+              <td>潜变量帧注入</td>
+              <td>把动作、机器人状态和值这些非图像信号塞进视频潜空间里，伪装成“帧”来联合建模</td>
+              <td>§4.1 / <span class="appendix-ref">[附录 A.1]</span></td>
+            </tr>
+            <tr>
+              <td>action chunk</td>
+              <td>动作块</td>
+              <td>一次预测连续多个控制步，而不是只预测下一步，用来提高平滑性和成功率</td>
+              <td>§3</td>
+            </tr>
+            <tr>
+              <td>world model</td>
+              <td>世界模型</td>
+              <td>给定当前状态和动作，预测未来会看到什么</td>
+              <td>§3</td>
+            </tr>
+            <tr>
+              <td>value function</td>
+              <td>值函数</td>
+              <td>估计“走到这个状态后，最终任务成功的希望有多大”</td>
+              <td>§3</td>
+            </tr>
+            <tr>
+              <td>dual deployment</td>
+              <td>双模型部署</td>
+              <td>基础模型出动作，rollout 微调后的模型做未来预测和值评估</td>
+              <td>§4.3</td>
+            </tr>
+            <tr>
+              <td>best-of-N sampling</td>
+              <td>N 选 1 采样规划</td>
+              <td>先采样多个候选动作，再用世界模型和价值评估器打分，最后执行得分最高的那个</td>
+              <td>§4.3</td>
+            </tr>
+            <tr>
+              <td>majority mean</td>
+              <td>多数均值聚合</td>
+              <td>15 个 value 预测里先看“多数认为成功还是失败”，再只对多数派求均值，降低离群值影响</td>
+              <td>§4.3</td>
+            </tr>
+            <tr>
+              <td>EDM denoising score matching</td>
+              <td>EDM 去噪训练</td>
+              <td>扩散模型的标准训练框架，输入加噪潜变量，学习恢复干净样本</td>
+              <td>§3</td>
+            </tr>
+          </table>
+        </section>
+
+        <section id="sec5">
+          <h2>5. 方法详解</h2>
+
+          <h3>5.1 方法概览</h3>
+          <p>整条 pipeline 可以按“输入组织 -> 统一训练 -> 两种部署方式”来理解：</p>
+          <ul>
+            <li>输入端：当前时刻的多视角图像、机器人 proprioception、文本任务描述。</li>
+            <li>表示端：把图像本来就会经过 VAE 变成 latent frame；作者再把动作块、当前/未来机器人状态和值函数也复制、归一化并写进某些 latent frame 位置。</li>
+            <li>训练端：不同 batch 样本用不同条件掩码，分别对应 policy、world model、value function 三种条件生成任务。</li>
+            <li>部署端：若只做 direct policy，则并行生成 $(a,s',V)$ 后只执行动作；若做 planning，则先出动作，再出未来状态，再出 value，用 best-of-N 选动作。</li>
+          </ul>
+
+          <div class="figure">
+            <img src="figures/cosmos_policy_diffusion_sequence_v2_main_version.001.jpeg" alt="latent diffusion sequence">
+            <div class="caption">Figure 2。核心图。作者不是往网络里加 action head，而是把不同模态塞进 latent diffusion sequence。这个决定直接带来了“同一网络同时学 policy / world model / value”的可能性。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figures/cosmos_policy_diffusion_sequence_v2_detailed_for_appendix.001.jpeg" alt="detailed latent diffusion sequence">
+            <div class="caption">Appendix Figure。更细的实现图。空白占位图先被 VAE 编码成潜帧，再被动作/状态/value 覆盖；还解释了为什么序列最前面要有一个 blank frame。<span class="appendix-ref">[附录 A.1]</span></div>
+          </div>
+
+          <h3>5.2 方法演变脉络</h3>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-label">阶段 A</div>
+              <div>视频模型被拿来做机器人策略，但常见做法是“视频模型 + 独立动作模块”。优势是容易接到已有视频 backbone；代价是训练多阶段、模块间耦合更强。</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-label">阶段 B</div>
+              <div>统一视频-动作模型尝试把动作和未来观测一起建模，但很多方法没有直接从大规模预训练视频模型初始化，因此拿不到足够强的时空先验。</div>
+            </div>
+            <div class="tl-item current">
+              <div class="tl-label">阶段 C</div>
+              <div>Cosmos Policy 直接保留预训练视频模型结构，把新模态通过 latent injection 融进去，再利用不同掩码让同一模型学习 policy、world model 和 value；最后通过 rollout 再微调补上 planning 所需的分布外经验。</div>
+            </div>
+          </div>
+
+          <h3>5.3 核心设计与数学推导</h3>
+
+          <div class="formula-block">
+            <p class="intuition">公式 1 在做的事：把原本的视频扩散训练目标保留下来，区别只是“干净样本”不再只是视频帧，而是被插入了动作、状态和值的联合 latent sequence。</p>
+            <p>$$
+            \mathcal{L}(D_\theta, \sigma) =
+            \mathbb{E}_{\mathbf{x}_0,\mathbf{c},\mathbf{n}}
+            \left[
+            \left\| D_\theta(\mathbf{x}_0 + \mathbf{n}; \sigma, \mathbf{c}) - \mathbf{x}_0 \right\|_2^2
+            \right]
+            $$</p>
+            <table class="symbol-table">
+              <tr><td>$\mathbf{x}_0$</td><td>干净的 latent 序列。这里可以同时包含图像潜帧和注入后的动作/状态/value 潜帧。</td></tr>
+              <tr><td>$\mathbf{c}$</td><td>文本条件，论文里由 T5-XXL embedding 提供。</td></tr>
+              <tr><td>$\mathbf{n}$</td><td>高斯噪声，$\mathbf{n}\sim\mathcal{N}(0,\sigma^2 I)$。</td></tr>
+              <tr><td>$D_\theta$</td><td>Cosmos-Predict2 的 diffusion transformer 去噪器。</td></tr>
+              <tr><td>$\sigma$</td><td>噪声强度；作者后面会专门改它的采样分布。<span class="appendix-ref">[附录 A.2.1]</span></td></tr>
+            </table>
+            <div>
+              <strong>直觉</strong>：这篇论文并没有重新定义策略学习损失，而是把机器人控制问题变成“恢复联合 latent 序列”问题，因此最大限度复用了基础视频模型已有的学习算法。
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <p class="intuition">公式 2 在做的事：定义 sparse reward 下的值函数，并用 Monte Carlo return 给每个 rollout transition 打标签。</p>
+            <p>$$
+            V^\pi(s)=
+            \mathbb{E}_{\tau\sim\pi}\left[\sum_{k=t}^{H}\gamma^{k-t}R(s_k,a_k)\mid s_t=s\right]
+            =
+            \mathbb{E}_{\tau\sim\pi}\left[\gamma^{H-t}R(s_H,a_H)\mid s_t=s\right]
+            $$
+            </p>
+            <table class="symbol-table">
+              <tr><td>$s_t, a_t$</td><td>时刻 $t$ 的状态和动作。</td></tr>
+              <tr><td>$H$</td><td>episode 时域长度。</td></tr>
+              <tr><td>$\gamma$</td><td>折扣因子，把终局奖励往前传播。</td></tr>
+              <tr><td>$R(s_H,a_H)$</td><td>终点奖励；正文里任务使用 sparse reward。</td></tr>
+            </table>
+            <div>
+              <strong>为什么这里值函数容易学坏</strong>：如果训练集全是 demonstration，几乎都是成功状态，那么模型在失败区域没有监督。作者因此明确引入 rollout data，并在 planning 微调时把 90% batch 给 world model 和 value function。<span class="appendix-ref">[正文 §4.3]</span>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <p class="intuition">式子虽然没有写成一个总损失，但正文实际上定义了三类条件分布，它们对应同一网络的三种工作模式。</p>
+            <table class="symbol-table">
+              <tr><td>$p(a,s',V(s')\mid s)$</td><td>策略训练：给当前状态，联合生成动作、未来状态和值。</td></tr>
+              <tr><td>$p(s',V(s')\mid s,a)$</td><td>世界模型训练：给当前状态和动作，预测未来状态和值。</td></tr>
+              <tr><td>$p(V(s')\mid s,a,s')$</td><td>值函数训练：给完整前缀，预测未来值。</td></tr>
+            </table>
+            <div>
+              <strong>关键点</strong>：作者强调 auxiliary targets 很重要。policy 不只是学 $p(a\mid s)$，而是连未来状态和值一起学；world model 也不只学 $p(s'\mid s,a)$。这相当于强迫中间表示保留“动作后会发生什么”和“那样做值不值得”的信息。
+            </div>
+            <details>
+              <summary>为什么这种联合目标可能有效</summary>
+              <div>
+                <p>如果只训练 $p(a\mid s)$，模型只需输出一个能完成任务的动作块；但 joint objective 要求它同时生成未来状态和值，相当于把“行为后果”作为辅助监督，逼迫隐藏表示对环境动态更敏感。论文中的 LIBERO 和 RoboCasa 消融都支持这一点。</p>
+              </div>
+            </details>
+          </div>
+
+          <div class="formula-block">
+            <p class="intuition">潜帧注入没有被写成正式公式，但实现逻辑非常明确：先归一化，再复制，再 reshape 到单帧潜变量体积。</p>
+            <table class="symbol-table">
+              <tr><td>输入</td><td>例如动作块大小为 $K\times d_{act}$，先 flatten 成长度 $K d_{act}$ 的向量。</td></tr>
+              <tr><td>归一化</td><td>非图像模态统一缩放到 $[-1,+1]$。</td></tr>
+              <tr><td>复制</td><td>重复 $\frac{H'W'C'}{K d_{act}}$ 次，直到长度匹配一个 latent frame 的体积。<span class="appendix-ref">[附录 A.1]</span></td></tr>
+              <tr><td>解码</td><td>生成后对这些复制块求均值，再反归一化得到动作/状态/value 预测；非图像模态不需要 VAE 解码。</td></tr>
+            </table>
+            <div>
+              <strong>实现直觉</strong>：作者没有为低维向量专门造一个 tokenization 模块，而是简单粗暴地把它铺满整个潜变量体积。这样虽然在表示上有冗余，但换来了“完全不改原模型结构”。
+            </div>
+          </div>
+
+          <div class="figure">
+            <img src="figures/balanced_batches_figure.001.jpeg" alt="balanced batches">
+            <div class="caption">Figure 12。batch 50/25/25 的训练分配图。它说明 policy、world model、value function 不是三个网络，而是同一 latent diffusion sequence 在不同条件掩码下的三种训练实例。<span class="appendix-ref">[附录 A.4.1]</span></div>
+          </div>
+
+          <h3>5.4 实现要点</h3>
+          <div class="impl-note">
+            <strong>blank first latent frame</strong>：序列最前面专门放一个空白占位帧，不是视觉上有意义，而是为了适配视频 tokenizer “首帧不做时间压缩，其余按 4 帧压缩”的机制，从而让当前和未来观测的结构更对齐。<span class="appendix-ref">[附录 A.1]</span>
+          </div>
+          <div class="impl-note">
+            <strong>动作块不是一步一步滚动执行</strong>：LIBERO 用 chunk 16 并执行完整 16 步；RoboCasa 预测 32 步但执行 16 步后重查；ALOHA 预测并执行完整 50 步。这个设计和实际推理延迟直接绑定。<span class="appendix-ref">[附录 A.2.2-A.2.4]</span>
+          </div>
+          <div class="impl-note">
+            <strong>噪声分布被专门改过</strong>：训练时不再只用原始 log-normal，而是 70% 采样自原分布、30% 采样自 $[1,85]$ 的均匀分布，以增强高噪声区训练信号；推理时把 $\sigma_{\min}$ 从 0.002 提高到 4。作者的理由是机器人动作生成对高噪声初始阶段更敏感。<span class="appendix-ref">[附录 A.2.1]</span>
+          </div>
+          <div class="figure">
+            <img src="figures/noise_schedules_figure.001.jpeg" alt="noise schedules">
+            <div class="caption">Figure 9。作者把 base model 的噪声分布改成更偏高噪声的 hybrid distribution，用来提高 test-time generation 精度。<span class="appendix-ref">[附录 A.2.1]</span></div>
+          </div>
+          <div class="impl-note">
+            <strong>推理模式切换</strong>：direct policy 用并行解码，快；planning 用自回归解码，质量更高。ALOHA planning 时动作 10 denoise steps、未来状态 5 步、value 5 步；并且每个候选动作会配 3 次未来状态预测和 5 次 value 预测，总共 15 个 value 结果。<span class="appendix-ref">[附录 A.3.1]</span>
+          </div>
+          <div class="impl-note">
+            <strong>双模型部署</strong>：policy model 用基础 checkpoint，planning model 用 rollout 微调后的 checkpoint。作者给出的理由是：planning model 的 on-policy 经验正是由原 policy model 采出来的，因此职责分离更稳定。<span class="appendix-ref">[正文 §4.3]</span>
+          </div>
+        </section>
+
+        <section id="sec6">
+          <h2>6. 实验</h2>
+
+          <h3>6.1 实验设置</h3>
+          <h4>数据集与任务</h4>
+          <table>
+            <tr>
+              <th>平台</th>
+              <th>任务/数据</th>
+              <th>训练数据</th>
+              <th>观测与动作</th>
+              <th>补充细节</th>
+            </tr>
+            <tr>
+              <td>LIBERO</td>
+              <td>Spatial / Object / Goal / Long 四套任务，单臂 Franka Panda</td>
+              <td>每套 500 demonstrations（10 任务 × 50）</td>
+              <td>action chunk 16，测试执行完整 chunk</td>
+              <td>策略训练过滤失败 demonstrations；world model/value 用未过滤数据</td>
+            </tr>
+            <tr>
+              <td>RoboCasa</td>
+              <td>24 个厨房操作任务，单臂 Franka Panda</td>
+              <td>每任务只用 50 条人类遥操作 demonstrations</td>
+              <td>action chunk 32，执行 16 步后重查</td>
+              <td>评测用 5 个 scene，每任务 50 trials × 3 seeds，共 3600 次；只测未见物体，且部分风格从未在训练中出现</td>
+            </tr>
+            <tr>
+              <td>ALOHA</td>
+              <td>四个真实双臂任务：put X on plate / fold shirt / put candies in bowl / put candy in ziploc bag</td>
+              <td>总计 185 demonstrations</td>
+              <td>14 维关节角 + 3 路相机 + 文本；chunk 50（2 秒），完整执行后重查</td>
+              <td>101 次固定初始条件评测，含 IID 与 OOD</td>
+            </tr>
+          </table>
+
+          <h4>基线方法</h4>
+          <p>论文在仿真里对比了从头训练的 diffusion policy（Diffusion Policy、Dita），视频模型路线（UVA、UWM、Video Policy），以及 VLA 路线（π<sub>0</sub>、π<sub>0.5</sub>、OpenVLA-OFT、CogVLA、UniVLA、DP-VLA、GR00T-N1.5）。真实 ALOHA 上重点比较 Diffusion Policy、OpenVLA-OFT+、π<sub>0</sub> 和 π<sub>0.5</sub>。</p>
+
+          <h4>评价指标</h4>
+          <ul>
+            <li>LIBERO / RoboCasa：success rate。</li>
+            <li>ALOHA：0-100 分的阶段性完成度分数，而不是二元成功。评分细则在附录给得很细，例如“put candy in ziploc bag”分成抓拉链、抓袋角、拉开袋口、抓糖果、放入袋中五个 20 分阶段。<span class="appendix-ref">[附录 A.3.2]</span></li>
+          </ul>
+
+          <h4>训练配置与硬件</h4>
+          <table>
+            <tr>
+              <th>平台</th>
+              <th>训练步数</th>
+              <th>GPU</th>
+              <th>全局 batch</th>
+              <th>耗时</th>
+              <th>训练后主要损失</th>
+            </tr>
+            <tr>
+              <td>LIBERO</td>
+              <td>40K</td>
+              <td>64 × H100</td>
+              <td>1920</td>
+              <td>48 小时</td>
+              <td>action 0.012；future proprio 0.007；future wrist latent 0.068；future third-person latent 0.036；value 0.007</td>
+            </tr>
+            <tr>
+              <td>RoboCasa</td>
+              <td>45K</td>
+              <td>32 × H100</td>
+              <td>800</td>
+              <td>48 小时</td>
+              <td>action 0.016；future proprio 0.007；future wrist latent 0.084；future third-person latent 0.048；value 0.007</td>
+            </tr>
+            <tr>
+              <td>ALOHA</td>
+              <td>50K</td>
+              <td>8 × H100</td>
+              <td>200</td>
+              <td>48 小时</td>
+              <td>action 0.010；future proprio 0.008；future wrist latent 0.097；future third-person latent 0.085；value 0.007</td>
+            </tr>
+          </table>
+          <p class="footnote">所有非图像模态都归一化到 $[-1,+1]$。基础模型均为全参数微调。<span class="appendix-ref">[附录 A.2.2-A.2.4]</span></p>
+
+          <h4>代码仓库与可复现性</h4>
+          <p>论文明确表示会发布 model checkpoints、training data 和 code；公开入口是项目页 <a href="https://research.nvidia.com/labs/dir/cosmos-policy/">research.nvidia.com/labs/dir/cosmos-policy/</a>。Reproducibility Statement 还说明训练和评测脚本会随发布提供。</p>
+
+          <h3>6.2 主要结果</h3>
+          <h4>LIBERO 主结果</h4>
+          <table>
+            <tr>
+              <th>方法</th>
+              <th>Spatial</th>
+              <th>Object</th>
+              <th>Goal</th>
+              <th>Long</th>
+              <th>Average</th>
+            </tr>
+            <tr><td>Diffusion Policy</td><td>78.3</td><td>92.5</td><td>68.3</td><td>50.5</td><td>72.4</td></tr>
+            <tr><td>Dita</td><td>97.4</td><td>94.8</td><td>93.2</td><td>83.6</td><td>92.3</td></tr>
+            <tr><td>π<sub>0</sub></td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+            <tr><td>UniVLA</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+            <tr><td>π<sub>0.5</sub></td><td><strong>98.8</strong></td><td>98.2</td><td>98.0</td><td>92.4</td><td>96.9</td></tr>
+            <tr><td>OpenVLA-OFT</td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+            <tr><td>CogVLA</td><td>98.6</td><td>98.8</td><td>96.6</td><td>95.4</td><td>97.4</td></tr>
+            <tr class="highlight-row"><td>Cosmos Policy</td><td>98.1</td><td><strong>100.0</strong></td><td><strong>98.2</strong></td><td><strong>97.6</strong></td><td><strong>98.5</strong></td></tr>
+          </table>
+          <p>解读：Cosmos Policy 不是所有单项都第一，Spatial 上 π<sub>0.5</sub> 更高，但它在 Object、Goal、Long 三列拿到最好值，所以最终平均数最高。尤其 Long 从 OpenVLA-OFT 的 94.5 提到 97.6，说明作者强调的时序建模优势主要体现在长时序任务。</p>
+
+          <h4>RoboCasa 主结果</h4>
+          <table>
+            <tr>
+              <th>方法</th>
+              <th>每任务训练演示数</th>
+              <th>Average SR</th>
+            </tr>
+            <tr><td>GR00T-N1</td><td>300</td><td>49.6</td></tr>
+            <tr><td>UVA</td><td>50</td><td>50.0</td></tr>
+            <tr><td>DP-VLA</td><td>3000</td><td>57.3</td></tr>
+            <tr><td>GR00T-N1 + DreamGen</td><td>300 (+10000 synthetic)</td><td>57.6</td></tr>
+            <tr><td>GR00T-N1 + DUST</td><td>300</td><td>58.5</td></tr>
+            <tr><td>UWM</td><td>1000</td><td>60.8</td></tr>
+            <tr><td>π<sub>0</sub></td><td>300</td><td>62.5</td></tr>
+            <tr><td>GR00T-N1.5</td><td>300</td><td>64.1</td></tr>
+            <tr><td>Video Policy</td><td>300</td><td>66.0</td></tr>
+            <tr><td>FLARE</td><td>300</td><td>66.4</td></tr>
+            <tr><td>GR00T-N1.5 + HAMLET</td><td>300</td><td>66.4</td></tr>
+            <tr class="highlight-row"><td>Cosmos Policy</td><td>50</td><td><strong>67.1</strong></td></tr>
+          </table>
+          <p>解读：RoboCasa 这张表最重要的信息不是 67.1 比 66.4 只高 0.7，而是它只用了每任务 50 条真人 demonstrations。论文用这张表强调的是数据效率，而不只是绝对精度。</p>
+
+          <h4>真实 ALOHA 主结果</h4>
+          <table>
+            <tr>
+              <th>方法</th>
+              <th>put X on plate</th>
+              <th>fold shirt</th>
+              <th>put candies in bowl</th>
+              <th>put candy in ziploc bag</th>
+              <th>Average</th>
+            </tr>
+            <tr><td>Diffusion Policy</td><td>63.3</td><td>23.5</td><td>32.8</td><td>14.6</td><td>33.6</td></tr>
+            <tr><td>OpenVLA-OFT+</td><td>68.3</td><td>99.5</td><td>21.6</td><td>58.5</td><td>62.0</td></tr>
+            <tr><td>π<sub>0</sub></td><td>85.0</td><td>98.5</td><td>71.2</td><td>56.9</td><td>77.9</td></tr>
+            <tr><td>π<sub>0.5</sub></td><td>98.3</td><td>99.5</td><td>95.2</td><td>61.5</td><td>88.6</td></tr>
+            <tr class="highlight-row"><td>Cosmos Policy</td><td>100.0</td><td>99.5</td><td>89.6</td><td>85.4</td><td><strong>93.6</strong></td></tr>
+          </table>
+          <p>解读：Cosmos Policy 的平均分优势主要来自最后一个最难的 ziploc bag 任务：85.4 对比 π<sub>0.5</sub> 的 61.5，优势很大。candies in bowl 上 π<sub>0.5</sub> 更高，但 ziploc bag 对精细操控要求更高，论文用它作为“视频模型先验更擅长高精度控制”的代表案例。</p>
+
+          <div class="figure">
+            <img src="figures/aloha_task_performance_results_v2.001.jpeg" alt="ALOHA task performance">
+            <div class="caption">Figure 4。ALOHA 四任务的柱状图，可视化了 Cosmos Policy 在前三个任务里并不总是遥遥领先，但在平均分和最难任务上领先更明显。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figures/cosmos_policy_aloha_rollouts.001.jpeg" alt="ALOHA rollouts">
+            <div class="caption">Figure 3。展示真实双臂任务定性结果，说明作者选的四个任务都包含长时序、多模态抓取或高精度接触操作。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figures/pi05_openvlaoft_aloha_rollouts.001.jpeg" alt="competitor failure modes">
+            <div class="caption">Figure 5。作者总结的两类失败模式：π<sub>0.5</sub> 在 ziploc bag 上高精度抓取不稳；OpenVLA-OFT+ 在 candies 任务里会朝两个糖果中间伸手，反映动作分布建模不准。</div>
+          </div>
+
+          <h4>ALOHA 的 IID / OOD 细分结果</h4>
+          <table>
+            <tr>
+              <th>方法</th>
+              <th>IID 平均</th>
+              <th>OOD 平均</th>
+              <th>观察</th>
+            </tr>
+            <tr><td>OpenVLA-OFT+</td><td>67.1</td><td>51.7</td><td>shirt 几乎满分，但 candies 和 put-on-plate 的 OOD 明显下滑</td></tr>
+            <tr><td>π<sub>0</sub></td><td>81.3</td><td>71.7</td><td>总体稳，但没有任务级别的显著优势</td></tr>
+            <tr><td>π<sub>0.5</sub></td><td>87.8</td><td><strong>92.5</strong></td><td>OOD 平均最高</td></tr>
+            <tr class="highlight-row"><td>Cosmos Policy</td><td><strong>96.3</strong></td><td>89.3</td><td>总体平均最高，但论文也诚实给出：单看 OOD 平均时 π<sub>0.5</sub> 略高</td></tr>
+          </table>
+          <p>这点很重要：主结果表里的 93.6 并不意味着 Cosmos Policy 在每个泛化子场景都最强。附录明确指出，细分到 OOD 平均分时，π<sub>0.5</sub> 稍高一些。<span class="appendix-ref">[附录 A.3.2]</span></p>
+
+          <div class="figure">
+            <img src="figures/iid_initial_positions.jpeg" alt="IID positions">
+            <div class="caption">Appendix Figure。ALOHA 的 IID 初始状态示意。<span class="appendix-ref">[附录 A.3.2]</span></div>
+          </div>
+          <div class="figure">
+            <img src="figures/ood_initial_positions.jpeg" alt="OOD positions">
+            <div class="caption">Appendix Figure。ALOHA 的 OOD 初始状态示意。作者在 OOD 里加入未见 T-shirt、未见 bowl、未见装载程度更高的 ziploc bag 等。<span class="appendix-ref">[附录 A.3.2]</span></div>
+          </div>
+
+          <h3>6.3 消融实验</h3>
+          <h4>LIBERO 消融</h4>
+          <table>
+            <tr>
+              <th>版本</th>
+              <th>Spatial</th>
+              <th>Object</th>
+              <th>Goal</th>
+              <th>Long</th>
+              <th>Average</th>
+            </tr>
+            <tr class="highlight-row"><td>完整 Cosmos Policy</td><td>98.1</td><td>100.0</td><td>98.2</td><td>97.6</td><td>98.5</td></tr>
+            <tr><td>去掉 auxiliary losses</td><td>97.6</td><td>99.8</td><td>96.7</td><td>94.0</td><td>97.0</td></tr>
+            <tr><td>不用预训练视频模型，从头训练</td><td>94.7</td><td>98.9</td><td>96.3</td><td>88.6</td><td>94.6</td></tr>
+          </table>
+          <p>解读：auxiliary supervision 带来 1.5 个点；视频先验带来 3.9 个点。掉点最大的还是 Long 列，这再次说明时序先验最主要地帮助长时序任务。</p>
+
+          <h4>RoboCasa 消融与额外实验</h4>
+          <table>
+            <tr>
+              <th>版本</th>
+              <th>Average SR</th>
+            </tr>
+            <tr class="highlight-row"><td>完整 Cosmos Policy（5 denoising steps）</td><td>67.1</td></tr>
+            <tr><td>去掉 value function 训练样本</td><td>66.6</td></tr>
+            <tr><td>去掉 world model + value function 训练样本</td><td>64.0</td></tr>
+            <tr><td>再去掉 policy 训练时的 auxiliary value supervision</td><td>62.5</td></tr>
+            <tr><td>再去掉 policy 训练时的 auxiliary future state + value supervision，只剩纯动作策略</td><td>44.4</td></tr>
+            <tr><td>只用 1 denoising step</td><td>66.4</td></tr>
+          </table>
+          <p>这张表有两个结论。第一，纯动作策略从 67.1 掉到 44.4，说明“让 policy 同时预测未来状态”不是锦上添花，而是关键组成。第二，只用 1 个 denoising step 还能保持 66.4，几乎没掉多少，说明扩散推理步数在这个任务上有明显压缩空间。<span class="appendix-ref">[附录 A.4.1]</span></p>
+
+          <h3>6.4 补充实验（来自附录）</h3>
+          <h4>规划实验</h4>
+          <p>作者只在更难的两个 ALOHA 任务上做规划评估：put candies in bowl 和 put candy in ziploc bag。rollout 数据池由两部分组成：先前 direct policy 评测时积累的 505 条 rollout，加上针对 ziploc bag 额外收集的 143 条，共 648 条。作者认为额外 ziploc 数据很关键，因为这个任务自遮挡严重、环境随机性高、毫米级动作差异都会影响结果。</p>
+
+          <div class="figure">
+            <img src="figures/cosmos_policy_planning_rollouts.001.jpeg" alt="planning rollouts">
+            <div class="caption">Figure 6。base policy 的世界模型只能想象“会成功的未来”；rollout 微调后，planning model 更容易想象失败后的真实后果，因此能避开错误动作。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figures/planning_results.001.jpeg" alt="planning results">
+            <div class="caption">Figure 7。对比不规划、基于 $V(s')$ 的 model-based planning 和基于 $Q(s,a)$ 的 model-free planning。作者报告 model-based 版本在两个难任务上的平均分提升 12.5 分。</div>
+          </div>
+
+          <p>作者比较了两种 value 训练形式：</p>
+          <ul>
+            <li>$V(s')$：先由世界模型预测未来状态，再给未来状态打分。这是 model-based 版本。</li>
+            <li>$Q(s,a)$：直接对当前状态和动作打分，不需要显式世界模型。这是 model-free 版本。</li>
+          </ul>
+          <p>结果是 $V(s')$ 更好。作者自己的解释是：在 rollout 数据很有限时，显式利用未来状态和环境动态比直接学高维 Q 函数更样本高效，也更不容易过拟合。</p>
+
+          <h4>推理延迟</h4>
+          <table>
+            <tr>
+              <th>设置</th>
+              <th>延迟</th>
+              <th>说明</th>
+            </tr>
+            <tr><td>direct policy，5 denoising steps</td><td>0.61 s / action chunk</td><td>LIBERO / RoboCasa</td></tr>
+            <tr><td>direct policy，10 denoising steps</td><td>0.95 s / action chunk</td><td>ALOHA</td></tr>
+            <tr><td>direct policy，1 denoising step</td><td>0.16 s / action chunk</td><td>RoboCasa 仍有 66.4% SR</td></tr>
+            <tr><td>ALOHA model-based planning</td><td>4.9 s</td><td>8 张 H100 并行，N=8，每个候选动作再做 3 次 future state、5 次 value ensemble</td></tr>
+          </table>
+          <p>这也是论文最现实的代价：planning 有用，但非常慢。作者在 Discussion 里把这一点列成首要限制。</p>
+        </section>
+
+        <section id="sec7">
+          <h2>7. 分析与讨论</h2>
+
+          <h3>7.1 论文已给出的结果分析与解释</h3>
+          <ul>
+            <li>作者认为视频模型先验是有效初始化，因此即使没有额外的大规模动作标签，也能在真实机器人上超过部分强 VLA。正文直接把这一点归因于视频模型学到了时空动态和隐式物理，而不只是静态语义。</li>
+            <li>作者用 Figure 5 的失败案例解释为什么高多模态与高精度任务是分水岭：一个偏差会把动作拉到两个目标中间，或者在毫米级抓取里失手。</li>
+            <li>作者用 Figure 6 说明 rollout 微调后的 planning model 更能预测失败后果，因此规划阶段能规避基础策略容易犯的错误，例如拉链袋滑扣脱手。</li>
+            <li>辅助监督和 joint objective 的价值在消融里被明确验证：不是所有模块都同等重要，但“让 policy 一起预测未来状态”非常关键。</li>
+          </ul>
+
+          <h3>7.2 作者自述的局限性</h3>
+          <div class="obstacle-box">
+            <p><strong>限制 1：规划推理慢。</strong> 论文明确写出 model-based planning 大约需要 5 秒才能产出一个 action chunk，这对动态任务不友好。</p>
+            <p><strong>限制 2：规划依赖 rollout 数据。</strong> 仅靠 demonstration 学不到足够准确的 world model / value function；如果 rollout 很少，规划质量会明显受限。</p>
+            <p><strong>限制 3：当前搜索树只有一层。</strong> 论文只做 best-of-N 单层搜索，没有把 world model 的预测 horizon 延长到更深层规划。</p>
+          </div>
+
+          <h3>7.3 论文中明确写出的适用边界与讨论</h3>
+          <ul>
+            <li>本文的“state”实际上更接近 observation，因为真实环境并非完全可观；作者在 Preliminaries 里专门说明这是为了记号简洁。也就是说，world model 预测的是未来观测，而不是严格意义上的完全状态。</li>
+            <li>planning 的收益主要展示在基础 direct policy 仍有明显错误空间的难任务上；对于 LIBERO 或 ALOHA 前两个较容易任务，论文没有强调进一步规划增益。</li>
+            <li>RoboCasa 和 ALOHA 都体现了方法可做多视角输入，但并没有把输入历史建进去；状态只取当前时刻，未来只预测到 $t+K$，因此模型不是长 horizon 自回归 world model。</li>
+            <li>论文末尾给出的未来工作也严格围绕原方法：加速搜索、减少 rollout 需求、扩展更深的规划深度。</li>
+          </ul>
+
+          <div class="audit-card">
+            <h4 style="margin-top:0">可复现性审计</h4>
+            <ul>
+              <li>优点：给了训练步数、GPU 数、batch size、动作块长度、推理步数、ALOHA 细粒度评分标准、IID/OOD 设置和项目页。</li>
+              <li>仍需额外实现决策的地方：latent injection 的具体代码接口、normalization 常数、majority mean 的固定阈值、rollout 微调时 value 掩码实现细节，正文虽说明思路，但实现时仍需参考作者代码。</li>
+              <li>整体判断：论文已经达到“知道系统怎么拼起来，并能按公开代码复现主流程”的程度；如果完全脱离作者代码从零重写，planning 与 latent injection 两部分仍是实现难点。</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2>附：论文章节盘点与覆盖说明</h2>
+          <table>
+            <tr>
+              <th>原文章节</th>
+              <th>核心内容</th>
+              <th>本报告覆盖位置</th>
+            </tr>
+            <tr><td>Abstract</td><td>方法总述与三项主结果</td><td>§1 论文速览；§6.2</td></tr>
+            <tr><td>1 Introduction</td><td>动机、前作缺口、贡献</td><td>§2；§1</td></tr>
+            <tr><td>2 Related Work</td><td>视频策略、VLA、world model 三条线</td><td>§3</td></tr>
+            <tr><td>3 Preliminaries</td><td>Cosmos base model、MDP、value 定义</td><td>§5.3；§4</td></tr>
+            <tr><td>4.1 Latent Frame Injection</td><td>新模态如何塞进 latent sequence</td><td>§5.1；§5.3；§5.4</td></tr>
+            <tr><td>4.2 Joint Training</td><td>50/25/25 batch、三个条件分布、并行/自回归解码</td><td>§5.3；§5.4</td></tr>
+            <tr><td>4.3 Planning</td><td>rollout 微调、dual deployment、best-of-N</td><td>§5.1；§6.4</td></tr>
+            <tr><td>5.1 Experimental Setup</td><td>LIBERO、RoboCasa、ALOHA 设置</td><td>§6.1</td></tr>
+            <tr><td>5.2 Direct Policy Results</td><td>主结果与基础消融</td><td>§6.2；§6.3</td></tr>
+            <tr><td>5.3 Planning Results</td><td>rollout 数据、V vs Q、规划收益</td><td>§6.4</td></tr>
+            <tr><td>6 Discussion</td><td>限制与未来工作</td><td>§7.2；§7.3</td></tr>
+            <tr><td>Appendix A.1</td><td>latent injection 具体实现</td><td>§5.1；§5.4</td></tr>
+            <tr><td>Appendix A.2</td><td>噪声分布、各平台训练细节</td><td>§5.4；§6.1</td></tr>
+            <tr><td>Appendix A.3</td><td>推理步数、ALOHA 初始状态与评分规则</td><td>§5.4；§6.1；§6.2</td></tr>
+            <tr><td>Appendix A.4</td><td>额外消融、balanced batches、推理延迟</td><td>§5.3；§6.3；§6.4</td></tr>
+          </table>
+          <p class="footnote">未覆盖内容检查：本报告已把正文和附录中的所有图表、训练细节、评测设置、局限性和额外实验整合进对应章节；附录没有单独悬空成“补充材料”章节。</p>
+        </section>
+      </main>
+    </article>
+  </div>
+</body>
+</html>

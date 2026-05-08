@@ -1,0 +1,22 @@
+\begin{table*}[t]
+\small\setlength{\tabcolsep}{5.5pt}
+\centering
+\begin{tabular}{lcccc}
+      & \multicolumn{2}{c}{\bf Seen} &  \multicolumn{2}{c}{\bf Novel} \\
+      \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+      {\bf Model} & {\bf Place} & {\bf Relation} & {\bf Place} & {\bf Relation} \\
+      \midrule
+      State + Transformer BC \citep{brohan2022rt} & 19.4 $\pm$ 3.7 & 8.2 $\pm$ 2.0 & 11.9 $\pm$ 4.9 & 3.7 $\pm$ 2.1 \\
+      Image + Transformer BC \citep{brohan2022rt} & 9.4 $\pm$ 2.2 & 11.9 $\pm$ 1.8 & 9.7 $\pm$ 4.5 &  7.3 $\pm$ 2.6\\
+      Image + TT \citep{janner2021offline} & 17.4 $\pm$ 2.9 &  12.8 $\pm$ 1.8 &  13.2 $\pm$ 4.1 & 9.1 $\pm$ 2.5   \\
+      Diffuser \citep{janner2022planning} & 9.0 $\pm$ 1.2 & 11.2 $\pm$ 1.0 & 12.5 $\pm$ 2.4 & 9.6 $\pm$ 1.7\\
+      \model (Ours) & \textbf{59.1} $\pm$ 2.5 & \textbf{53.2} $\pm$ 2.0 & \textbf{60.1} $\pm$ 3.9 & \textbf{46.1} $\pm$ 3.0 \\
+    \bottomrule
+\end{tabular}
+\caption{\small \textbf{Task Completion Accuracy in Combinatorial Environments.} \model generalizes %
+to
+seen and novel combinations
+of language prompts in Place (e.g., place X in Y) and Relation (e.g., place X to the left of Y) tasks.}
+\label{tbl:combinatorical}
+\vspace{-5pt}
+\end{table*}

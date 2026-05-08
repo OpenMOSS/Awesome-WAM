@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latent Action Pretraining From Videos - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --paper: #ffffff;
+      --soft: #f8fafc;
+      --blue: #2563eb;
+      --navy: #17325c;
+      --green: #15803d;
+      --amber: #b45309;
+      --violet: #6d28d9;
+      --red: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eef2f7;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.78;
+    }
+    main {
+      max-width: 1080px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+      background: var(--paper);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      line-height: 1.25;
+      color: #0f172a;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 38px 0 14px;
+      padding-left: 12px;
+      border-left: 4px solid var(--blue);
+      font-size: 1.45rem;
+      line-height: 1.35;
+      color: var(--navy);
+    }
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 1.18rem;
+      color: #1e3a5f;
+    }
+    h4 {
+      margin: 20px 0 8px;
+      font-size: 1.02rem;
+      color: #334155;
+    }
+    p { margin: 9px 0; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.1rem 0.3rem;
+      background: #edf2f7;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    header {
+      border-bottom: 2px solid #dbeafe;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+    }
+    .meta {
+      background: #f1f5f9;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #334155;
+    }
+    .meta p { margin: 4px 0; }
+    .toc, .note, .audit-card, .formula-block {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 15px;
+      margin: 12px 0;
+    }
+    .toc ul {
+      margin: 6px 0 0;
+      padding-left: 20px;
+      columns: 2;
+    }
+    .toc li { margin: 2px 0; break-inside: avoid; }
+    .tldr {
+      background: #fff7ed;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      padding: 13px 16px;
+      margin: 16px 0;
+      font-size: 1.03rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .appendix-ref {
+      color: var(--violet);
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      font-size: 0.94rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: #eaf2ff;
+      color: #12375f;
+      text-align: left;
+      font-weight: 700;
+    }
+    tbody tr:nth-child(even) { background: #fbfdff; }
+    figure {
+      margin: 18px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+    figure img {
+      display: block;
+      max-width: 100%;
+      margin: 0 auto;
+      border-radius: 4px;
+    }
+    figcaption {
+      margin-top: 10px;
+      color: #475569;
+      font-size: 0.92rem;
+    }
+    .figgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .figgrid figure { margin: 8px 0; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      margin: 1px 3px 1px 0;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 0.86rem;
+      font-weight: 650;
+    }
+    .good { color: var(--green); font-weight: 650; }
+    .warn { color: var(--amber); font-weight: 650; }
+    .risk { color: var(--red); font-weight: 650; }
+    .small { color: var(--muted); font-size: 0.92rem; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 5px 0; }
+    @media (max-width: 760px) {
+      main { padding: 20px 14px 48px; }
+      h1 { font-size: 1.6rem; }
+      .toc ul { columns: 1; }
+      .grid, .figgrid { grid-template-columns: 1fr; }
+      table { font-size: 0.86rem; }
+      th, td { padding: 7px 8px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Latent Action Pretraining From Videos</h1>
+    <div class="meta">
+      <p><strong>arXiv:</strong> 2410.11758v2</p>
+      <p><strong>发表:</strong> ICLR 2025 conference paper</p>
+      <p><strong>作者:</strong> Seonghyeon Ye, Joel Jang, Byeongguk Jeon, Sejune Joo, Jianwei Yang, Baolin Peng, Ajay Mandlekar, Reuben Tan, Yu-Wei Chao, Yuchen Lin, Lars Liden, Kimin Lee, Jianfeng Gao, Luke Zettlemoyer, Dieter Fox, Minjoon Seo</p>
+      <p><strong>机构:</strong> KAIST, University of Washington, Microsoft Research, NVIDIA, Allen Institute for AI</p>
+      <p><strong>项目页:</strong> <a href="https://latentactionpretraining.github.io/">latentactionpretraining.github.io</a></p>
+      <p><strong>报告定位:</strong> 面向 junior PhD 组会准备的中文精读报告，覆盖正文、附录 A-G、主要表格和图像。</p>
+    </div>
+  </header>
+
+  <section class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 研究问题与动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验与结果</a></li>
+      <li><a href="#repro">6. 复现要点</a></li>
+      <li><a href="#analysis">7. 分析、局限与边界</a></li>
+      <li><a href="#qa">8. 组会问答准备</a></li>
+    </ul>
+  </section>
+
+  <section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      这篇论文提出 <strong>Latent Action Pretraining, LAPA</strong>：先从没有机器人动作标签的视频中学习离散 latent action，再训练 VLA 预测这些 latent action，最后用少量真实机器人动作数据把 latent action 映射到可执行动作。它的核心目标是让机器人基础模型能利用互联网级视频，而不被昂贵的人工遥操作动作标签卡住。
+    </div>
+
+    <table>
+      <tbody>
+        <tr>
+          <th style="width: 170px;">论文要解决什么</th>
+          <td>现有 VLA 预训练通常依赖机器人动作标签，这些标签需要真人遥操作采集，规模化困难。互联网视频和人类操作视频规模巨大，但没有机器人 action labels，且和机器人 embodiment / environment 分布不同。论文要解决的是：如何不用 ground-truth robot action labels，也能从视频中学习对机器人策略有用的动作先验。</td>
+        </tr>
+        <tr>
+          <th>作者的方法抓手</th>
+          <td>抓手是把动作“tokenize”。第一阶段训练 VQ-VAE 风格的 latent action quantization model，从当前帧 \(x_t\) 和未来帧 \(x_{t+H}\) 学离散 latent action \(z_t\)。第二阶段用这些 \(z_t\) 作为伪标签，让 VLM 依据当前观察和语言指令预测 latent action。第三阶段只用小规模 action-labeled robot trajectories 做 action finetuning，把 latent action 迁移到真实 7-DoF end-effector delta action。</td>
+        </tr>
+        <tr>
+          <th>最重要的结果</th>
+          <td>在真实桌面操作中，LAPA(Open-X) 总成功率 50.09%，高于 OpenVLA(Open-X) 的 43.87%，论文总结为相对 OpenVLA 提升 +6.22%；同时 LAPA 预训练仅用 8×H100 训练 34 小时，约 272 H100-hours，而 OpenVLA 约 21,500 A100-hours。LAPA 还显示出只用 Something-Something V2 人类操作视频预训练也能正迁移，在真实机器人平均表现超过 OpenVLA(Bridge)。</td>
+        </tr>
+        <tr>
+          <th>阅读时要注意的点</th>
+          <td>重点不是“用视频预训练 VLA”本身，而是 latent action 是否真正成为跨 embodiment、跨环境的共享动作表示。阅读时要盯住三件事：量化模型学到的 token 是否语义可解释；latent pretraining 是否比 VPT/UniPi 这类无动作标签 baseline 更稳；最后少量 action finetuning 是否足以补齐从 latent action 到真实机器人动作的落差，尤其是细粒度 grasping。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <figure>
+      <img src="figures/x1.png" alt="Problem formulation">
+      <figcaption>Figure 1. 问题设定：大型机器人数据有动作标签但昂贵，互联网/人类视频规模大但没有机器人动作标签且存在 human-to-robot gap。LAPA 的目标是在无 action label 视频上预训练机器人基础模型。</figcaption>
+    </figure>
+
+    <div class="grid">
+      <div class="audit-card">
+        <h3>一句话贡献</h3>
+        <p>LAPA 用离散 latent action 把无动作标签视频变成可训练 VLA 的动作伪标签，从而把互联网/人类视频接入机器人策略预训练。</p>
+      </div>
+      <div class="audit-card">
+        <h3>关键词</h3>
+        <p>
+          <span class="pill">Vision-Language-Action</span>
+          <span class="pill">Latent Action</span>
+          <span class="pill">VQ-VAE</span>
+          <span class="pill">Actionless Video Pretraining</span>
+          <span class="pill">Cross-Embodiment Transfer</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 研究问题与动机</h2>
+    <h3>2.1 为什么 action labels 是 VLA 的瓶颈</h3>
+    <p>VLA 模型通常把 VLM 与 action head 连接起来，并在真实机器人轨迹上训练。问题是机器人动作标签来自遥操作，采集成本高、硬件依赖强、数据规模有限。OpenVLA 这类模型已经证明 action-labeled robot data 有价值，但它们仍受限于“必须有机器人动作”的数据来源。</p>
+    <p>相比之下，互联网视频和人类操作视频包含大量物理交互和任务行为。它们没有机器人 end-effector action、joint position 或 torque 标签，且 embodiment 与机器人不同。LAPA 的基本判断是：如果能从纯视觉变化中学出离散动作 token，就可以把这些视频变成 VLA 预训练数据。</p>
+
+    <h3>2.2 为什么不是直接做 world model 或 IDM</h3>
+    <p>视频 world model 路线可以生成未来帧，再用 inverse dynamics model 转动作，但论文认为这种方法在长 horizon 和精确 7-DoF 动作上容易受扩散规划和 IDM 误差影响。VPT 路线依赖 action-labeled 数据训练 IDM，再给视频打伪标签；这在跨环境时 IDM 不稳。LAPA 的区别是 latent action quantization 不需要真实动作标签，直接从两个视觉状态间的变化学习离散动作表示。</p>
+
+    <h3>2.3 论文的核心假设</h3>
+    <p>核心假设是：不同 embodiment 和环境中的可见状态变化，可以通过一个共享 latent action space 表达。这个空间不一定等价于真实机器人动作，但足够承载“向左、向下、靠近、抓取相关视觉变化”等粗粒度行为先验。后续少量 labeled robot data 再把这种先验对齐到具体机器人的动作空间。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <h3>3.1 Vision-Language-Action models</h3>
+    <p>RT-2、OpenVLA 等 VLA 把视觉、语言和动作统一在一个模型中，能泛化到新指令和新物体，但仍依赖 action-labeled robot trajectories。本文与这些工作的差异在于预训练阶段：LAPA 尽量不使用真实动作标签，只在最后 action finetuning 时使用少量 labeled trajectories。</p>
+
+    <h3>3.2 Training robot policies from videos</h3>
+    <p>已有工作会从 egocentric human videos 学视觉表征，从视频生成模型生成未来轨迹，或从 human motion retargeting 得到机器人动作。它们常遇到 task-specific、需要手部姿态估计/对齐环境、或无法稳定转成低层动作等问题。LAPA 更像是在“无标签视频”和“VLA 动作预测”之间加了一个离散 latent action bottleneck。</p>
+
+    <h3>3.3 Latent actions</h3>
+    <p>GENIE 等工作把用户输入或动作映射到 latent action，使生成模型可交互。本文借鉴这一方向，但关键差别是：LAPA 的 latent action 直接从观测变化中学习，不由 ground-truth action 转换而来；之后它被用作 VLA 的动作 token，而不是只服务于视频游戏或交互式环境生成。</p>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 总体流程</h3>
+    <p>Latent Action Pretraining 包含两个顺序学习的模型和一个微调阶段：</p>
+    <ol>
+      <li><strong>Latent Action Quantization。</strong>训练一个 encoder-decoder，用 \(x_t\) 和 \(x_{t+H}\) 学离散 latent action \(z_t\)。</li>
+      <li><strong>Latent Pretraining。</strong>用量化模型 encoder 给无动作标签视频打 latent action 伪标签，训练 VLM 从当前图像和语言指令预测 \(z_t\)。</li>
+      <li><strong>Action Finetuning。</strong>丢掉 latent action head，换成真实动作 head，用少量 robot action labels 学到可执行的 end-effector delta action。</li>
+    </ol>
+
+    <figure>
+      <img src="figures/x2.png" alt="Overview of Latent Action Pretraining">
+      <figcaption>Figure 2. LAPA 总览：先无监督学习离散 latent actions，再让 VLM 做 latent action behavior cloning，最后用小规模带动作标签数据微调到真实机器人动作空间。</figcaption>
+    </figure>
+
+    <h3>4.2 Latent Action Quantization</h3>
+    <p>量化模型输入当前帧 \(x_t\) 和未来帧 \(x_{t+H}\)，输出 latent action \(z_t\)。Encoder 同时看两帧，用 spatial transformer 和 temporal/causal transformer 得到连续 embedding；Decoder 输入 \(x_t\) 和 \(z_t\)，重建 \(x_{t+H}\)。直觉上，\(z_t\) 被迫编码从当前观察到未来观察的“动作变化”。</p>
+    <p>论文基于 VQ-VAE objective，把连续差分 embedding 离散化到 codebook。附录 A 给出更具体的形式：两帧 patch embedding 后经 spatial transformer，再经 causal transformer 得到 \(e_1,e_2\)，令 \(d_1=e_2-e_1\)，并选最近 codebook token：</p>
+    <div class="formula-block">
+      $$z_1=\arg\min_{z_k}\|d_1-z_k\|_2$$
+    </div>
+    <p>为避免 VQ-VAE 中常见的 codebook / representation collapse，作者采用 NSVQ，并在 decoder 中对当前帧 patch embedding \(p_1\) 施加 stop gradient。Decoder 使用 cross attention，让量化后的动作表示 attend 当前帧：</p>
+    <div class="formula-block">
+      $$\hat{x}_2=D(\mathrm{Attn}(\mathrm{sg}[p_1],\tilde{d}_1,\tilde{d}_1)),\qquad
+      L=\|x_2-\hat{x}_2\|_2^2$$
+    </div>
+    <p>论文还说明，与 GENIE 式 additive embedding 相比，使用 cross attention empirically 更容易捕获语义上有意义的 latent actions。</p>
+
+    <figure>
+      <img src="figures/x12.png" alt="Latent action quantization architecture">
+      <figcaption>Figure 8. 附录 A 的 latent action quantization model 架构：C-ViViT 风格 encoder-decoder，从两帧中抽取离散 latent action，并通过 decoder 重建未来帧。</figcaption>
+    </figure>
+
+    <h3>4.3 Latent Pretraining</h3>
+    <p>训练好量化模型后，用其 encoder 作为 inverse dynamics model：给定 \(x_t\) 和未来帧，标出 latent action \(z_t\)。然后训练预训练 VLM，输入当前图像 \(x_t\) 和视频语言指令，预测 \(z_t\)。这里使用单独的 latent action head，一个 MLP，输出 codebook vocabulary \(|C|\) 上的 token 分布。</p>
+    <p>默认训练设置中，vision encoder 冻结，language model 解冻。这个设计让预训练不依赖任何机器人动作标签，也不需要预设动作粒度，如 end-effector position、joint position 或 torque；动作粒度由观察变化本身决定。</p>
+
+    <h3>4.4 Action Finetuning</h3>
+    <p>latent action 不是可直接执行的机器人动作，所以最后需要少量 labeled trajectories。作者把连续机器人动作的每个维度按等频 bin 离散化，做类似 RT-2/OpenVLA 的 action token prediction。微调时丢掉 latent action head，重新初始化真实 action head；vision encoder 仍冻结，language model 解冻。</p>
+    <p>作者还尝试过保留 latent action head 再加额外 head 解码到真实动作，但效果不如重新初始化 action head。论文推测原因可能是底层 policy model 很大，直接微调新 action head 更容易适配真实机器人动作空间。</p>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 实验设置</h3>
+    <p>论文在 2 个仿真环境和 3 个真实机器人任务上评估，共覆盖 9 类任务。核心问题包括：跨任务、跨环境、跨 embodiment 是否正迁移；LAPA 是否能比 ground-truth action pretraining 更适合多 embodiment；仅用 human manipulation videos 是否也有效。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>环境</th>
+          <th>类别</th>
+          <th>预训练数据</th>
+          <th>预训练轨迹</th>
+          <th>微调数据</th>
+          <th>微调轨迹</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>LangTable</td><td>In-domain</td><td>Sim 5 tasks</td><td>181k</td><td>5 tasks, MT/MI</td><td>1k</td></tr>
+        <tr><td>LangTable</td><td>Cross-task</td><td>Sim 5 tasks</td><td>181k</td><td>1 task, MI</td><td>7k</td></tr>
+        <tr><td>LangTable</td><td>Cross-env</td><td>Real 5 tasks</td><td>442k</td><td>5 tasks, MT/MI</td><td>1k</td></tr>
+        <tr><td>SIMPLER</td><td>In-domain</td><td>Bridgev2</td><td>60k</td><td>4 tasks, MT</td><td>100</td></tr>
+        <tr><td>SIMPLER</td><td>Cross-emb</td><td>Something v2</td><td>200k</td><td>4 tasks, MT</td><td>100</td></tr>
+        <tr><td>Real-world</td><td>Cross-emb</td><td>Bridgev2</td><td>60k</td><td>3 tasks, MI</td><td>450</td></tr>
+        <tr><td>Real-world</td><td>Multi-emb</td><td>Open-X</td><td>970k</td><td>3 tasks, MI</td><td>450</td></tr>
+        <tr><td>Real-world</td><td>Cross-emb</td><td>Something v2</td><td>200k</td><td>3 tasks, MI</td><td>450</td></tr>
+      </tbody>
+    </table>
+
+    <div class="figgrid">
+      <figure>
+        <img src="figures/x13.png" alt="Language Table setup">
+        <figcaption>Figure 9(a). Language Table setup：2-DoF 推块仿真，评估 seen/unseen object 和组合。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x14.png" alt="SIMPLER setup">
+        <figcaption>Figure 9(b). SIMPLER setup：7-DoF WidowX 仿真任务，作者额外筛选 100 条成功轨迹用于微调。</figcaption>
+      </figure>
+    </div>
+    <figure>
+      <img src="figures/x15.png" alt="Real-world setup">
+      <figcaption>Figure 9(c). 真实桌面操作 setup：Franka Emika Panda，三类多指令任务，每个模型总计 54 次真实机器人 rollout。</figcaption>
+    </figure>
+
+    <h3>5.2 Baselines</h3>
+    <p>底层 VLM 使用 7B Large World Model (LWM-Chat-1M)。主要 baseline 包括：SCRATCH，只在下游任务微调；UNIPI，用视频扩散模型生成 video rollouts，再用 IDM 转动作；VPT，用 action-labeled 数据训练 IDM，再给原始视频打 pseudo actions；ACTIONVLA，用 ground-truth robot action labels 预训练，可视作有标签上界；OpenVLA，现有 7B VLA baseline。</p>
+    <p><span class="appendix-ref">[附录 C]</span> UNIPI diffusion model 用 batch 128 训练，推理时每执行两步重新规划；VPT 的 IDM 是 ResNet18 + MLP，用 Adam、学习率 \(10^{-4}\) 在单张 A6000 上训练；OpenVLA fine-tuning 默认 LoRA，batch size 32，直到 action accuracy 达到 95%。ACTIONVLA 和 LAPA 使用 batch size 128，并在真实机器人微调时使用 image augmentation。</p>
+
+    <h3>5.3 Language Table 结果</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>In-domain Seen</th>
+          <th>In-domain Unseen</th>
+          <th>Cross-task Seen</th>
+          <th>Cross-task Unseen</th>
+          <th>Cross-env Seen</th>
+          <th>Cross-env Unseen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SCRATCH</td><td>15.6 ± 9.2</td><td>15.2 ± 8.3</td><td>27.2 ± 13.6</td><td>22.4 ± 11.0</td><td>15.6 ± 9.2</td><td>15.2 ± 8.3</td></tr>
+        <tr><td>UNIPI</td><td>22.0 ± 12.5</td><td>13.2 ± 7.7</td><td>20.8 ± 12.0</td><td>16.0 ± 9.1</td><td>13.6 ± 8.6</td><td>12.0 ± 7.5</td></tr>
+        <tr><td>VPT</td><td>44.0 ± 7.5</td><td>32.8 ± 4.6</td><td>72.0 ± 6.8</td><td>60.8 ± 6.6</td><td>18.0 ± 7.7</td><td>18.4 ± 9.7</td></tr>
+        <tr><td>LAPA</td><td><strong>62.0 ± 8.7</strong></td><td><strong>49.6 ± 9.5</strong></td><td><strong>73.2 ± 6.8</strong></td><td>54.8 ± 9.1</td><td><strong>33.6 ± 12.7</strong></td><td><strong>29.6 ± 12.0</strong></td></tr>
+        <tr><td>ACTIONVLA</td><td>77.0 ± 3.5</td><td>58.8 ± 6.6</td><td>77.0 ± 3.5</td><td>58.8 ± 6.6</td><td>64.8 ± 5.2</td><td>54.0 ± 7.0</td></tr>
+      </tbody>
+    </table>
+    <p>这个表的读法：LAPA 不用 action labels 预训练，但大幅超过 SCRATCH、UNIPI 和 VPT。在 in-domain 和 cross-env 中优势明显；cross-task unseen 中 VPT 稍高，作者解释 VPT 使用更多 labeled data 训练 IDM，伪标签可能更准。ACTIONVLA 用真实动作标签预训练，所以仍是强上界，尤其 cross-env。</p>
+
+    <h3>5.4 真实机器人结果</h3>
+    <figure>
+      <img src="figures/x3.png" alt="Real-world tabletop manipulation results">
+      <figcaption>Figure 3. 真实桌面操作平均成功率。任务覆盖 unseen object combinations、unseen objects 和 unseen instructions，共 54 rollouts/model。</figcaption>
+    </figure>
+
+    <table>
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>Seen Obj. Unseen Combo</th>
+          <th>Unseen Obj.</th>
+          <th>Seen Obj. Unseen Instr.</th>
+          <th>AVG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SCRATCH</td><td>18.0</td><td>20.3</td><td>25.4</td><td>21.2</td></tr>
+        <tr><td>ACTIONVLA (Bridge)</td><td>38.3</td><td>31.8</td><td>27.7</td><td>32.6</td></tr>
+        <tr><td>OPENVLA (Bridge)</td><td>35.6</td><td>34.6</td><td>22.1</td><td>30.8</td></tr>
+        <tr><td>LAPA (Bridge)</td><td>43.4</td><td>31.4</td><td>35.6</td><td>36.8</td></tr>
+        <tr><td>OPENVLA (Open-X)</td><td>46.2</td><td>42.1</td><td>43.4</td><td>43.9</td></tr>
+        <tr><td>LAPA (Open-X)</td><td><strong>57.8</strong></td><td><strong>43.9</strong></td><td><strong>48.5</strong></td><td><strong>50.1</strong></td></tr>
+        <tr><td>LAPA (Human Videos)</td><td>36.5</td><td>37.4</td><td>28.1</td><td>34.0</td></tr>
+      </tbody>
+    </table>
+    <p>最关键的比较是 LAPA(Open-X) vs OpenVLA(Open-X)：LAPA 在三类泛化设置上都更高，AVG 50.1 vs 43.9。附录 G.3 的总表给出的 total success rate 更精确为 50.09% vs 43.87%。作者还指出在 pick-and-place 中 LAPA 不如 OpenVLA，主要失败来自 early grasping；但 LAPA 的 reaching success 高于 OpenVLA，说明它的语言条件和粗粒度规划更强，细粒度 grasping 仍需改进。</p>
+
+    <figure>
+      <img src="figures/x16.png" alt="Real-world tabletop examples">
+      <figcaption>Figure 10. 真实桌面操作样例：Knock object down、Cover object with towel、Pick up object and put it in sink，覆盖 seen/unseen objects。</figcaption>
+    </figure>
+
+    <h3>5.5 Human manipulation videos</h3>
+    <p>作者用 Something-Something V2 的 220k 人类操作视频测试极端 embodiment gap。因为人类视频没有机器人动作标签，ACTIONVLA 不可训练；LAPA 仍能从视觉变化中学习 latent actions。</p>
+    <div class="figgrid">
+      <figure>
+        <img src="figures/x4.png" alt="Human video pretraining SIMPLER">
+        <figcaption>Figure 4(a). Human video pretraining 在 SIMPLER 上的结果。LAPA 优于 SCRATCH、UNIPI 和 VPT。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x5.png" alt="Human video pretraining real robot">
+        <figcaption>Figure 4(b). Human video pretraining 在真实机器人上的结果。LAPA(Human Videos) 平均上超过 OpenVLA(Bridge)。</figcaption>
+      </figure>
+    </div>
+    <p><span class="appendix-ref">[附录 G.2]</span> SIMPLER human-video 表格中，Success AVG：VPT 45.8，UNIPI 0.7，LAPA 52.1，LAPA(10%) 50.0；Moving AVG：VPT 66.6，UNIPI 27.1，LAPA 72.9，LAPA(10%) 62.5。这支持“人类视频也能正迁移”的主张，但也说明 10% 数据已经很接近完整数据，后续还需要更系统 scaling law。</p>
+
+    <h3>5.6 SIMPLER 和效率</h3>
+    <p><span class="appendix-ref">[附录 G.2]</span> Bridgev2 pretraining 的 SIMPLER 表格显示，Success AVG：SCRATCH 34.4，UNIPI 1.3，VPT 51.0，LAPA 57.3，ACTIONVLA 63.5，OpenVLA 36.4。LAPA 明显优于无动作标签 baseline，并接近使用全 Bridgev2 action labels 的 ACTIONVLA。</p>
+    <p>效率方面，LAPA(Open-X) 使用 8 张 H100 训练 34 小时，batch size 128，总计约 272 H100-hours；OpenVLA 需要约 21,500 A100-hours，batch size 2048。作者据此认为 LAPA 预训练效率高约 30-40 倍，同时真实机器人结果仍优于 OpenVLA。</p>
+
+    <h3>5.7 Scaling 和 latent action 分析</h3>
+    <p>消融显示 LAPA 随模型大小、数据量和 latent action space 增大而改善。论文指出主实验中除了 Language Table 外，LAPA 的 generation space 维持在 \(8^4\)。对于视觉简单的 Language Table，增加 vocabulary 比增加 sequence length 更有效；对于更复杂操作，sequence length 和 vocab 都可能需要随动作维度扩展。</p>
+    <div class="figgrid">
+      <figure>
+        <img src="figures/x6.png" alt="Model scaling">
+        <figcaption>Figure 5(a). Latent action quantization model size scaling。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x7.png" alt="Data scaling">
+        <figcaption>Figure 5(b). Bridgev2 数据比例 scaling。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x8.png" alt="Latent action length">
+        <figcaption>Figure 5(c). Latent action sequence length scaling。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x9.png" alt="Latent action vocab">
+        <figcaption>Figure 5(d). Latent action vocabulary scaling。</figcaption>
+      </figure>
+    </div>
+
+    <figure>
+      <img src="figures/x10.png" alt="Latent action semantic analysis">
+      <figcaption>Figure 6. Open-X 多 embodiment 上的 latent action analysis：相同 latent action 在不同 embodiment/environment 中对应相似语义动作，如向下向左或向上。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/x11.png" alt="Closed loop rollout">
+      <figcaption>Figure 7. 闭环 rollout：未经过 action finetuning 的 LAPA 预测 latent actions，再由 quantization model decoder 生成未来帧，展示其作为粗粒度 world model / neural simulator 的潜力。</figcaption>
+    </figure>
+
+    <h3>5.8 附录补充图表</h3>
+    <div class="figgrid">
+      <figure>
+        <img src="figures/extracted_6441904_figures_pair_test2.png" alt="Pairwise win rate without ties">
+        <figcaption>Figure 11(a). LAPA(Open-X) vs OpenVLA(Open-X) pairwise win rate，不计 ties 时 LAPA 胜率 65.4%。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/extracted_6441904_figures_pair_test1.png" alt="Pairwise win rate with ties">
+        <figcaption>Figure 11(b). 计入 ties 时 LAPA 胜 31.5%，OpenVLA 胜 16.7%，ties 51.9%。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x17.png" alt="Language Table latent actions">
+        <figcaption>Figure 12. Language Table latent action 语义：0-7 分别对应前左、后左、后右、右移、不动等动作。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/extracted_6441904_figures_langtable_analysis_map.png" alt="Latent action map">
+        <figcaption>Figure 13. latent action 与 ground-truth 2-DoF actions 的聚类关系。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x18.png" alt="Human video latent actions">
+        <figcaption>Figure 14. Human manipulation videos 中 latent action 不只捕获手部动作，也捕获相机视角移动。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/x23.png" alt="UNIPI failure case">
+        <figcaption>Figure 17. UNIPI 成功/失败案例：短任务可生成正确计划，长 horizon 指令可能生成错误计划。</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="repro">
+    <h2>6. 复现要点</h2>
+    <h3>6.1 Latent action quantization</h3>
+    <p><span class="appendix-ref">[附录 A]</span> 量化模型使用 C-ViViT 风格架构复现 GENIE 的 latent action model。输入两帧 \(x_1,x_2\)，经过 patch embedding、spatial transformer、causal transformer 得到 \(e_1,e_2\)，再对 \(d_1=e_2-e_1\) 做 codebook 最近邻量化。decoder 只含 spatial transformer，并用 cross attention 和 stop-gradient 的当前帧 embedding 重建未来帧。</p>
+    <p>窗口大小 \(H\) 按视频 fps 设定：机器人操作视频默认让未来帧约为当前帧后 0.6 秒；human manipulation videos 因帧间动态更慢，设置为约 2.4 秒。附录 F 显示 Bridgev2 上默认 \(H=3\)，窗口过大性能下降。</p>
+
+    <h3>6.2 Pretraining / finetuning 配置</h3>
+    <ul>
+      <li><strong>Backbone:</strong> 7B LWM-Chat-1M。</li>
+      <li><strong>Latent pretraining:</strong> 冻结 vision encoder，解冻 language model，新增 latent action MLP head。</li>
+      <li><strong>Action finetuning:</strong> 丢弃 latent head，重新初始化 action head；连续动作各维按等频 bin 离散化。</li>
+      <li><strong>LAPA(Open-X) 预训练:</strong> 8×H100，34 小时，batch size 128，约 272 H100-hours。</li>
+      <li><strong>OpenVLA 对比:</strong> 约 21,500 A100-hours，batch size 2048。</li>
+      <li><strong>真实机器人微调:</strong> ACTIONVLA 和 LAPA 使用 batch size 128，并使用 image augmentation。</li>
+    </ul>
+
+    <h3>6.3 评估协议</h3>
+    <p><span class="appendix-ref">[附录 B]</span> Language Table 每个 subtask category 评估 50 rollouts，5 类任务总计 250 rollouts/model/table。SIMPLER 每个任务评估 24 rollouts，随机化初始物体位置。真实机器人每个任务有 3 类评估能力：seen objects unseen combinations、unseen objects、seen objects unseen instructions；每类 6 rollouts，3 个任务合计 54 rollouts/model。</p>
+    <p>真实机器人部分使用 partial success：knocking 达到正确物体给 0.5，打倒给 1；covering 拿起毛巾 0.33，接触/部分覆盖 0.66，完全覆盖 1；pick-and-place 到达 0.25，抓取 0.5，移动到 sink 方向 0.75，放入 sink 1。</p>
+
+    <h3>6.4 复现风险清单</h3>
+    <ul>
+      <li><strong>arXiv 源码限制:</strong> 这篇本地源码包只有一个 PDF 图源，报告图像主要从 arXiv HTML 渲染图下载；复现图表时建议以 PDF/HTML 交叉核对。</li>
+      <li><strong>latent action 空间超参:</strong> sequence length、vocab size、窗口 \(H\) 会影响动作粒度；不同环境最优值不同。</li>
+      <li><strong>人类视频标注:</strong> LAPA 需要视频语言指令或描述；web 视频规模化时，视频文本质量会影响 latent pretraining。</li>
+      <li><strong>真实机器人方差:</strong> 54 rollouts/model 不算大，论文用 pairwise win rate 补充统计，但真实机器人评测仍可能受初始位置、物体属性、grasp 难度影响。</li>
+      <li><strong>细粒度动作:</strong> grasping 是 LAPA 的主要短板，少量 finetuning data 可能不足以学好物体物理属性相关的抓取。</li>
+    </ul>
+  </section>
+
+  <section id="analysis">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是把“没有动作标签的视频”变成了 VLA 可消费的动作预训练信号。相比只学视觉表征或生成未来视频，LAPA 明确学习离散 latent action token，并把它接到 monolithic VLA 的 action prediction 训练目标上。这使得互联网视频、人类操作视频和多 embodiment 机器人视频都可能进入同一个预训练范式。</p>
+    <p>第二个价值点是证据链覆盖了跨任务、跨环境、跨 embodiment 和 human-to-robot 场景。论文不仅在 Language Table / SIMPLER 中比较无标签预训练 baseline，还在真实机器人上与 OpenVLA 对比，并分析预训练任务分布与下游任务的关系。这让“latent action 是共享动作空间”这个主张不只停留在方法直觉上。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果相对站得住，首先因为 baseline 设计比较有针对性：SCRATCH 衡量没有预训练，UNIPI 衡量视频生成式规划，VPT 衡量 IDM 伪标签，ACTIONVLA 衡量有真实动作标签的上界，OpenVLA 衡量现有 VLA。LAPA 在多个无动作标签 baseline 之上有稳定提升，并在真实机器人 Open-X 设置中超过 OpenVLA。</p>
+    <p>其次，附录补充了大量分解证据：Language Table 每类任务详细表格、SIMPLER success/grasping/moving 分解、真实机器人三类能力分解、pairwise win rate、latent action 语义可视化和 scaling 消融。这些证据共同说明 LAPA 的提升不是单一表格偶然现象，而是来自可解释的 latent action 表示和数据规模/动作空间扩展。</p>
+
+    <h3>7.3 论文明确局限</h3>
+    <ul>
+      <li><strong>细粒度动作不足:</strong> LAPA 在 grasping 等 fine-grained motion generation 上不如 action-labeled pretraining，作者认为扩大 latent action generation space 可能有帮助。</li>
+      <li><strong>实时推理延迟:</strong> 与其他 VLA 类似，LAPA 也有 real-time inference latency 问题。作者建议未来使用 hierarchical architecture，让小 head 高频预测动作。</li>
+      <li><strong>应用范围尚窄:</strong> 虽然 latent action 捕获了 camera movements，但论文还没有探索自动驾驶、导航、景观视频等非 manipulation 视频。</li>
+    </ul>
+
+    <h3>7.4 额外边界与可追问点</h3>
+    <ul>
+      <li><strong>latent action 与真实控制不是同构:</strong> 它从视觉变化中学习，可能混合相机运动、物体运动和机器人动作；这对人类视频有用，但也可能让真实动作解码更难。</li>
+      <li><strong>少量 action finetuning 仍不可省:</strong> LAPA 降低了对 action labels 的依赖，但并没有完全消除真实机器人动作数据需求。</li>
+      <li><strong>任务分布很重要:</strong> 附录 D 显示 Sthv2 在 knocking/covering 相关轨迹多，Bridgev2 在 pick-and-place 多；预训练数据是否包含相似技能仍强烈影响下游。</li>
+      <li><strong>世界模型能力仍是定性展示:</strong> Figure 7 展示 latent decoder 闭环 rollout，但这还不是严格的可交互物理仿真评测。</li>
+    </ul>
+  </section>
+
+  <section id="qa">
+    <h2>8. 组会问答准备</h2>
+    <h3>Q1: LAPA 和 VPT 都用伪动作标签，区别是什么？</h3>
+    <p>VPT 先用 action-labeled 数据训练 IDM，再用 IDM 给视频打 pseudo actions；所以 IDM 质量和环境迁移很关键。LAPA 的 latent action quantization 不需要真实动作标签，直接从两个视觉状态间的变化学离散 token，因此更适合 actionless videos 和跨 embodiment 数据。</p>
+
+    <h3>Q2: latent action 是不是可以直接执行？</h3>
+    <p>不能。latent action 是视觉变化 token，不是 end-effector delta action。LAPA 必须经过 action finetuning，使用少量带真实动作标签轨迹，把预训练先验映射到具体机器人动作空间。</p>
+
+    <h3>Q3: 为什么 LAPA 可能比 action-labeled pretraining 更适合多 embodiment？</h3>
+    <p>真实动作标签在不同机器人中坐标、关节、控制频率和动作空间都不同，直接混合可能引入 representation mismatch。LAPA 学的是观察变化的 latent token，更像语言/图像表示那样跨数据集共享，因此在 Open-X multi-embodiment 设置中有正迁移。</p>
+
+    <h3>Q4: 论文中最强的定量证据是什么？</h3>
+    <p>真实机器人总成功率：LAPA(Open-X) 50.09%，OpenVLA(Open-X) 43.87%；同时 LAPA 预训练约 272 H100-hours，OpenVLA 约 21,500 A100-hours。这个结果同时支持性能和效率两个主张。</p>
+
+    <h3>Q5: 最需要质疑的地方是什么？</h3>
+    <p>主要是细粒度动作和真实机器人统计量。LAPA 在 pick-and-place 的 grasping 上仍弱于 OpenVLA，说明 latent action 的粗粒度先验不等于精确控制；真实机器人 54 rollouts/model 也仍有限，需要更多任务和更大规模真实评测来确认泛化。</p>
+  </section>
+</main>
+</body>
+</html>

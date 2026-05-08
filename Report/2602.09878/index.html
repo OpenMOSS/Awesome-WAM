@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MVISTA-4D - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --paper: #ffffff;
+      --soft: #f8fafc;
+      --blue: #2563eb;
+      --navy: #17325c;
+      --green: #15803d;
+      --amber: #b45309;
+      --violet: #6d28d9;
+      --red: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eef2f7;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.78;
+    }
+    main {
+      max-width: 1080px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+      background: var(--paper);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      line-height: 1.25;
+      color: #0f172a;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 38px 0 14px;
+      padding-left: 12px;
+      border-left: 4px solid var(--blue);
+      font-size: 1.45rem;
+      line-height: 1.35;
+      color: var(--navy);
+    }
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 1.18rem;
+      color: #1e3a5f;
+    }
+    h4 {
+      margin: 20px 0 8px;
+      font-size: 1.02rem;
+      color: #334155;
+    }
+    p { margin: 9px 0; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.1rem 0.3rem;
+      background: #edf2f7;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+    header {
+      border-bottom: 2px solid #dbeafe;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+    }
+    .meta {
+      background: #f1f5f9;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #334155;
+    }
+    .meta p { margin: 4px 0; }
+    .toc, .note, .audit-card, .formula-block {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 15px;
+      margin: 12px 0;
+    }
+    .toc ul {
+      margin: 6px 0 0;
+      padding-left: 20px;
+      columns: 2;
+    }
+    .toc li { margin: 2px 0; break-inside: avoid; }
+    .tldr {
+      background: #fff7ed;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      padding: 13px 16px;
+      margin: 16px 0;
+      font-size: 1.03rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .appendix-ref {
+      color: var(--violet);
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      font-size: 0.94rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: #eaf2ff;
+      color: #12375f;
+      text-align: left;
+      font-weight: 700;
+    }
+    tbody tr:nth-child(even) { background: #fbfdff; }
+    figure {
+      margin: 18px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+    figure img {
+      display: block;
+      max-width: 100%;
+      margin: 0 auto;
+      border-radius: 4px;
+    }
+    figcaption {
+      margin-top: 10px;
+      color: #475569;
+      font-size: 0.92rem;
+    }
+    .figgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .figgrid figure { margin: 8px 0; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      margin: 1px 3px 1px 0;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 0.86rem;
+      font-weight: 650;
+    }
+    .good { color: var(--green); font-weight: 650; }
+    .warn { color: var(--amber); font-weight: 650; }
+    .risk { color: var(--red); font-weight: 650; }
+    .small { color: var(--muted); font-size: 0.92rem; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 5px 0; }
+    @media (max-width: 760px) {
+      main { padding: 20px 14px 48px; }
+      h1 { font-size: 1.6rem; }
+      .toc ul { columns: 1; }
+      .grid, .figgrid { grid-template-columns: 1fr; }
+      table { font-size: 0.86rem; }
+      th, td { padding: 7px 8px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>MVISTA-4D: View-Consistent 4D World Model with Test-Time Action Inference for Robotic Manipulation</h1>
+    <div class="meta">
+      <p><strong>arXiv:</strong> 2602.09878</p>
+      <p><strong>作者:</strong> Jiaxu Wang, Yicheng Jiang, Tianlun He, Jingkai Sun, Qiang Zhang, Junhao He, Jiahang Cao, Zesen Gan, Mingyuan Sun, Qiming Shao, Xiangyu Yue</p>
+      <p><strong>机构:</strong> MMLab, CUHK; HKUST; HKU; X-Humanoid Robots; Tsinghua University</p>
+      <p><strong>报告定位:</strong> 面向 junior PhD 组会准备的中文精读报告，覆盖正文、附录实现细节、主实验表格、消融与失败案例。</p>
+    </div>
+  </header>
+
+  <section class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 研究问题与动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验与结果</a></li>
+      <li><a href="#repro">6. 复现要点</a></li>
+      <li><a href="#analysis">7. 分析、局限与边界</a></li>
+      <li><a href="#qa">8. 组会问答准备</a></li>
+    </ul>
+  </section>
+
+  <section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      MVISTA-4D 的核心想法是：机器人 world model 不应只从单视角想象 RGB 或 RGB-D 未来，而要从一个单视角 RGB-D 输入出发，生成几何一致的多视角 RGB-D 动态场景；之后通过轨迹 latent 的 test-time optimization 反推出动作，再用 residual inverse dynamics model 做执行级修正。
+    </div>
+
+    <table>
+      <tbody>
+        <tr>
+          <th style="width: 170px;">论文要解决什么</th>
+          <td>解决 imagine-then-act 机器人框架中的两个瓶颈：第一，现有世界模型多为 2D 或单视角 RGB-D，无法得到完整、跨视角一致的 4D 场景，遇到遮挡和接触操作时几何不稳；第二，把生成的未来转成动作通常依赖 inverse dynamics，但同一视觉转移可由多种动作解释，逐步 IDM 天然 ill-posed。</td>
+        </tr>
+        <tr>
+          <th>作者的方法抓手</th>
+          <td>抓手是同时改 world model 和 act stage。世界模型侧，基于 WAN2.2 TI2V 5B DiT，设计 RGB/depth 的 cross-modality fusion、球坐标 camera embedding、epipolar-line constrained deformable cross-view attention，生成多视角 RGB-D。动作侧，把整段动作序列压缩成 TCN-VAE trajectory latent/style code，测试时通过反向传播优化 latent 使生成结果匹配 imagined future，再由 residual IDM 做局部动作修正。</td>
+        </tr>
+        <tr>
+          <th>最重要的结果</th>
+          <td>4D 生成上，方法在 RLBench、RoboTwin 和真实数据的 FVD、depth、point cloud CD/EMD 等几何指标上多数最优；例如真实数据 CD 从 4DGen 的 17.32 降到 13.06，EMD 从 15.61 降到 14.37。操作成功率上，RLBench 72.6、RoboTwin 43.0，均高于 P-ACT、UniPi*、4DGen、TesserAct；真实机器人 6 个任务中 5 个任务超过 TesserAct。</td>
+        </tr>
+        <tr>
+          <th>阅读时要注意的点</th>
+          <td>重点不是“又一个 4D 生成模型”，而是三个接口是否真的闭合：多视角 RGB-D 生成是否提升可融合几何；trajectory latent 是否比逐步 action conditioning 更稳定；test-time latent optimization + residual IDM 是否缓解了 inverse dynamics 的多解性。读表时也要注意作者常在 RGB 指标和几何指标之间取舍，主张主要建立在几何一致性和下游 manipulation 成功率上。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <figure>
+      <img src="figures/figure_icml2026_overview.png" alt="MVISTA-4D overview">
+      <figcaption>Figure 1. 主 pipeline：单视角 RGB-D 输入和指令进入多视角 4D world model，生成未来多视角 RGB-D，再融合为 point cloud sequence；动作通过 trajectory latent optimization 和 residual IDM 得到。</figcaption>
+    </figure>
+
+    <div class="grid">
+      <div class="audit-card">
+        <h3>一句话贡献</h3>
+        <p>论文把多视角几何一致的 RGB-D 4D 生成和测试时轨迹 latent 反推动作结合起来，用更完整的动态几何支撑机器人 manipulation。</p>
+      </div>
+      <div class="audit-card">
+        <h3>关键词</h3>
+        <p>
+          <span class="pill">4D World Model</span>
+          <span class="pill">Multi-view RGB-D Generation</span>
+          <span class="pill">Cross-view Attention</span>
+          <span class="pill">Trajectory Latent</span>
+          <span class="pill">Residual IDM</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 研究问题与动机</h2>
+    <h3>2.1 为什么需要多视角 4D world model</h3>
+    <p>world-model-based manipulation 通常先预测未来观察，再从未来观察中推动作。这种 imagine-then-act 范式的关键是：想象出来的未来必须足够接近物理可执行场景。仅生成 RGB 视频时，画面可以看起来合理，但深度、遮挡、物体相对位置和接触几何可能不一致；这会让后续动作推理建立在错误几何上。</p>
+    <p>TesserAct 这类方法已经把 RGB-DN/RGB-D 引入 world model，但很多仍是单视角输出。单视角会导致隐藏面和遮挡区域缺失，融合出的 3D 结构不完整。MVISTA-4D 的目标是让模型从单个 RGB-D observation 出发，“补想象”其他视角，并在时间上保持同一个动态场景。</p>
+
+    <h3>2.2 为什么 inverse dynamics 不够</h3>
+    <p>从生成未来到动作的常见方式是 inverse dynamics：给定 \(\hat{o}_t,\hat{o}_{t+1}\) 预测 \(a_t\)。但在机器人操作中，同样的视觉变化可能由多个动作产生，局部观察还可能缺失接触信息；因此逐步 IDM 容易不适定。作者认为动作轨迹本身具有低维结构和强时间相关性，应该用 trajectory-level latent 表达，而不是把每个 action step 硬对齐到每个视频帧。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <h3>3.1 Video generative models</h3>
+    <p>视频生成模型已经能产生高质量动态 RGB，camera-controlled video generation 还能控制视角变化。但这些模型多关注 RGB 视觉质量，缺少显式的 RGB-D 跨模态一致性和多视角几何约束，因此不适合直接用于接触丰富的机器人 manipulation。</p>
+
+    <h3>3.2 Robotic world models</h3>
+    <p>机器人 world model 可作为 policy learning 辅助模块，也可作为 planning 模块生成任务 rollout 后推动作。已有方法包括视频生成 + IDM、动作头共享 latent、motion mask 或基于 pose estimation 的 geometry-first pipeline。本文认为这些方法要么过度依赖 2D 预测，要么受 pose estimation/IDM 脆弱性影响；MVISTA-4D 则把动作 trajectory latent 直接嵌入生成过程，并在测试时反向优化该 latent。</p>
+
+    <h3>3.3 4D generation</h3>
+    <p>4D generation 常用 NeRF/3DGS/SDS 或先视频再 novel view synthesis 的组合，但可能慢、目标不一致或跨视角漂移。TesserAct 从 RGB-DN 重建 4D scene，但主要是单视角；4DGen 生成两视角 pointmaps，但扩展到更多视角和不同源视角时不稳。MVISTA-4D 的定位是 feed-forward 多视角 RGB-D 4D world model，服务于机器人动作推理。</p>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 问题定义与 diffusion 基础</h3>
+    <p>输入为参考视角 RGB-D observation \(\mathbf{o}_0=(\mathbf{I}_0,\mathbf{D}_0)\)、参考相机外参 \(\mathbf{T}_0\)、目标视角外参 \(\{\mathbf{T}_i\}_{i=1}^{N}\) 和语言指令 \(l\)。模型输出参考视角与所有目标视角同步的未来 RGB-D 序列。生成后可用 camera intrinsics/extrinsics back-project 并 fuse 成动态 point cloud sequence。</p>
+    <p>扩散模型使用 latent video diffusion / flow matching。Forward path 为：</p>
+    <div class="formula-block">
+      $$z_t=(1-t)z_0+t\epsilon,\qquad \epsilon\sim\mathcal{N}(0,I),\quad t\in[0,1]$$
+      $$\mathcal{L}_{diff}=\mathbb{E}_{t,z_0,\epsilon}\left\|v_{\Theta}(z_t,t)-(\epsilon-z_0)\right\|_2^2$$
+    </div>
+    <p>推理时从高斯噪声出发，用 Euler steps 解 probability flow ODE，并通过 VAE decoder 得到 RGB-D 视频。</p>
+
+    <h3>4.2 输入格式策略</h3>
+    <p>作者采用结构化 tokenization：同一视角内部 RGB 和 depth 按 width-wise concatenation 放在相邻 token 位置，鼓励同一空间位置的 appearance/geometry 交互；不同视角按 height-wise concatenation 组织，促进结构级跨视角信息交换。因为视角间像素级对齐受 parallax/occlusion 影响，真正的几何对应由 cross-view module 处理。</p>
+
+    <h3>4.3 Feature Integration Across Modalities</h3>
+    <p>为了让共享 backbone 区分 RGB appearance token 和 depth geometry token，作者为两个模态加入 learnable modality token：</p>
+    <div class="formula-block">
+      $$\tilde{\mathbf{X}}^{app}=\mathbf{X}^{app}+\mathbf{1}(\mathbf{m}^{app})^\top,\qquad
+      \tilde{\mathbf{X}}^{geo}=\mathbf{X}^{geo}+\mathbf{1}(\mathbf{m}^{geo})^\top$$
+    </div>
+    <p>在每个 DiT block 的标准 self-attention 之前，插入 local cross-modality attention。对位置 \(i\)，只在几何 token grid 的局部邻域 \(\mathcal{N}_r(i)\) 中做 appearance-to-geometry attention，反向也对称执行：</p>
+    <div class="formula-block">
+      $$\mathbf{y}_i^{a\leftarrow g}=\mathrm{Attn}\left(
+      \tilde{\mathbf{x}}_i^{app}\mathbf{W}_Q^{app},
+      \tilde{\mathbf{X}}_{\mathcal{N}_r(i)}^{geo}\mathbf{W}_K^{geo},
+      \tilde{\mathbf{X}}_{\mathcal{N}_r(i)}^{geo}\mathbf{W}_V^{geo}
+      \right)$$
+      $$\hat{\mathbf{x}}_i^{app}=\tilde{\mathbf{x}}_i^{app}+\gamma_{app}\mathbf{y}_i^{a\leftarrow g},\qquad
+      \hat{\mathbf{x}}_i^{geo}=\tilde{\mathbf{x}}_i^{geo}+\gamma_{geo}\mathbf{y}_i^{g\leftarrow a}$$
+    </div>
+    <p>局部窗口降低了全局 cross-attention 的匹配成本，也给 RGB-depth 对齐提供局部几何先验；gated residual 则避免在噪声或错位时强行融合坏信息。</p>
+
+    <figure>
+      <img src="figures/figure_cross_mod.png" alt="Cross-modality modeling">
+      <figcaption>Figure 2. Cross-modality modeling 的效果：显式 RGB-depth 交互改善 appearance 和 geometry 对齐，减少跨模态漂移。</figcaption>
+    </figure>
+
+    <h3>4.4 Learning Geometric Consistency Across Views</h3>
+    <p>视角 token 不用普通可学习 embedding，而是直接由 camera embedding 提供。作者没有 flatten \(3\times4\) extrinsic matrix，而是围绕共同 look-at point \(\mathbf{p}\) 用球坐标表示相机。首先估计所有相机 optical axes 最近的点：</p>
+    <div class="formula-block">
+      $$\mathbf{p}=\arg\min_{\mathbf{x}\in\mathbb{R}^3}\sum_v\left\|
+      (\mathbf{I}_{3\times3}-\mathbf{d}_v\mathbf{d}_v^\top)(\mathbf{x}-\mathbf{c}_v)
+      \right\|_2^2$$
+    </div>
+    <p>然后用 \(\mathbf{r}_v=\mathbf{c}_v-\mathbf{p}\)、\(\rho_v=\|\mathbf{r}_v\|_2\) 计算 yaw、pitch、roll，并对角度使用 \(K=2\) 的 Fourier features，拼接 \(\log(\rho_v)\)，得到 13-D camera embedding：</p>
+    <div class="formula-block">
+      $$\mathbf{e}_v=[\gamma(\psi_v),\gamma(\theta_v),\gamma(\phi_v),\log(\rho_v)]\in\mathbb{R}^{13}$$
+    </div>
+    <p>跨视角融合使用 geometry-aware deformable cross-view attention。给定 view \(v\) 的 query token，在另一视角 \(u\) 上沿对应 epipolar line 均匀采样 \(K\) 个候选 key/value；再用 MLP 根据 query、初始 key feature 和相似度预测小 offset，修正粗 latent resolution 下的错位：</p>
+    <div class="formula-block">
+      $$\Delta\mathbf{p}_{i,k}^{u}=\mathrm{clip}\left(
+      \mathrm{MLP}_{off}[\mathbf{q}_i^v,\mathbf{f}_{i,k}^{u,0},s_{i,k}^{u}],\mathrm{max\_offset}
+      \right),\qquad
+      \mathbf{p}_{i,k}^{u}=\mathbf{p}_{i,k}^{u,0}+\Delta\mathbf{p}_{i,k}^{u}$$
+    </div>
+
+    <figure>
+      <img src="figures/figure_cross-view.png" alt="Cross-view modeling">
+      <figcaption>Figure 3. Geometry-aware cross-view modeling 的效果：沿 epipolar 约束做稀疏跨视角注意力，提升多视角一致性。</figcaption>
+    </figure>
+
+    <h3>4.5 Trajectory Conditioning as a Style Code</h3>
+    <p>动作轨迹是生成机器人运动的关键条件。逐步把动作序列对齐到视频帧会引入控制频率和视频帧率的脆弱对应，也容易暴露像素中弱可见的高频控制细节。作者改用 TCN-VAE 把整段动作压缩为低维 trajectory latent/style tokens：</p>
+    <div class="formula-block">
+      $$\mathbf{z}=\mathrm{Enc}_{TCN}(\mathbf{a}_{1:L}),\qquad
+      \hat{\mathbf{a}}_{1:L}=\mathrm{Dec}_{TCN}(\mathbf{z})$$
+      $$\mathcal{L}_{VAE}=\mathbb{E}_{q_\phi(\mathbf{z}|\mathbf{a})}\|\mathbf{a}-\hat{\mathbf{a}}\|_2^2+
+      \beta\,\mathrm{KL}(q_\phi(\mathbf{z}|\mathbf{a})\Vert p(\mathbf{z}))$$
+    </div>
+    <p>论文中 \(\mathbf{z}\in\mathbb{R}^{S\times C=32}\)，作为 \(S\) 个 style tokens 通过 cross-attention 注入生成器。为了避免生成器忽略轨迹条件，训练时还加 latent-consistency head，从最后层 hidden tokens 重建 \(\hat{\mathbf{z}}\)，并用 \(\mathcal{L}_{traj}=\|\hat{\mathbf{z}}-\mathbf{z}\|_2^2\) 约束；该 head 只训练时使用，推理丢弃。</p>
+
+    <h3>4.6 Test-time Action Optimization 与 Residual IDM</h3>
+    <p>推理时先用 text-only conditioning 生成一个动态 rollout \(\bar{\mathbf{V}}\)。然后冻结该 rollout，从随机初始化的 trajectory latent \(\mathbf{z}\) 开始，通过反向传播寻找最能复现该 rollout 的条件 latent：</p>
+    <div class="formula-block">
+      $$\mathbf{z}^{\star}=\arg\min_{\mathbf{z}}\ \mathcal{D}(G(l,\mathbf{z}),\bar{\mathbf{V}})+\lambda\|\mathbf{z}\|_2^2$$
+      $$\hat{\mathbf{a}}_{1:T}=\mathrm{Dec}_{TCN}(\mathbf{z}^{\star})$$
+    </div>
+    <p>这比直接优化全长逐步动作更稳定，因为搜索空间是学习到的低维轨迹流形。随后 residual IDM 进一步修正：给定连续点云 \(\mathcal{P}_t,\mathcal{P}_{t+1}\) 和 prior action \(\mathbf{a}_t^{prior}\)，预测残差 \(\Delta\mathbf{a}_t\)：</p>
+    <div class="formula-block">
+      $$\mathbf{a}_t=\mathbf{a}_t^{prior}+\Delta\mathbf{a}_t$$
+    </div>
+    <p>这样 IDM 不再从零解释视觉转移，而是在已有轨迹意图附近做局部调整，缓解 inverse dynamics 的多解性。</p>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 数据集与评估</h3>
+    <p>4D generation 在两个 synthetic 数据集和一个真实数据集上评估。RLBench 收集超过 8,000 条轨迹，RoboTwin2 超过 10,000 条轨迹，各含 10 个任务；每个 episode 有 16 个 RGB-D camera views、已知 camera parameters、文本指令和动作序列。真实数据由 4 个 RGB-D 摄像头和真实机械臂平台采集，包含 14 个 manipulation tasks，并记录对应动作。</p>
+    <p>指标分为 appearance、depth 和 point cloud：PSNR、SSIM、FVD；AbsRel、RMSE、\(\delta_1\)；Chamfer Distance (CD) 和 EMD。主表中的 SSIM、AbsRel、RMSE、CD、EMD 均按 \(10^2\) 缩放。</p>
+
+    <h3>5.2 4D scene generation 主结果</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>Method</th>
+          <th>PSNR ↑</th>
+          <th>SSIM ↑</th>
+          <th>FVD ↓</th>
+          <th>AbsRel ↓</th>
+          <th>RMSE ↓</th>
+          <th>CD ↓</th>
+          <th>EMD ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>RLBench</td><td>UniPi*</td><td>23.88</td><td>91.7</td><td>19.94</td><td>117.9</td><td>43.2</td><td>15.0</td><td>20.6</td></tr>
+        <tr><td>RLBench</td><td>4DGen</td><td>22.25</td><td>87.1</td><td>20.51</td><td>91.8</td><td>29.3</td><td>10.9</td><td>16.0</td></tr>
+        <tr><td>RLBench</td><td>TesserAct</td><td>23.86</td><td>92.8</td><td>27.77</td><td>91.8</td><td>29.4</td><td>11.0</td><td>16.3</td></tr>
+        <tr><td>RLBench</td><td>Ours</td><td>23.31</td><td>90.8</td><td><strong>18.57</strong></td><td><strong>90.5</strong></td><td><strong>29.1</strong></td><td><strong>9.6</strong></td><td><strong>15.3</strong></td></tr>
+        <tr><td>RoboTwin</td><td>UniPi*</td><td>22.98</td><td>89.2</td><td>22.18</td><td>5.52</td><td>18.13</td><td>9.88</td><td>20.53</td></tr>
+        <tr><td>RoboTwin</td><td>4DGen</td><td>22.18</td><td>85.2</td><td>24.61</td><td>3.00</td><td>13.90</td><td>7.18</td><td>10.62</td></tr>
+        <tr><td>RoboTwin</td><td>TesserAct</td><td>22.65</td><td>89.8</td><td>27.29</td><td>3.71</td><td>15.07</td><td>7.11</td><td>10.28</td></tr>
+        <tr><td>RoboTwin</td><td>Ours</td><td>22.91</td><td><strong>90.2</strong></td><td><strong>21.93</strong></td><td><strong>2.60</strong></td><td><strong>12.30</strong></td><td><strong>6.51</strong></td><td><strong>9.90</strong></td></tr>
+        <tr><td>Real</td><td>UniPi*</td><td>22.53</td><td>90.62</td><td>28.62</td><td>39.95</td><td>42.69</td><td>58.41</td><td>63.22</td></tr>
+        <tr><td>Real</td><td>4DGen</td><td>21.34</td><td>89.75</td><td>25.60</td><td>23.36</td><td>29.61</td><td>17.32</td><td>15.61</td></tr>
+        <tr><td>Real</td><td>TesserAct</td><td>22.27</td><td>91.50</td><td>50.79</td><td>30.56</td><td>33.17</td><td>38.47</td><td>34.65</td></tr>
+        <tr><td>Real</td><td>Ours</td><td>21.82</td><td>89.98</td><td><strong>23.08</strong></td><td><strong>20.79</strong></td><td><strong>25.11</strong></td><td><strong>13.06</strong></td><td><strong>14.37</strong></td></tr>
+      </tbody>
+    </table>
+    <p>这张表的关键是几何指标：MVISTA-4D 在 point cloud CD/EMD 和 depth 指标上基本最强，而 RGB PSNR/SSIM 不总是第一。也就是说，作者并不主张它是纯视觉质量最强的视频生成模型，而是几何一致性更适合 manipulation。</p>
+
+    <figure>
+      <img src="figures/figure_rbtwin_compare.png" alt="RoboTwin qualitative 4D generation">
+      <figcaption>Figure 4. RoboTwin 定性结果：红、绿、蓝框表示不同视角。图中强调多视角生成的一致性和 object placement 稳定性。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figure_real_pc.png" alt="Real generated geometries">
+      <figcaption>Figure 5. 真实机器人数据上的生成几何结果。该图支撑真实场景中多视角 RGB-D 融合为 point cloud 的可用性。</figcaption>
+    </figure>
+
+    <h3>5.3 Cross-view / cross-modality 消融</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>PSNR ↑</th>
+          <th>SSIM ↑</th>
+          <th>FVD ↓</th>
+          <th>AbsRel ↓</th>
+          <th>RMSE ↓</th>
+          <th>CD ↓</th>
+          <th>EMD ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>w/o view</td><td>21.47</td><td>88.3</td><td>24.85</td><td>3.34</td><td>14.30</td><td>8.34</td><td>17.50</td></tr>
+        <tr><td>EA</td><td>22.43</td><td>89.2</td><td>23.36</td><td>3.03</td><td>12.70</td><td>7.33</td><td>12.50</td></tr>
+        <tr><td>w/o mod</td><td>20.16</td><td>83.8</td><td>25.25</td><td>4.03</td><td>16.77</td><td>7.51</td><td>16.80</td></tr>
+        <tr><td>Ours</td><td><strong>22.91</strong></td><td><strong>90.2</strong></td><td><strong>21.93</strong></td><td><strong>2.60</strong></td><td><strong>12.30</strong></td><td><strong>6.51</strong></td><td><strong>9.90</strong></td></tr>
+      </tbody>
+    </table>
+    <p>消融说明两个模块都重要：去掉 cross-view 后 point cloud CD/EMD 明显变差；去掉 cross-modality 后 RGB/depth 同步更差，PSNR、SSIM、FVD 和 depth 指标都下降。</p>
+
+    <h3>5.4 Embodied action planning</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>P-ACT</th>
+          <th>UniPi*</th>
+          <th>4DGen</th>
+          <th>TesserAct</th>
+          <th>Act Head</th>
+          <th>Full IDM</th>
+          <th>w/o R-IDM</th>
+          <th>Full Model</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>RLBench</td><td>60.4</td><td>34.6</td><td>47.0</td><td>67.3</td><td>72.5</td><td>68.8</td><td>69.0</td><td><strong>72.6</strong></td></tr>
+        <tr><td>RoboTwin</td><td>20.5</td><td>16.3</td><td>40.2</td><td>33.9</td><td>42.5</td><td>41.7</td><td>42.8</td><td><strong>43.0</strong></td></tr>
+      </tbody>
+    </table>
+    <p>Full model 的提升相对主 baseline 更明显：RLBench 比 TesserAct 高 5.3，比 P-ACT 高 12.2；RoboTwin 比 4DGen 高 2.8，比 TesserAct 高 9.1。动作侧消融显示 Act Head 很强，但 full model 仍最好；Full IDM 和 w/o R-IDM 低于 full model，说明 trajectory latent optimization 和 residual correction 都有贡献。</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Arrange Boxes</th>
+          <th>Cap Bottle</th>
+          <th>Open Drawer</th>
+          <th>Place Fruits</th>
+          <th>Put Orange</th>
+          <th>Stack Cubes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>TesserAct</td><td>7</td><td>27</td><td>37</td><td>17</td><td><strong>66</strong></td><td>45</td></tr>
+        <tr><td>Ours</td><td><strong>15</strong></td><td><strong>33</strong></td><td><strong>56</strong></td><td><strong>23</strong></td><td>63</td><td><strong>50</strong></td></tr>
+      </tbody>
+    </table>
+    <p>真实机器人 6 个任务中，MVISTA-4D 在 5 个任务上超过 TesserAct，尤其 Open Drawer 从 37 提升到 56。Put Orange 略低于 TesserAct，说明多视角几何并非每个任务都一定提升。</p>
+
+    <h3>5.5 附录：多视角推理模式与 view 数量</h3>
+    <p><span class="appendix-ref">[附录 Analysis of two Modes]</span> 作者支持两种多视角生成：Mode-1 一次采样生成所有 view，把 view latents 沿 height 连接；Mode-2 先生成参考 views，再用 masked completion 补全额外 views。论文默认使用 Mode-2，因为更稳定、质量更高。主实验采用 3-view 设置，因为多数 baseline 至多支持两视角，而 3 views 已带来主要收益。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Num Views</th>
+          <th>1</th>
+          <th>2</th>
+          <th>3</th>
+          <th>4</th>
+          <th>5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>RLBench success</td><td>68.6</td><td>71.5</td><td>72.6</td><td>72.9</td><td>73.1</td></tr>
+        <tr><td>Time cost</td><td>0.78</td><td>0.85</td><td>1.00</td><td>1.20</td><td>1.35</td></tr>
+      </tbody>
+    </table>
+    <p>从 1 到 3 views 提升明显，3 到 5 views 边际收益很小但耗时增长，因此 3 views 是本文默认的效率-准确性折中。</p>
+
+    <div class="figgrid">
+      <figure>
+        <img src="figures/figure_multiview_robotwin.png" alt="RoboTwin multiview generation">
+        <figcaption>附录定性图：RoboTwin 上 Mode-2 多视角生成，与 4DGen 对比。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/figure_multiview_rlbench.png" alt="RLBench multiview generation">
+        <figcaption>附录定性图：RLBench 上 Mode-1 多视角生成，与 4DGen 对比。</figcaption>
+      </figure>
+    </div>
+
+    <h3>5.6 附录：per-task 与失败案例</h3>
+    <p><span class="appendix-ref">[附录 Additional Task-Level Details]</span> RLBench per-task 表显示，Ours 在 Unplug Charger 55、Close Drawer 91、Close Microwave 75、Open Drawer 98、Pick Up Cup 62、Play Jenga 97、Push Button 89 等任务上表现强；RoboTwin 中在 Adjust Bottle 69、Beat Hammer 42、Click Bell 38、Grab Roller 68、Lift Pot 42、Place Container 72 上领先。</p>
+    <div class="figgrid">
+      <figure>
+        <img src="figures/figure_frame_0032.png" alt="Open drawer failure">
+        <figcaption>失败案例 1：Open Drawer 中定位到抽屉把手，但拉动方向错误，说明遮挡和有限视角下动作方向仍可能歧义。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/figure_failure_case_robotwin.png" alt="RoboTwin failure">
+        <figcaption>失败案例 2：RoboTwin 接触敏感任务中到达目标区域附近，但末端执行器与红色目标块空间错位。</figcaption>
+      </figure>
+    </div>
+
+    <h3>5.7 附录：更多定性生成</h3>
+    <figure>
+      <img src="figures/figure_t1.png" alt="RLBench qualitative generation">
+      <figcaption>附录 Figure: RLBench qualitative generation results。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figure_real_compare.png" alt="Real place cubes qualitative generation">
+      <figcaption>附录 Figure: 真实机器人 place cubes into cup 任务定性结果。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figure_real_compare2.png" alt="Real open drawer qualitative generation">
+      <figcaption>附录 Figure: 真实机器人 open drawer 任务定性结果。</figcaption>
+    </figure>
+  </section>
+
+  <section id="repro">
+    <h2>6. 复现要点</h2>
+    <h3>6.1 训练策略</h3>
+    <p><span class="appendix-ref">[附录 Implementation Details]</span> 作者对每个 dataset 训练单独模型。对于同一任务不同操作物体，保持固定 instruction template，只替换 object noun，例如 “pick up the coke bottle” 和 “pick up the can”。</p>
+    <p>Diffusion input 是 \(B\times T\times C\times h\times w\) 的 noise latent。训练时以 0.5 概率只提供第一视角第一帧作为条件；以 0.5 概率提供第一视角完整 video latent，并随机 mask 任意数量帧。这让模型同时学习从单帧生成 4D dynamics 和补全缺失 timesteps。</p>
+    <p>Trajectory latent 在早期训练总是提供；后期逐渐增加 mask trajectory latent 并替换为 null trajectory token 的概率。这样模型既能 text-only 生成动态场景，也保留 action-conditioned generation 能力；null token 在测试时可作为可优化变量。</p>
+
+    <h3>6.2 模型与优化配置</h3>
+    <ul>
+      <li><strong>Backbone:</strong> WAN2.2 TI2V 5B DiT。</li>
+      <li><strong>Learning rate:</strong> \(10^{-5}\)。</li>
+      <li><strong>Scheduler:</strong> 1000-step linear warmup 后 constant schedule。</li>
+      <li><strong>Optimizer:</strong> AdamW，\(\epsilon=10^{-8}\)，weight decay 0.01。</li>
+      <li><strong>Initialization:</strong> 原始 blocks 全部放开 fine-tuning；新增 blocks 的 weights 和 bias 初始化为 0，以保护 WAN2.2 prior。</li>
+      <li><strong>R-IDM:</strong> 点云每步裁剪操作区域，back-project RGB-D，FPS 采样 8192 points，PointNet-style encoder + MLP 预测动作残差。</li>
+    </ul>
+
+    <h3>6.3 仿真与真实平台</h3>
+    <p><span class="appendix-ref">[附录 Simulation Setup]</span> 仿真中在场景周围均匀放置 12 个相机，相邻水平角间隔 30 度，朝向机器人工作台中心；训练随机采样 3 个 viewpoints，并要求采样视角中至少一个相机角间隔小于 90 度。所有相机分辨率 320 × 240，RLBench FOV 为 40 度，RoboTwin FOVY 为 37 度。</p>
+    <div class="figgrid">
+      <figure>
+        <img src="figures/figure_figure_camera_frustum_rlbench.png" alt="RLBench camera layout">
+        <figcaption>RLBench camera layout。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/figure_figure_camera_frustum_robotwin.png" alt="RoboTwin camera layout">
+        <figcaption>RoboTwin camera layout。</figcaption>
+      </figure>
+    </div>
+    <p><span class="appendix-ref">[附录 Real-World Robot Dataset]</span> 真实系统使用 4 个 Orbbec Femto Bolt RGB-D ToF cameras 和 2 个 AgileX Piper robotic arms；采集工作站为 Intel i9-14900K CPU + NVIDIA RTX 4090 GPU。相机外参先用 ChArUco board 粗标定，再将 RGB-D back-project 到点云并对重叠区域做 ICP refinement。遥操作采用 leader-follower，follower 以 200 Hz 直接 joint-space mapping 跟随 leader；相机以 15 FPS、1280 × 720 同步记录，后处理降采样到 320 × 180。</p>
+    <div class="figgrid">
+      <figure>
+        <img src="figures/figure_real_cam.png" alt="Real camera setup">
+        <figcaption>真实机器人相机布局。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/figure_HW_setup1.png" alt="Extrinsic calibration">
+        <figcaption>外参标定与点云对齐示意。</figcaption>
+      </figure>
+    </div>
+    <figure>
+      <img src="figures/figure_task4x4.png" alt="Real manipulation tasks">
+      <figcaption>真实数据集中 manipulation tasks 示例。每个 episode 随机目标物体位姿，并加入任务无关 distractors。</figcaption>
+    </figure>
+
+    <h3>6.4 复现风险清单</h3>
+    <ul>
+      <li><strong>多视角数据成本:</strong> 需要同步 RGB-D、多相机外参和动作轨迹；真实数据采集门槛高。</li>
+      <li><strong>相机标定敏感:</strong> 方法依赖准确 extrinsics；附录 limitation 明确指出 extrinsics 或 robot kinematics 改变会降低一致性和动作质量。</li>
+      <li><strong>测试时优化开销:</strong> action inference 需要多步 backpropagation 优化 trajectory latent，增加 latency。</li>
+      <li><strong>WAN2.2 依赖:</strong> 使用 5B DiT backbone，复现实验需要相当算力和可用预训练权重。</li>
+      <li><strong>动作-视频对齐:</strong> 虽然 trajectory latent 避免逐帧动作硬对齐，但 residual IDM 仍需要高质量 action labels 和点云裁剪策略。</li>
+    </ul>
+  </section>
+
+  <section id="analysis">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是把“4D world model 是否真的能帮助机器人执行”做成了一个相对闭合的系统：不是只展示多视角生成图，也不是只用 IDM 从单视角点云猜动作，而是从多视角 RGB-D 生成、几何融合、轨迹 latent 反推，到 residual IDM 修正和真实机器人执行，形成完整链条。</p>
+    <p>第二个价值点是动作接口设计。trajectory latent 作为 style code 把动作从逐步控制信号提升为整段轨迹先验；测试时优化该 latent，本质上是在 learned action manifold 上搜索与 imagined future 一致的动作。这比传统 IDM 的逐步多解问题更有结构约束。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果站得住主要因为证据覆盖了生成质量、几何质量、下游成功率和关键模块消融。4D 生成表中，方法在三个数据集的 depth/point cloud 指标上稳定领先；action planning 表中，RLBench 和 RoboTwin 都超过强 baseline；真实机器人表明提升不是只在仿真成立；cross-view、cross-modality、camera embedding、view 数量、R-IDM 等消融都能对应到具体设计选择。</p>
+    <p>同时，附录失败案例并没有回避缺陷：open-drawer 方向错误和 contact-sensitive miss 说明该方法虽然能生成高层意图和更完整几何，但细粒度接触、动作方向和执行闭环仍会放大小误差。</p>
+
+    <h3>7.3 论文明确局限</h3>
+    <ul>
+      <li><strong>Latency:</strong> test-time action optimization 需要多步迭代，会降低实时响应能力。</li>
+      <li><strong>Calibration dependency:</strong> 方法依赖准确 camera 和 robot calibration，外参或机器人运动学变化会影响 cross-view consistency 和 action quality。</li>
+      <li><strong>Contact precision:</strong> 失败案例显示，生成未来捕获高层意图并不保证接触几何精确，near-miss contacts 仍会导致失败。</li>
+    </ul>
+
+    <h3>7.4 可以追问的边界</h3>
+    <ul>
+      <li><strong>闭环控制:</strong> 当前动作从生成 rollout 推出，若执行中偏离，是否需要重新生成和重新优化 latent？论文没有系统给出闭环频率和稳定性分析。</li>
+      <li><strong>更多视角的边际收益:</strong> 3 views 后收益变小，但耗时增加；真实复杂遮挡场景中是否仍是 3 views 最优，需要更多任务验证。</li>
+      <li><strong>真实数据规模:</strong> 真实机器人只展示 6 个任务成功率表，虽然有 14-task 数据集描述，但更大规模真实评估会更有说服力。</li>
+      <li><strong>物理变量缺失:</strong> RGB-D point cloud 不显式建模力、摩擦和接触状态，精细 manipulation 仍可能需要 contact-aware constraints 或 tactile/force sensing。</li>
+    </ul>
+  </section>
+
+  <section id="qa">
+    <h2>8. 组会问答准备</h2>
+    <h3>Q1: MVISTA-4D 和 TesserAct 的核心区别是什么？</h3>
+    <p>TesserAct 主要从 RGB-DN/RGB-D video 重建 4D scene，但偏单视角；MVISTA-4D 从单视角输入生成多视角 RGB-D，并显式做 cross-view geometry consistency。同时它还通过 trajectory latent test-time optimization 反推动作，而不是只依赖传统 IDM。</p>
+
+    <h3>Q2: 为什么要用 trajectory latent，而不是逐步 action conditioning？</h3>
+    <p>逐步 action 和视频帧之间存在控制频率/帧率不匹配，且像素中不一定能看出高频控制细节。trajectory latent 把整段动作压缩到低维流形，表达轨迹节奏、平滑性和阶段结构，更适合生成和测试时优化。</p>
+
+    <h3>Q3: Cross-view attention 为什么沿 epipolar line 采样？</h3>
+    <p>已知相机参数时，一个视角中的点在另一个视角中应落在对应 epipolar line 上。沿这条线采样能大幅减少候选 token，同时加入 deformable offset 修正 latent resolution 粗和遮挡带来的偏差。</p>
+
+    <h3>Q4: 最强实验证据是什么？</h3>
+    <p>生成侧是三个数据集上几何指标稳定领先，尤其 point cloud CD/EMD；动作侧是 RLBench 72.6、RoboTwin 43.0 均为最高，真实机器人 6 个任务中 5 个优于 TesserAct。</p>
+
+    <h3>Q5: 最大短板是什么？</h3>
+    <p>测试时优化带来 latency，系统依赖精确相机/机器人标定，并且在接触敏感或方向歧义任务中仍可能失败。换句话说，它增强了几何和轨迹先验，但还不是完整的实时闭环接触控制系统。</p>
+  </section>
+</main>
+</body>
+</html>
