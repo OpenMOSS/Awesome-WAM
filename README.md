@@ -1232,6 +1232,208 @@ Dataset: No standalone official public dataset page found
 
 
 
+
+
+***
+#### SSv2 - *The "something something" video database for learning and evaluating visual common sense* - [![arXiv](https://img.shields.io/badge/arXiv-1706.04261-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1706.04261)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://developer.qualcomm.com/software/ai-datasets/something-something)]
+***
+#### EPIC-KITCHENS - *Scaling Egocentric Vision: The EPIC-KITCHENS Dataset* - [![arXiv](https://img.shields.io/badge/arXiv-1804.02748-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1804.02748)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://epic-kitchens.github.io/)] · [[🌍 Webpage](https://epic-kitchens.github.io/)] · [[💻 Code](https://github.com/epic-kitchens/epic-kitchens-download-scripts)]
+***
+#### HowTo100M - *HowTo100M: Learning a Text-Video Embedding by Watching Hundred Million Narrated Video Clips* - [![arXiv](https://img.shields.io/badge/arXiv-1906.03327-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1906.03327)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://www.di.ens.fr/willow/research/howto100m/)] · [[🌍 Webpage](https://www.di.ens.fr/willow/research/howto100m/)]
+***
+#### Kinetics-700 - *A Short Note on the Kinetics-700 Human Action Dataset* - [![arXiv](https://img.shields.io/badge/arXiv-1907.06987-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1907.06987)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://github.com/cvdfoundation/kinetics-dataset)] · [[💻 Code](https://github.com/cvdfoundation/kinetics-dataset)]
+***
+#### EGTEA Gaze+ - *In the Eye of the Beholder: Gaze and Actions in First Person Video* - [![arXiv](https://img.shields.io/badge/arXiv-2006.00626-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2006.00626)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://cbs.ic.gatech.edu/fpv/)] · [[🌍 Webpage](https://cbs.ic.gatech.edu/fpv/)]
+***
+#### Ego4D - *Ego4D: Around the World in 3,000 Hours of Egocentric Video* - [![arXiv](https://img.shields.io/badge/arXiv-2110.07058-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2110.07058)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://ego4d-data.org/docs/start-here/)] · [[🌍 Webpage](https://ego4d-data.org/)] · [[💻 Code](https://github.com/facebookresearch/Ego4d)]
+***
+#### HOI4D - *HOI4D: A 4D Egocentric Dataset for Category-Level Human-Object Interaction* - [![arXiv](https://img.shields.io/badge/arXiv-2203.01577-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2203.01577)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://hoi4d.github.io/)] · [[🌍 Webpage](https://hoi4d.github.io/)]
+***
+#### EgoVid-5M - *EgoVid-5M: A Large-Scale Video-Action Dataset for Egocentric Video Generation* - [![arXiv](https://img.shields.io/badge/arXiv-2411.08380-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2411.08380)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://egovid.github.io/)] · [[🌍 Webpage](https://egovid.github.io/)]
+***
+#### COM Kitchens - *COM Kitchens: An Unedited Overhead-view Video Dataset as a Vision-Language Benchmark* - [![arXiv](https://img.shields.io/badge/arXiv-2408.02272-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2408.02272)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://github.com/omron-sinicx/com_kitchens)] · [[💻 Code](https://github.com/omron-sinicx/com_kitchens)]
+***
+#### Egocentric-10K - *Egocentric-10K* - [![Link](https://img.shields.io/badge/Link-Dataset-blue?style=flat-square)](https://huggingface.co/datasets/builddotai/Egocentric-10K)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/builddotai/Egocentric-10K)] · [[🌍 Webpage](https://egocentric.io/)]
+***
+#### DreamDojo - *DreamDojo: A Generalist Robot World Model from Large-Scale Human Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2602.06949-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.06949)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+Dataset: No standalone official public dataset page found
+
+[[🌍 Webpage](https://dreamdojo-world.github.io/)] · [[💻 Code](https://github.com/NVIDIA/DreamDojo)] · [[🤗 Model](https://huggingface.co/nvidia/DreamDojo)]
+***
+#### Assembly101 - *Assembly101: A Large-Scale Multi-View Video Dataset for Understanding Procedural Activities* - [![arXiv](https://img.shields.io/badge/arXiv-2203.14712-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2203.14712)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://assembly-101.github.io/)] · [[🌍 Webpage](https://assembly-101.github.io/)] · [[💻 Code](https://github.com/assembly-101/assembly101-download-scripts)]
+***
+#### H2O - *H2O: Two Hands Manipulating Objects for First Person Interaction Recognition* - [![arXiv](https://img.shields.io/badge/arXiv-2104.11181-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2104.11181)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://taeinkwon.com/projects/h2o/)] · [[🌍 Webpage](https://taeinkwon.com/projects/h2o/)] · [[💻 Code](https://github.com/taeinkwon/h2odataset)]
+***
+#### EgoPAT3D - *Egocentric Prediction of Action Target in 3D* - [![arXiv](https://img.shields.io/badge/arXiv-2203.13116-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2203.13116)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://github.com/ai4ce/EgoPAT3D)] · [[💻 Code](https://github.com/ai4ce/EgoPAT3D)]
+***
+#### Ego-Exo4D - *Ego-Exo4D: Understanding Skilled Human Activity from First- and Third-Person Perspectives* - [![arXiv](https://img.shields.io/badge/arXiv-2311.18259-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2311.18259)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://docs.ego-exo4d-data.org/download/)] · [[🌍 Webpage](https://ego-exo4d-data.org/)] · [[💻 Code](https://github.com/facebookresearch/Ego4d)]
+***
+#### ARCTIC - *ARCTIC: A Dataset for Dexterous Bimanual Hand-Object Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2204.13662-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2204.13662)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://arctic.is.tue.mpg.de/)] · [[🌍 Webpage](https://arctic.is.tue.mpg.de/)] · [[💻 Code](https://github.com/zc-alexfan/arctic)]
+***
+#### HoloAssist - *HoloAssist: an Egocentric Human Interaction Dataset for Interactive AI Assistants in the Real World* - [![arXiv](https://img.shields.io/badge/arXiv-2309.17024-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2309.17024)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://holoassist.github.io/)] · [[🌍 Webpage](https://holoassist.github.io/)]
+***
+#### HOT3D - *HOT3D: Hand and Object Tracking in 3D from Egocentric Multi-View Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2411.19167-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2411.19167)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://www.projectaria.com/datasets/hot3D/)] · [[🌍 Webpage](https://www.projectaria.com/datasets/hot3D/)] · [[💻 Code](https://github.com/facebookresearch/hot3d)]
+***
+#### TACO - *TACO: Benchmarking Generalizable Bimanual Tool-ACtion-Object Understanding* - [![arXiv](https://img.shields.io/badge/arXiv-2401.08399-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2401.08399)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://taco2024.github.io/)] · [[🌍 Webpage](https://taco2024.github.io/)] · [[💻 Code](https://github.com/leolyliu/TACO-Instructions)]
+***
+#### Aria Everyday Activities - *Aria Everyday Activities Dataset* - [![arXiv](https://img.shields.io/badge/arXiv-2402.13349-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2402.13349)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://www.projectaria.com/datasets/aea/)] · [[🌍 Webpage](https://www.projectaria.com/datasets/aea/)] · [[💻 Code](https://github.com/facebookresearch/projectaria_tools)]
+***
+#### OAKINK2 - *OAKINK2: A Dataset of Bimanual Hands-Object Manipulation in Complex Task Completion* - [![arXiv](https://img.shields.io/badge/arXiv-2403.19417-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2403.19417)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://oakink.net/v2/)] · [[🌍 Webpage](https://oakink.net/v2/)] · [[💻 Code](https://github.com/oakink/OakInk2)]
+***
+#### Nymeria - *Nymeria: A Massive Collection of Multimodal Egocentric Daily Motion in the Wild* - [![arXiv](https://img.shields.io/badge/arXiv-2406.09905-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2406.09905)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/projectaria/Nymeria)] · [[🌍 Webpage](https://www.projectaria.com/datasets/nymeria/)] · [[💻 Code](https://github.com/facebookresearch/nymeria_dataset)]
+***
+#### EgoMimic - *EgoMimic: Scaling Imitation Learning via Egocentric Video* - [![arXiv](https://img.shields.io/badge/arXiv-2410.24221-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2410.24221)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/gatech/EgoMimic)] · [[🌍 Webpage](https://egomimic.github.io/)]
+***
+#### PH^2D - *Humanoid Policy ~ Human Policy* - [![arXiv](https://img.shields.io/badge/arXiv-2503.13441-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2503.13441)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/RogerQi/PH2D)] · [[🌍 Webpage](https://human-as-robot.github.io/)]
+***
+#### Humanoid Everyday - *Humanoid Everyday: A Comprehensive Robotic Dataset for Open-World Humanoid Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2510.08807-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.08807)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday)] · [[🌍 Webpage](https://humanoideveryday.github.io/)] · [[💻 Code](https://github.com/ausbxuse/Humanoid-Everyday)]
+***
+#### IndEgo - *IndEgo: A Dataset of Industrial Scenarios and Collaborative Work for Egocentric Assistants* - [![arXiv](https://img.shields.io/badge/arXiv-2511.19684-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.19684)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/FraunhoferIPK/IndEgo)] · [[🌍 Webpage](https://indego-dataset.github.io/)] · [[💻 Code](https://github.com/Vivek9Chavan/IndEgo)]
+***
+#### PLAICraft - *PLAICraft: Large-Scale Time-Aligned Vision-Speech-Action Dataset for Embodied AI* - [![arXiv](https://img.shields.io/badge/arXiv-2505.12707-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2505.12707)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+Dataset: No standalone official public dataset page found
+***
+#### HD-EPIC - *HD-EPIC: A Highly-Detailed Egocentric Video Dataset* - [![arXiv](https://img.shields.io/badge/arXiv-2502.04144-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2502.04144)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://hd-epic.github.io/site/)] · [[🌍 Webpage](https://hd-epic.github.io/site/)]
+***
+#### UniHand - *Being-H0: Vision-Language-Action Pretraining from Large-Scale Human Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2507.15597-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2507.15597)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/BeingBeyond/h0_post_train_db_2508)] · [[🌍 Webpage](https://beingbeyond.github.io/Being-H0)] · [[💻 Code](https://github.com/BeingBeyond/Being-H0)] · [[🤗 Model](https://huggingface.co/BeingBeyond/Being-H0)]
+***
+#### Ego-Centric Human Manipulation Dataset - *EgoVLA: Learning Vision-Language-Action Models from Egocentric Human Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2507.12440-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2507.12440)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://huggingface.co/datasets/EgoVLA/EgoVLA-Humanoid-Sim)] · [[🌍 Webpage](https://rchalyang.github.io/EgoVLA/)]
+***
+#### Kaiwu - *Kaiwu: A Multimodal Manipulation Dataset and Framework for Robot Learning and Human-Robot Interaction* - [![arXiv](https://img.shields.io/badge/arXiv-2503.05231-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2503.05231)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+Dataset: No standalone official public dataset page found
+***
+#### EgoDex - *EgoDex: Learning Dexterous Manipulation from Large-Scale Egocentric Video* - [![arXiv](https://img.shields.io/badge/arXiv-2505.11709-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2505.11709)
+
+**Tags:** ![](https://img.shields.io/badge/data--Human/Egocentric-65a30d)
+
+[[📦 Dataset](https://github.com/apple/ml-egodex)] · [[💻 Code](https://github.com/apple/ml-egodex)]
+***
+
+
+
+
+
 ### Evaluation
 
 
