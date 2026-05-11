@@ -406,9 +406,9 @@ code {
 
 .hero-copy > .eyebrow,
 .hero-copy > h1,
+.hero-copy > .paper-authors,
 .hero-copy > .paper-subtitle,
-.hero-copy > .paper-actions,
-.hero-copy > .hero-metrics {
+.hero-copy > .paper-actions {
   width: 100%;
   max-width: var(--content-max);
 }
@@ -469,54 +469,47 @@ h3 {
   line-height: 1.8;
 }
 
+.paper-authors {
+  display: grid;
+  gap: 0.32rem;
+  max-width: 58rem;
+  margin-top: 1rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.paper-authors p:first-child {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.paper-authors p:nth-child(2) {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.paper-authors p:last-child {
+  color: rgba(116, 123, 113, 0.64);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.paper-authors sup {
+  font-size: 0.68em;
+  line-height: 0;
+  vertical-align: super;
+}
+
 .paper-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   gap: 0.65rem;
   margin-top: 1.6rem;
-}
-
-.hero-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
-  width: min(100%, 38rem);
-  margin-top: 1.45rem;
-}
-
-.metric-tile {
-  display: grid;
-  gap: 0.14rem;
-  min-height: 4.65rem;
-  padding: 0.78rem 0.82rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface-raised);
-  transition: border-color 140ms, background 140ms, transform 140ms;
-}
-
-.metric-tile:hover {
-  border-color: var(--line-strong);
-  background: var(--surface);
-  transform: translateY(-1px);
-}
-
-.metric-tile strong {
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 1.2rem;
-  line-height: 1.1;
-}
-
-.metric-tile span {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.35;
-  text-transform: uppercase;
 }
 
 .thesis-board {
@@ -681,6 +674,10 @@ h3 {
 
 .overview-figure {
   margin-top: 1.2rem;
+}
+
+.definition-figure {
+  margin-bottom: 1.4rem;
 }
 
 .argument-stack {
@@ -1144,17 +1141,17 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.paradigm-topline span {
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.paradigm-topline h3 {
+  flex: 1 1 12rem;
+}
+
+.paradigm-topline code {
+  flex: 0 1 auto;
 }
 
 .stage-list {
@@ -1182,20 +1179,44 @@ h3 {
   line-height: 1.45;
 }
 
+.training-data-layout {
+  display: grid;
+  grid-template-columns: minmax(22rem, 0.9fr) minmax(31rem, 1.20fr);
+  gap: 1.0rem;
+  align-items: center;
+}
+
+.data-figure {
+  display: grid;
+  align-items: center;
+  width: min(100%, 920px);
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 0.7rem;
+  border: 1px solid rgba(32, 29, 25, 0.12);
+  border-radius: 8px;
+  background: rgba(251, 250, 246, 0.78);
+}
+
+.data-figure img {
+  width: 100%;
+  height: auto;
+}
+
 .data-matrix {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.7rem;
 }
 
 .data-row {
   display: grid;
-  grid-template-columns: minmax(10rem, 0.38fr) minmax(10rem, 0.32fr) 1fr;
-  gap: 0.85rem;
+  align-content: start;
+  gap: 0.32rem;
   align-items: start;
   padding: 0.95rem;
 }
 
-.data-row span,
 .eval-card span,
 .challenge-grid span {
   color: var(--state);
@@ -1203,6 +1224,23 @@ h3 {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.data-row span {
+  color: var(--ink);
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.data-row h3 {
+  color: var(--state);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.45;
   text-transform: uppercase;
 }
 
@@ -1606,6 +1644,7 @@ h3 {
 @media (max-width: 980px) {
   .hero-section,
   .section-grid,
+  .training-data-layout,
   .story-step,
   .architecture-grid,
   .architecture-figures,
@@ -1649,6 +1688,10 @@ h3 {
   .challenge-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .data-matrix {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -1665,7 +1708,6 @@ h3 {
     align-items: stretch;
   }
 
-  .hero-metrics,
   .coupling-rail {
     grid-template-columns: 1fr;
   }
@@ -1723,6 +1765,10 @@ h3 {
 
   .definition-map,
   .definition-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .data-matrix {
     grid-template-columns: 1fr;
   }
 

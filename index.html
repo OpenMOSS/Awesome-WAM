@@ -66,6 +66,21 @@
 
           <p class="eyebrow">survey of world action models</p>
           <h1>World Action Models: The Next Frontier in Embodied AI</h1>
+          <div class="paper-authors" aria-label="Paper authors and affiliations">
+            <p>
+              Siyin Wang<sup>1,2,*</sup>, Junhao Shi<sup>1,2,*</sup>, Zhaoyang Fu<sup>1,*</sup>,
+              Xinzhe He<sup>1,*</sup>, Feihong Liu<sup>1,*</sup>, Chenchen Yang<sup>1,2</sup>,
+              Yikang Zhou<sup>2</sup>, Zhaoye Fei<sup>1</sup>, Jingjing Gong<sup>2</sup>,
+              Jinlan Fu<sup>1</sup>, Mike Zheng Shou<sup>3</sup>, Xuanjing Huang<sup>1,2</sup>,
+              Xipeng Qiu<sup>1,2</sup>, Yu-Gang Jiang<sup>1,†</sup>
+            </p>
+            <p>
+              <sup>1</sup>Fudan University
+              <sup>2</sup>Shanghai Innovation Institute
+              <sup>3</sup>National University of Singapore
+            </p>
+            <p><sup>*</sup>Equal Contribution <sup>†</sup>Corresponding Author</p>
+          </div>
           <p class="paper-subtitle">
             This survey formalizes World Action Models (WAMs) as embodied foundation models that
             unify forward predictive modeling with action generation. It traces how VLAs and world
@@ -87,21 +102,6 @@
                 <path d="M12 3.75a8.75 8.75 0 0 0-2.77 17.05c.44.08.6-.19.6-.42v-1.66c-2.46.53-2.98-1.18-2.98-1.18-.4-1.03-.98-1.3-.98-1.3-.8-.54.06-.53.06-.53.89.06 1.36.92 1.36.92.79 1.35 2.07.96 2.58.73.08-.57.31-.96.56-1.18-1.96-.22-4.02-.98-4.02-4.37 0-.97.35-1.77.92-2.39-.09-.23-.4-1.13.09-2.36 0 0 .75-.24 2.46.91a8.5 8.5 0 0 1 4.48 0c1.71-1.15 2.46-.91 2.46-.91.49 1.23.18 2.13.09 2.36.57.62.92 1.42.92 2.39 0 3.4-2.07 4.15-4.05 4.36.32.27.6.8.6 1.61v2.39c0 .23.16.5.61.42A8.75 8.75 0 0 0 12 3.75Z" fill="currentColor"/>
               </svg>
               <span>Project</span>
-            </a>
-          </div>
-
-          <div class="hero-metrics" aria-label="Survey quick facts">
-            <a class="metric-tile" href="#library">
-              <strong id="paperCount">120+</strong>
-              <span>papers indexed</span>
-            </a>
-            <a class="metric-tile" href="#definition">
-              <strong>7</strong>
-              <span>survey sections</span>
-            </a>
-            <a class="metric-tile" href="#architecture">
-              <strong id="branchCount">2</strong>
-              <span>core architectures</span>
             </a>
           </div>
         </div>
@@ -131,6 +131,19 @@
             not just an auxiliary backbone or external simulator.
           </p>
         </div>
+
+        <figure class="architecture-figure section-stack section-figure definition-figure" aria-label="Definition diagram">
+          <img
+            src="./figs/definition.svg"
+            alt="Conceptual definition of VLA, WM, and WAM"
+            loading="lazy"
+          />
+          <figcaption>
+            Conceptual definition and comparison of VLA, WM, and WAM. The figure contrasts their
+            input-output formulations and highlights that WAMs jointly predict future observations and
+            executable actions rather than modeling either side alone.
+          </figcaption>
+        </figure>
 
         <div class="argument-stack section-stack">
           <article class="argument-card">
@@ -174,19 +187,6 @@
             </p>
           </article>
         </div>
-
-        <figure class="architecture-figure section-stack section-figure" aria-label="Definition diagram">
-          <img
-            src="./figs/definition.svg"
-            alt="Conceptual definition of VLA, WM, and WAM"
-            loading="lazy"
-          />
-          <figcaption>
-            Conceptual definition and comparison of VLA, WM, and WAM. The figure contrasts their
-            input-output formulations and highlights that WAMs jointly predict future observations and
-            executable actions rather than modeling either side alone.
-          </figcaption>
-        </figure>
       </section>
 
       <section class="paper-section reveal figures-section" id="vlas-wms">
@@ -205,19 +205,20 @@
             <div class="story-copy">
               <span class="story-number">01</span>
               <p class="figure-kicker">Vision-Language-Action Models</p>
-              <h3>VLAs establish scalable, semantically grounded robot control</h3>
+              <h3>VLAs scale robot control through language-conditioned foundation policies</h3>
               <p>
-                VLAs cast robot control as multimodal sequence modeling. They read the current
-                observation and language context, then generate actions directly from those inputs.
+                VLAs evolved from task-specific imitation learning into language-conditioned policies
+                that fuse visual observations and task prompts. Modern systems inherit LVLM priors,
+                then generate actions through autoregressive tokenization or diffusion-style action heads.
               </p>
               <dl class="figure-logic">
                 <div>
                   <dt>Key point</dt>
-                  <dd>They transfer internet-scale semantic priors into embodied behavior and enable strong task and object generalization.</dd>
+                  <dd>VLA models bring internet-scale semantic understanding into robot control and support open-vocabulary, long-horizon manipulation.</dd>
                 </div>
                 <div>
                   <dt>Limitation</dt>
-                  <dd>They still treat the world implicitly and do not explicitly predict how physical states evolve after intervention.</dd>
+                  <dd>Even with 3D, depth, force, and tactile inputs, most VLAs remain reactive image-to-action mappings without explicit world dynamics.</dd>
                 </div>
               </dl>
             </div>
@@ -229,18 +230,18 @@
               <p class="figure-kicker">World Models</p>
               <h3>World models provide predictive structure over future state evolution</h3>
               <p>
-                World models internalize environment dynamics and predict how states evolve under
-                intervention. The survey organizes them across action-conditioned, language-conditioned,
-                and embodied settings, spanning both explicit observation prediction and latent dynamics.
+                World models learn internal representations of environment dynamics and predict the
+                consequences of actions, language instructions, or multimodal context. The survey
+                distinguishes action-conditioned, language-conditioned, and embodied world models.
               </p>
               <dl class="figure-logic">
                 <div>
                   <dt>Role</dt>
-                  <dd>They function as predictive transition models of the environment rather than as direct action policies.</dd>
+                  <dd>World models enable simulation, planning, and decision-making by forecasting future states before real execution.</dd>
                 </div>
                 <div>
                   <dt>Design</dt>
-                  <dd>Explicit prediction favors interpretability, while latent-space modeling improves efficiency and compactness.</dd>
+                  <dd>Explicit models predict pixels or videos, while implicit models learn compact latent dynamics for efficiency and abstraction.</dd>
                 </div>
               </dl>
             </div>
@@ -250,20 +251,20 @@
             <div class="story-copy">
               <span class="story-number">03</span>
               <p class="figure-kicker">World Models for VLA</p>
-              <h3>Early integration treated world models as tools for learning, planning, and evaluation</h3>
+              <h3>World models extend VLAs beyond direct policy learning</h3>
               <p>
-                Before becoming part of the policy core, world models already helped embodied agents as
-                simulators, reward models, planning modules, and evaluation environments. WAMs begin
-                when that predictive machinery is structurally integrated with action generation itself.
+                World models let VLA agents imagine future observations, generate trajectories, estimate
+                outcomes, and test policies before physical execution. The survey frames their contribution
+                through two routes: improving learning and enabling scalable evaluation.
               </p>
               <dl class="figure-logic">
                 <div>
                   <dt>Learning</dt>
-                  <dd>Predictive models support imitation learning and reinforcement learning through future-aware supervision.</dd>
+                  <dd>World models augment imitation data, support model-based reinforcement learning, and derive reward signals from predicted futures.</dd>
                 </div>
                 <div>
                   <dt>Evaluation</dt>
-                  <dd>They also serve as interactive testbeds and benchmarks before being fused into end-to-end predictive policies.</dd>
+                  <dd>World models act as data-driven simulators for reproducible, safety-aware rollout testing with less real-world deployment cost.</dd>
                 </div>
               </dl>
             </div>
@@ -292,10 +293,9 @@
         <div class="architecture-grid">
           <article class="paradigm-card cascaded-card">
             <div class="paradigm-topline">
-              <span>Cascaded WAM</span>
+              <h3>Cascaded WAM</h3>
               <code>future plan -> action</code>
             </div>
-            <h3>Sequential two-stage pipeline</h3>
             <p>
               A world model first synthesizes the anticipated future state, then a separate action model
               decodes executable commands from that plan. This factorization gives clear modular structure,
@@ -304,25 +304,24 @@
             <div class="stage-list">
               <div><strong>Explicit planning</strong><span>pixel-space carriers such as video, flow, depth, normals, or 4D structure</span></div>
               <div><strong>Implicit planning</strong><span>latent features, future tokens, masks, and hidden-state conditioning</span></div>
-              <div><strong>Trade-off</strong><span>Interpretable and modular, but sensitive to generation cost and stage mismatch.</span></div>
+              <div><strong>Trade-off</strong><span>Natural modularity and interpretable future plans, but two-stage coupling, generation cost, and stage mismatch can limit closed-loop control.</span></div>
             </div>
           </article>
 
           <article class="paradigm-card joint-card">
             <div class="paradigm-topline">
-              <span>Joint WAM</span>
+              <h3>Joint WAM</h3>
               <code>future + action</code>
             </div>
-            <h3>Unified predictive model</h3>
             <p>
               Future states and actions are predicted within one shared model and trained under joint
               supervision. The main question becomes how coupling is realized across discrete tokenization,
               autoregressive sequence modeling, diffusion, flow matching, or parallel generation.
             </p>
             <div class="stage-list">
-              <div><strong>Autoregressive route</strong><span>shared token spaces, multi-head routing, unified vocabularies, latent predictive interfaces</span></div>
-              <div><strong>Parallel route</strong><span>single-engine or multi-engine diffusion and non-autoregressive generation</span></div>
-              <div><strong>Trade-off</strong><span>Richer coupling and better closed-loop potential, but harder to analyze and benchmark.</span></div>
+              <div><strong>autoregressive generation</strong><span>shared token spaces, multi-head routing, unified vocabularies</span></div>
+              <div><strong>diffusion-based generation</strong><span>single-engine or multi-engine diffusion and non-autoregressive generation</span></div>
+              <div><strong>Trade-off</strong><span>Unified training strengthens world-action coupling, but sequential error propagation, latency, and unclear coupling mechanisms remain open issues.</span></div>
             </div>
           </article>
         </div>
@@ -356,33 +355,43 @@
           <p class="eyebrow">training data</p>
           <h2>Training Data</h2>
           <p class="section-note">
-            WAM data is a mixture-design problem rather than a scale-only problem. The survey groups
-            the ecosystem into robot-centric teleoperation, portable human demonstration, simulation,
+            WAM data is a mixture-design problem, not just scale. The survey groups
+            data into robot-centric teleoperation, portable human demonstration, simulation,
             and human or egocentric video.
           </p>
         </div>
 
-        <div class="data-matrix section-stack">
-          <article class="data-row">
-            <span>Robot-Centric Teleoperation</span>
-            <h3>Aligned state-action supervision</h3>
-            <p>These datasets provide the high-frequency, executable action-state pairs needed to learn precise action-conditioned dynamics with minimal sim-to-real gap.</p>
-          </article>
-          <article class="data-row">
-            <span>Portable Human Demonstration</span>
-            <h3>Low-cost real-world diversity</h3>
-            <p>UMI-style collection bridges structured robot data and uncontrolled environments by retargeting human demonstrations into robot-executable trajectories.</p>
-          </article>
-          <article class="data-row">
-            <span>Simulation</span>
-            <h3>Privileged physics supervision</h3>
-            <p>Simulation provides controllable scale plus exact depth, pose, collision, and 3D structure, letting WAMs distill physical laws from rendering and physics engines.</p>
-          </article>
-          <article class="data-row">
-            <span>Human and Ego-Centric Data</span>
-            <h3>Massive-scale world priors</h3>
-            <p>Internet-scale human video supplies long-tail physical interactions and semantic diversity, while pose grounding and pretraining mixtures help bridge the action gap.</p>
-          </article>
+        <div class="training-data-layout section-stack">
+          <figure class="data-figure" aria-label="Training data overview">
+            <img
+              src="./figs/data.svg"
+              alt="Overview of embodied data sources for training World Action Models"
+              loading="lazy"
+            />
+          </figure>
+
+          <div class="data-matrix">
+            <article class="data-row">
+              <span>Robot-Centric Teleoperation</span>
+              <h3>Aligned state-action supervision</h3>
+              <p>High-frequency robot trajectories give aligned state-action pairs, kinematics, proprioception, and contact-rich control with low sim-to-real gap.</p>
+            </article>
+            <article class="data-row">
+              <span>Portable Human Demonstration</span>
+              <h3>Low-cost real-world diversity</h3>
+              <p>UMI-style collection brings retargeted human demonstrations from scenes, adding low-cost diversity, dexterous motion, and multi-view interaction.</p>
+            </article>
+            <article class="data-row">
+              <span>Simulation</span>
+              <h3>Privileged physics supervision</h3>
+              <p>Simulators provide scalable variation with privileged depth, pose, collision, 3D structure, and controllable physics for dynamics learning.</p>
+            </article>
+            <article class="data-row">
+              <span>Human and Ego-Centric Data</span>
+              <h3>Massive-scale world priors</h3>
+              <p>Web and egocentric video supply passive dynamics, long-horizon activity, semantic diversity, and open-world priors beyond robot labs.</p>
+            </article>
+          </div>
         </div>
       </section>
 
