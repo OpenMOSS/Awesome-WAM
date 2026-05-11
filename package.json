@@ -1,0 +1,9 @@
+{
+  "name": "wam-survey-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static survey homepage for World Action Models reading reports",
+  "scripts": {
+    "serve": "python3 -m http.server 4173"
+  }
+}

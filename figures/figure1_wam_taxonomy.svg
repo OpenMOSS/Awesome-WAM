@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Figure 1: Roadmap of World Action Models for Generalist Robotics</title>
+  <desc id="desc">A survey roadmap that organizes papers from the repository into World Models, Cascaded World-Action Models, and Joint World-Action Models, with inputs, model families, representative papers, and downstream capabilities.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f1e8; }
+      .paper { fill: #fffdf8; }
+      .paper2 { fill: #fbf7ef; }
+      .ink { fill: #1f2428; }
+      .muted { fill: #667085; }
+      .teal { fill: #0d6f6b; }
+      .teal-soft { fill: #e0f1ee; }
+      .amber { fill: #b86a22; }
+      .amber-soft { fill: #f8e4ca; }
+      .blue { fill: #315f91; }
+      .blue-soft { fill: #e5edf7; }
+      .purple { fill: #6d4aa6; }
+      .purple-soft { fill: #efe7f8; }
+      .red { fill: #9e4a3d; }
+      .red-soft { fill: #f5e5e1; }
+      .line { stroke: #d7cbbc; }
+      .line-strong { stroke: #b9aa97; }
+      .shadow { filter: url(#shadow); }
+      text { font-family: Inter, "Helvetica Neue", Arial, sans-serif; }
+      .mono { font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace; }
+      .h1 { font-size: 42px; font-weight: 760; }
+      .h2 { font-size: 27px; font-weight: 760; }
+      .h3 { font-size: 20px; font-weight: 730; }
+      .body { font-size: 18px; font-weight: 500; }
+      .small { font-size: 15px; font-weight: 500; }
+      .tiny { font-size: 13px; font-weight: 650; }
+      .caption { font-size: 14px; font-weight: 500; }
+    </style>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#2c251c" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrow-teal" markerWidth="13" markerHeight="13" refX="10" refY="6.5" orient="auto">
+      <path d="M 0 1 L 11 6.5 L 0 12 Z" fill="#0d6f6b"/>
+    </marker>
+    <marker id="arrow-amber" markerWidth="13" markerHeight="13" refX="10" refY="6.5" orient="auto">
+      <path d="M 0 1 L 11 6.5 L 0 12 Z" fill="#b86a22"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="13" markerHeight="13" refX="10" refY="6.5" orient="auto">
+      <path d="M 0 1 L 11 6.5 L 0 12 Z" fill="#315f91"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1100"/>
+  <text class="mono tiny teal" x="70" y="62">FIGURE 1 / SURVEY ROADMAP</text>
+  <text class="h1 ink" x="70" y="112">World Action Models for Generalist Robotics</text>
+  <text class="body muted" x="70" y="148">From video and latent world modeling to policies that synthesize future states and executable robot actions.</text>
+
+  <g transform="translate(1132 44)">
+    <rect class="paper shadow" x="0" y="0" width="398" height="108" rx="22"/>
+    <rect class="teal-soft" x="22" y="24" width="100" height="60" rx="15"/>
+    <rect class="amber-soft" x="148" y="24" width="100" height="60" rx="15"/>
+    <rect class="blue-soft" x="274" y="24" width="100" height="60" rx="15"/>
+    <text class="h3 teal" x="72" y="50" text-anchor="middle">125</text>
+    <text class="caption muted" x="72" y="72" text-anchor="middle">README entries</text>
+    <text class="h3 amber" x="198" y="50" text-anchor="middle">24</text>
+    <text class="caption muted" x="198" y="72" text-anchor="middle">Cascaded WAM</text>
+    <text class="h3 blue" x="324" y="50" text-anchor="middle">26</text>
+    <text class="caption muted" x="324" y="72" text-anchor="middle">Joint WAM</text>
+  </g>
+
+  <g transform="translate(70 184)">
+    <rect class="paper shadow" x="0" y="0" width="1460" height="88" rx="24"/>
+    <line x1="126" y1="44" x2="1336" y2="44" stroke="#b9aa97" stroke-width="2.2" marker-end="url(#arrow-teal)"/>
+
+    <g transform="translate(26 17)">
+      <circle cx="27" cy="27" r="27" fill="#e9e1d5" stroke="#d7cbbc"/>
+      <text class="mono tiny muted" x="27" y="32" text-anchor="middle">01</text>
+      <text class="h3 ink" x="70" y="22">Next token prediction</text>
+      <text class="small muted" x="70" y="48">static semantics and sequence modeling</text>
+    </g>
+    <g transform="translate(520 17)">
+      <circle cx="27" cy="27" r="27" fill="#e0f1ee" stroke="#9bcfca"/>
+      <text class="mono tiny teal" x="27" y="32" text-anchor="middle">02</text>
+      <text class="h3 ink" x="70" y="22">Next state synthesis</text>
+      <text class="small muted" x="70" y="48">future video, latent dynamics, interaction rollouts</text>
+    </g>
+    <g transform="translate(1014 17)">
+      <circle cx="27" cy="27" r="27" fill="#e5edf7" stroke="#aac1de"/>
+      <text class="mono tiny blue" x="27" y="32" text-anchor="middle">03</text>
+      <text class="h3 ink" x="70" y="22">Executable policy</text>
+      <text class="small muted" x="70" y="48">actions, values, planning, closed-loop control</text>
+    </g>
+  </g>
+
+  <g transform="translate(70 310)">
+    <rect class="paper shadow" x="0" y="0" width="456" height="550" rx="26"/>
+    <rect class="teal-soft" x="0" y="0" width="456" height="84" rx="26"/>
+    <text class="mono tiny teal" x="28" y="31">LAYER 1</text>
+    <text class="h2 ink" x="28" y="63">World Models</text>
+    <text class="small muted" x="260" y="35">75 entries</text>
+    <text class="caption muted" x="260" y="58">predict future states</text>
+
+    <g transform="translate(24 112)">
+      <rect class="paper2" x="0" y="0" width="408" height="116" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#0d6f6b"/>
+      <text class="h3 ink" x="52" y="36">Action-conditioned video WMs</text>
+      <text class="small muted" x="52" y="66">Pixel or latent future frames conditioned on actions.</text>
+      <text class="caption muted" x="52" y="91">Physical Interaction, VideoGPT, iVideoGPT, Genie,</text>
+      <text class="caption muted" x="52" y="110">DWM, FlowDreamer, GPC</text>
+    </g>
+
+    <g transform="translate(24 250)">
+      <rect class="paper2" x="0" y="0" width="408" height="116" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#315f91"/>
+      <text class="h3 ink" x="52" y="36">Latent dynamics and predictive reps</text>
+      <text class="small muted" x="52" y="66">Compact state transitions for planning and control.</text>
+      <text class="caption muted" x="52" y="91">World Models, PlaNet, Dreamer, DayDreamer,</text>
+      <text class="caption muted" x="52" y="110">V-JEPA, JEPA-VLA</text>
+    </g>
+
+    <g transform="translate(24 388)">
+      <rect class="paper2" x="0" y="0" width="408" height="122" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#6d4aa6"/>
+      <text class="h3 ink" x="52" y="36">Video foundation and embodied WMs</text>
+      <text class="small muted" x="52" y="66">Video priors become robot-scene simulators.</text>
+      <text class="caption muted" x="52" y="91">Sora, Wan, CogVideoX, RoboDreamer,</text>
+      <text class="caption muted" x="52" y="110">IRASim, Vidar, PointWorld</text>
+    </g>
+  </g>
+
+  <path d="M535 585 C555 585 560 585 580 585" stroke="#b86a22" stroke-width="3" fill="none" marker-end="url(#arrow-amber)"/>
+
+  <g transform="translate(572 310)">
+    <rect class="paper shadow" x="0" y="0" width="456" height="550" rx="26"/>
+    <rect class="amber-soft" x="0" y="0" width="456" height="84" rx="26"/>
+    <text class="mono tiny amber" x="28" y="31">LAYER 2</text>
+    <text class="h2 ink" x="28" y="63">Cascaded WAM</text>
+    <text class="small muted" x="260" y="35">24 entries</text>
+    <text class="caption muted" x="260" y="58">dream first, act second</text>
+
+    <g transform="translate(24 112)">
+      <rect class="paper2" x="0" y="0" width="408" height="116" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#b86a22"/>
+      <text class="h3 ink" x="52" y="36">Generate a visual plan</text>
+      <text class="small muted" x="52" y="66">Text or goal guided future video creates a task sketch.</text>
+      <text class="caption muted" x="52" y="91">UniPi, VLP, RoboEnvision, SayDreamAct,</text>
+      <text class="caption muted" x="52" y="110">TesserAct, MVISTA-4D</text>
+    </g>
+
+    <g transform="translate(24 250)">
+      <rect class="paper2" x="0" y="0" width="408" height="116" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#9e4a3d"/>
+      <text class="h3 ink" x="52" y="36">Extract executable actions</text>
+      <text class="small muted" x="52" y="66">Inverse dynamics, correspondences, or 3D flow.</text>
+      <text class="caption muted" x="52" y="91">AVDC, Im2Flow2Act, 3DFlowAction,</text>
+      <text class="caption muted" x="52" y="110">NovaFlow, Dream2Flow, RIGVid</text>
+    </g>
+
+    <g transform="translate(24 388)">
+      <rect class="paper2" x="0" y="0" width="408" height="122" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#315f91"/>
+      <text class="h3 ink" x="52" y="36">Plan in latent policy space</text>
+      <text class="small muted" x="52" y="66">Prediction supplies a policy prior or rollout target.</text>
+      <text class="caption muted" x="52" y="91">VPP, VILP, VideoPolicy, ARDuP,</text>
+      <text class="caption muted" x="52" y="110">mimic-video, LaPA, villa-X</text>
+    </g>
+  </g>
+
+  <path d="M1037 585 C1057 585 1062 585 1082 585" stroke="#315f91" stroke-width="3" fill="none" marker-end="url(#arrow-blue)"/>
+
+  <g transform="translate(1074 310)">
+    <rect class="paper shadow" x="0" y="0" width="456" height="550" rx="26"/>
+    <rect class="blue-soft" x="0" y="0" width="456" height="84" rx="26"/>
+    <text class="mono tiny blue" x="28" y="31">LAYER 3</text>
+    <text class="h2 ink" x="28" y="63">Joint WAM</text>
+    <text class="small muted" x="260" y="35">26 entries</text>
+    <text class="caption muted" x="260" y="58">future + action</text>
+
+    <g transform="translate(24 112)">
+      <rect class="paper2" x="0" y="0" width="408" height="116" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#315f91"/>
+      <text class="h3 ink" x="52" y="36">Discrete tokenized sequence models</text>
+      <text class="small muted" x="52" y="66">Autoregressively decode video and action tokens.</text>
+      <text class="caption muted" x="52" y="91">GR-1, GR-2, CoT-VLA, WorldVLA,</text>
+      <text class="caption muted" x="52" y="110">RynnVLA-002, VLA-JEPA</text>
+    </g>
+
+    <g transform="translate(24 250)">
+      <rect class="paper2" x="0" y="0" width="408" height="116" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#0d6f6b"/>
+      <text class="h3 ink" x="52" y="36">Single diffusion backbone</text>
+      <text class="small muted" x="52" y="66">One DiT denoises future visual states and actions.</text>
+      <text class="caption muted" x="52" y="91">PAD, VideoVLA, UWM, DreamZero,</text>
+      <text class="caption muted" x="52" y="110">Cosmos Policy, FLARE, FRAPPE</text>
+    </g>
+
+    <g transform="translate(24 388)">
+      <rect class="paper2" x="0" y="0" width="408" height="122" rx="18" stroke="#d7cbbc"/>
+      <circle cx="26" cy="30" r="13" fill="#6d4aa6"/>
+      <text class="h3 ink" x="52" y="36">Coupled multi-stream diffusion</text>
+      <text class="small muted" x="52" y="66">World and action branches communicate by attention.</text>
+      <text class="caption muted" x="52" y="91">CoVAR, LDA-1B, DUST, LingBot-VA,</text>
+      <text class="caption muted" x="52" y="110">Motus, DiT4DiT, UVA, PhysGen</text>
+    </g>
+  </g>
+
+  <g transform="translate(70 900)">
+    <rect class="paper shadow" x="0" y="0" width="1460" height="128" rx="26"/>
+    <text class="mono tiny teal" x="26" y="34">OUTPUT CAPABILITIES AND OPEN EVALUATION AXES</text>
+    <g transform="translate(28 54)">
+      <rect class="teal-soft" x="0" y="0" width="320" height="50" rx="16"/>
+      <text class="small ink" x="18" y="21">Zero-shot and OOD control</text>
+      <text class="caption muted" x="18" y="40">unseen tasks, objects, scenes</text>
+    </g>
+    <g transform="translate(378 54)">
+      <rect class="amber-soft" x="0" y="0" width="320" height="50" rx="16"/>
+      <text class="small ink" x="18" y="21">Cross-embodiment transfer</text>
+      <text class="caption muted" x="18" y="40">human video, robot-to-robot, few-shot</text>
+    </g>
+    <g transform="translate(728 54)">
+      <rect class="blue-soft" x="0" y="0" width="320" height="50" rx="16"/>
+      <text class="small ink" x="18" y="21">Planning and value scoring</text>
+      <text class="caption muted" x="18" y="40">rollouts, Q or V estimates, search</text>
+    </g>
+    <g transform="translate(1078 54)">
+      <rect class="purple-soft" x="0" y="0" width="320" height="50" rx="16"/>
+      <text class="small ink" x="18" y="21">Long-horizon deployment</text>
+      <text class="caption muted" x="18" y="40">closed-loop execution, recovery, precision</text>
+    </g>
+  </g>
+
+  <g transform="translate(70 1044)">
+    <line class="line" x1="0" y1="0" x2="1460" y2="0" stroke-width="1"/>
+    <text class="caption muted" x="0" y="28">Representative papers are sampled from the README taxonomy and the two detailed reports: DreamZero and Cosmos Policy.</text>
+    <text class="caption muted" x="1078" y="28">Data: web video, human demos, robot logs, sim, real robots.</text>
+  </g>
+</svg>

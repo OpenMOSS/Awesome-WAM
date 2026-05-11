@@ -29,8 +29,10 @@
 ## Roadmap
 
 <p align="center">
-  <img src="[ROADMAP FIGURE PATH]" alt="[这里可以放figure1]" width="100%">
+  <img src="figures/figure1_wam_taxonomy.svg" alt="Figure 1: roadmap of World Action Models for generalist robotics" width="100%">
 </p>
+
+**Figure 1.** Roadmap of World Action Models for Generalist Robotics. The figure organizes the papers in this repository into World Models, Cascaded World-Action Models, and Joint World-Action Models, then links these model families to zero-shot control, cross-embodiment transfer, planning, and long-horizon deployment.
 
 Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名保持一致，这样 README、网页和报告目录可以长期对齐。
 
@@ -821,6 +823,5 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 ***
 ### Training Data
 ### Evaluation
-
 
 
