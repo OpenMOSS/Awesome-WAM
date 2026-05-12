@@ -780,13 +780,13 @@
 | **RoboVerse** - *RoboVerse: Towards a Unified Platform, Dataset and Benchmark for Scalable and Generalizable Robot Learning* | 2025-04 | [📄 Paper](https://arxiv.org/pdf/2504.18904) · [🌍&nbsp;Web](https://roboverse.wiki/) · [💻&nbsp;Code](https://github.com/RoboVerseOrg/RoboVerse) |
 | **PolaRiS** - *PolaRiS: Scalable Real-to-Sim Evaluations for Generalist Robot Policies* | 2025-12 | [📄 Paper](https://arxiv.org/pdf/2512.16881) · [🌍&nbsp;Web](https://polaris-evals.github.io/) · [💻&nbsp;Code](https://github.com/arhanjain/polaris) · [📦&nbsp;Dataset](https://huggingface.co/datasets/owhan/PolaRiS-Hub) |
 | **RoboMME** - *RoboMME: Benchmarking and Understanding Memory for Robotic Generalist Policies* | 2026-03 | [📄 Paper](https://arxiv.org/pdf/2603.04639) · [🌍&nbsp;Web](https://robomme.github.io/) |
-| **GenManip** - *GenManip: LLM-Driven Simulation for Generalizable Instruction-Following Manipulation* | 2025-06 | [📄 Paper](https://arxiv.org/pdf/2506.10966) · [🌍&nbsp;Web](https://genmanip.axi404.top/) · [💻&nbsp;Code](https://github.com/OpenDriveLab/GenManip) |
+| **GenManip** - *GenManip: LLM-Driven Simulation for Generalizable Instruction-Following Manipulation* | 2025-06 | [📄 Paper](https://arxiv.org/pdf/2506.10966) · [🌍&nbsp;Web](https://genmanip.axi404.top/) |
 | **VLABench** - *VLABench: A Large-Scale Benchmark for Language-Conditioned Robotics Manipulation with Long-Horizon Reasoning Tasks* | 2024-12 | [📄 Paper](https://arxiv.org/pdf/2412.18194) · [💻&nbsp;Code](https://github.com/OpenMOSS/VLABench) |
 | **RoboSuite** - *Robosuite: A Modular Simulation Framework and Benchmark for Robot Learning* | 2020-09 | [📄 Paper](https://arxiv.org/pdf/2009.12293) · [🌍&nbsp;Web](https://robosuite.ai/) · [💻&nbsp;Code](https://github.com/ARISE-Initiative/robosuite) |
 | **RoboLab** - *RoboLab: A High-Fidelity Simulation Benchmark for Analysis of Task Generalist Policies* | 2026-04 | [📄 Paper](https://arxiv.org/pdf/2604.09860) |
 | **SimplerEnv** - *Evaluating Real-World Robot Manipulation Policies in Simulation* | 2024-05 | [📄 Paper](https://arxiv.org/pdf/2405.05941) · [🌍&nbsp;Web](https://simpler-env.github.io/) · [💻&nbsp;Code](https://github.com/simpler-env/SimplerEnv) |
 | **ARNOLD** - *ARNOLD: A Benchmark for Language-Grounded Task Learning with Continuous States in Realistic 3D Scenes* | 2023-04 | [📄 Paper](https://arxiv.org/pdf/2304.04321) · [🌍&nbsp;Web](https://arnold-benchmark.github.io/) · [💻&nbsp;Code](https://github.com/arnold-benchmark/arnold) |
-| **GemBench** - *Towards Generalizable Vision-Language Robotic Manipulation: A Benchmark and LLM-Guided 3D Policy* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.01345) · [🌍&nbsp;Web](https://www.di.ens.fr/willow/research/gembench/) · [💻&nbsp;Code](https://github.com/theophilegervet/gembench) |
+| **GemBench** - *Towards Generalizable Vision-Language Robotic Manipulation: A Benchmark and LLM-Guided 3D Policy* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.01345) · [🌍&nbsp;Web](https://www.di.ens.fr/willow/research/gembench/) · [💻&nbsp;Code](https://github.com/vlc-robot/robot-3dlotus/) |
 
 ---
 
