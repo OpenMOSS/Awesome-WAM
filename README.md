@@ -481,6 +481,200 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 ## World Model for VLA
 
+#### DREMA - *Dream to Manipulate: Compositional World Models Empowering Robot Imitation Learning with Imagination* - [![arXiv](https://img.shields.io/badge/arXiv-2412.14957-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2412.14957)
+
+**Tags:** ![](https://img.shields.io/badge/Imitation-0284c7)
+
+[[🌍 Webpage](https://dreamtomanipulate.github.io/)] · [[💻 Code](https://github.com/leobarcellona/drema_code)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DREMA/index.html)]
+
+
+#### RoboScape - *RoboScape: Physics-informed Embodied World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2506.23135-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.23135)
+
+**Tags:** ![](https://img.shields.io/badge/Imitation-0284c7)
+
+[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RoboScape/index.html)]
+
+
+
+#### Ctrl-World - *Ctrl-World: A Controllable Generative World Model for Robot* - [![arXiv](https://img.shields.io/badge/2510.10125-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.10125)
+
+**Tags:** ![](https://img.shields.io/badge/Imitation-0284c7) ![](https://img.shields.io/badge/Eval-06b6d4) 
+
+[[🌍 Webpage](https://ctrl-world.github.io/)] · [[💻 Code](https://github.com/Robert-gyj/Ctrl-World)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Ctrl-World/index.html)]
+
+
+#### PlaNet - *Learning Latent Dynamics for Planning from Pixels* - [![arXiv](https://img.shields.io/badge/arXiv-1811.04551-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1811.04551)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2)
+
+[[🌍 Webpage](https://planetrl.github.io/)] · [[💻 Code](https://github.com/google-research/planet)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PlaNet/index.html)]
+
+
+#### Dream to Control - *Dream to Control: Learning Behaviors by Latent Imagination* - [![arXiv](https://img.shields.io/badge/arXiv-1912.01603-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1912.01603)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2)
+
+[[🌍 Webpage](https://danijar.com/project/dreamer/)] · [[💻 Code](https://github.com/danijar/dreamer)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dream%20to%20Control/index.html)]
+
+
+#### Dreamer V2 - *Mastering Atari with Discrete World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2010.02193-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2010.02193)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://danijar.com/project/dreamerv2/)] · [[💻 Code](https://github.com/danijar/dreamerv2)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dreamer%20V2/index.html)]
+
+
+#### DayDreamer - *DayDreamer: World Models for Physical Robot Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2206.14176-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2206.14176)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2)
+
+[[🌍 Webpage](https://danijar.com/project/daydreamer/)] · [[💻 Code](https://github.com/danijar/daydreamer)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DayDreamer/index.html)]
+
+
+#### Dreamer V3 - *Mastering Diverse Domains through World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2301.04104-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2301.04104)
+
+[[🌍 Webpage](https://danijar.com/project/dreamerv3/)] · [[💻 Code](https://github.com/danijar/dreamerv3)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dreamer%20V3/index.html)]
+
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+#### Dreamer 4 - *Training Agents Inside of Scalable World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24527-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24527)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://danijar.com/project/dreamer4/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dreamer%204/index.html)]
+
+#### World-Env - *World-Env: Leveraging World Model as a Virtual Environment for VLA Post-Training* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24948-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24948)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[💻 Code](https://github.com/amap-cvlab/world-env)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/World-Env/index.html)]
+
+#### WMPO - *WMPO: World Model-based Policy Optimization for Vision-Language-Action Models* - [![arXiv](https://img.shields.io/badge/arXiv-2511.09515-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.09515)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://wm-po.github.io/)] · [[💻 Code](https://github.com/WM-PO/WMPO)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/WMPO/index.html)]
+
+#### RISE - *RISE: Self-Improving Robot Policy with Compositional World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.11075-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.11075)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[💻 Code](https://github.com/OpenDriveLab/RISE)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RISE/index.html)]
+
+#### WoVR - *WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL* - [![arXiv](https://img.shields.io/badge/arXiv-2602.13977-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.13977)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[💻 Code](https://github.com/RLinf/RLinf)] · [[🤗 Model](https://huggingface.co/collections/RLinf/wovr)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/WoVR/index.html)]
+
+#### MoDem-V2 - *MoDem-V2: Visuo-Motor World Models for Real-World Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2309.14236-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2309.14236)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://sites.google.com/view/modem-v2)] · [[💻 Code](https://github.com/facebookresearch/modemv2)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/MoDem-V2/index.html)]
+
+#### World-Gymnast - *World-Gymnast: Training Robots with Reinforcement Learning in a World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.02454-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.02454)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://world-gymnast.github.io/)] · [[💻 Code](https://github.com/world-gymnast/world-gymnast)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/World-Gymnast/index.html)]
+
+#### RWM‑U - *Uncertainty-Aware Robotic World Model Makes Offline Model-Based Reinforcement Learning Work on Real Robots* - [![arXiv](https://img.shields.io/badge/arXiv-2504.16680-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2504.16680)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://sites.google.com/view/uncertainty-aware-rwm)] · [[💻 Code](https://github.com/leggedrobotics/robotic_world_model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RWM-U/index.html)]
+
+#### World4RL - *World4RL: Diffusion World Models for Policy Refinement with Reinforcement Learning for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2509.19080-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.19080)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://world4rl.github.io/)] · [[💻 Code](https://anonymous.4open.science/r/World4RL-0410)] . [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/World4RL/index.html)]
+
+#### DiWA - *DiWA: Diffusion Policy Adaptation with World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2508.03645-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2508.03645)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://diwa.cs.uni-freiburg.de/)] · [[💻 Code](https://github.com/acl21/diwa)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DiWA/index.html)]
+
+#### VLA-RFT - *VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators* - [![arXiv](https://img.shields.io/badge/arXiv-2510.00406-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.00406)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://vla-rft.github.io/)] · [[💻 Code](https://github.com/OpenHelix-Team/VLA-RFT)] · [[🤗 Model](https://huggingface.co/VLA-RFT)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VLA-RFT/index.html)]
+
+#### RWML - *Reinforcement World Model Learning for LLM-based Agents* - [![arXiv](https://img.shields.io/badge/arXiv-2602.05842-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.05842)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RWML/index.html)]
+
+####  PhysWorl - *Robot Learning from a Physical World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2511.07416-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.07416)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://pointscoder.github.io/PhysWorld_Web/)] · [[💻 Code](https://github.com/PointsCoder/OpenReal2Sim)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PhysWorl/index.html)]
+
+#### VIPER - *Video Prediction Models as Rewards for Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2305.14343-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2305.14343)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://escontrela.me/viper)] · [[💻 Code](https://github.com/Alescontrela/viper_rl)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VIPER/index.html)]
+
+#### Diffusion Reward - *Diffusion Reward: Learning Rewards via Conditional Video Diffusion* - [![arXiv](https://img.shields.io/badge/arXiv-2312.14134-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2312.14134)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://diffusion-reward.github.io/)] · [[💻 Code](https://github.com/TEA-Lab/diffusion_reward)] · [[🤗 Model](https://huggingface.co/tauhuang/diffusion_reward/tree/main)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Diffusion%20Reward/index.html)]
+
+#### GenReward - *Goal-Driven Reward by Video Diffusion Models for Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2512.00961-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.00961)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌍 Webpage](https://qiwang067.github.io/genreward)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GenReward/index.html)]
+
+#### SRPO - *SRPO: Self-Referential Policy Optimization for Vision-Language-Action Models* - [![arXiv](https://img.shields.io/badge/arXiv-2511.15605-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.15605)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[💻 Code](https://github.com/sii-research/siiRL)] · [[🤗 Model](https://huggingface.co/collections/Sylvest/srpo)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/SRPO/index.html)]
+
+#### RoboScape-R - *RoboScape-R: Unified Reward-Observation World Models for Generalizable Robotics Training via RL* - [![arXiv](https://img.shields.io/badge/arXiv-2512.03556-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.03556)
+
+**Tags:** ![](https://img.shields.io/badge/RL-0891b2) 
+
+[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RoboScape-R/index.html)]
+
+#### Veo - *Evaluating Gemini Robotics Policies in a Veo World Simulator* - [![arXiv](https://img.shields.io/badge/arXiv-2512.10675-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.10675)
+
+**Tags:** ![](https://img.shields.io/badge/Eval-06b6d4) 
+
+[[🌍 Webpage](https://veo-robotics.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Veo/index.html)]
+
+#### Interactive World Simulator - *Interactive World Simulator for Robot Policy Training and Evaluation* - [![arXiv](https://img.shields.io/badge/arXiv-2603.08546-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.08546)
+
+**Tags:** ![](https://img.shields.io/badge/Eval-06b6d4) 
+
+[[🌍 Webpage](https://www.yixuanwang.me/interactive_world_sim/)] · [[💻 Code](https://github.com/WangYixuan12/interactive_world_sim)] · [[🤗 Model](https://huggingface.co/yixuan1999/interactive-world-sim-checkpoints)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Interactive%20World%20Simulator/index.html)]
+
+#### WorldEval - *WorldEval: World Model as Real-World Robot Policies Evaluator* - [![arXiv](https://img.shields.io/badge/arXiv-2505.19017-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2505.19017)
+
+**Tags:** ![](https://img.shields.io/badge/Eval-06b6d4) 
+
+[[🌍 Webpage](https://worldeval.github.io/)] · [[💻 Code](https://github.com/liyaxuanliyaxuan/Worldeval)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/WorldEval/index.html)]
+
+#### WorldGym - *WorldGym: World Model as An Environment for Policy Evaluation* - [![arXiv](https://img.shields.io/badge/arXiv-2506.00613-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.00613)
+
+**Tags:** ![](https://img.shields.io/badge/Eval-06b6d4) 
+
+[[🌍 Webpage](https://world-model-eval.github.io/abstract)] · [[💻 Code](https://github.com/world-model-eval/world-model-eval)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/WorldGym/index.html)]
+
+#### dWorldEval - *dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2604.22152-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.22152)
+
+**Tags:** ![](https://img.shields.io/badge/Eval-06b6d4) 
+
+[[🌍 Webpage](https://dworldeval.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/dWorldEval/index.html)]
 
 
 
