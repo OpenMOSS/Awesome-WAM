@@ -728,7 +728,7 @@
 | **PSNR / SSIM** - *Image Quality Assessment: From Error Visibility to Structural Similarity* | 2004 | [📄 Paper](https://ieeexplore.ieee.org/document/1284395) · [🌍&nbsp;Web](https://ece.uwaterloo.ca/~z70wang/research/ssim/) · [💻&nbsp;Code](https://ece.uwaterloo.ca/~z70wang/research/ssim/) |
 | **LPIPS** - *The Unreasonable Effectiveness of Deep Features as a Perceptual Metric* | 2018-01 | [📄 Paper](https://arxiv.org/pdf/1801.03924) · [🌍&nbsp;Web](https://richzhang.github.io/PerceptualSimilarity/) · [💻&nbsp;Code](https://github.com/richzhang/PerceptualSimilarity) |
 | **DreamSim** - *DreamSim: Learning New Dimensions of Human Visual Similarity Using Synthetic Data* | 2023-06 | [📄 Paper](https://arxiv.org/pdf/2306.09344) · [🌍&nbsp;Web](https://dreamsim-nights.github.io/) · [💻&nbsp;Code](https://github.com/ssundaram21/dreamsim) |
-| **DINOv2** - *DINOv2: Learning Robust Visual Features without Supervision* | 2023-04 | [📄 Paper](https://arxiv.org/pdf/2304.07193) · [🌍&nbsp;Web](https://dinov2.metademolab.com/) · [💻&nbsp;Code](https://github.com/facebookresearch/dinov2) |
+| **DINOv2** - *DINOv2: Learning Robust Visual Features without Supervision* | 2023-04 | [📄 Paper](https://arxiv.org/pdf/2304.07193) · [🌍&nbsp;Web](https://dinov2.metademolab.com/) · [💻&nbsp;Code](https://github.com/facebookresearch/dinov2) · [🤗&nbsp;Model](https://huggingface.co/facebook/dinov2-large) |
 | **FVD** - *Towards Accurate Generative Models of Video: A New Metric & Challenges* | 2018-12 | [📄 Paper](https://arxiv.org/pdf/1812.01717) · [💻&nbsp;Code](https://github.com/google-research/google-research/tree/master/frechet_video_distance) |
 
 ---
@@ -737,7 +737,7 @@
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **VideoPhy** - *VideoPhy: Evaluating Physical Commonsense for Video Generation* | 2024-06 | [📄 Paper](https://arxiv.org/pdf/2406.03520)  · [💻&nbsp;Code](https://github.com/Hritikbansal/videophy) · [📦&nbsp;Dataset](https://huggingface.co/datasets/videophysics/videophy_test_public) 
+| **VideoPhy** - *VideoPhy: Evaluating Physical Commonsense for Video Generation* | 2024-06 | [📄 Paper](https://arxiv.org/pdf/2406.03520) · [🌍&nbsp;Web](https://videophy.github.io/) · [💻&nbsp;Code](https://github.com/Hritikbansal/videophy) · [📦&nbsp;Dataset](https://huggingface.co/datasets/videophysics/videophy_test_public) 
 | **PhyGenBench** - *Towards World Simulator: Crafting Physical Commonsense-Based Benchmark for Video Generation* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.05363) · [🌍&nbsp;Web](https://phygenbench123.github.io/) · [💻&nbsp;Code](https://github.com/OpenGVLab/PhyGenBench) 
 | **VBench-2.0** - *VBench-2.0: Advancing Video Generation Benchmark Suite for Intrinsic Faithfulness* | 2025-03 | [📄 Paper](https://arxiv.org/pdf/2503.21755) · [🌍&nbsp;Web](https://vchitect.github.io/VBench-2.0-project/) · [💻&nbsp;Code](https://github.com/Vchitect/VBench) · [📦&nbsp;Dataset](https://huggingface.co/datasets/Vchitect/VBench-2.0_sampled_videos) 
 | **WorldModelBench** - *WorldModelBench: Judging Video Generation Models as World Models* | 2025-02 | [📄 Paper](https://arxiv.org/pdf/2502.20694) · [🌍&nbsp;Web](https://worldmodelbench-team.github.io/) · [💻&nbsp;Code](https://github.com/WorldModelBench-Team/WorldModelBench) |
@@ -751,8 +751,9 @@
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **WorldSimBench** - *WorldSimBench: Towards Video Generation Models as World Simulators* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.18072) · [🌍&nbsp;Web](https://iranqin.github.io/WorldSimBench.github.io/) |
+| **WorldSimBench** - *WorldSimBench: Towards Video Generation Models as World Simulators* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.18072) · [🌍&nbsp;Web](https://iranqin.github.io/WorldSimBench.github.io/) · [💻&nbsp;Code](https://github.com/iranqin/WorldSimBench) |
 | **Wow, wo, val!** - *A Comprehensive Embodied World Model Evaluation Turing Test* | 2026-01 | [📄 Paper](https://arxiv.org/pdf/2601.04137) |
+
 ---
 
 #### 🤖 Action Policy — General
@@ -773,13 +774,13 @@
 | **LIBERO** - *LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning* | 2023-06 | [📄 Paper](https://arxiv.org/pdf/2306.03310) · [🌍&nbsp;Web](https://libero-project.github.io/) · [💻&nbsp;Code](https://github.com/Lifelong-Robot-Learning/LIBERO) |
 | **LIBERO-Plus** - *LIBERO-Plus: In-Depth Robustness Analysis of Vision-Language-Action Models* | 2025-10 | [📄 Paper](https://arxiv.org/pdf/2510.13626) · [🌍&nbsp;Web](https://sylvestf.github.io/LIBERO-plus/) · [💻&nbsp;Code](https://github.com/sylvestf/LIBERO-plus) · [📦&nbsp;Dataset](https://huggingface.co/datasets/Sylvest/LIBERO-plus) |
 | **LIBERO-PRO** - *LIBERO-PRO: Towards Robust and Fair Evaluation of VLA Models beyond Memorization* | 2025-10 | [📄 Paper](https://arxiv.org/pdf/2510.03827) · [🌍&nbsp;Web](https://zxy-mllab.github.io/LIBERO-PRO-Webpage/) · [💻&nbsp;Code](https://github.com/Zxy-MLlab/LIBERO-PRO) · [📦&nbsp;Dataset](https://huggingface.co/datasets/zhouxueyang/LIBERO-Pro) |
-| **LIBERO-X** - *LIBERO-X: Robustness Litmus for Vision-Language-Action Models* | 2026-02 | [📄 Paper](https://arxiv.org/pdf/2602.06556) |
+| **LIBERO-X** - *LIBERO-X: Robustness Litmus for Vision-Language-Action Models* | 2026-02 | [📄 Paper](https://arxiv.org/pdf/2602.06556)· [🌍&nbsp;Web](https://meituan.github.io/LIBERO-X/) · [💻&nbsp;Code](https://github.com/meituan/LIBERO-X) |
 | **COLOSSEUM** - *THE COLOSSEUM: A Benchmark for Evaluating Generalization for Robotic Manipulation* | 2024-02 | [📄 Paper](https://arxiv.org/pdf/2402.08191) · [🌍&nbsp;Web](https://robot-colosseum.github.io/) · [💻&nbsp;Code](https://github.com/robot-colosseum/robot-colosseum) |
 | **AGNOSTOS** - *Exploring the Limits of Vision-Language-Action Manipulations in Cross-Task Generalization* | 2025-05 | [📄 Paper](https://arxiv.org/pdf/2505.15660) · [🌍&nbsp;Web](https://jiaming-zhou.github.io/AGNOSTOS) · [💻&nbsp;Code](https://github.com/jiaming-zhou/X-ICM) |
-| **RoboEval** - *RoboEval: Where Robotic Manipulation Meets Structured and Scalable Evaluation* | 2025-07 | [📄 Paper](https://arxiv.org/pdf/2507.00435) · [🌍&nbsp;Web](https://robo-eval.github.io/) |
+| **RoboEval** - *RoboEval: Where Robotic Manipulation Meets Structured and Scalable Evaluation* | 2025-07 | [📄 Paper](https://arxiv.org/pdf/2507.00435) · [🌍&nbsp;Web](https://robo-eval.github.io/)· [💻&nbsp;Code](https://github.com/Robo-Eval/RoboEval) |
 | **RoboVerse** - *RoboVerse: Towards a Unified Platform, Dataset and Benchmark for Scalable and Generalizable Robot Learning* | 2025-04 | [📄 Paper](https://arxiv.org/pdf/2504.18904) · [🌍&nbsp;Web](https://roboverse.wiki/) · [💻&nbsp;Code](https://github.com/RoboVerseOrg/RoboVerse) |
 | **PolaRiS** - *PolaRiS: Scalable Real-to-Sim Evaluations for Generalist Robot Policies* | 2025-12 | [📄 Paper](https://arxiv.org/pdf/2512.16881) · [🌍&nbsp;Web](https://polaris-evals.github.io/) · [💻&nbsp;Code](https://github.com/arhanjain/polaris) · [📦&nbsp;Dataset](https://huggingface.co/datasets/owhan/PolaRiS-Hub) |
-| **RoboMME** - *RoboMME: Benchmarking and Understanding Memory for Robotic Generalist Policies* | 2026-03 | [📄 Paper](https://arxiv.org/pdf/2603.04639) · [🌍&nbsp;Web](https://robomme.github.io/) |
+| **RoboMME** - *RoboMME: Benchmarking and Understanding Memory for Robotic Generalist Policies* | 2026-03 | [📄 Paper](https://arxiv.org/pdf/2603.04639) · [🌍&nbsp;Web](https://robomme.github.io/) · [💻&nbsp;Code](https://github.com/RoboMME/robomme_benchmark) |
 | **GenManip** - *GenManip: LLM-Driven Simulation for Generalizable Instruction-Following Manipulation* | 2025-06 | [📄 Paper](https://arxiv.org/pdf/2506.10966) · [🌍&nbsp;Web](https://genmanip.axi404.top/) |
 | **VLABench** - *VLABench: A Large-Scale Benchmark for Language-Conditioned Robotics Manipulation with Long-Horizon Reasoning Tasks* | 2024-12 | [📄 Paper](https://arxiv.org/pdf/2412.18194) · [💻&nbsp;Code](https://github.com/OpenMOSS/VLABench) |
 | **RoboSuite** - *Robosuite: A Modular Simulation Framework and Benchmark for Robot Learning* | 2020-09 | [📄 Paper](https://arxiv.org/pdf/2009.12293) · [🌍&nbsp;Web](https://robosuite.ai/) · [💻&nbsp;Code](https://github.com/ARISE-Initiative/robosuite) |
@@ -797,7 +798,7 @@
 | **RoboTwin** - *RoboTwin: Dual-Arm Robot Benchmark with Generative Digital Twins* | 2025-04 | [📄 Paper](https://arxiv.org/pdf/2504.13059) · [🌍&nbsp;Web](https://robotwin-platform.github.io/) · [💻&nbsp;Code](https://github.com/RoboTwin-Platform/RoboTwin) |
 | **BiGym** - *BiGym: A Demo-Driven Mobile Bi-Manual Manipulation Benchmark* | 2024-07 | [📄 Paper](https://arxiv.org/pdf/2407.07788) · [🌍&nbsp;Web](https://chernyadev.github.io/bigym/) · [💻&nbsp;Code](https://github.com/chernyadev/bigym) |
 | **HumanoidBench** - *HumanoidBench: Simulated Humanoid Benchmark for Whole-Body Locomotion and Manipulation* | 2024-03 | [📄 Paper](https://arxiv.org/pdf/2403.10506) · [🌍&nbsp;Web](https://humanoid-bench.github.io/) · [💻&nbsp;Code](https://github.com/humanoid-bench/humanoid-bench) |
-| **HumanoidGen** - *HumanoidGen: Data Generation for Bimanual Dexterous Manipulation via LLM Reasoning* | 2025-07 | [📄 Paper](https://arxiv.org/pdf/2507.00833) · [🌍&nbsp;Web](https://openhumanoidgen.github.io/) · [💻&nbsp;Code](https://github.com/TeleHuman/HumanoidGen) |
+| **HumanoidGen** - *HumanoidGen: Data Generation for Bimanual Dexterous Manipulation via LLM Reasoning* | 2025-07 | [📄 Paper](https://arxiv.org/pdf/2507.00833) · [🌍&nbsp;Web](https://openhumanoidgen.github.io/) · [💻&nbsp;Code](https://github.com/carlosferrazza/humanoid-bench) |
 
 ---
 
@@ -815,11 +816,11 @@
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **SoftGym** - *SoftGym: Benchmarking Deep Reinforcement Learning for Deformable Object Manipulation* | 2020-11 | [📄 Paper](https://arxiv.org/pdf/2011.07215) · [💻&nbsp;Code](https://github.com/Xingyu-Lin/softgym) |
+| **SoftGym** - *SoftGym: Benchmarking Deep Reinforcement Learning for Deformable Object Manipulation* | 2020-11 | [📄 Paper](https://arxiv.org/pdf/2011.07215)· [🌍&nbsp;Web](https://sites.google.com/view/softgym) · [💻&nbsp;Code](https://github.com/Xingyu-Lin/softgym) |
 | **PlasticineLab** - *PlasticineLab: A Soft-Body Manipulation Benchmark with Differentiable Physics* | 2021-04 | [📄 Paper](https://arxiv.org/pdf/2104.03311) · [🌍&nbsp;Web](https://plasticinelab.csail.mit.edu/) · [💻&nbsp;Code](https://github.com/hzaskywalker/PlasticineLab) |
 | **DaXBench** - *DaXBench: Benchmarking Deformable Object Manipulation with Differentiable Physics* | 2022-10 | [📄 Paper](https://arxiv.org/pdf/2210.13066) · [🌍&nbsp;Web](https://daxbench.github.io/) · [💻&nbsp;Code](https://github.com/AdaCompNUS/DaXBench) |
-| **TacSL** - *TacSL: A Library for Visuotactile Sensor Simulation and Learning* | 2024-08 | [📄 Paper](https://arxiv.org/pdf/2408.06506) · [🌍&nbsp;Web](https://iakinola23.github.io/tacsl/) |
-| **ManiFeel** - *ManiFeel: Benchmarking and Understanding Visuotactile Manipulation Policy Learning* | 2025-05 | [📄 Paper](https://arxiv.org/pdf/2505.18472) · [🌍&nbsp;Web](https://zhengtongxu.github.io/manifeel-website/) |
+| **TacSL** - *TacSL: A Library for Visuotactile Sensor Simulation and Learning* | 2024-08 | [📄 Paper](https://arxiv.org/pdf/2408.06506) · [🌍&nbsp;Web](https://iakinola23.github.io/tacsl/) · [💻&nbsp;Code](https://github.com/isaac-sim/IsaacGymEnvs/blob/tacsl/isaacgymenvs/tacsl_sensors/install/tacsl_setup.md) |
+| **ManiFeel** - *ManiFeel: Benchmarking and Understanding Visuotactile Manipulation Policy Learning* | 2025-05 | [📄 Paper](https://arxiv.org/pdf/2505.18472) · [🌍&nbsp;Web](https://zhengtongxu.github.io/manifeel-website/)· [💻&nbsp;Code](https://github.com/purdue-mars/manifeel) |
 
 ---
 
@@ -828,5 +829,5 @@
 | Paper | Released | Links |
 |-------|----------|-------|
 | **RoboArena** - *RoboArena: Distributed Real-World Evaluation of Generalist Robot Policies* | 2025-06 | [📄 Paper](https://arxiv.org/pdf/2506.18123) · [🌍&nbsp;Web](https://robo-arena.github.io/) · [💻&nbsp;Code](https://github.com/robo-arena/roboarena) |
-| **RoboChallenge** - *RoboChallenge: Large-Scale Real-Robot Evaluation of Embodied Policies* | 2025-10 | [📄 Paper](https://arxiv.org/pdf/2510.17950) · [🌍&nbsp;Web](https://robochallenge.ai/) |
+| **RoboChallenge** - *RoboChallenge: Large-Scale Real-Robot Evaluation of Embodied Policies* | 2025-10 | [📄 Paper](https://arxiv.org/pdf/2510.17950) · [🌍&nbsp;Web](https://robochallenge.ai/)· [💻&nbsp;Code](https://github.com/RoboChallenge) |
 | **ManipArena** - *ManipArena: Comprehensive Real-World Evaluation of Reasoning-Oriented Generalist Robot Manipulation* | 2026-03 | [📄 Paper](https://arxiv.org/pdf/2603.28545) · [🌍&nbsp;Web](https://maniparena.x2robot.com/) · [💻&nbsp;Code](https://github.com/maniparena/maniparena-repo) |
