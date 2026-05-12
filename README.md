@@ -79,7 +79,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Implicit-ea580c)
 
-[[🌍 Webpage](https://mrsecant.github.io/OmniVTA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.19201/index.html)]
+[[🌍 Webpage](https://mrsecant.github.io/OmniVTA)] · [[💻 Code](https://github.com/MrSecant/OmniVTA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.19201/index.html)]
 ***
 #### Veo-Act - *Veo-Act: How Far Can Frontier Video Models Advance Generalizable Robot Manipulation?* - [![arXiv](https://img.shields.io/badge/arXiv-2604.04502-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.04502)
 
@@ -87,7 +87,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.04502/index.html)]
 ***
-#### pi0.7 - *$\pi_{0.7}$: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities* - [![arXiv](https://img.shields.io/badge/arXiv-2604.15483-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.15483)
+#### pi0.7 - *pi0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities* - [![arXiv](https://img.shields.io/badge/arXiv-2604.15483-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.15483)
 
 **Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
 
@@ -103,19 +103,19 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/CrossAttention-f97316)
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.11135/index.html)]
+[[💻 Code](https://github.com/Agentic-Intelligence-Lab/AIM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.11135/index.html)]
 ***
 #### WAV - *World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems* - [![arXiv](https://img.shields.io/badge/arXiv-2604.14732-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.14732)
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/HiddenState-fb7185)
 
-[[🌍 Webpage](https://win-commit.github.io/wavpage/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.14732/index.html)]
+[[🌍 Webpage](https://win-commit.github.io/wavpage/)] · [[💻 Code](https://github.com/Win-commit/WAV)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.14732/index.html)]
 ***
 #### DexWorldModel - *DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks* - [![arXiv](https://img.shields.io/badge/arXiv-2604.16484-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.16484)
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/SharedRep-db2777)
 
-[[📄 PDF](https://dexforce.com/docs/DexWorldModel.pdf)] · [[💻 Code](https://github.com/DexForce/EmbodiChain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.16484/index.html)]
+[[💻 Code](https://github.com/DexForce/EmbodiChain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.16484/index.html)]
 ***
 #### MotuBrain - *MotuBrain: An Advanced World Action Model for Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2604.27792-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.27792)
 
@@ -127,7 +127,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Single--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
 
-[[🌍 Webpage](https://gigaai-research.github.io/GigaWorld-Policy/)] · [[💻 Code](https://github.com/open-gigaai/giga-world-policy)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2603.17240/index.html)]
+[[🌍 Webpage](https://gigaai-research.github.io/GigaWorld-Policy/)] · [[💻 Code](https://github.com/open-gigaai/giga-world-policy)] · [[🤗 Model](https://huggingface.co/open-gigaai)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2603.17240/index.html)]
 ***
 #### DDP - *Dreaming the Unseen: World Model-regularized Diffusion Policy for Out-of-Distribution Robustness* - [![arXiv](https://img.shields.io/badge/arXiv-2603.21017-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.21017)
 
@@ -157,7 +157,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Single--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
 
-[[🌍 Webpage](https://sharinka0715.github.io/X-WAM/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.26694/index.html)]
+[[🌍 Webpage](https://sharinka0715.github.io/X-WAM/)] · [[💻 Code](https://github.com/sharinka0715/X-WAM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.26694/index.html)]
 ***
 
 
