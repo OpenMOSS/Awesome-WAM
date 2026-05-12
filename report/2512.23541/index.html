@@ -159,6 +159,45 @@
       color: var(--ink);
       font-weight: 650;
     }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
     .toc {
       background: rgba(255, 254, 251, 0.84);
       border: 1px solid var(--line);
@@ -177,7 +216,9 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-    .toc ul {
+    .toc ul,
+    ul.toc,
+    ol.toc {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.12rem 0.35rem;
@@ -214,13 +255,36 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.85rem;
     }
-    .note, .audit-card, .formula-block {
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
       background: var(--surface-raised);
       border: 1px solid var(--line);
       border-radius: 8px;
       box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
       padding: 0.95rem 1rem;
       margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
     }
     .note strong { color: var(--ink); }
     .appendix-ref {
@@ -275,14 +339,20 @@
       text-align: center;
     }
     figure img,
-    .figure img {
+    .figure img,
+    .pdf-frame {
       display: block;
       max-width: 100%;
+      max-height: min(72vh, 760px);
       margin: 0 auto;
       background: white;
       border: 1px solid var(--line);
       border-radius: 8px;
       box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
     }
     figcaption,
     .caption {
@@ -339,6 +409,34 @@
       line-height: 1.58;
       margin: 0.9rem 0;
     }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
     .checklist li { margin: 5px 0; }
     @media (min-width: 980px) {
       main {
@@ -375,7 +473,9 @@
         font-weight: 700;
         letter-spacing: 0;
       }
-      .toc ul {
+      .toc ul,
+      ul.toc,
+      ol.toc {
         grid-template-columns: 1fr;
         margin-top: 1.35rem;
       }
@@ -388,8 +488,9 @@
       main { padding: 1.35rem 0.9rem 4rem; }
       h1 { font-size: 1.85rem; }
       section { padding: 2.2rem 0; }
-      .toc ul { grid-template-columns: 1fr; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
       .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
       table {
         display: block;
         overflow-x: auto;
@@ -412,18 +513,19 @@
     </div>
   </header>
 
-  <nav class="meta">
+  
+
+<nav class="toc">
     <strong>目录：</strong>
-    <a href="#quick">1. 速览</a> |
-    <a href="#motivation">2. 动机</a> |
-    <a href="#related">3. 相关工作</a> |
-    <a href="#method">4. 方法详解</a> |
-    <a href="#experiments">5. 实验</a> |
-    <a href="#reproduce">6. 可复现审计</a> |
+    <a href="#quick">1. 速览</a>
+    <a href="#motivation">2. 动机</a>
+    <a href="#related">3. 相关工作</a>
+    <a href="#method">4. 方法详解</a>
+    <a href="#experiments">5. 实验</a>
+    <a href="#reproduce">6. 可复现审计</a>
     <a href="#discussion">7. 分析、局限与边界</a>
   </nav>
-
-  <section id="quick">
+<section id="quick">
     <h2>1. 论文速览</h2>
     <div class="tldr">
       <strong>一句话总结：</strong>Act2Goal 把视觉目标条件策略从“当前图像 + 目标图像直接出动作”改成“先用 goal-conditioned world model 想象通往目标的中间视觉状态，再用 Multi-Scale Temporal Hashing 把近端细节和远端目标锚点一起喂给动作专家”，并用 HER + LoRA 做无奖励在线自我改进。
