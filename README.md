@@ -238,9 +238,9 @@
 #### MWM - *Mask World Model: Predicting What Matters for Robust Robot Policy Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2604.19683-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.19683)
 
 **Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-***
-[[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.19683/index.html)]
 
+[[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.19683/index.html)]
+***
 
 
 
