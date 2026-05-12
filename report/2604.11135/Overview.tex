@@ -1,0 +1,25 @@
+
+\label{sec:overview}
+
+\noindent\textbf{Problem Formulation.}
+Traditional Vision-Language-Action (VLA) models~\cite{pi0,pi05,atomvla,llava-vla,openvla,rt2} learn action distributions directly from demonstrations. While effective for imitation, they do not explicitly model how robot actions shape future observations. In contrast, \method is a pretrained video-based world action model that imagines the near future by jointly modeling visual dynamics and action-relevant intent.
+We consider manipulation trajectories $\tau=\{(o_t,a_t)\}_{t=1}^{T}$, where $o_t$ denotes synchronized multi-view observations and $a_t$ denotes robot actions. Given a history window $\mathcal{H}_t=\{o_{t-k:t}, a_{t-k:t-1}\}$, \method predicts a horizon-$h$ chunk of future RGB frames, spatial value maps, and robot actions, denoted by $X^+$, $M^+$, and $A^+$, respectively. Each future value map $m_t \in [0,1]^{H \times W \times 3}$ is spatially aligned with the corresponding RGB frame $x_t$ and highlights task-relevant interaction regions, serving as an explicit interface between future world modeling and action generation. We factorize the predictive distribution as
+\begin{equation}
+p(X^+, M^+, A^+ \mid \mathcal{H}_t)
+=
+p(X^+, M^+ \mid \mathcal{H}_t)\,
+p(A^+ \mid \mathcal{H}_t, M^+).
+\end{equation}
+This factorization reflects the core design of \method: it first predicts future visual states together with aligned spatial value maps, and then decodes control actions conditioned on the predicted value maps rather than raw future RGB representations. The value map thus serves as the future-facing interface for action generation, bridging visual foresight and control. During deployment, \method performs autoregressive chunk-wise rollout with a transformer KV cache, appending each newly predicted world-action chunk to the prefix without recomputing the full history.
+
+\noindent\textbf{Architecture Overview.}
+\method consists of a video generation model, initialized from Wan2.2-TI2V-5B~\cite{wan2025wan}, and an action head with the same depth but a smaller hidden width for action denoising. Under the mixture-of-transformers design, the two branches share only the self-attention sublayer in each block, while maintaining separate feed-forward transformations.
+
+At each rollout step, future RGB, value-map, and action tokens are initialized from noise. The video generation model jointly denoises RGB and value-map tokens along the same flow-matching trajectory, decoding them into future RGB observations and aligned spatial value maps, while the action head denoises action tokens into continuous control vectors. The three token streams interact through shared self-attention under a designed mask that allows future world tokens to access observation history while routing future information for action decoding through the value-map pathway, which we term \emph{intent-causal attention}. The predicted value map thus serves as an intent-aligned bridge between future world modeling and action generation.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{pictures/framework.png}
+  \caption{\textbf{Framework of AIM.} Given multi-view RGB videos and a language instruction, AIM jointly learns future frame generation, action prediction, and spatial value map estimation in Stage I, where intent-causal attention transfers task-relevant intention from visual prediction to action generation; in Stage II, the policy is further optimized with GRPO using both sparse and dense rewards.}
+  \label{fig:typical-vs-aim}
+\end{figure}
+

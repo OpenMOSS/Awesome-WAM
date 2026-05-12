@@ -1,0 +1,130 @@
+
+Inspired by Model Predictive Path Integral (MPPI)~\citep{williams2015model} control, we perform iterative latent-space trajectory optimization during inference.
+Instead of fixing latent priors to standard Gaussians, we adaptively update the noise distributions of the video and value modules based on trajectory evaluations.
+We maintain two independent Gaussian noise distributions:
+a video flow noise distribution
+$
+\scriptsize
+f_{\mathrm{vid}}^{(k)} = \mathcal{N}\!\left(
+\boldsymbol{\mu}_{\mathrm{vid}}^{(k)},
+\operatorname{diag}\!\left((\boldsymbol{\sigma}_{\mathrm{vid}}^{(k)})^2\right)
+\right),
+$
+and a trajectory value flow noise distribution
+$
+\scriptsize
+f_{\mathrm{val}}^{(k)} = \mathcal{N}\!\left(
+\boldsymbol{\mu}_{\mathrm{val}}^{(k)},
+\operatorname{diag}\!\left((\boldsymbol{\sigma}_{\mathrm{val}}^{(k)})^2\right)
+\right),
+$
+where $k \in \{1,\dots,K\}$ denotes the iteration index.
+
+At iteration $k$, we first sample $M$ groups of video latent noise:
+$
+\scriptstyle
+\left\{
+\mathbf{z}_{\mathrm{vid}}^{(m)}
+\right\}_{m=1}^M
+\sim
+f_{\mathrm{vid}}^{(k-1)}.
+$
+Each latent sample is denoised by the video generation module $\mathcal{W}$ to produce video feature chunking:
+
+$
+\scriptstyle
+\mathbf{x}^{(m)}_{1:H_1} = \mathcal{W}\!\big(\mathbf{z}_{\mathrm{vid}}^{(m)}\big)$,
+where $\mathbf{x}^{(m)} \in \mathbb{R}^{H_1 \times d_v}$ represents a predicted future visual trajectory feature.
+For each video feature chunking $\mathbf{x}^{(m)}$, we sample $N$ groups of trajectory value flow noise:
+$
+\scriptstyle
+\left\{
+\mathbf{z}_{\mathrm{val}}^{(m,n)}
+\right\}_{n=1}^N
+\sim
+f_{\mathrm{val}}^{(k-1)},
+$
+and denoise them using the trajectory value module $\mathcal{V}$ conditioned on the same video features:
+
+$
+\scriptstyle
+\mathbf{v}^{(m,n)} = \mathcal{V}\!\big(\mathbf{x}^{(m)}, \mathbf{z}_{\mathrm{val}}^{(m,n)}\big)$,
+where $\mathbf{v}^{(m,n)}$ denotes a predicted state-value.
+
+To obtain a stable assessment of future trajectory quality, we compute the Signal-to-Noise Ratio (SNR) of the value predictions for each exploration:
+
+$\scriptstyle \operatorname{SNR}^{(m,n)} = \mathbb{E}\!\left[\mathbf{v}^{(m,n)}\right] / \left(\operatorname{Std}\!\left[\mathbf{v}^{(m,n)}\right] + \epsilon\right)$
+where $\epsilon$ is a small constant for numerical stability.
+The final score of the $m^{th}$ video exploration is defined as the most reliable evaluation among its $N$ value estimates:
+
+$
+\scriptstyle
+\phi^{(m)} = \max_{n \in \{1,\dots,N\}} \operatorname{SNR}^{(m,n)}$.
+Based on the scores $\{\phi^{(m)}\}_{m=1}^M$, we select the top $K_1$ elite video explorations.
+The video noise distribution is updated using the empirical mean and standard deviation of their corresponding latent variables:
+
+{
+\scriptsize
+\begin{equation}
+\begin{aligned}
+\boldsymbol{\mu}_{\mathrm{vid}}^{(k)}
+&=
+\frac{1}{K_1}
+\sum_{m \in \mathcal{E}_{\mathrm{vid}}}
+\mathbf{z}_{\mathrm{vid}}^{(m)}, \text{and }
+\boldsymbol{\sigma}_{\mathrm{vid}}^{(k)}
+=
+\sqrt{
+\frac{1}{K_1}
+\sum_{m \in \mathcal{E}_{\mathrm{vid}}}
+\left(
+\mathbf{z}_{\mathrm{vid}}^{(m)} -
+\boldsymbol{\mu}_{\mathrm{vid}}^{(k)}
+\right)^2
+}.
+\end{aligned}
+\label{eq:video_mu_sigma}
+\end{equation}
+}
+Similarly, from all $M \times N$ value evaluations, we select the top $K_2$ samples with the highest SNR and update the value noise distribution:
+
+{\scriptsize
+\begin{equation}
+\begin{aligned}
+\boldsymbol{\mu}_{\mathrm{val}}^{(k)}
+&=
+\frac{1}{K_2}
+\sum_{(m,n) \in \mathcal{E}_{\mathrm{val}}}
+\mathbf{z}_{\mathrm{val}}^{(m,n)},
+ \text{and }
+\boldsymbol{\sigma}_{\mathrm{val}}^{(k)}
+=
+\sqrt{
+\frac{1}{K_2}
+\sum_{(m,n) \in \mathcal{E}_{\mathrm{val}}}
+\left(
+\mathbf{z}_{\mathrm{val}}^{(m,n)} -
+\boldsymbol{\mu}_{\mathrm{val}}^{(k)}
+\right)^2
+}.
+\end{aligned}
+\label{eq:value_mu_sigma}
+\end{equation}
+}
+
+To prevent distribution collapse and improve iteration stability, we apply variance decay and exponential smoothing:
+
+\(
+\scriptstyle
+\boldsymbol{\mu}^{(k)} \!\leftarrow\!
+\alpha \boldsymbol{\mu}^{(k)} + (1-\alpha)\boldsymbol{\mu}^{(k-1)},\;
+\boldsymbol{\sigma}^{(k)} \!\leftarrow\!
+\beta \boldsymbol{\sigma}^{(k)} + (1-\beta)\boldsymbol{\sigma}^{(k-1)}
+\)
+with smoothing parameters $\alpha, \beta \in (0,1)$.
+After $K$ iterations, we sample latent variables from the optimized distributions
+$f_{\mathrm{vid}}^{(K)}$ and $f_{\mathrm{val}}^{(K)}$,
+and obtain the corresponding video and value features via flow denoising.
+These features are finally fused by the action decoding module to predict decision-making actions.
+Algo.~\ref{alg:latent_mppi} summarizes the proposed latent planning procedure.
+

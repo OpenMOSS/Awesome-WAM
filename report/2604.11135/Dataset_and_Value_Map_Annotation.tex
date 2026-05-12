@@ -1,0 +1,42 @@
+
+\label{sec:dataset}
+
+\noindent\textbf{Large-Scale Simulation Dataset.}
+We build a large-scale simulation dataset of 30K manipulation trajectories collected on RoboTwin 2.0 Benchmark~\cite{robotwin2.0}. Each trajectory contains synchronized multi-view videos, action sequences, task identifiers, and per-step value-map annotations.
+
+A simulation-only setting is well-suited to our study for two reasons. First, it provides the scale needed for training unified world-action models while supporting automatic label generation from contact events and physics states. Second, it offers precise geometric information and controllable scene diversity, enabling consistent value-map annotation across tasks, viewpoints, and object configurations. This setting allows us to study spatially grounded world-action modeling under controlled conditions at scale.
+
+\noindent\textbf{Pick Value-Map Annotation.}
+For pick tasks, we record the contact surface point cloud when the gripper establishes effective grasp contact with the target object. The simulator's contact-detection API provides a set of contact vertices on the interacting surfaces. We project these points into the image plane using the calibrated camera projection matrix and then apply Gaussian smoothing to obtain a continuous-value heat map. This annotation marks the \emph{grasp affordance region}: the spatial area where the object and end-effector engage in successful physical interaction. The Gaussian kernel width is adjusted dynamically according to camera parameters and the distance between the projected point and the camera, so that the label maintains a meaningful image-space support size across different viewpoints and depths.
+
+\noindent\textbf{Place Value-Map Annotation.}
+For place tasks, we detect placement completion when the manipulated object reaches a stable configuration, defined by a small center-of-mass velocity threshold. We then extract the contact region between the grasped object and the target support surface, project the contact area into the image plane, and generate a placement feasibility heat map. This map marks the \emph{placement contact region}: the spatial location where the held object should make contact with the environment to satisfy the placement goal.
+% Requires: \usepackage{booktabs}
+% For landscape tables: \usepackage{rotating}
+
+\begin{table}[t]
+\centering
+\caption{RoboTwin 2.0 average success rate~\textbf{(SR)} under \textbf{Easy} and \textbf{Hard} settings. }
+\label{tab:robotwin_avg_clean_rand_methods_as_columns}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccccc}
+\toprule
+Setting & $\pi_{0}$ & $\pi_{0.5}$ & X-VLA & Motus & Fast-WAM & Giga-World & LingBot-VA & Stage1 & ~\textbf{AIM (Ours)} \\
+\midrule
+Easy & 65.9\% & 82.7\% & 72.8\% & 88.7\% & 91.9\% & 87.0\% & 92.9\% & 93.0\% & \textbf{94.0\%} \\
+Hard & 58.4\% & 76.8\% & 72.8\% & 87.0\% & 91.8\% & 85.0\% & 91.6\% & 92.0\% & \textbf{92.1\%} \\
+\midrule
+Average & 62.2\% & 79.8\% & 72.8\% & 87.8\% & 91.8\% & 86.0\% & 92.2\% & 92.5\% & \textbf{93.1\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.99\linewidth]{pictures/visual.png}
+  \caption{Representative task execution processes in Robotwin 2.0 benchmark~\cite{robotwin2.0}, including \textit{place mouse pad}, \textit{press stapler}, \textit{scan object}, \textit{turn switch}, and \textit{open laptop}. The left column shows examples under \textbf{Easy} setting, while the right column shows examples under \textbf{Hard} setting.}
+  \label{fig:typical-vs-aim}
+\end{figure}
+
+

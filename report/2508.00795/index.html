@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Generators are Robot Policies - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Video Generators are Robot Policies</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Junbang Liang, Pavel Tokmakov, Ruoshi Liu, Sruthi Sudhakar, Paarth Shah, Rares Ambrus, Carl Vondrick</p>
+      <p><strong>机构：</strong>Columbia University; Toyota Research Institute</p>
+      <p><strong>论文：</strong><a href="https://arxiv.org/abs/2508.00795">arXiv:2508.00795</a> | <a href="https://arxiv.org/pdf/2508.00795">PDF</a> | <a href="https://videopolicy.cs.columbia.edu/">项目主页</a></p>
+      <p><strong>关键词：</strong><span class="tag">Behavior Cloning</span><span class="tag">Video Generation</span><span class="tag">Diffusion Policy</span><span class="tag">Robot Manipulation</span><span class="tag">Action-free Video</span></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 论文速览</a></li>
+      <li><a href="#sec2">2. 背景与问题设定</a></li>
+      <li><a href="#sec3">3. 相关工作脉络</a></li>
+      <li><a href="#sec4">4. 方法细节</a></li>
+      <li><a href="#sec5">5. 实验与结果</a></li>
+      <li><a href="#sec6">6. 复现与实现要点</a></li>
+      <li><a href="#sec7">7. 分析、局限与边界</a></li>
+    </ul>
+  </nav>
+<div class="tldr">
+    <strong>一句话总结：</strong>这篇论文提出 Video Policy，把预训练视频生成模型用作机器人策略的“行为想象”骨干，再用动作扩散头从生成视频的中间特征中解码可执行动作，从而在少量动作示教和存在分布偏移的场景下提升机器人操作策略的泛化。
+  </div>
+
+  
+
+  <section id="sec1">
+    <h2>1. 论文速览</h2>
+    <table>
+      <tr><th>阅读定位</th><th>内容</th></tr>
+      <tr>
+        <td><strong>论文要解决什么</strong></td>
+        <td>当前 visuomotor policy 在新物体、新背景、新任务等感知或行为分布偏移下泛化不足，同时真实机器人动作示教昂贵。论文希望利用大规模视频生成模型中学到的动态世界先验，减少对带动作标签示教数据的依赖。</td>
+      </tr>
+      <tr>
+        <td><strong>作者的方法抓手</strong></td>
+        <td>让视频生成模型先生成机器人完成任务的未来多视角视频，再把视频 U-Net 中间层特征送入动作 U-Net 预测未来机器人动作。关键训练选择是两阶段训练：先调视频生成，再冻结视频 U-Net 训练动作头，并阻断动作损失回传到视频网络。</td>
+      </tr>
+      <tr>
+        <td><strong>最重要的结果</strong></td>
+        <td>在 RoboCasa 上，Video Policy 使用 50 demos 达到平均成功率 0.63，高于 DP-VLA 0.57、GR00T 0.50、UVA 0.50；300 demos 时到 0.66。在 Libero10 上平均成功率 0.94，高于 UVA 0.90 和 $\pi_0$ 0.85。两阶段训练消融为 0.63，联合训练为 0.57，不调视频模型仅 0.09。</td>
+      </tr>
+      <tr>
+        <td><strong>阅读时要注意的点</strong></td>
+        <td>不要把它简单理解成“视频模型直接控制机器人”。动作仍由专门的动作扩散头输出，视频生成模型主要提供面向未来动态的中间表征。还要注意它的高计算成本：附录给出 8 张 A100 约两周训练，A100 上 25 帧视频一次生成约 9 秒。</td>
+      </tr>
+    </table>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>提出 Video Policy 框架：</strong>把 Image-to-Video Stable Video Diffusion 改造成闭环机器人策略，联合生成未来视频和动作。</li>
+      <li><strong>系统分析视频目标与动作目标的关系：</strong>消融显示先学会生成机器人执行视频，再训练动作解码头，比端到端联合训练更好。</li>
+      <li><strong>验证 action-free video 的价值：</strong>视频生成模型可用所有任务的视频进行训练，而动作头只在一半任务上训练时，仍能迁移到未提供动作监督的任务。</li>
+      <li><strong>覆盖模拟和真实机器人：</strong>实验包括 RoboCasa、Libero10 以及 5 个真实任务，真实任务测试了物体位置、未见物体和未见背景三类泛化。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/teaser_cropped.png" alt="Video Policy teaser">
+      <div class="caption">Figure 1：给定初始观察和语言任务，模型同时生成机器人执行任务的视频和动作序列。这个图是理解论文 claim 的入口：视频生成不是旁路可视化，而是策略表征的核心来源。</div>
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 背景与问题设定</h2>
+    <h3>2.1 要解决的核心矛盾</h3>
+    <p>机器人行为克隆已经能在许多操作任务上工作，但常见弱点是分布偏移：训练时见过的物体、背景、位置、任务组合有限，测试时稍微改变就可能失败。计算机视觉和 NLP 可以靠更大数据集覆盖长尾，但机器人动作示教收集成本高，尤其是真实世界 demonstrations 更贵。</p>
+    <p>作者把视频生成模型视为一个可利用的中间资源：互联网和机器人视频中存在大量没有动作标签的视频，它们可以帮助模型学习“从当前场景到未来任务执行过程”的动态先验。论文的问题不是单纯提高视频质量，而是证明这种像素级未来预测是否能稳定地服务于动作生成。</p>
+
+    <h3>2.2 前作卡在哪里</h3>
+    <ul>
+      <li><strong>纯行为克隆：</strong>直接从图像到动作，强依赖带动作标签的 demonstrations，对新物体和新背景的泛化有限。</li>
+      <li><strong>把视频模型当世界模拟器：</strong>可以生成未来场景，但若靠手工跟踪或后处理把视频变成动作，表达能力受限。</li>
+      <li><strong>学习动作解码器：</strong>如果动作解码器承担了太多策略学习，它本身又会受限于动作示教数据规模。</li>
+      <li><strong>联合视频-动作生成的并行工作：</strong>作者认为已有工作缺少一致 benchmark 和详细消融，难以判断成功来自视频目标、动作目标，还是架构细节。</li>
+    </ul>
+
+    <h3>2.3 本文的高层思路</h3>
+    <p>本文把策略拆成两个角色：视频生成器 $f$ 负责“想象”任务执行过程，动作模型 $g$ 负责把 $f$ 的中间特征解码成机器人动作。作者的核心假设是：只要视频生成模型能准确合成机器人执行任务的未来视频，那么动作解码器可以比较小，主要承担接口转换，而不是重新学习完整任务策略。</p>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的定位</th><th>与本文的区别</th></tr>
+      <tr>
+        <td>Behavior Cloning</td>
+        <td>从 demonstrations 监督学习动作，近年来常用 diffusion policy 处理多模态动作。</td>
+        <td>本文不是只从视觉编码到动作，而是显式训练视频扩散模型预测未来像素，再用动作扩散头解码。</td>
+      </tr>
+      <tr>
+        <td>Visual Pretraining for Policy Learning</td>
+        <td>视频预测、对比学习、MAE 等用于获得更稳健的视觉表征。</td>
+        <td>本文把视频预测作为策略学习的代理目标，并通过成功率、预测 horizon、action-free video 消融验证作用。</td>
+      </tr>
+      <tr>
+        <td>Video Models for Decision-Making</td>
+        <td>视频生成模型可用于世界模拟、长程规划或联合像素-动作生成。</td>
+        <td>本文强调在同一框架内系统比较视频/动作训练目标，并给出 RoboCasa、Libero10、真实机器人评估。</td>
+      </tr>
+    </table>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 方法细节</h2>
+    <h3>4.1 整体形式化</h3>
+    <p>输入是初始场景图像 $v_0$ 和语言任务描述 $c$。模型要输出一段机器人末端动作 $a_t \in \mathbb{R}^k$。论文把策略写成：</p>
+    <div class="formula-block">
+      <p class="intuition">直觉：先生成未来执行视频，再从视频生成器的中间表征中读出动作。</p>
+      $$
+      \{\hat v_t\}=f(v_0,c), \qquad
+      \{a_t\}=g(\psi_0,\ldots,\psi_i), \quad \psi_i=f_i(v_0,c)
+      $$
+      <p>其中 $f$ 是视频生成器，$f_i$ 表示视频生成器第 $i$ 层隐藏特征；$g$ 是动作解码模型。这里的关键不是最终像素本身，而是视频生成过程中形成的 spatiotemporal features。</p>
+    </div>
+
+    <h3>4.2 架构：Video U-Net + Action U-Net</h3>
+    <p>作者基于 Image-to-Video Stable Video Diffusion。视频 U-Net $\mu_\theta$ 接收两类条件：一类是任务文本 $c$ 的 CLIP embedding $\phi(c)$，通过 cross-attention 注入；另一类是输入图像 $v_0$ 经 SVD 冻结 VAE 得到的 latent $z_0=\mathrm{VAE}(v_0)$，与未来 noisy frames 的 latent 按 channel 拼接。</p>
+    <p>动作端是一个 adapted Diffusion Policy 的 1D CNN U-Net $\alpha_\theta$。在每个 denoising step $i$，从视频 U-Net decoder 的 5 个层取隐藏特征，论文给出层号为 9、14、17、20、23；这些 spatiotemporal features 经过 CNN adapter 压成向量 $h_i$，作为动作 U-Net 的 global conditioning。</p>
+    <div class="formula-block">
+      <p class="intuition">动作生成不是看最终视频帧后再做后处理，而是在每个去噪步与视频生成同步发生。</p>
+      $$
+      \{a_t\}=\alpha_\theta(a_i,i,h_i)
+      $$
+      <p>$a_i$ 是带噪动作，$i$ 是 diffusion denoising step，$h_i$ 是视频 U-Net 的中间特征。这个设计让动作头依赖视频模型正在构建的未来动态表征。</p>
+    </div>
+
+    <div class="figure">
+      <img src="figures/method_figure_v2_cropped.png" alt="Video Policy method">
+      <div class="caption">Figure 2：方法结构。初始图像、未来帧噪声和动作噪声一起进入系统；视频 U-Net 生成未来视频，动作 U-Net 使用视频 U-Net 中间表示来去噪动作。</div>
+    </div>
+
+    <h3>4.3 训练目标</h3>
+    <p>训练数据 $D=\{d_1,\ldots,d_n\}$ 中，每个 demonstration 包含视频观察 $\{v_t\}$、任务文本 $c$ 和动作 $\{a_t\}$。视频模型训练目标为标准 diffusion 噪声预测：</p>
+    <div class="formula-block">
+      $$
+      L_{\mathrm{video}}=\mathbb{E}_{z_0,\epsilon,i}
+      \left[\left\|\epsilon-\mu_\theta(z_i,i,\phi(c),z_{i,0})\right\|^2\right]
+      $$
+      <p>$z_i$ 是带噪视频 latent，$z_{i,0}$ 是第一帧对应的 noisy latent embedding，目标是让视频 U-Net 预测噪声 $\epsilon$。</p>
+    </div>
+    <div class="formula-block">
+      $$
+      L_{\mathrm{action}}=\mathbb{E}_{a_0,\epsilon,i}
+      \left[\left\|\epsilon-\alpha_\theta(a_i,i,h_i)\right\|^2\right]
+      $$
+      <p>动作头同样以 diffusion 噪声预测训练。作者明确阻断 $L_{\mathrm{action}}$ 对视频 U-Net $\mu_\theta$ 的梯度回传，让视频网络主要由像素未来预测目标驱动。</p>
+    </div>
+
+    <h3>4.4 两阶段训练为什么重要</h3>
+    <p>论文比较了 joint training 和 2-stage training。两阶段版本先用 RoboCasa 训练集微调 SVD 做视频生成，再冻结视频 diffusion U-Net，训练动作 denoising head。实验显示两阶段平均成功率 0.63，高于 joint 的 0.57；不微调视频模型、只用 vanilla SVD 特征时仅 0.09。这支持作者的解释：像素空间中的未来视频生成目标比动作生成目标更一般，视频模型需要先对“机器人执行策略的视频”完成任务域适配。</p>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 实验设置</h3>
+    <p>模拟实验覆盖 RoboCasa 和 Libero10，共 34 个操作任务。两个 benchmark 每个任务提供 50 条 human demonstrations。RoboCasa 遵循官方协议，每个任务在 5 个 RoboCasa scenes 中评估 50 次 rollout；Libero10 遵循 UVA 使用的评估协议。</p>
+    <p>动作空间为 $a_i\in\mathbb{R}^7$，包括 6-DoF gripper pose 和一个开合标量。输入视觉包括三路相机：gripper-mounted camera 以及左右侧相机。训练时每个相机预测 8 帧，总共 24 帧；为了适配 SVD 的 25 帧输入格式，在序列起始 pad 一帧。</p>
+
+    <h3>5.2 RoboCasa 主结果</h3>
+    <table>
+      <tr><th>方法</th><th>平均任务成功率</th><th>备注</th></tr>
+      <tr><td>3DA</td><td>0.06</td><td>显式 3D 表征基线</td></tr>
+      <tr><td>DP3</td><td>0.23</td><td>3D diffusion policy 相关基线</td></tr>
+      <tr><td>DP-ResNet</td><td>0.41</td><td>本文复现实验，ImageNet 预训练 ResNet</td></tr>
+      <tr><td>DP-CLIP</td><td>0.43</td><td>CLIP 视觉语言表示变体</td></tr>
+      <tr><td>GR00T</td><td>0.50</td><td>使用 300 demos</td></tr>
+      <tr><td>FPV</td><td>0.51</td><td>前视/3D 类强基线</td></tr>
+      <tr><td>DP-VLA</td><td>0.57</td><td>使用 3000 MimicGen 自动 demonstrations</td></tr>
+      <tr><td>UVA</td><td>0.50</td><td>联合视频动作生成并行工作</td></tr>
+      <tr><td><strong>Video Policy, 50 demos</strong></td><td><strong>0.63</strong></td><td>本文主模型，50 demos/任务</td></tr>
+      <tr><td><strong>Video Policy, 300 demos</strong></td><td><strong>0.66</strong></td><td>更多 MimicGen demonstrations 后进一步提升</td></tr>
+    </table>
+    <p>最值得读的细节是 Pick and Place 类任务。作者指出这类任务训练和测试之间有明显物体位置/类别分布偏移，而 Video Policy 在该类任务上提升尤其明显。例如 PnPStoveToCounter 在 50 demos 下为 0.64，PnPSinkToCounter 为 0.64，显著高于 GR00T 300 demos 的 0.29 和 0.33。</p>
+
+    <h3>5.3 Libero10 主结果</h3>
+    <table>
+      <tr><th>模型</th><th>DP-C</th><th>DP-T</th><th>OpenVLA</th><th>UniPi</th><th>$\pi_0$</th><th>$\pi_0$-FAST</th><th>UVA</th><th>Ours</th></tr>
+      <tr><td>平均成功率</td><td>0.53</td><td>0.58</td><td>0.54</td><td>0.00</td><td>0.85</td><td>0.60</td><td>0.90</td><td><strong>0.94</strong></td></tr>
+    </table>
+    <p>附录给出逐任务结果，Video Policy 在 10 个 Libero10 任务上的平均为 0.94，其中 4 个任务达到或接近 1.00，最低的 KITCHEN SCENE8 任务为 0.80。</p>
+
+    <h3>5.4 消融：视频目标到底有没有用</h3>
+    <table>
+      <tr><th>变体</th><th>RoboCasa 平均成功率</th><th>解释</th></tr>
+      <tr><td>Joint</td><td>0.57</td><td>视频与动作目标端到端联合训练</td></tr>
+      <tr><td><strong>2-Stage</strong></td><td><strong>0.63</strong></td><td>先训练视频生成，再冻结视频 U-Net 训练动作头</td></tr>
+      <tr><td>No Video Tuning</td><td>0.09</td><td>不把 SVD 微调到机器人执行视频，仅训练动作头</td></tr>
+      <tr><td>Half Tasks</td><td>0.41</td><td>动作头只在一半任务上训练，但视频模型可看所有任务视频</td></tr>
+      <tr><td>DP Half Tasks</td><td>0.21</td><td>ResNet Diffusion Policy 只在一半任务上训练</td></tr>
+    </table>
+    <p>这个表是论文论证链的关键。No Video Tuning 的 0.09 说明“直接拿预训练 SVD 特征”不足够；2-Stage 的 0.63 说明视频模型必须先适配到机器人执行轨迹，并且动作头最好作为冻结视频表征上的解码器。</p>
+
+    <h3>5.5 预测 horizon 与 action-free video</h3>
+    <p>作者固定动作预测为未来 1.6 秒，改变视频预测 horizon。附录中用于 horizon 分析的协议不同于标准 RoboCasa：作者采样 MimicGen 环境，以隔离分布偏移影响。逐任务表显示 32-step 视频 horizon 平均 0.67，16-step 为 0.55，0-step 为 0.30；在 pick-and-place 这类分布偏移任务上差距更明显。</p>
+    <div class="figure">
+      <img src="figures/video_horizon_plot_v2.png" alt="Prediction horizon plot">
+      <div class="caption">Figure 3：视频预测 horizon 越长，成功率越高；对存在分布偏移的任务，提升更明显。这里支持“学习环境动态对泛化有帮助”的结论。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/12_tasks_unseen_v3.png" alt="Unseen tasks with action-free videos">
+      <div class="caption">Figure 4：动作头只在左侧 12 个任务上训练，但视频生成模型可使用所有 24 个任务的视频。右侧未见动作监督任务上，Video Policy 明显优于只在 12 个任务上训练的 DP-ResNet。</div>
+    </div>
+
+    <h3>5.6 真实机器人结果</h3>
+    <p>真实实验包含 5 个任务：Open Drawer、Pick and Place、M&amp;Ms to Cup、Upright Object、Stack Cups。每个任务收集 200 条 demonstrations，并测试三类泛化：物体位置变化、未见物体、未见背景。每个条件用 10 次 rollouts 计算成功率。</p>
+    <table>
+      <tr><th>任务</th><th>Vary Object Location</th><th>Unseen Objects</th><th>Unseen Background</th></tr>
+      <tr><td>Open Drawer</td><td>0.8</td><td>1.0</td><td>0.9</td></tr>
+      <tr><td>Pick and Place</td><td>1.0</td><td>0.9</td><td>0.8</td></tr>
+      <tr><td>M&amp;Ms to Cup</td><td>0.8</td><td>0.9</td><td>0.2</td></tr>
+      <tr><td>Upright Object</td><td>0.3</td><td>0.7</td><td>0.8</td></tr>
+      <tr><td>Stack Cups</td><td>0.3</td><td>0.2</td><td>0.2</td></tr>
+    </table>
+    <p>真实实验的失败也很有信息量。作者明确指出 Upright Object 和 Stack Cups 的失败常来自不现实的视频预测，例如未能生成正确竖立放置，或生成了 gripper 导致杯子倾倒的轨迹。M&amp;Ms to Cup 在未见背景下降到 0.2，原因是背景颜色变化影响了对小物体的精确定位。</p>
+    <div class="figure">
+      <img src="figures/real_qualitative_figure_cropped.png" alt="Real-world qualitative results">
+      <div class="caption">Figure 5：真实 Pick and Place 的定性结果，覆盖位置、物体外观和背景颜色变化。</div>
+    </div>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 复现与实现要点</h2>
+    <h3>6.1 视频模型实现</h3>
+    <ul>
+      <li>基础模型：预训练 Image-to-Video Stable Video Diffusion，生成 25 帧视频序列。</li>
+      <li>多视角编码：RoboCasa 中第 1 帧是 padded frame，第 2-9 帧为 gripper view，第 10-17 帧为 left camera，第 18-25 帧为 right camera；作者修改 per-frame image embedding 表示相机视角。</li>
+      <li>动作 horizon：默认生成每个视角 8 帧，并表示 32-step prediction horizon；视频以 stride 4 subsample。</li>
+      <li>推理设置：30 denoising steps，classifier-free guidance scale 为 2.0；A100 上 256×256、25 帧、30 diffusion steps 约 9 秒。</li>
+    </ul>
+
+    <h3>6.2 训练超参数</h3>
+    <table>
+      <tr><th>模型</th><th>分辨率</th><th>学习率</th><th>Batch</th><th>Steps</th><th>Precision</th></tr>
+      <tr><td>Joint Training</td><td>256×256</td><td>1e-5</td><td>32</td><td>368866</td><td>16-mixed</td></tr>
+      <tr><td>2-Stage Training</td><td>256×256</td><td>1e-5</td><td>32</td><td>368866×2</td><td>16-mixed</td></tr>
+      <tr><td>No Video Tuning</td><td>256×256</td><td>1e-5</td><td>32</td><td>368866</td><td>16-mixed</td></tr>
+      <tr><td>2-Stage Libero10</td><td>256×256</td><td>1e-5</td><td>32</td><td>170000+140000</td><td>16-mixed</td></tr>
+      <tr><td>Real World</td><td>256×192 → 448×320</td><td>1e-5</td><td>32</td><td>331500+92960</td><td>16-mixed</td></tr>
+    </table>
+    <div class="impl-note">附录写明 RoboCasa 模型在 8 张 A100 上微调约两周，继续训练没有带来性能提升。真实模型先低分辨率加速训练，再高分辨率提升效果。</div>
+
+    <h3>6.3 Baseline 复现细节</h3>
+    <ul>
+      <li>UVA baseline：初始化使用预训练 VAE 和 MAR image generation model，修改为三张图像条件输入，并生成三路相机视角的 256×256 视频。</li>
+      <li>Diffusion Policy baseline：使用 UMI 实现，训练 ResNet18 和 CLIP-Base 两种变体；任务名称用同一 CLIP text encoder 编码后与图像 embedding 拼接为 global context。</li>
+      <li>DP baseline 也使用三路相机分别编码。ResNet 输入 256×256，CLIP 输入 224×224，batch size 为 768，预测未来 32 steps，在模拟中 rollout 16 steps。</li>
+    </ul>
+
+    <h3>6.4 真实机器人设置</h3>
+    <p>真实 demonstrations 由人用改造手持 gripper 收集。左右侧相机是 Intel RealSense D435，gripper-mounted camera 是 Basler fisheye camera；gripper pose 由 RealSense T265 追踪，开口由 ArUco marker 估计，夹持力由单轴力传感器测量，所有传感器运行在 30 Hz。</p>
+    <p>模型输入三路 RGB 图像，预测未来 32 步相对 gripper pose、相对夹爪位置和绝对抓取力。部署时机器人使用 impedance control 执行其中 24/32 步。若预测夹持力比实际测量值高 300g 以上，系统会加入小的 gripper closing correction，防止抓取力不足。</p>
+    <div class="figure">
+      <img src="figures/appendix_experiment_setup_cropped.png" alt="Real robot setup">
+      <div class="caption">附录图：数据收集和真实机器人实验设置。这个图说明本文真实数据不是遥操作机器人直接采集，而是用与机器人末端一致的手持 gripper 采集人类示教。</div>
+    </div>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是把“视频生成能否作为策略学习代理目标”变成了可检验的工程问题，而不是只给出定性演示。论文用同一架构同时比较 joint、2-stage、no video tuning、half tasks、不同 video horizon，并把结论落在成功率上：2-stage 高于 joint，不调视频模型几乎失效，长视频 horizon 更好，action-free videos 能帮助未见动作监督任务。这些消融直接服务于核心命题。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <div class="check">
+      <ul>
+        <li><strong>多个 benchmark：</strong>模拟实验覆盖 RoboCasa 和 Libero10，共 34 个任务，不只是一两个 demo。</li>
+        <li><strong>比较对象强：</strong>RoboCasa 中和 DP-ResNet、DP-CLIP、GR00T、DP-VLA、UVA 等比较；Libero10 中和 $\pi_0$、$\pi_0$-FAST、UVA 等比较。</li>
+        <li><strong>消融围绕因果链：</strong>No Video Tuning 0.09 排除了“随便拿 SVD 特征就够”的解释；2-Stage 0.63 高于 Joint 0.57 支持“让视频目标主导表征”的设计；32-step horizon 0.67 高于 16-step 0.55 和 0-step 0.30，说明未来动态预测长度与策略泛化相关。</li>
+        <li><strong>真实机器人验证边界：</strong>真实实验不是只展示成功案例，还给出失败任务和失败原因，例如 Stack Cups、M&amp;Ms to Cup 在某些分布偏移下失败。</li>
+      </ul>
+    </div>
+
+    <h3>7.3 作者给出的局限</h3>
+    <ul>
+      <li><strong>规模边界：</strong>作者承认研究限制在有限规模的 simulation benchmarks 和单一真实机器人 embodiment 上。更广泛任务、环境和机器人形态还需要验证。</li>
+      <li><strong>模型族边界：</strong>本文只探索了 Stable Video Diffusion 这一种视频生成模型实例。结论是否对其它视频模型家族稳定成立，需要更大范围测试。</li>
+      <li><strong>计算成本：</strong>视频扩散模型推理和训练成本高。附录的 A100 训练时间和单次视频生成耗时说明它离实时低成本部署还有距离。</li>
+      <li><strong>真实物理先验不足：</strong>真实实验中 Upright Object 和 Stack Cups 的失败被归因于不现实视频预测，说明 SVD 预训练并不自动拥有足够强的真实接触物理先验。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>从论文证据看，Video Policy 更适合视觉分布偏移明显、但任务仍可通过短期未来视频表达的操作任务，例如 pick-and-place、开关门、按按钮等。对于需要极精确小物体定位、强接触物理、实时响应或跨 embodiment 迁移的场景，论文当前证据较弱。</p>
+
+    <h3>7.5 组会阅读提醒</h3>
+    <ul>
+      <li>读方法时关注“视频模型是策略”这句话的技术含义：它不是输出动作，而是提供动作解码依赖的未来动态表征。</li>
+      <li>读实验时优先看 Table 1、Table 3、Figure 3、Figure 4，它们分别对应主结果、训练目标消融、预测 horizon、action-free video。</li>
+      <li>读局限时不要忽略计算成本和真实失败案例。论文的 claim 是视频生成能显著正则化策略学习，不是已经解决实时机器人控制。</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

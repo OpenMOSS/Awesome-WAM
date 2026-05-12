@@ -1,0 +1,20 @@
+\begin{table}
+
+\centering
+% \refstepcounter{table}
+\vspace{-.2cm}
+\begin{tblr}{
+  cells = {c},
+  hline{1,6} = {-}{0.08em},
+  hline{2} = {-}{},
+}
+        & LPIPS $\downarrow$           & SSIM $\uparrow$          & PSNR $\uparrow$          & FVD $\downarrow$            & CLIP $\uparrow$           \\
+base    & 0.1498          & 0.6924          & 20.07          & 184.71          & 24.10          \\
+w/o SPA & 0.1415          & 0.7032          & 20.36          & 169.50          & 24.19          \\
+w/o 3D   & 0.1430          & 0.7102          & 20.11          & 168.83          & 24.21          \\
+ours    & \textbf{0.1305} & \textbf{0.7178} & \textbf{20.51} & \textbf{167.57} & \textbf{24.24} 
+\end{tblr}
+\caption{Quantitative result of ablation study}
+\label{tab:ablation}
+
+\end{table}

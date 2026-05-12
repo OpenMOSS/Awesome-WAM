@@ -1,0 +1,102 @@
+
+\paragraph{Language-Conditioned Video Generation Module.}
+The video generation module predicts future visual trajectories conditioned on both past observations and task-level language instructions.
+Given an instruction $g$, a frozen T5-XXL encoder~\citep{raffel2020exploring} produces a sequence of language embeddings
+$\mathcal{T}(g) \in \mathbb{R}^{L_g \times d_t}$,
+which are injected into a Diffusion Transformer (DiT)~\citep{peebles2023scalable} backbone via cross-attention.
+Let $i \in \{h,l,r\}$ index camera views (e.g., head, left, right).
+We denote by $\textstyle v_0^{(i)}$ the encoded initial observation, $\textstyle v_{\hat{t}}^{(i)}$ a sparse visual memory at time $\textstyle \hat{t}$, and $\textstyle z^{(i)} \sim \mathcal{N}(0,I)$ a view-specific latent noise variable.
+The video generation module $\mathcal{W}$ predicts the next visual segment as
+
+$\textstyle \hat{x}_{t:t+N} = \mathcal{W}\!\big(\{v_0^{(i)}, v_{\hat{t}}^{(i)}, z^{(i)}\}_{i}, \mathcal{T}(g)\big)$.
+By jointly conditioning on multi-view visual history, stochastic latent variables, and language semantics, $\mathcal{W}$ captures both task intent and spatiotemporal dynamics.
+Video generation proceeds autoregressively, yielding a temporally coherent visual rollout that represents the policy’s future execution.
+Here, with a slight abuse of notation, we use $\mathcal{W}$
+to denote the visual rollout component of the latent trajectory generator
+$\mathcal{W}_\theta$ introduced in Section~\ref{sec:theory},
+which produces the visual subspace of a full state--action trajectory.
+\paragraph{Trajectory Value and Action Decoding Modules.}
+Both the trajectory value and action decoding modules adopt a DiT-based autoregressive architecture operating on latent trajectory representations.
+Visual features are first transformed into temporally structured tokens, which are then evaluated and decoded into actions.
+At DiT block $i$, video tokens are processed as
+
+$\mathbf{x}_i = \mathcal{B}_i^{\mathrm{vid}}\left(\mathbf{x}_{\mathrm{in}}, \mathcal{T}(g)\right)$,
+where $\mathcal{B}_i^{\mathrm{vid}}$ denotes the $i^{th}$ visual transformer block.
+The trajectory value module initializes a latent value token
+$\mathbf{z}_{\mathrm{val}} \sim \mathcal{N}(0,I)$
+and refines it through cross-attention with video features:
+
+$\mathbf{u}_i = \mathcal{B}_i^{\mathrm{val}}\big(\mathbf{z}_{\mathrm{val}}, \operatorname{CrossAttn}(\mathbf{z}_{\mathrm{val}}, \mathbf{x}_i)\big)$,
+where $\mathbf{u}_i$ represents the latent trajectory value embedding.
+The action decoder initializes latent action tokens $\mathbf{z}_{\mathrm{act}}$ and sequentially integrates video and value feature:
+
+{
+
+\begin{equation}
+\begin{aligned}
+\mathbf{z}_{\mathrm{act}}^{(i)}
+&=
+\mathcal{B}_i^{\mathrm{act}}\!\left(
+\mathbf{z}_{\mathrm{act}}^{(i-1)},
+\operatorname{CrossAttn}(\mathbf{z}_{\mathrm{act}}^{(i-1)}, \mathbf{x}_i)
+\right), \text{and } 
+\mathbf{a}_i
+=
+\mathcal{B}_i^{\mathrm{act}}\!\left(
+\mathbf{z}_{\mathrm{act}}^{(i)},
+\operatorname{CrossAttn}(\mathbf{z}_{\mathrm{act}}^{(i)}, \mathbf{u}_i)
+\right).
+\end{aligned}
+\label{eq:action}
+\end{equation}
+}
+\paragraph{Training via Flow Matching.}
+
+We adopt a three-stage training strategy based on flow matching.
+Following standard flow matching formulations,
+we assume that $x^0, v^0, a^0$ are samples drawn from the corresponding base noise distributions
+for video, trajectory return, and robot actions, respectively,
+while $x^1, v^1, a^1$ denote samples from the target data distributions,
+including the target video trajectories,
+the return
+$v^1 = \sum_{i=0}^{H} \gamma^i R(s_{t+i}, a_{t+i})$,
+and the target robot action distribution.
+Here we use a rule-based dense reward function similar to that used in previous work--ReinboT~\citep{zhang2025reinbot} (details in Appendix Sec.~\ref{appendix:Implementation_Details}).
+First, the video generation module is trained using a video flow loss:
+
+$\mathcal{L}_{\mathrm{vid}} = \mathbb{E}\!\left[\| v_\theta(t, l, o, x^t) - (x^1 - x^0) \|_2^2 \right]$.
+The video model is then frozen, and a trajectory value module is trained to predict cumulative discounted rewards:
+
+$\mathcal{L}_{\mathrm{val}} = \mathbb{E}\big[\| v_\theta(t, l, o, z_{\mathrm{vid}}, v^t) - (v^1 - v^0) \|_2^2 \big]$.
+
+Finally, all modules are jointly trained with an action flow loss:
+
+$\mathcal{L}_{\mathrm{act}} = \mathbb{E}\big[\| v_\theta(t, l, o, z_{\mathrm{vid}}, z_{\mathrm{val}}, a^t) - (a^1 - a^0) \|_2^2 \big]$.
+
+\begin{wrapfigure}{r}{0.6\columnwidth}
+\vspace{-10pt}
+\begin{minipage}{0.56\columnwidth}
+\begin{algorithm}[H]
+\caption{WAV: Latent Trajectory Planning}
+\label{alg:latent_mppi}
+\begin{algorithmic}[1]
+\State Video generator module $\mathcal{W}$, trajectory value module $\mathcal{V}$, initial flow noise distributions $f_{\mathrm{vid}}^{(0)}, f_{\mathrm{val}}^{(0)}$, samples $(M,N)$, elites $(K_1,K_2)$.
+\For{iteration $k = 1,\dots,K$}
+    \State Sample video latent noise $\mathbf{z}_{\mathrm{vid}}^{(m)} \sim f_{\mathrm{vid}}^{(k-1)}$
+    \State Generate video feature $\mathbf{x}^{(m)}$ 
+    \For{each video feature $\mathbf{x}^{(m)}$}
+        \State Sample value latent noise $\mathbf{z}_{\mathrm{val}}^{(m,n)} \sim f_{\mathrm{val}}^{(k-1)}$
+        \State Evaluate values $\mathbf{U}^{(m,n)}$ 
+        \State Compute score $\phi^{(m)}$ 
+    \EndFor
+    \State Update $f_{\mathrm{vid}}^{(k)}$ using top-$K_1$ samples by Eq.~\ref{eq:video_mu_sigma}
+    \State Update $f_{\mathrm{val}}^{(k)}$ using top-$K_2$ samples by Eq.~\ref{eq:value_mu_sigma}
+\EndFor
+\State Sample optimized latent noise $\mathbf{z}_{\mathrm{vid}}^\star, \mathbf{z}_{\mathrm{val}}^\star$
+\State Predict action by Eq.~\ref{eq:action}
+\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\vspace{-10pt}
+\end{wrapfigure}
+

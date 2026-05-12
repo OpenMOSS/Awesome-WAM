@@ -1,0 +1,11 @@
+
+
+\noindent\textbf{Experimental Setup.}
+We evaluate \method on 50 RoboTwin simulation tasks under Easy and Hard settings. Unless otherwise noted, all models are trained on the same 30K RoboTwin simulation dataset and evaluated under identical task definitions and success criteria. The video generation model is initialized from Wan2.2-TI2V-5B~\cite{wan2025wan}.
+
+\noindent\textbf{Baselines and Metrics.}
+We select $\pi_{0.5}$~\cite{pi05}, X-VLA~\cite{xVLA}, and Motus~\cite{bi2025motusunifiedlatentaction} as our baselines, and additionally report Stage1, our supervised model before RL post-training, to isolate the effect of self-distillation. We use success rate (\textbf{SR}) as the primary metric. During RL post-training, the action head is initialized from the Stage1 checkpoint, while the video generation model and value-map head remain frozen.
+
+\noindent\textbf{Main Results and Analysis.}
+As shown in Table~\ref{tab:stage1-stage2-baselines-final}, \method achieves average SRs of \textbf{94.0\%} and \textbf{92.1\%} under the Easy and Hard settings, respectively, outperforming all external baselines~\cite{xVLA,pi0,pi05,bi2025motusunifiedlatentaction,yuan2026fastwam,gigaworld,li2026causal}. In particular, compared with Motus~\cite{bi2025motusunifiedlatentaction}, \method improves the average SR by \textbf{+5.3\%} and \textbf{+5.0\%} under Easy and Hard setting, respectively; compared with $\pi_{0.5}$~\cite{pi05}, the gains increase to \textbf{+11.3\%} and \textbf{+15.3\%}. Stage 1 reaches \textbf{93.0\%}/\textbf{92.0\%}, indicating that RL post-training brings further improvement. The largest gains in Table~\ref{tab:stage1-stage2-baselines-final} appear on contact-sensitive and stage-dependent tasks, such as \emph{Place Mouse Pad} (\textbf{97\%}/\textbf{95\%}), \emph{Scan Object} (\textbf{100\%}/\textbf{98\%}), and \emph{Turn Switch} (\textbf{100\%}/\textbf{98\%}), where accurate localization of task-relevant interaction regions is critical. This trend is also supported qualitatively: future frame predictions remain temporally aligned with the manipulation stage, value maps concentrate on meaningful interaction regions rather than generic saliency, and projected action targets fall within the corresponding high-value areas, suggesting that the gains indeed come from the intended spatial bridge rather than shortcut correlations.
+

@@ -1,0 +1,25 @@
+\begin{table*}[t]
+\centering
+\caption{Performance comparison of OmniVTA and baseline methods across six tasks under three evaluation settings: object diversity (O), generalization (G), and perturbation robustness (P). Results are reported in terms of success rate.}
+\label{tab:full_comparison_final_scaled}
+\small
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.3}
+
+\begin{tabularx}{\textwidth}{@{} l *{15}{>{\centering\arraybackslash}X} @{}}
+\toprule
+\textbf{Task} & \multicolumn{3}{c}{\textbf{Wipe}} & \multicolumn{3}{c}{\textbf{Peel}} & \multicolumn{3}{c}{\textbf{Cut}} & \multicolumn{3}{c}{\textbf{Assembly}} & \multicolumn{1}{c}{\textbf{Grasp}} & \multicolumn{2}{c}{\textbf{Adjustment}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13} \cmidrule(lr){14-14} \cmidrule(lr){15-16}
+\makecell[l]{\textbf{Method /}\textbf{ Eval. setting}} & \textbf{O} & \makecell[c]{{\textbf{G}}} & \textbf{P} & \textbf{O} & \makecell[c]{\textbf{G}} & \textbf{P} & \textbf{O} & \makecell[c]{{\textbf{G}}} & \textbf{P} & \textbf{O} & \makecell[c]{{\textbf{G}}} & \textbf{P} & \textbf{O} & \textbf{O} & \makecell[c]{\textbf{G}} \\
+\midrule
+DP               & 0.12 & 0.05 & 0 & 0.06 & 0 & 0 & 0.28 & 0.10 & 0 & 0.10 & 0 & 0.05 & 0.20 & 0 & 0 \\
+DP+tactile       & 0.36 & 0.28 & 0 & 0.32 & 0.20 & 0.08 & 0.33 & 0.15 & 0.13 & 0.30 & 0.10 & 0.10 & 0.48 & 0.25 & 0.15 \\
+KineDex          & 0.40 & 0.25 & 0 & 0.24 & 0.13 & 0.05 & 0.38 & 0.30 & 0.20 & 0.30 & 0.15 & 0.15 & 0.65 & 0.30 & 0.20 \\
+ForceMimic       & 0.33 & 0.20 & 0 & 0.27 & 0.18 & 0 & 0.50 & 0.25 & 0.05 & 0.35 & 0.15 & 0.10 & 0.60 & 0.10 & 0 \\
+RDP              & 0.50 & 0.38 & 0.42 & 0.48 & 0.36 & 0.45 & 0.65 & 0.50 & 0.43 & \textbf{0.60} & \textbf{0.50} & 0.35 & 0.88 & 0.50 & 0.50 \\
+OmniVTA w/o RLTC & 0.66 & 0.40 & 0.25 & 0.40 & 0.30 & 0.20 & 0.50 & 0.50 & 0.20 & 0.40 & 0.35 & 0.20 & 0.70 & 0.40 & 0.30 \\
+\textbf{OmniVTA} & \textbf{0.80} & \textbf{0.58} & \textbf{0.60} & \textbf{0.55} & \textbf{0.48} & \textbf{0.63} & \textbf{0.85} & \textbf{0.83} & \textbf{0.60} & \textbf{0.60} & \textbf{0.50} & \textbf{0.40} & \textbf{0.90} & \textbf{0.65} & \textbf{0.65} \\
+\bottomrule
+\end{tabularx}
+\vspace{-3mm}
+\end{table*}

@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TesserAct - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+  <header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>TesserAct: Learning 4D Embodied World Models</h1>
+    <div class="meta">
+      <p><strong>arXiv:</strong> 2504.20995</p>
+      <p><strong>作者:</strong> Haoyu Zhen, Qiao Sun, Hongxin Zhang, Junyan Li, Siyuan Zhou, Yilun Du, Chuang Gan</p>
+      <p><strong>机构:</strong> UMass Amherst, HKUST, Harvard University</p>
+      <p><strong>项目页:</strong> <a href="https://TesserActWorld.github.io">https://TesserActWorld.github.io</a></p>
+      <p><strong>报告定位:</strong> 面向 junior PhD 组会准备的中文精读报告，覆盖正文、表格、图像和补充材料实现细节。</p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 研究问题与动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验与结果</a></li>
+      <li><a href="#repro">6. 复现要点</a></li>
+      <li><a href="#analysis">7. 分析、局限与边界</a></li>
+      <li><a href="#qa">8. 组会问答准备</a></li>
+    </ul>
+  </nav>
+<section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      TesserAct 的核心主张是：机器人 world model 不应只生成 2D RGB 视频，而应生成同时包含外观、深度和法向的 RGB-DN 视频，再把它重建成时空一致的 4D 场景。这个 4D 表示既能做 novel view synthesis，也能给 inverse dynamics policy 提供更强的几何信息。
+    </div>
+
+    <table>
+      <tbody>
+        <tr>
+          <th style="width: 170px;">论文要解决什么</th>
+          <td>解决 embodied world model 只在 2D pixel space 中预测未来导致的空间关系不完整问题。对于抓取、开抽屉、使用工具等任务，机器人需要深度、表面方向和动态几何；只生成 RGB 视频容易出现物体尺度、形状、位姿和时间一致性错误。</td>
+        </tr>
+        <tr>
+          <th>作者的方法抓手</th>
+          <td>作者不直接预测昂贵的 4D point cloud 或 mesh，而是选择轻量中间表示 RGB-DN video。方法抓手包括：自动构建 RGB、Depth、Normal 标注数据集；修改并微调 CogVideoX 生成 RGB-DN；用 depth-normal integration、optical flow temporal consistency 和 regularization loss 把视频重建成 4D scene；最后用 4D point cloud 训练 inverse dynamics model 做动作规划。</td>
+        </tr>
+        <tr>
+          <th>最重要的结果</th>
+          <td>在 real/synthetic 4D scene generation 上，TesserAct 在 depth、normal 和 reconstructed point cloud Chamfer $L_1$ 上取得最优；在 RLBench action planning 9 个任务中，4DWM 在 7 个任务上超过 UniPi* 和 Image-BC，例如 close box 88、open drawer 80、open jar 44、sweep to dustpan 56、water plants 41。</td>
+        </tr>
+        <tr>
+          <th>阅读时要注意的点</th>
+          <td>这篇论文的关键不是“多预测两个通道”这么简单，而是 RGB-DN 作为 4D world 的低维接口是否足够：它要同时保留视频模型的可训练性、几何重建的可用性、以及下游 action planning 的收益。阅读时应重点追踪：数据标注是否可靠、depth/normal 与 RGB 的联合建模是否真的改善 4D 重建、几何信息何时帮助动作规划、何时 2D 信息已经足够。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <figure>
+      <img src="figures/figures_cover.png" alt="TesserAct teaser">
+      <figcaption>Figure 1. TesserAct 总览：输入图像和文本动作指令，生成 RGB、Depth、Normal 视频，进一步重建 4D scene，并支持动作预测。Teaser 同时展示 in-domain、unseen objects/scenes 和 cross-domain 场景。</figcaption>
+    </figure>
+
+    <div class="grid">
+      <div class="audit-card">
+        <h3>一句话贡献</h3>
+        <p>论文把机器人视频 world model 从 2D RGB 预测推进到 RGB-DN 条件生成，并提出从生成视频到时空一致 4D scene 的重建和下游控制 pipeline。</p>
+      </div>
+      <div class="audit-card">
+        <h3>关键词</h3>
+        <p>
+          <span class="pill">4D Embodied World Model</span>
+          <span class="pill">RGB-DN Video</span>
+          <span class="pill">CogVideoX Fine-tuning</span>
+          <span class="pill">Depth-Normal Integration</span>
+          <span class="pill">Inverse Dynamics</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 研究问题与动机</h2>
+    <h3>2.1 为什么 2D world model 不够</h3>
+    <p>Learned world models 的目标是模拟环境动态，用于 policy synthesis、data simulation 和 long-horizon planning。已有视觉 world model 多在 2D pixel space 中生成未来 RGB 视频，但物理世界本质上是三维的。只看 RGB 会让模型缺少深度、6-DoF pose、表面方向和几何约束，对需要精确位置和姿态的机器人操作不够。</p>
+    <p>作者在 Introduction 中举的核心问题是：2D 模型可能在时间上产生物体尺寸和形状不一致，导致数据驱动仿真和 robust policy learning 受到限制。也就是说，生成视频看起来合理不等于它能支撑机器人对物体几何的判断。</p>
+
+    <h3>2.2 为什么不直接预测完整 4D 几何</h3>
+    <p>直接生成 3D scene over time 非常昂贵，训练和推理都比 2D 视频复杂。TesserAct 的折中是预测 RGB-DN video：RGB 表示外观，Depth 表示几何距离，Normal 表示表面方向。这个表示比完整 4D scene 低维得多，又比 RGB 多了机器人需要的几何信息，而且可以复用现有视频扩散模型的能力。</p>
+
+    <h3>2.3 数据瓶颈</h3>
+    <p>训练 4D world model 需要大规模带深度和法向的视频数据，但真实机器人数据通常没有这些标注。作者的解决方案是把现有机器人视频数据扩展成 RGB-DN：仿真数据使用 simulator depth 和 depth2normal，真实数据用 RollingDepth 估计 depth、用 Temporal-Consistent Marigold-LCM-normal 估计 normal。这个自动标注 pipeline 是方法能成立的前提。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <h3>3.1 Embodied foundation models</h3>
+    <p>论文把现有 embodied foundation models 分成两类：一类是基于多模态语言模型，用图像或 3D 输入输出动作描述；另一类是 VLA 模型，直接输出 action tokens。TesserAct 与它们的定位不同：它不是直接构造 policy，而是构造可被 planning 或 policy synthesis 使用的 4D world model。</p>
+
+    <h3>3.2 Learning world models</h3>
+    <p>低维 state-space world model 学习效率高但难跨环境泛化；pixel-space world model 在简单游戏环境中有效，但不直接表达三维几何。近年的 video foundation world models 能生成丰富未来视频，但依旧多在 2D RGB 上工作。TesserAct 的差异是把深度和法向纳入生成目标，再重建动态 3D 场景。</p>
+
+    <h3>3.3 4D video generation</h3>
+    <p>4D generation 领域常借助 diffusion、NeRF 和 3D Gaussian Splatting，但许多方法需要慢速优化或依赖 SDS loss。本文选择 RGB-DN video 作为更高效的中间表示，不做纯文本到 4D 物体生成，而是面向 embodied agent：从当前帧和文本动作指令预测 4D scene evolution。</p>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 任务形式：条件 RGB-DN video diffusion</h3>
+    <p>论文把 RGB \(\mathcal{V}\)、Depth \(\mathcal{D}\)、Normal \(\mathcal{N}\) 视频生成写成条件去噪任务：</p>
+    <div class="formula-block">
+      $$p(\mathbf{v}, \mathbf{d}, \mathbf{n}\mid \mathbf{v}^0, \mathbf{d}^0, \mathbf{n}^0, \mathcal{T})$$
+    </div>
+    <p>其中 \(\mathbf{v}, \mathbf{d}, \mathbf{n}\) 是未来 RGB、depth、normal 的 latent 序列，条件 \(\mathbf{v}^0,\mathbf{d}^0,\mathbf{n}^0,\mathcal{T}\) 对应初始图像、初始 depth/normal 和文本动作指令。对任一模态 latent \(\mathbf{z}\in\{\mathbf{v},\mathbf{d},\mathbf{n}\}\)，forward diffusion 为：</p>
+    <div class="formula-block">
+      $$q(\mathbf{z}_t|\mathbf{z}_{t-1})=\mathcal{N}\left(\mathbf{z}_t;\sqrt{\alpha_t}\mathbf{z}_{t-1},(1-\alpha_t)\mathbf{I}\right)$$
+    </div>
+    <p>把三种模态拼接为 \(\mathbf{x}=[\mathbf{v},\mathbf{n},\mathbf{d}]\)，denoising network \(\epsilon_\theta(\mathbf{x}_t,t,\mathbf{x}^0,\mathcal{T})\) 学习反向过程并最终解码到 pixel space。</p>
+
+    <h3>4.2 RGB-DN 数据集构建</h3>
+    <p>作者构建的 4D embodied video dataset 来自 synthetic 和 real 两类数据。仿真部分从 RLBench 选 20 个较难任务，每个任务生成 1000 个实例，每个实例 4 个视角，总计 80k synthetic 4D embodied videos。RLBench 提供 metric depth，但没有 normal，因此用 DSINE 的 <code>depth2normal</code> 从 depth 估计 normal；为了增强泛化，使用 Colosseum 风格的 scene randomization 改变背景、桌面纹理和光照。</p>
+    <p>真实数据来自 OpenX 中的 RT1 Fractal 和 Bridge，再加入 SomethingSomethingV2 提高动作/指令多样性。真实数据缺少 depth/normal，作者用 RollingDepth 标注 affine-invariant depth，用 Temporal-Consistent Marigold-LCM-normal 标注 normal。</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>Domain</th>
+          <th>Depth Source</th>
+          <th>Normal Source</th>
+          <th>Embodiment</th>
+          <th># Videos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>RLBench</td><td>Synthetic</td><td>Simulator</td><td>Depth2Normal</td><td>Franka Panda</td><td>80k</td></tr>
+        <tr><td>RT1 Fractal Data</td><td>Real</td><td>RollingDepth</td><td>Marigold</td><td>Google Robot</td><td>80k</td></tr>
+        <tr><td>Bridge</td><td>Real</td><td>RollingDepth</td><td>Marigold</td><td>WidowX</td><td>25k</td></tr>
+        <tr><td>SomethingSomethingV2</td><td>Real</td><td>RollingDepth</td><td>Marigold</td><td>Human Hand</td><td>100k</td></tr>
+      </tbody>
+    </table>
+
+    <figure>
+      <img src="figures/figures_dataset.png" alt="Dataset examples">
+      <figcaption>Supplementary Figure. 数据样例，展示 Bridge 和 RT-1 中抽取的 RGB、depth、normal 帧及自然语言指令。该图对应补充材料的数据展示。</figcaption>
+    </figure>
+
+    <h3>4.3 模型架构：从 CogVideoX 到 RGB-DN predictor</h3>
+    <p>TesserAct 不从零训练扩散视频模型，而是修改并微调 CogVideoX。RGB、depth、normal 三种视频分别由 CogVideoX 的 3D VAE 编码，VAE 不额外 fine-tune。输入侧为三种模态引入独立 projector：</p>
+    <div class="formula-block">
+      $$f_{\mathbf{z}}=\texttt{InputProj}(\mathbf{z}_t,\mathbf{z}^0),\qquad \mathbf{z}\in\{\mathbf{v},\mathbf{d},\mathbf{n}\}$$
+      $$\mathbf{h}=\texttt{DiT}\left(\sum f_{\mathbf{z}},t,\mathcal{T}\right)$$
+    </div>
+    <p>文本条件 \(\mathcal{T}\) 被定义为动作指令加机器人名称，例如 “pick up apple google robot”，这是为了区分不同 embodiment。输出侧保留原 RGB 输出方式 \(\epsilon^*_\mathbf{v}=\texttt{OutputProj}(h)\)，再为 depth/normal 增加模块：用 Conv3D 编码输入 latent 和 RGB denoised output 的拼接，再与 DiT hidden states 结合，经 DNProj 得到 depth/normal 的去噪预测。</p>
+    <div class="formula-block">
+      $$\epsilon^*_{\mathbf{d},\mathbf{n}}=\texttt{DNProj}\left(h,\texttt{Conv3D}\left(\epsilon^*_\mathbf{v},[\mathbf{z}_t;\mathbf{z}^0]_{\mathbf{z}\in\{\mathbf{v},\mathbf{d},\mathbf{n}\}}\right)\right)$$
+    </div>
+    <p>为保留 CogVideoX 的 RGB 生成知识，作者用 CogVideoX 权重初始化主干，其他新增模块用 0 初始化，使训练初期 RGB 输出与 CogVideoX 一致。训练损失是三模态噪声预测的 MSE：</p>
+    <div class="formula-block">
+      $$L=\mathbb{E}_{\mathbf{v}_0,\mathcal{T},t,\epsilon}\left[\left\|[\epsilon_\mathbf{v},\epsilon_\mathbf{d},\epsilon_\mathbf{n}]-\epsilon_\theta(\mathbf{x}_t,t,\mathbf{x}^0,\mathcal{T})\right\|^2\right]$$
+    </div>
+
+    <figure>
+      <img src="figures/figures_arch-new.png" alt="TesserAct architecture">
+      <figcaption>Figure 2. TesserAct 架构和训练流程。重点是三模态 latent 输入、DiT backbone 复用、以及 depth/normal 的额外输出分支。</figcaption>
+    </figure>
+
+    <h3>4.4 从 RGB-DN video 重建 4D scene</h3>
+    <p>生成的 depth 是相对 depth，不能直接得到完整尺度一致的 3D scene；而仅逐帧 depth-normal integration 又缺少时间一致性。TesserAct 的重建算法先用 normal map 优化每帧 depth，再用 optical flow 建立跨帧约束。</p>
+    <p>在 perspective camera 下，pixel \(\boldsymbol{u}=(u,v)^T\)、depth \(d\)、normal \(\boldsymbol{n}=(n_x,n_y,n_z)\) 满足 log-depth \(\tilde{d}=\log(d)\) 的 normal integration 约束。作者采用迭代优化形式：</p>
+    <div class="formula-block">
+      $$\tilde{d}_{t+1}=\arg\min_{\tilde{d}}(A\tilde{d}-b)^TW(\tilde{d}_t)(A\tilde{d}-b)
+      \stackrel{\mathrm{def}}{=}\arg\min_{\tilde{\mathcal{D}}}\mathcal{L}_s(\tilde{\mathcal{D}},\mathcal{N}^i)$$
+    </div>
+    <p>然后用 RAFT optical flow \(\mathcal{F}\) 识别 static 和 dynamic regions：\(\mathcal{M}_s^i=\|\mathcal{F}^i\|\le c\)，\(\mathcal{M}_d^i=\neg\mathcal{M}_s^i\)，背景区域为 \(\mathcal{M}_b^i=\mathcal{M}_s^i\cap\mathcal{M}_s^{i-1}\)。根据 flow 把前一帧 depth warp 到当前帧位置，定义 temporal consistency loss：</p>
+    <div class="formula-block">
+      $$\mathcal{L}_c=
+      \lambda_{cd}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_d^i-\mathcal{D}^{i\rightarrow(i-1)}\circ\mathcal{M}_d^i\right\|^2+
+      \lambda_{cb}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_b^i-\mathcal{D}^{i\rightarrow(i-1)}\circ\mathcal{M}_b^i\right\|^2$$
+    </div>
+    <p>同时加入 regularization loss，让优化后的 depth 不偏离生成 depth 太远：</p>
+    <div class="formula-block">
+      $$\mathcal{L}_r=
+      \lambda_{rd}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_d^i-\mathcal{D}^{i}\circ\mathcal{M}_d^i\right\|^2+
+      \lambda_{rb}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_b^i-\mathcal{D}^{i}\circ\mathcal{M}_b^i\right\|^2$$
+    </div>
+    <p>总目标为：</p>
+    <div class="formula-block">
+      $$\arg\min_{\tilde{\mathcal{D}}}\ \mathcal{L}_s(\tilde{\mathcal{D}},\mathcal{N}^i)+
+      \mathcal{L}_c(\tilde{\mathcal{D}},\hat{\mathcal{D}}^{i-1},\mathcal{F}^i,\mathcal{F}^{i-1})+
+      \mathcal{L}_r(\tilde{\mathcal{D}},\mathcal{D}^i)$$
+    </div>
+
+    <figure>
+      <img src="figures/figures_bini.png" alt="Consistency and regularization loss effect">
+      <figcaption>Figure 3. Consistency loss 和 regularization loss 对 4D scene reconstruction 的影响。红框标出不一致区域；论文用该图说明跨时间约束和正则项能改善机械臂运动一致性与几何准确性。</figcaption>
+    </figure>
+
+    <h3>4.5 用 4D scene 做 embodied action planning</h3>
+    <p>生成 4D scene 后，作者训练 inverse dynamics model，根据当前状态 \(s_i\)、预测未来状态 \(s_{i+1}\) 和指令 \(\mathcal{T}\) 输出 7-DoF action：</p>
+    <div class="formula-block">
+      $$a_i=\text{ID}(s_i,s_{i+1},\mathcal{T})$$
+    </div>
+    <p>具体实现中，PointNet 编码 4D point cloud 的 3D 特征，再与 instruction text embedding 拼接，经 MLP 输出动作。这个下游实验的目标是验证：RGB-DN 重建出的几何信息不只是可视化更漂亮，而能实质帮助机器人动作决策。</p>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 4D scene prediction 设置</h3>
+    <p>4D scene prediction 在 real 和 synthetic 两个域评估。Real domain 使用 RT1 Fractal 和 Bridge 的 400 个 unseen samples，depth/normal 按数据构建流程估计；Synthetic domain 使用 RLBench 的 200 个 unseen samples，depth/normal 可直接从仿真器获得。每个 sample 生成 10 次并报告平均值。</p>
+    <p>指标分四类：RGB 质量用 FVD、SSIM、PSNR；depth 用 AbsRel、\(\delta_1\)、\(\delta_2\)；normal 用 Mean、Median、\(11.25^\circ\)；重建 point cloud 用 Chamfer \(L_1\)。Baselines 包括 OpenSora、CogVideoX 和作者实现的 4D Point-E。</p>
+
+    <h3>5.2 4D scene generation 主结果</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Domain</th>
+          <th>Method</th>
+          <th>RGB FVD ↓</th>
+          <th>RGB SSIM ↑</th>
+          <th>RGB PSNR ↑</th>
+          <th>Depth AbsRel ↓</th>
+          <th>Normal Mean ↓</th>
+          <th>Chamfer L1 ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Real</td><td>4D Point-E</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.2211</td></tr>
+        <tr><td>Real</td><td>OpenSora</td><td>23.67</td><td>71.31</td><td>19.25</td><td>31.41</td><td>41.82</td><td>0.3013</td></tr>
+        <tr><td>Real</td><td>CogVideoX</td><td><strong>20.64</strong></td><td><strong>79.38</strong></td><td><strong>22.39</strong></td><td>26.17</td><td>19.53</td><td>0.2191</td></tr>
+        <tr><td>Real</td><td>TesserAct</td><td>21.59</td><td>75.86</td><td>20.27</td><td><strong>22.07</strong></td><td><strong>15.74</strong></td><td><strong>0.2030</strong></td></tr>
+        <tr><td>Synthetic</td><td>4D Point-E</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.1086</td></tr>
+        <tr><td>Synthetic</td><td>OpenSora</td><td>54.11</td><td>65.90</td><td>19.28</td><td>18.40</td><td><strong>12.94</strong></td><td>0.2570</td></tr>
+        <tr><td>Synthetic</td><td>CogVideoX</td><td>41.23</td><td>76.60</td><td><strong>20.87</strong></td><td>19.81</td><td>20.36</td><td>0.2884</td></tr>
+        <tr><td>Synthetic</td><td>TesserAct</td><td><strong>40.01</strong></td><td><strong>77.59</strong></td><td>19.73</td><td><strong>16.02</strong></td><td>14.75</td><td><strong>0.0811</strong></td></tr>
+      </tbody>
+    </table>
+    <p>读这张表要分清两个层次：TesserAct 不一定在 RGB 指标上全面压过 CogVideoX，尤其 real domain 的 RGB FVD/SSIM/PSNR 仍是 CogVideoX 最好；但 TesserAct 在 depth、normal 和最终 point cloud Chamfer 上最强。论文的主张正是：牺牲或保持相近 RGB 质量，换来更可靠的 4D 几何。</p>
+
+    <figure>
+      <img src="figures/figures_qualitative_iccv.png" alt="Qualitative 4D generation results">
+      <figcaption>Figure 4. 定性结果：in-domain 4D generation、unseen scenes/objects generalization 和 novel view synthesis。该图支撑作者关于 4D scene 质量和泛化的主张。</figcaption>
+    </figure>
+
+    <h3>5.3 Novel view synthesis</h3>
+    <p>作者进一步测试 monocular video to 4D 后的 novel view synthesis。在 RLBench 上，输入 front camera monocular video，比较 overhead 和 left shoulder camera 视角。Baseline 是 Shape of Motion，一个基于 Gaussian Splatting 的 video reconstruction 方法。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>PSNR ↑</th>
+          <th>SSIM ↑</th>
+          <th>LPIPS ↓</th>
+          <th>CLIP Score ↑</th>
+          <th>CLIP Aesthetic ↑</th>
+          <th>Time Costs ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Shape of Motion</td><td>10.94</td><td>24.02</td><td><strong>73.82</strong></td><td>66.67</td><td>3.61</td><td>约 2 hours</td></tr>
+        <tr><td>TesserAct</td><td><strong>12.99</strong></td><td><strong>42.62</strong></td><td>60.51</td><td><strong>83.02</strong></td><td><strong>3.73</strong></td><td>约 <strong>1 min</strong></td></tr>
+      </tbody>
+    </table>
+    <p>这个结果的要点是速度：TesserAct 的 4D 表示避免了慢速 per-scene optimization，在 PSNR、SSIM、CLIP Score 和 aesthetic 上也更好。不过 LPIPS 这一项表格中 Shape of Motion 更优，说明 TesserAct 的视觉感知距离并非所有指标占优。</p>
+
+    <h3>5.4 Embodied action planning</h3>
+    <p>Action planning 在 RLBench 的 9 个挑战任务上评估，每个任务报告 100 episodes 平均成功率。Baselines 是 Image-BC 和 UniPi*。UniPi* 由作者重实现，并用 fine-tuned CogVideoX 作为 backbone 以公平比较。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>close box</th>
+          <th>open drawer</th>
+          <th>open jar</th>
+          <th>open microwave</th>
+          <th>put knife</th>
+          <th>sweep to dustpan</th>
+          <th>lid off</th>
+          <th>weighing off</th>
+          <th>water plants</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Image-BC</td><td>53</td><td>4</td><td>0</td><td>5</td><td>0</td><td>0</td><td>12</td><td>21</td><td>0</td></tr>
+        <tr><td>UniPi*</td><td>81</td><td>67</td><td>38</td><td><strong>72</strong></td><td>66</td><td>49</td><td>70</td><td><strong>68</strong></td><td>35</td></tr>
+        <tr><td>4DWM / TesserAct</td><td><strong>88</strong></td><td><strong>80</strong></td><td><strong>44</strong></td><td>70</td><td><strong>70</strong></td><td><strong>56</strong></td><td><strong>73</strong></td><td>62</td><td><strong>41</strong></td></tr>
+      </tbody>
+    </table>
+    <p>结果显示几何信息对多数任务有帮助，尤其是 close box、open jar、sweep to dustpan、water plants 等需要物体几何、工具使用或精确空间关系的任务。论文也诚实指出 open microwave 和 weighing off 中 TesserAct 不如 UniPi*，可能因为这些任务的 2D front image 已经提供了足够信息，额外 3D 处理不一定带来收益。</p>
+
+    <h3>5.5 补充材料定性结果</h3>
+    <p>补充材料增加了数据标注、out-of-domain 生成、各数据集 RGB-DN video generation 和显式 action trajectory 可视化。它们不改变主结论，但帮助判断方法的适用范围和失败风险。</p>
+    <figure>
+      <img src="figures/figures_bini_works.png" alt="Optimized 3D scene reconstruction">
+      <figcaption>Supplementary Figure. BridgeV2 上优化后 3D robotic scene reconstruction。绿色/红色框展示细节增强、平滑度提升，以及墙和桌面近似垂直对齐。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_data_exp.png" alt="Data annotation comparison">
+      <figcaption>Supplementary Figure. 与 3D-VLA 数据生成质量对比。作者认为其 point cloud 更真实，3D-VLA 更容易出现形状畸变。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_supp_qualitative_out.png" alt="Out-of-domain 4D generation">
+      <figcaption>Supplementary Figure. Out-of-domain 4D generation。作者使用 DALL-E 生成图像并让 4D world model 生成 RGB、depth、normal 和重建 point cloud，用于展示跨视觉风格鲁棒性。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_act_vis.png" alt="Action trajectory visualization">
+      <figcaption>Supplementary Figure. Bridge 数据集上 robotic arm action trajectory 的显式可视化。红线表示从视频跟踪并提升到 3D 空间的动作轨迹。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_supp_qualitative_bridge.png" alt="Bridge qualitative generation">
+      <figcaption>Supplementary Figure. Bridge 数据集上的 in-domain RGB-DN video generation。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_supp_qualitative_rt1.png" alt="RT1 qualitative generation">
+      <figcaption>Supplementary Figure. RT1 数据集上的 in-domain RGB-DN video generation。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/figures_supp_qualitative_rlbench.png" alt="RLBench qualitative generation">
+      <figcaption>Supplementary Figure. RLBench 数据集上的 in-domain RGB-DN video generation。</figcaption>
+    </figure>
+  </section>
+
+  <section id="repro">
+    <h2>6. 复现要点</h2>
+    <h3>6.1 视频扩散模型训练</h3>
+    <p><span class="appendix-ref">[补充材料 Implementation Details]</span> 模型基于 CogVideoX。Depth/normal projector 与 RGB projector 使用相同架构；输出侧 <code>Conv3DNet</code> 有 3 层，MLP 有 2 层，维度均为 1024。模型输出 49 frames，使用 gradient checkpointing、global batch size 16、bf16 precision。采样使用 DDPM scheduler 50 steps，classifier-free guidance scale 为 7.5。</p>
+    <p>训练 40,000 iterations，初始学习率 \(1\times10^{-4}\)，gradient clipping 1.0，warmup 1,000 steps。优化器为 Adam，\(\epsilon=1\times10^{-15}\)，EMA decay 0.99。</p>
+
+    <h3>6.2 4D scene generation 超参数</h3>
+    <p><span class="appendix-ref">[补充材料 4D Scene Generation]</span> 重建损失参数按数据集不同调节：</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>\(\lambda_d\)</th>
+          <th>\(\lambda_b\)</th>
+          <th>\(\lambda_{g1}\)</th>
+          <th>\(\lambda_{g2}\)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>RT-1, Bridge</td><td>20</td><td>200</td><td>20</td><td>20</td></tr>
+        <tr><td>RLBench</td><td>20</td><td>200</td><td>2</td><td>2</td></tr>
+      </tbody>
+    </table>
+    <p>作者明确说这些 \(\lambda\) 会随场景变化，实际最佳性能需要调参。这一点复现时很关键，因为 4D 重建质量不只取决于生成模型，也取决于后处理优化权重。</p>
+
+    <h3>6.3 Robotics planning 训练</h3>
+    <p>RLBench planning 中，模型主要差异是改为 13 frames 并 fine-tune，固定分辨率 512 × 512。每个任务采集 500 samples 训练 inverse dynamics model。推理时先预测并记录所有 future keyframes，之后只查询 inverse dynamics model，根据当前状态和预测未来状态输出动作。</p>
+    <p><span class="appendix-ref">[补充材料 Implementation Details for Robotics Planning]</span> Action prediction 阶段先过滤背景和地面，只保留桌面与被操作物体相关点云，再采样 8192 points。PointNet 提取点云特征，与 instruction language embedding 拼接后输入 4-layer MLP，输出 7-DoF actions。为适配视频扩散模型输出，作者对 image 和 point cloud coordinates 加入相对幅度 20% 的 Gaussian noise。</p>
+
+    <h3>6.4 复现风险清单</h3>
+    <ul>
+      <li><strong>自动标注误差:</strong> 真实数据的 depth 和 normal 来自 off-the-shelf estimators，不是 ground truth；估计器偏差会传入 world model。</li>
+      <li><strong>多模态对齐:</strong> RGB、Depth、Normal 必须时间一致，否则重建的 4D scene 会在动态区域出现错位。</li>
+      <li><strong>重建超参数:</strong> \(\lambda\) 对不同数据集不同，论文也说明需要调参，复现实验要报告这些设置。</li>
+      <li><strong>控制闭环细节:</strong> 未来 keyframes 的选择、inverse dynamics 的状态对应方式、点云过滤规则都会影响 RLBench 成功率。</li>
+      <li><strong>算力依赖:</strong> 微调 CogVideoX、生成 49-frame RGB-DN 视频和多次采样评估都有较高显存和时间成本。</li>
+    </ul>
+  </section>
+
+  <section id="analysis">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是提出了一个非常实用的 4D world model 表示：RGB-DN video。它不是最完整的 4D 表示，但很好地卡在了“可由现有视频模型训练”和“足以重建机器人需要的几何”之间。对于 embodied AI，这种中间表示比直接生成 RGB 视频更有几何约束，又比直接生成动态 point cloud 或 mesh 更容易规模化训练。</p>
+    <p>第二个价值点是论文把 world model 质量和下游动作规划连接起来了。4D scene generation 表格证明 depth/normal/Chamfer 更好，RLBench action planning 表格进一步显示几何提升能在多数任务中转化成成功率收益。这比只展示漂亮 4D 可视化更有说服力。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果站得住主要因为证据链较完整。第一，论文同时在 real 和 synthetic domain 上评估 4D scene，synthetic RLBench 有 ground-truth depth/normal，可以较客观地验证几何质量。第二，指标覆盖 RGB、depth、normal 和 point cloud，不只依赖单一视觉指标。第三，novel view synthesis 和 action planning 分别从重建应用和机器人控制应用验证 4D 表示的实用性。第四，补充材料给出了训练超参数、重建权重、点云过滤和动作模型细节，使方法不是完全黑箱。</p>
+    <p>不过需要谨慎的是：真实数据上的 depth/normal 标注来自估计器，因此 real-domain depth/normal 指标的“真值”也带有估计链条；RLBench action planning 是仿真环境，真实机器人闭环控制还没有形成同等强度的定量证据。</p>
+
+    <h3>7.3 论文明确局限</h3>
+    <p>作者在 Limitations 中明确指出：RGB-DN 表示便宜且易预测，但只捕获世界的单一表面。要构建更完整的 4D world model，未来可以让生成模型产生多个 RGB-DN views，再整合成更完整的 4D scene。</p>
+
+    <h3>7.4 额外边界与可能改进</h3>
+    <ul>
+      <li><strong>单视角遮挡问题:</strong> 单个 RGB-DN 序列很难恢复被遮挡物体背后的几何，多视角生成或主动视角选择会更强。</li>
+      <li><strong>估计器依赖:</strong> RollingDepth 和 Marigold 的质量直接影响真实数据标注，如果换域后估计器失效，world model 训练也会被污染。</li>
+      <li><strong>几何不总是必要:</strong> open microwave 和 weighing off 中 2D baseline 更强，说明不是所有任务都从 4D 中受益。</li>
+      <li><strong>动态接触建模不足:</strong> RGB-DN 表示能重建表面和运动，但对接触力、摩擦、物体内部状态等物理变量仍没有显式建模。</li>
+      <li><strong>工程复杂度:</strong> 方法需要视频生成、depth/normal 标注、光流、深度优化、点云过滤、inverse dynamics 多个模块，任何一环都可能成为部署瓶颈。</li>
+    </ul>
+  </section>
+
+  <section id="qa">
+    <h2>8. 组会问答准备</h2>
+    <h3>Q1: TesserAct 和普通视频 world model 的本质区别是什么？</h3>
+    <p>普通视频 world model 主要预测 RGB 未来帧；TesserAct 同时预测 RGB、depth 和 normal，然后重建 4D point clouds。它把 world model 的输出从“看起来像未来”推进到“包含可用于几何推理的未来”。</p>
+
+    <h3>Q2: 为什么选择 RGB-DN，而不是直接生成 point cloud？</h3>
+    <p>直接生成动态 point cloud 训练和推理都更昂贵，帧数也受限。RGB-DN video 与现有视频扩散模型兼容，数据维度更低，同时保留重建 3D scene 所需的深度和表面方向。</p>
+
+    <h3>Q3: 这篇论文中最核心的公式是哪一组？</h3>
+    <p>一组是 RGB-DN conditional denoising objective，说明模型如何联合生成三模态视频；另一组是 4D scene reconstruction 的 \(\mathcal{L}_s+\mathcal{L}_c+\mathcal{L}_r\)，说明如何用 normal、optical flow 和生成 depth 得到时空一致深度。</p>
+
+    <h3>Q4: 实验里最有说服力的结果是什么？</h3>
+    <p>4D scene 表格中 Chamfer \(L_1\) 在 real 和 synthetic 上都最优，说明重建几何确实更好；RLBench action planning 中 7/9 任务超过 UniPi*，说明几何优势能转化为控制收益。</p>
+
+    <h3>Q5: 最应该质疑的地方是什么？</h3>
+    <p>真实数据的 depth/normal 不是 ground truth，而是估计器标注；此外，下游动作规划主要在 RLBench 仿真验证。若要证明它是通用机器人 world model，还需要更强真实机器人闭环实验和多视角/遮挡场景评估。</p>
+  </section>
+</main>
+</body>
+</html>

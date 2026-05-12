@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAG - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+    <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis</h1>
+
+  <div class="meta">
+    <p><strong>arXiv ID：</strong>2604.09330v1</p>
+    <p><strong>作者：</strong>Xiaolei Lang, Yang Wang, Yukun Zhou, Chaojun Ni, Kerui Li, Jiagang Zhu, Tianze Liu, Jiajun Lv, Xingxing Zuo, Yun Ye, Guan Huang, Xiaofeng Wang, Zheng Zhu</p>
+    <p><strong>机构：</strong>GigaAI; Zhejiang University; Peking University; Institute of Automation, Chinese Academy of Sciences; Mohamed bin Zayed University of Artificial Intelligence</p>
+    <p><strong>提交时间：</strong>2026-04-10</p>
+    <p><strong>来源：</strong><a href="https://arxiv.org/abs/2604.09330">arXiv abs</a> · <a href="https://arxiv.org/pdf/2604.09330">PDF</a> · 本地 LaTeX 源码解析</p>
+    <p><strong>代码/项目页：</strong>在 arXiv 页面、源码正文和有限 web 检索中未发现官方公开代码或项目主页链接。</p>
+  </div>
+
+</header>
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 阅读定位与组会导读</a></li>
+      <li><a href="#sec2">2. 背景：World Model 为什么还不能直接训练 policy</a></li>
+      <li><a href="#sec3">3. 方法详解：flow matching、双流同步去噪与 3D pooling</a></li>
+      <li><a href="#sec4">4. 实验结果：生成质量、轨迹 replay、VLA 预训练</a></li>
+      <li><a href="#sec5">5. 图表精读</a></li>
+      <li><a href="#sec6">6. 复现清单与工程细节</a></li>
+      <li><a href="#sec7">7. 批判性讨论与组会问题</a></li>
+    </ul>
+  </nav>
+<div class="tldr">
+    <strong>一句话总结：</strong>VAG 是一个面向具身数据合成的双流 World-Action 生成模型：视频分支基于 Cosmos-Predict2 做 flow matching 视频生成，动作分支用 1D U-Net 同步去噪，并通过 adaptive 3D pooling 从当前干净视频 latent 获取全局条件，从而生成对齐的视频-动作对，用于训练 VLA 或直接 replay。
+  </div>
+
+  
+
+  <section id="sec1">
+    <h2>1. 阅读定位与组会导读</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>导读项</th>
+          <th>这篇论文回答什么</th>
+          <th>读的时候重点盯哪里</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>研究对象</strong></td>
+          <td>给定初始图像和语言指令，同步生成约 10 秒的机器人视频和对应动作轨迹。</td>
+          <td>它不是主要做在线闭环 policy，而是做可用于 policy 训练的数据合成引擎。</td>
+        </tr>
+        <tr>
+          <td><strong>核心问题</strong></td>
+          <td>World Model 能生成视频但没有动作；两阶段 video-to-action 会产生误差累积和跨模态不一致。</td>
+          <td>看 VAG 如何让动作生成过程在每个 denoising step 读取视频 latent。</td>
+        </tr>
+        <tr>
+          <td><strong>主要贡献</strong></td>
+          <td>统一 flow-matching 双流框架、同步视频/动作去噪、adaptive 3D pooling 桥接、合成数据提升 VLA 泛化。</td>
+          <td>重点看方法的方向性：视频 latent 指导动作，但动作还没有反向指导视频。</td>
+        </tr>
+        <tr>
+          <td><strong>和 UVA/CoVAR 的关系</strong></td>
+          <td>UVA 偏统一 latent 与多功能 policy；CoVAR 偏保留 video DiT 并联 action DiT；VAG 偏合成长视频-动作数据。</td>
+          <td>VAG 的定位更接近“数据引擎”，而不是把生成模型直接作为高频控制器。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="bluebox">
+      <strong>组会推荐读法：</strong>先看 Fig. 2 的五类 embodied model 架构差异，再看 Fig. 3 的 pipeline。把论文主张压成一句话就是：不要先生成视频再猜动作，而是在同一 flow matching 时间步里让动作分支读视频分支的 clean latent。
+    </div>
+
+    <div class="figure">
+      <img src="figures/1_teaser.png" alt="VAG capabilities">
+      <div class="caption">图 1：VAG 的能力示意。模型从 teleoperation trajectories 学习，输入初始帧和指令后生成对齐的视频-动作对；合成数据可用于训练 policy，动作也可在真实机器人上 replay。</div>
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 背景：World Model 为什么还不能直接训练 policy</h2>
+
+    <h3>2.1 VLA/VA policy：能执行，但数据贵</h3>
+    <p>
+      Vision-Language-Action 模型通常以闭环方式运行：观察当前图像和状态，预测 1 到 2 秒动作，执行后再用新观测预测。它们已经能完成复杂任务，但训练需要大量人类遥操作数据。每个新场景和新任务都要采集 demonstrations，这正是本文要缓解的数据瓶颈。
+    </p>
+
+    <h3>2.2 World Model：视频丰富，但没有动作标签</h3>
+    <p>
+      现代视频生成/World Model 可以生成丰富视觉 rollout，提供多样化场景。但如果生成结果只有视频，没有配对 action trajectory，就不能直接当 robot policy 训练数据。对机器人来说，视频里的“看起来发生了什么”和实际电机控制信号之间还隔着一层动作对齐问题。
+    </p>
+
+    <h3>2.3 两阶段 World-Action：能补动作，但容易错位</h3>
+    <p>
+      两阶段方案先用 World Model 生成视频，再用 IDM、AnyPos 等方法从视频回归动作。这能得到较长 video-action pairs，但会引入异构模型之间的误差传递：视频生成错一点，动作回归再错一点；更麻烦的是视频和动作不是在同一个生成过程中同步决定的，因此容易出现跨模态不一致。
+    </p>
+
+    <h3>2.4 VAG 的定位</h3>
+    <p>
+      VAG 的目标是作为 World-Action data synthesis engine：它不是只把未来视频作为 action prediction 的辅助监督，而是直接输出可用于 policy training 的 video-action pair。论文强调这种生成数据还能提升下游 VLA 的 OOD 泛化。
+    </p>
+
+    <div class="figure">
+      <img src="figures/2_design.png" alt="Architecture comparison">
+      <div class="caption">图 2：五类 embodied model 对比。(a) VLA policy，(b) WM 视频生成，(c) WA model 作为 policy 辅助动作预测，(d) WM + IDM 两阶段数据合成，(e) VAG 的同步 video-action 生成。</div>
+    </div>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 方法详解：flow matching、双流同步去噪与 3D pooling</h2>
+
+    <h3>3.1 Flow Matching 基础</h3>
+    <p>
+      VAG 使用 flow matching 而不是传统 diffusion loss 来描述从数据到噪声的路径。给定数据样本 $\mathbf{x}$、高斯噪声 $\boldsymbol{\epsilon}\sim\mathcal{N}(0,I)$ 和 timestep $t\in[0,1]$，插值 latent 为：
+    </p>
+
+    <div class="formula-block">
+      $$\mathbf{x}_t=(1-t)\mathbf{x}+t\boldsymbol{\epsilon}.$$
+      <p class="intuition">直觉：</p>
+      <p>当 $t=0$ 时是干净数据，当 $t=1$ 时是纯噪声，中间是直线插值。</p>
+    </div>
+
+    <p>对应 ground-truth velocity 是：</p>
+    <div class="formula-block">
+      $$\mathbf{v}_t=\boldsymbol{\epsilon}-\mathbf{x}.$$
+    </div>
+
+    <p>模型预测 velocity，并用 MSE 训练：</p>
+    <div class="formula-block">
+      $$\mathcal{L}(\theta)=\left\|\mathbf{u}(\mathbf{x}_t,t,\mathbf{c};\theta)-\mathbf{v}_t\right\|^2.$$
+      <p class="intuition">阅读提醒：</p>
+      <p>$\mathbf{c}$ 包括文本、参考图像等条件。VAG 的视频分支和动作分支都套用这个 velocity matching 思想，只是数据空间不同。</p>
+    </div>
+
+    <h3>3.2 视频分支：Cosmos-Predict2 的 video flow</h3>
+    <p>
+      视频分支继承 Cosmos-Predict2 (2B-Video2World)。输入包括首帧图像和语言指令，输出未来视频 $\mathbf{V}\in\mathbb{R}^{C\times T\times H\times W}$。实验中 $T=93$，视频频率 10 Hz，约等于 10 秒；图像 resize 到 $H=432,W=768$，RGB 所以 $C=3$。
+    </p>
+
+    <p>
+      原始视频经 VAE tokenizer 压缩，时间/高度/宽度压缩率分别为 $4\times 8\times 8$，得到：
+      $\mathbf{z}\in\mathbb{R}^{C'\times((T-1)/4+1)\times\lfloor H/8\rfloor\times\lfloor W/8\rfloor}$。
+      论文设置 $C'=16$。噪声 latent 与首帧 latent prefix 拼接后输入 DiT；文本由 T5-XXL 编码，并通过 cross-attention 注入；推理时使用 classifier-free guidance。
+    </p>
+
+    <h3>3.3 动作分支：同步去噪 + 全局视频条件</h3>
+    <p>
+      动作分支预测 $\mathbf{A}\in\mathbb{R}^{T\times D}$。AgiBot G1 双臂数据中 $D=16$；LIBERO 单臂仿真中 $D=7$；自采 Agilex 双臂数据中 $D=14$。动作分支从高斯噪声 $\boldsymbol{\epsilon}_a\in\mathbb{R}^{T\times D}$ 开始，用改造自 Diffusion Policy 的 1D U-Net 去噪。
+    </p>
+
+    <p>
+      关键设计是：动作分支在每个 denoising step 都接收视频分支预测出的当前 clean latent $\mathbf{z}_0$。VAG 先对 $\mathbf{z}_0$ 做 adaptive 3D pooling，把整个时空 latent 压成 $\mathbb{R}^{C'\times1\times1\times1}$，reshape 成 $\mathbb{R}^{1\times C'}$，再重复/扩展成 $\mathbf{e}\in\mathbb{R}^{1\times C''}$。论文设置 $C''=132$。这个 $\mathbf{e}$ 与 timestep embedding 一起作为 U-Net 的条件。
+    </p>
+
+    <div class="warn">
+      <strong>核心实现点：</strong>adaptive 3D pooling 是非学习模块，没有额外线性层。它把视频分支当前认为的全局时空语义压缩成动作条件。优点是简单稳定，缺点是可能丢掉局部接触信息和细粒度空间对应。
+    </div>
+
+    <div class="figure">
+      <img src="figures/3_pipeline.png" alt="VAG pipeline">
+      <div class="caption">图 3：VAG 训练和推理 pipeline。视频分支与动作分支都基于 flow matching，同步 denoising；动作分支通过 adaptive 3D pooling 读取当前 clean video latent。</div>
+    </div>
+
+    <h3>3.4 训练损失</h3>
+    <p>
+      训练时，VAG 使用带动作的视频轨迹和文本指令。对于每条 ground-truth video，论文使用 Qwen2.5-VL 自动抽取描述机器人行为的文本指令，再用 T5-XXL 编码。模型初始化自底层视频生成模型，以保留视觉先验。
+    </p>
+
+    <div class="formula-block">
+      <p><strong>视频分支损失：</strong></p>
+      $$
+      \mathcal{L}(\theta_1)=\left\|\phi_1(\mathbf{D}(\mathbf{z}';\theta_1))-\mathbf{z}\right\|^2.
+      $$
+      <p class="intuition">含义：</p>
+      <p>$\mathbf{D}$ 是 DiT，$\mathbf{z}'$ 是加噪视频 latent，$\phi_1$ 表示从 DiT 输出重建 clean latent 的过程。</p>
+    </div>
+
+    <div class="formula-block">
+      <p><strong>动作分支损失：</strong></p>
+      $$
+      \mathcal{L}(\theta_2)=\left\|\phi_2(\mathbf{U}(\mathbf{A}';\theta_2))-\mathbf{A}\right\|^2.
+      $$
+      <p class="intuition">含义：</p>
+      <p>$\mathbf{U}$ 是 1D U-Net，$\mathbf{A}'$ 是同噪声强度扰动后的动作。动作分支条件来自 detached clean video latent，说明训练中动作 loss 不反向驱动视频分支。</p>
+    </div>
+
+    <h3>3.5 训练/推理伪代码</h3>
+    <pre class="pseudocode"><code>训练阶段：
+for each video-action trajectory:
+    use Qwen2.5-VL to obtain text instruction
+    encode text with T5-XXL
+    encode video V with VAE into latent z
+    add flow-matching noise to z -> z'
+    video DiT predicts clean latent from z', first-frame prefix, text
+    adaptive 3D pool predicted clean video latent into global embedding e
+    add matched noise to action sequence A -> A'
+    action 1D U-Net predicts clean action from A', timestep, e
+    optimize video latent MSE + action MSE
+
+推理阶段：
+given initial image and instruction:
+    initialize video noise and action noise
+    for N = 35 synchronized denoising steps:
+        video branch predicts current clean video latent z0
+        pool z0 into global condition e
+        action branch denoises action with e
+    decode final video latent into video
+    output synchronized video V and action A</code></pre>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 实验结果：生成质量、轨迹 replay、VLA 预训练</h2>
+
+    <h3>4.1 实验设置</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>设置</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>视频基础模型</td><td>Cosmos-Predict2 (2B-Video2World)，生成 480P、10 Hz 视频。</td></tr>
+        <tr><td>生成 horizon</td><td>$T=93$ video-action frames，约 10 秒。</td></tr>
+        <tr><td>输入分辨率</td><td>视频 resize 到 $432\times768$。</td></tr>
+        <tr><td>latent channel</td><td>$C'=16$。</td></tr>
+        <tr><td>动作条件 embedding</td><td>$C''=132$。</td></tr>
+        <tr><td>推理 denoising steps</td><td>$N=35$。</td></tr>
+        <tr><td>训练资源</td><td>8 张 NVIDIA H20 GPU，batch size 每 GPU 1，训练 40,000 iterations。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.2 数据集</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>数据集</th>
+          <th>规模与任务</th>
+          <th>VAG 使用方式</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AgiBot</td>
+          <td>大型真实机器人数据集，1M trajectories、217 tasks、五类部署场景。</td>
+          <td>只使用 AgiBot G1 双臂 humanoid 数据，1794 个训练 video-action pairs，200 个测试，动作维度 $D=16$。</td>
+        </tr>
+        <tr>
+          <td>LIBERO</td>
+          <td>仿真 manipulation benchmark，含 Spatial/Object/Goal/Long 子集。</td>
+          <td>选 400 个训练 pairs、50 个测试 pairs；单臂机器人动作维度 $D=7$；使用 head 和 wrist cameras 拼接视频。</td>
+        </tr>
+        <tr>
+          <td>Self-collected</td>
+          <td>Agilex Cobot Magic 双臂机器人数据。</td>
+          <td>动作维度 $D=14$；131 samples 用于 VAG 训练，20 samples 用于 VLA 训练。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.3 视频生成质量</h3>
+    <p>
+      VAG 与 SVD、Wan2.2、Cosmos-Predict2 (CP2) 比较 AgiBot 上的视频生成质量。VAG 在 FVD、LPIPS、PSNR 上最好，FID 接近 Wan2.2，SSIM 不如 Wan2.2 但优于 SVD/CP2。这个结果说明在机器人数据上 post-training 后，VAG 没有因为加入动作分支而牺牲视频质量。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>FVD ↓</th>
+          <th>FID ↓</th>
+          <th>LPIPS ↓</th>
+          <th>SSIM ↑</th>
+          <th>PSNR ↑</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SVD</td><td>1311</td><td>150</td><td>0.421</td><td>0.339</td><td>12.7</td></tr>
+        <tr><td>Wan2.2</td><td>1152</td><td><strong>129</strong></td><td>0.325</td><td><strong>0.612</strong></td><td>14.5</td></tr>
+        <tr><td>CP2</td><td>988</td><td>135</td><td>0.352</td><td>0.427</td><td>14.2</td></tr>
+        <tr><td><strong>VAG</strong></td><td><strong>965</strong></td><td>130</td><td><strong>0.320</strong></td><td>0.512</td><td><strong>15.1</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="figure">
+      <img src="figures/5_videogen.png" alt="Qualitative video generation">
+      <div class="caption">图 4：不同方法的视频生成可视化。Prompt 为“Use the right hand to pour the water from the gray teapot into the cup.”</div>
+    </div>
+
+    <h3>4.4 动作生成：对比两阶段回归</h3>
+    <p>
+      动作 baselines 是两阶段方案：先使用 VAG-Video 生成视频，再用 ResNet 或 AnyPos 从视频回归动作。VAG 的同步生成在 AgiBot 和 LIBERO 上都取得最低 Euclidean Distance 和最高 Success Rate。Success Rate 的定义是每个维度误差都低于 0.2 才算成功。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>AgiBot ED ↓</th>
+          <th>AgiBot SR ↑</th>
+          <th>LIBERO ED ↓</th>
+          <th>LIBERO SR ↑</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>VAG-Video + ResNet</td><td>1.54</td><td>8%</td><td>0.87</td><td>37%</td></tr>
+        <tr><td>VAG-Video + AnyPos</td><td>0.98</td><td>29%</td><td>0.55</td><td>66%</td></tr>
+        <tr><td><strong>VAG</strong></td><td><strong>0.81</strong></td><td><strong>45%</strong></td><td><strong>0.38</strong></td><td><strong>79%</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div class="figure">
+        <img src="figures/6_action_compare_agibot_color.png" alt="AgiBot action curves">
+        <div class="caption">图 5：AgiBot 抓取任务 16 维动作曲线。预测动作与 ground truth 大体贴合。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/9_action_compare_libero_color.png" alt="LIBERO action curves">
+        <div class="caption">图 6：LIBERO spatial task 的 7 维动作曲线。蓝色为 GT，黄色为预测。</div>
+      </div>
+    </div>
+
+    <h3>4.5 LIBERO 轨迹 replay</h3>
+    <p>
+      在 LIBERO benchmark 上，VAG 不只比较动作误差，还把生成动作 replay 到仿真里看任务成功率。VAG 在 Spatial/Object/Goal/Long 四个子集都优于两阶段方法，平均 replay success 从 AnyPos 的 54% 提升到 62%。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>Spatial ↑</th>
+          <th>Object ↑</th>
+          <th>Goal ↑</th>
+          <th>Long ↑</th>
+          <th>Avg ↑</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>VAG-Video + ResNet</td><td>33</td><td>34</td><td>23</td><td>10</td><td>25</td></tr>
+        <tr><td>VAG-Video + AnyPos</td><td>59</td><td>62</td><td>56</td><td>39</td><td>54</td></tr>
+        <tr><td><strong>VAG</strong></td><td><strong>70</strong></td><td><strong>72</strong></td><td><strong>64</strong></td><td><strong>42</strong></td><td><strong>62</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="figure">
+      <img src="figures/7_sim_libera_pred_and_replay.png" alt="LIBERO video and replay">
+      <div class="caption">图 7：LIBERO 中生成 head-view/wrist-view 视频，以及使用生成动作进行 replay 的可视化。</div>
+    </div>
+
+    <h3>4.6 用合成数据提升 VLA 泛化</h3>
+    <p>
+      论文最有应用价值的实验是 VLA pretraining。作者在自采数据上先用 131 个样本训练 VAG，再从首帧和文本 prompt 生成合成 video-action pairs，形成 $\mathcal{X}_{syn}$。下游 VLA 为 $\pi_{0.5}$：baseline 只用 20 个真实 samples $\mathcal{X}_b$ 训练 10,000 iterations；增强版本先在 VAG 合成数据上 pretrain 到收敛，再用同样的 $\mathcal{X}_b$ finetune 10,000 iterations。
+    </p>
+
+    <p>
+      真实机器人 tableware pick-and-place 中，20 次 trials 里 baseline $\pi_{0.5}$ 成功 7 次，即 35%；$\pi_{0.5}$-w-VAG-pretrain 成功 11 次，即 55%，绝对提升 20%。作者指出增强模型在物体位置或颜色变化时泛化更好，并且没有出现 baseline 训练 loss 下降但部署过拟合的问题。
+    </p>
+
+    <div class="grid-2">
+      <div class="figure">
+        <img src="figures/10_vla_compare_demo_v3.png" alt="VLA demonstrations">
+        <div class="caption">图 8：真实 VLA 演示。位置或颜色变化下，VAG-pretrain 版本更稳定。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/11_piper_logs_loss_success_side_by_side_recolor.png" alt="VLA success rate">
+        <div class="caption">图 9：VAG 合成数据使 $\pi_{0.5}$ 成功率从 35% 提升到 55%。</div>
+      </div>
+    </div>
+
+    <h3>4.7 作为 World-Action policy 直接 replay</h3>
+    <p>
+      VAG 还被用于“像 policy 一样”直接生成动作并部署到 Agilex robot。输入是头部相机图像和文本指令，输出视频与动作；动作轨迹被 replay 到真实机器人上。论文展示左臂、右臂、双臂三类 manipulation，说明 VAG 的动作并非只适合离线训练，也具有一定可执行性。
+    </p>
+
+    <div class="figure">
+      <img src="figures/12_Deployment_giga_replay.png" alt="Agilex replay">
+      <div class="caption">图 10：VAG 生成视频与动作在 Agilex robot 上 replay 的示例，包括左臂、右臂和双臂操作。</div>
+    </div>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 图表精读</h2>
+
+    <h3>5.1 Fig. 2：这篇论文的位置非常清楚</h3>
+    <p>
+      Fig. 2 把 VAG 和四条路线区分开：VLA 是 policy，WM 是视频生成，WA-policy 是用未来视频辅助动作，WM+IDM 是两阶段合成数据。VAG 的独特定位是“直接合成训练数据”，也就是把 video-action pair 本身作为输出目标。
+    </p>
+
+    <h3>5.2 Fig. 3：动作分支依赖的是 clean latent，不是最终视频</h3>
+    <p>
+      VAG 与两阶段方法最重要的差异在 Fig. 3：动作不是从 decode 后的 RGB 视频再回归，而是在每个 denoising step 读取视频分支当前预测的 clean latent。这避免了先生成完整视频再反推动作的滞后与误差累积。
+    </p>
+
+    <h3>5.3 表 2：AnyPos 已经很强，但同步生成仍更好</h3>
+    <p>
+      在动作表中，VAG-Video + AnyPos 已经比 ResNet 强很多，说明强视觉回归器可以缓解两阶段问题。但 VAG 仍在 AgiBot 和 LIBERO 上同时降低 ED、提升 SR，支持“跨模态同步生成比后验动作回归更一致”的主张。
+    </p>
+
+    <h3>5.4 Fig. 9：VLA 预训练实验很诱人，但样本数还小</h3>
+    <p>
+      35% 到 55% 的提升是论文最亮眼结果之一。不过这个实验使用 131 个 VAG 训练样本和 20 个 VLA 真实训练样本，trial 总数为 20。它证明了方向可行，但还不能说明在更大任务库、更长 horizon 或多机器人上的稳定收益。
+    </p>
+
+    <h3>5.5 训练 loss 曲线</h3>
+    <div class="grid-2">
+      <div class="figure">
+        <img src="figures/4_loss_agibot_g1.png" alt="AgiBot training loss">
+        <div class="caption">图 11：AgiBot 上 40,000 iterations 的训练 loss。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/8_loss_libero_franka.png" alt="LIBERO training loss">
+        <div class="caption">图 12：LIBERO 上 20,000 iterations 的训练 loss。论文称 LIBERO 场景和动作模式更单调，收敛更稳定。</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 复现清单与工程细节</h2>
+
+    <h3>6.1 可直接抽取的超参数</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>基础视频模型</td><td>Cosmos-Predict2 (2B-Video2World)</td></tr>
+        <tr><td>视频帧数</td><td>$T=93$</td></tr>
+        <tr><td>视频频率</td><td>10 Hz</td></tr>
+        <tr><td>生成时长</td><td>约 10 秒</td></tr>
+        <tr><td>视频 resize</td><td>$432\times768$</td></tr>
+        <tr><td>VAE 压缩率</td><td>time/height/width = $4\times8\times8$</td></tr>
+        <tr><td>视频 latent channel</td><td>$C'=16$</td></tr>
+        <tr><td>动作条件 embedding</td><td>$C''=132$</td></tr>
+        <tr><td>推理步数</td><td>$N=35$ denoising steps</td></tr>
+        <tr><td>文本生成</td><td>Qwen2.5-VL 从 ground-truth video 抽取 instruction</td></tr>
+        <tr><td>文本编码</td><td>T5-XXL</td></tr>
+        <tr><td>动作 denoiser</td><td>改造自 Diffusion Policy 的 1D U-Net</td></tr>
+        <tr><td>训练资源</td><td>8 NVIDIA H20 GPUs，batch size 1/GPU，40,000 iterations</td></tr>
+      </tbody>
+    </table>
+
+    <h3>6.2 复现缺口</h3>
+    <ul>
+      <li><strong>官方代码缺失：</strong>当前 arXiv/source 未给出 VAG 官方 repo，因此训练日程、optimizer、learning rate、CFG scale 等无法完全确认。</li>
+      <li><strong>Cosmos-Predict2 改造细节：</strong>视频 DiT 如何 post-train、哪些层 finetune、prefix frame 如何拼接，需要代码级说明。</li>
+      <li><strong>动作归一化：</strong>AgiBot/Agilex/LIBERO 的动作尺度、关节/末端位姿格式、双臂拼接顺序没有在正文完整展开。</li>
+      <li><strong>Success Rate 阈值：</strong>正文说明每维误差低于 0.2 算成功，但不同数据集动作单位不同，阈值的物理含义需要补充。</li>
+      <li><strong>合成数据规模：</strong>$\mathcal{X}_{syn}$ 的具体样本数、prompt 采样、多样性增强方式未详细列出。</li>
+      <li><strong>真实 replay 安全策略：</strong>直接执行生成动作时是否有过滤、插值、限幅、碰撞保护，正文没有细节。</li>
+    </ul>
+
+    <h3>6.3 与 UVA/CoVAR 的技术差异</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>方法</th>
+          <th>核心结构</th>
+          <th>主要目标</th>
+          <th>关键 trade-off</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>UVA</td>
+          <td>共享 video-action latent，解耦 video/action diffusion heads。</td>
+          <td>一个模型支持 policy、video、forward/inverse dynamics。</td>
+          <td>统一功能强，但不同任务 mask/objective 可能冲突。</td>
+        </tr>
+        <tr>
+          <td>CoVAR</td>
+          <td>保留预训练 video DiT，并联 Action DiT，用 Bridge Attention 交互。</td>
+          <td>联合生成 video-action，直接作为 policy 或数据源。</td>
+          <td>更保护视频先验，但参数和同步通信更复杂。</td>
+        </tr>
+        <tr>
+          <td>VAG</td>
+          <td>Cosmos-Predict2 video branch + 1D U-Net action branch，同步 flow matching。</td>
+          <td>生成长 horizon 对齐 video-action pairs，用于数据合成与 replay。</td>
+          <td>视频指导动作，但动作尚未反向约束视频。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 批判性讨论与组会问题</h2>
+
+    <h3>7.1 论文强点</h3>
+    <ul>
+      <li><strong>问题定位好：</strong>直接瞄准 robot data synthesis 中 video-action 对齐这个关键缺口。</li>
+      <li><strong>设计简洁：</strong>视频分支保留强 foundation model，动作分支用轻量 1D U-Net，桥接用非学习 3D pooling。</li>
+      <li><strong>实验链条完整：</strong>不仅有视频/动作指标，也有 LIBERO replay、VLA pretraining、真实 robot replay。</li>
+      <li><strong>生成 horizon 长：</strong>93 frames、约 10 秒，对训练数据合成比短 horizon policy 更有吸引力。</li>
+    </ul>
+
+    <h3>7.2 需要谨慎的点</h3>
+    <ul>
+      <li><strong>动作到视频是单向耦合：</strong>论文自己承认当前 video generation 没有被 action branch 影响，可能浪费控制信号。</li>
+      <li><strong>adaptive 3D pooling 信息瓶颈明显：</strong>把整个视频 latent 平均成全局 embedding 可能损失局部接触、手眼空间关系和关键时刻信息。</li>
+      <li><strong>VLA 提升实验规模较小：</strong>20 trials 从 35% 到 55% 很有价值，但统计稳健性和任务覆盖仍需扩大。</li>
+      <li><strong>没有官方代码：</strong>目前难以复现关键训练配置和真实 replay 细节。</li>
+      <li><strong>真实 replay 不是闭环控制：</strong>动作可 replay 不等于模型已具备鲁棒闭环 policy 能力。</li>
+    </ul>
+
+    <h3>7.3 组会讨论题 1：3D pooling 是优势还是瓶颈？</h3>
+    <div class="card">
+      <p>
+        VAG 的 adaptive 3D pooling 非常简单，因此训练稳定、参数少。但它把视频 latent 的时空结构压成一个全局向量，可能会丢掉动作生成最需要的局部接触信息。可以讨论一个 follow-up：用 cross-attention、temporal pooling、object-centric tokens 或 contact-aware pooling 替代全局平均，是否能提升细粒度 action alignment。
+      </p>
+    </div>
+
+    <h3>7.4 组会讨论题 2：合成数据如何证明真的提升泛化？</h3>
+    <div class="card">
+      <p>
+        论文用 VAG-generated data 让 $\pi_{0.5}$ 从 35% 提升到 55%，这是强信号。但为了证明“泛化”而不是“刚好增强了这组场景”，还需要更系统地控制：合成数据数量、真实数据数量、prompt 多样性、生成失败样本过滤、OOD 类型拆分、以及与直接复制/扰动真实轨迹的对比。
+      </p>
+    </div>
+
+    <h3>7.5 后续研究方向</h3>
+    <ol>
+      <li><strong>双向耦合：</strong>让 action branch 也反向指导 video branch，使视觉轨迹更受控制信号约束。</li>
+      <li><strong>更强动作分支：</strong>按作者建议，用 DiT 替换 1D U-Net，提高动作序列建模能力。</li>
+      <li><strong>局部对齐机制：</strong>用注意力或 object/contact tokens 替代全局平均 3D pooling。</li>
+      <li><strong>数据合成闭环：</strong>自动筛选 replay 成功或视频-动作一致性高的合成样本，再训练 VLA。</li>
+      <li><strong>大规模评测：</strong>在更多机器人、更多任务、更多真实 OOD 设置上验证合成数据收益。</li>
+    </ol>
+
+    <div class="good">
+      <strong>最终判断：</strong>VAG 的亮点不是单个指标最高，而是把“视频生成”和“动作轨迹生成”放进同一个同步 denoising 过程里，为 embodied data synthesis 提供了一个清楚可扩展的工程框架。对 junior PhD 来说，最值得学的是它如何把 World Model 的视觉先验转化为可用于 policy training 的动作标注数据。
+    </div>
+  </section>
+</main>
+</body>
+</html>

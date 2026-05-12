@@ -1,0 +1,77 @@
+\documentclass[]{arxiv_article}
+
+\usepackage[toc,page,header]{appendix}
+\input{preamble_echo}
+
+\title{dWorldEval: Scalable Robotic Policy Evaluation via \\ Discrete Diffusion World Model}
+% Author superscripts: $^{affiliations, co-first *, internship \star}$; internship legend via \contributionpar[\star]{...} (paragraph break before it; no \thanks on names).
+\author[1]{Yaxuan Li}{}
+\author[1]{Zhongyi Zhou}{}
+\author[1]{Yefei Chen}{}
+\author[1]{Yaokai Xue}{}
+\author[2]{Yichen Zhu}{}
+
+\affiliation[1]{Current Robotics}
+\affiliation[2]{University of Toronto}
+
+% \contribution[\dagger]{Corresponding Author}
+% \contribution[\ddagger]{Project Leader}
+
+
+\abstract{
+Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities—including vision, language, and robotic actions—into a unified token space, modeling them via a single transformer-based denoising network. 
+In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, We employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.
+
+\keywords{World Model \and Robotic Policy Evaluation}
+}
+
+\date{\today}
+% \correspondence{exampleemail.com}
+\checkdata[Project Page]{\url{https://dworldeval.github.io/}}
+
+\teaser{
+    \begin{center}
+        \includegraphics[width=0.9\textwidth]{figures/head.pdf} 
+        \captionof{figure}{dWorldEval is a discrete diffusion world model designed to be controllable and consistent for reliable policy evaluation. 
+    It ensures action controllability and spatiotemporal consistency while providing the policy compatibility and faithful progress scoring necessary for accurate, automated policy ranking.} 
+        \label{fig:firstfig}
+    \end{center}
+}
+
+\begin{document}
+\begingroup
+\hypersetup{linkcolor=black}
+\maketitle
+\endgroup
+
+
+% \begin{center}
+%   \vspace{-1em} % 向上微调，缩减与标题的间距
+%   \includegraphics[width=0.8\textwidth]{picture/hiwm.pdf}
+%   \captionof{figure}{
+%   We propose \textbf{Hi-WM}, a human-in-the-world-model framework that leverages human intervention in the world model when the policy fails. This approach effectively reduces overhead and improves success rate of the policy, thereby achieving the goal of scalability.
+%   }  
+%   \label{fig:firstfig}
+% \end{center}
+
+
+
+\input{section/1_introduction}
+\input{section/2_related_work}
+\input{section/3_method}
+\input{section/4_experiment}
+\input{section/5_conclusion}
+
+
+
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+
+\begin{appendices}
+    \input{section/appendix} 
+\end{appendices}
+
+\end{document}

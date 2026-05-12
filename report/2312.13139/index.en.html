@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GR-1 - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation</h1>
+<div class="meta">
+<p><strong>Method name: </strong>GR-1</p>
+<p><strong>Authors: </strong>Hongtao Wu, Ya Jing, Chilam Cheang, Guangzeng Chen, Jiafeng Xu, Xinghang Li, Minghuan Liu, Hang Li, Tao Kong</p>
+<p><strong>Organization: </strong>ByteDance Research</p>
+<p><strong>Publication: </strong>ICLR 2024; arXiv v2 submitted on 2023-12-21</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2312.13139">arXiv: 2312.13139</a> | <a href="https://arxiv.org/pdf/2312.13139">PDF</a> | <a href="https://GR1-Manipulation.github.io">Project page</a> | <a href="https://github.com/bytedance/GR-1">official code</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents: </strong>
+<a href="#quick">1. Quick overview</a>
+<a href="#motivation">2. Motivation</a>
+<a href="#related">3. Related work</a>
+<a href="#method">4. Detailed explanation of method</a>
+<a href="#experiments">5. Experiment</a>
+<a href="#reproduce">6. Reproducible auditing</a>
+<a href="#discussion">7. Analysis, Limitations and Boundaries</a>
+</nav>
+<section id="quick">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper introduces large-scale language conditional video prediction pre-training into robot operation, and proposes a unified GPT-style Transformer GR-1, which enables the same model to first predict future frames on Ego4D videos, and then simultaneously predict actions and future images on robot data.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>Robot demonstration data is scarce, expensive, and contains multi-modal signals such as images, states, actions, and languages; the author hopes to use larger-scale non-robot video data to improve multi-task language-conditioned visual operations.</td></tr>
+<tr><th>The author's approach</th><td>Think of the robot trajectory as a visual sequence with actions: first use the language conditional video prediction on Ego4D to learn "what will happen next", and then transfer this ability to robot strategy learning.</td></tr>
+<tr><th>most important results</th><td>CALVIN ABCD$\rightarrow$D's success rate increased from the best baseline of 88.9% to 94.9%, and the average number of consecutive completed tasks increased from 3.06 to 4.21; ABC$\rightarrow$D's unseen scene success rate increased from 53.3% to 85.4%.</td></tr>
+<tr><th>Things to note when reading</th><td>The core is not simply replaced by Transformer, but a combination of "video prediction token + behavioral cloning token + large-scale video pre-training"; the appendix ablation shows that only video prediction without pre-training is also helpful, but the complete GR-1 is the strongest.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Requires familiarity with behavioral cloning, Transformer sequence modeling, visual encoders, long-term robotic evaluation, and CALVIN's continuous task protocol.</p>
+<p><strong>Keywords: </strong>visual robot manipulation, language-conditioned policy, video generative pre-training, GPT-style transformer, CALVIN, Ego4D. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Proof that video generative pre-training helps robots operate: </strong>The author uses human interaction videos in Ego4D as a pre-training source and verifies the transfer effect on CALVIN and real robots.</li>
+<li><strong>Proposed unified model GR-1: </strong>A GPT-style causal Transformer simultaneously receives language, historical images, and robot state, and outputs actions and future images.</li>
+<li><strong>System evaluation generalization and data efficiency: </strong>Including multi-tasking, unseen scenes, 10% data, unseen language, unseen instances and unseen categories of real robots.</li>
+</ul>
+<div class="figure">
+<img alt="GR-1 overview" src="figures/overview.png"/>
+<div class="caption"><strong>Figure 1.</strong> GR-1 first performs language conditional video prediction pre-training on large-scale video data, and then fine-tunes and learns multi-task visual operations on robot data.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>Generative pretraining in NLP and CV has shown that large-scale sequence data can provide transferable representations. The obstacles in the field of robotics are: high demonstration collection costs and sparse data; at the same time, robotic data is naturally multi-modal, including images, language, status, actions, etc. The key judgment of the paper is that the robot trajectory itself also contains video sequences, so there are structural similarities between "predicting future pictures based on language and past pictures" and "selecting actions based on language and historical observations".</p>
+<p>A specific scenario is a long-term CALVIN operation: the robot must not only understand language such as "slide left the red block", but also visually locate objects, predict how the environment will change after the operation, and continuously complete up to 5 tasks. If it only relies on a small amount of robot data with language annotation, it will be difficult for the model to obtain a sufficiently robust visual-language-temporal structure.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<p>The paper divides the previous work into several lines: the language conditional operation method can use LLM or CLIP for task understanding, but some methods predict sparse key points and rely on motion planners, which are less flexible than end-to-end continuous actions; the hierarchical method uses the latent plan conditionalization strategy, but it is not a simple and unified GPT-style trajectory modeling. Transformer decision-making models such as Decision Transformer, GATO, and RoboCat indicate that sequence models are suitable for decision-making problems, but RoboCat does not do video pre-training and is goal-image conditioned rather than language-conditioned.</p>
+<p>In terms of pre-training, R3M, MVP, etc. focus more on visual representation, while VPT/VIPER uses videos within the task environment; the difference between GR-1 and them is that it uses non-robot, large-scale Ego4D videos outside the domain for language-conditional future frame prediction, and retains two output heads of future image and action prediction in the same model.</p>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The high-level idea is to design the pre-training task as a substructure of the robot fine-tuning task: the pre-training phase inputs language and past frames, and outputs future frames; the robot phase additionally adds state input and action output, while continuing to predict future frames. In this way, the visual-language-temporal relationships learned through video pre-training can be directly fed into robot policy learning, rather than just as independent frozen representations.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Representation in the paper</th><th>GR-1 Positioning</th></tr>
+<tr><td>language-conditioned visual manipulation</td><td>RT-1/RT-2, CLIPort, PerAct, Hiveformer, HULC, etc.</td><td>Does not rely on sparse keypoints or external planners; directly trains GPT-style trajectory models with language annotation demonstrations.</td></tr>
+<tr><td>Transformer sequence decision</td><td>Decision Transformer, VIMA, GATO, RoboCat</td><td>Transformer is also used to model sequences, but GR-1 is oriented to language conditional operations and adds large-scale video prediction pre-training.</td></tr>
+<tr><td>Robot learning pre-training</td><td>R3M, MVP, RPT, VPT, VIPER, model-based video prediction</td><td>Rather than learning only visual representations or training only on in-task videos, unified future image prediction capabilities are pre-trained on non-robotic Ego4D.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Formalization of the problem</h3>
+<div class="formula-block">
+<p class="intuition">Video pre-training task: given language description and historical image sequence, predict future images.</p>
+ $$\pi(l, \mathbf{o}_{t-h: t}) \rightarrow \mathbf{o}_{t+\Delta t}$$
+ <table>
+<tr><td>$l$</td><td>Natural language description of video.</td></tr>
+<tr><td>$\mathbf{o}_{t-h: t}$</td><td>The video frame sequence from $t-h$ to the current $t$.</td></tr>
+<tr><td>$\mathbf{o}_{t+\Delta t}$</td><td>Target frame at step $\Delta t$ in the future.</td></tr>
+</table>
+</div>
+<div class="formula-block">
+<p class="intuition">Robot fine-tuning task: Beyond video prediction, simultaneously predicting current actions.</p>
+ $$\pi(l, \mathbf{o}_{t-h: t}, \mathbf{s}_{t-h: t}) \rightarrow \mathbf{o}_{t+\Delta t}, \mathbf{a}_{t}$$
+ <table>
+<tr><td>$\mathbf{s}_{t-h: t}$</td><td>Robot state sequence, including end effector 6D pose and binary gripper state.</td></tr>
+<tr><td>$\mathbf{a}_{t}$</td><td>Current action: continuous arm action and gripper binary action.</td></tr>
+<tr><td>$D=\{\tau_i\}_{i=1}^{N}$</td><td>An expert trajectory data set containing $M$ tasks. Each trajectory contains language, image, status, and action.</td></tr>
+</table>
+</div>
+<h3>4.2 Model input and token organization</h3>
+<p>GR-1 uses a multi-modal encoder to map language, images and robot states into the same Transformer dimension. Language is encoded by CLIP text encoder; visual observations are encoded by MAE pre-trained ViT, CLS token is used as a global representation, patch token is compressed by Perceiver resampler; robot state is encoded by linear layer.<span class="appendix-ref">Appendix Network and Training Details</span></p>
+<div class="figure">
+<img alt="GR-1 encoders and decoders" src="figures/encoder_decoder.png"/>
+<div class="caption"><strong>Figure 2.</strong> Language, state, image encoder, and future image decoder and action decoder.</div>
+</div>
+<p>The model learns two types of special tokens: <code>[OBS]</code> for future image prediction, <code>[ACT]</code> for action prediction. The sequence in the pre-training stage is language, image, <code>[OBS]</code> Appear alternately; the robot fine-tuning phase adds status and <code>[ACT]</code>. The author places repeated linguistic tokens in order to prevent linguistic information from being overwhelmed by denser visual and status tokens. A learned relative time embedding is also added to each time step, and all modalities at the same time step share this time embedding.</p>
+<div class="pseudocode">Pre-training sequence: (l, o[t-h], [OBS], l, o[t-h+1], [OBS],..., l, o[t], [OBS])
+
+Robot finetuning sequence: (l, s[t-h], o[t-h], [OBS], [ACT],..., l, s[t], o[t], [OBS], [ACT])</div>
+<h3>4.3 Causal Transformer and mask</h3>
+<p>GR-1 uses GPT-style causal Transformer, but uses a special mask for the prediction token. During pre-training, the token can see the token at the previous position, but not the previous one. <code>[OBS]</code> Prediction token; when fine-tuning, you cannot see the previous <code>[OBS]</code> and <code>[ACT]</code>. This prevents the model from leaking target information from the prediction token and maintains autoregressive historical condition prediction.</p>
+<h3>4.4 Output header and loss</h3>
+<p>The future image is transformed by the transformer decoder from <code>[OBS]</code> Corresponding output and mask token reconstruct patch, the training target is pixel space MSE, and MAE style patch-wise normalization is used. action by <code>[ACT]</code> The output goes through three layers of MLP, and is finally divided into two heads: arm and gripper: arm uses Smooth-L1 loss, and gripper uses BCE loss. The total loss in the fine-tuning phase is: </p>
+<div class="formula-block">
+ $$L_{\mathrm{finetune}} = L_{\mathrm{arm}} + L_{\mathrm{gripper}} + L_{\mathrm{video}}$$
+ <p>This shows that video prediction is not an auxiliary task that is discarded after pre-training, but still exists as a training signal when the robot is fine-tuned.</p>
+</div>
+<h3>4.5 Training details</h3>
+<p>The pre-training data comes from Ego4D and contains more than 3500 hours of human-object interaction videos. The author trimmed 3-second short clips from the video, resulting in a total of 800, 000 clips and 8M frames. Pretrain randomly sampled sequences and predict future frames. Randomly sample robot trajectory segments during fine-tuning while optimizing behavioral cloning and video prediction losses.</p>
+<table>
+<tr><th>Project</th><th>pre-training</th><th>Robot fine-tuning</th></tr>
+<tr><td>data</td><td>Ego4D; 800k clips; 8M frames</td><td>CALVIN or real robot data</td></tr>
+<tr><td>prediction step size</td><td>$\Delta t=1$, equally spaced frames 1/3 second apart</td><td>$\Delta t=3$, predict static camera and gripper camera images</td></tr>
+<tr><td>sequence length</td><td colspan="2">10</td></tr>
+<tr><td>freeze module</td><td colspan="2">CLIP text encoder and MAE image encoder</td></tr>
+<tr><td>Transformer</td><td colspan="2">12 layers, 12 heads, hidden size 384; total parameters 195M, of which 46M are trainable <span class="appendix-ref">Appendix Network and Training Details</span></td></tr>
+</table>
+<table>
+<tr><th>hyperparameters</th><th>pre-training</th><th>fine-tuning</th></tr>
+<tr><td>batch size</td><td>1024</td><td>512</td></tr>
+<tr><td>learning rate</td><td>3.6e-4</td><td>1e-3</td></tr>
+<tr><td>dropout</td><td>0.1</td><td>0.1</td></tr>
+<tr><td>optimizer</td><td>AdamW</td><td>AdamW</td></tr>
+<tr><td>schedule</td><td>cosine decay</td><td>cosine decay</td></tr>
+<tr><td>warmup epochs</td><td>5</td><td>1</td></tr>
+<tr><td>training epochs</td><td>50</td><td>20</td></tr>
+</table>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental questions and settings</h3>
+<p>The author designed experiments around three questions: whether GR-1 can improve visual robot operation; whether it can work on real robots; whether it can handle challenges such as small data, unseen scenes, unseen objects, and unseen languages. The main benchmarks include the CALVIN benchmark and real robot object transportation / articulated object manipulation.</p>
+<div class="figure">
+<img alt="CALVIN examples" src="figures/calvin_results.png"/>
+<div class="caption"><strong>Figure 3.</strong> Multi-task learning example on CALVIN.</div>
+</div>
+<div class="figure">
+<img alt="CALVIN environments" src="figures/env.png"/>
+<div class="caption"><strong>Figure 4.</strong> The object positions and desktop configurations of the four CALVIN environments A/B/C/D are different.</div>
+</div>
+<p>CALVIN contains 34 tasks and open language instructions. The training data has more than 20k expert trajectories, but the author simulates real scenarios and only uses 1% of the data with crowdsourced language instruction labels to train GR-1, RT-1 and MT-R3M; MCIL and HULC use the complete CALVIN data. The evaluation uses 1000 unique sequence instruction chains, and each chain can complete up to 5 tasks continuously; a single task that is not completed within 360 timesteps is considered a failure.<span class="appendix-ref">Appendix CALVIN Benchmark Experiments</span></p>
+<h3>5.2 CALVIN main result</h3>
+<div class="scroll">
+<table>
+<tr><th>settings</th><th>method</th><th>1 task</th><th>2 tasks</th><th>3 tasks</th><th>4 tasks</th><th>5 tasks</th><th>Avg. Len.</th></tr>
+<tr><td>ABCD$\rightarrow$D</td><td>HULC best baseline</td><td>0.889</td><td>0.733</td><td>0.587</td><td>0.475</td><td>0.383</td><td>3.06</td></tr>
+<tr><td>ABCD$\rightarrow$D</td><td><strong>GR-1</strong></td><td><strong>0.949</strong></td><td><strong>0.896</strong></td><td><strong>0.844</strong></td><td><strong>0.789</strong></td><td><strong>0.731</strong></td><td><strong>4.21</strong></td></tr>
+<tr><td>ABC$\rightarrow$D</td><td>RT-1/MT-R3M Best Baseline</td><td>0.533</td><td>0.234</td><td>0.105</td><td>0.043</td><td>0.018</td><td>0.93</td></tr>
+<tr><td>ABC$\rightarrow$D</td><td><strong>GR-1</strong></td><td><strong>0.854</strong></td><td><strong>0.712</strong></td><td><strong>0.596</strong></td><td><strong>0.497</strong></td><td><strong>0.401</strong></td><td><strong>3.06</strong></td></tr>
+<tr><td>10% data</td><td>HULC best baseline</td><td>0.668</td><td>0.295</td><td>0.103</td><td>0.032</td><td>0.013</td><td>1.11</td></tr>
+<tr><td>10% data</td><td><strong>GR-1</strong></td><td><strong>0.778</strong></td><td><strong>0.533</strong></td><td><strong>0.332</strong></td><td><strong>0.218</strong></td><td><strong>0.139</strong></td><td><strong>2.00</strong></td></tr>
+<tr><td>unseen language</td><td>HULC best baseline</td><td>0.715</td><td>0.470</td><td>0.308</td><td>0.199</td><td>0.130</td><td>1.82</td></tr>
+<tr><td>unseen language</td><td><strong>GR-1</strong></td><td><strong>0.764</strong></td><td><strong>0.555</strong></td><td><strong>0.381</strong></td><td><strong>0.270</strong></td><td><strong>0.196</strong></td><td><strong>2.17</strong></td></tr>
+</table>
+</div>
+<p>ABCD$\rightarrow$D measures the multi-task ability trained in all environments and evaluated in D environment; GR-1 is higher than the baseline from the 1st to the 5th consecutive task, especially the 5-task success from 0.383 to 0.731 of HULC. ABC$\rightarrow$D is a zero-shot unseen scene generalization. The 1-task success of GR-1 is 0.854, which is significantly higher than the best baseline of 0.533. 10% data uses 10% of the total training set of ABCD$\rightarrow$D, that is, 66 per task and a total of 2244 trajectories; GR-1 still reaches a 1-task success of 0.778. success.</p>
+<p>In the unseen language experiment, the author used GPT-4 to generate 50 synonymous instructions for each of 34 tasks, and randomly sampled them during evaluation. Appendix examples include "use the switch to turn off the light bulb" to "use the switch to stop the light source."<span class="appendix-ref">Appendix More Results</span></p>
+<h3>5.3 Real robot experiment</h3>
+<div class="figure">
+<img alt="Real robot experiments" src="figures/real_robot.png"/>
+<div class="caption"><strong>Figure 5.</strong> Real robot experiments include object handling and drawer opening and closing.</div>
+</div>
+<p>The real robot uses a 7-DoF Kinova Gen2 with RealSense installed on the end, and the camera static view is from Kinect Azure. The object handling training scene includes plate, eggplant, broccoli, and bell pepper, with a total of 1775 VR collection demonstrations; the drawer opening and closing training has 2856 trajectories. Real robot fine-tuning basically follows the CALVIN settings, but the batch size is changed to 64 and the training epochs are changed to 30.<span class="appendix-ref">Appendix Real Robot Experiments</span></p>
+<table>
+<tr><th>method</th><th>Seen Objects</th><th>Unseen Instances</th><th>Unseen Categories</th><th>Articulated Object Manipulation</th></tr>
+<tr><td>RT-1</td><td>0.27</td><td>0.13</td><td>0.00</td><td>0.35</td></tr>
+<tr><td>MT-R3M</td><td>0.15</td><td>0.13</td><td>0.10</td><td>0.30</td></tr>
+<tr><td><strong>GR-1</strong></td><td><strong>0.79</strong></td><td><strong>0.73</strong></td><td><strong>0.30</strong></td><td><strong>0.75</strong></td></tr>
+</table>
+<p>The main failure modes reported by the author are also very specific: RT-1 and MT-R3M often pick up the wrong objects and place them incorrectly, and RT-1 may also hit the plate or desk; GR-1 will confuse bell pepper with similar colors in unseen categories with peach; in the drawer task, it will appear that the handle is not fully closed or the handle is not grasped. See Figure 9 for the real robot rollout.</p>
+<h3>5.4 Qualitative results of video prediction</h3>
+<div class="figure">
+<img alt="Video prediction results" src="figures/fwd_pred.png"/>
+<div class="caption"><strong>Figure 6.</strong> The green box is the real future frame, and the blue box is the predicted future frame; the author explains that GR-1 can restore the main future state, but details such as occluded objects may still be missing.</div>
+</div>
+<p>This part supports the core mechanism explanation of the paper: future frame prediction signals can provide future state constraints for action prediction. The authors do not convert the prediction quality into an independent quantitative metric, but use qualitative figures to illustrate that future frame structure can be recovered on CALVIN and real robot data.</p>
+<h3>5.5 Ablation experiment</h3>
+<div class="figure">
+<img alt="Ablation results" src="figures/ablation.png"/>
+<div class="caption"><strong>Figure 7.</strong> Ablation plot showing CALVIN's average number of consecutive completed tasks and real robot pick-and-place success rate.</div>
+</div>
+<table>
+<tr><th>settings</th><th>Pre-training</th><th>Video Prediction</th><th>1 task</th><th>5 tasks</th><th>Avg. Len.</th></tr>
+<tr><td>ABCD$\rightarrow$D</td><td>No</td><td>No</td><td>0.889</td><td>0.459</td><td>3.33</td></tr>
+<tr><td>ABCD$\rightarrow$D</td><td>No</td><td>Yes</td><td>0.918</td><td>0.619</td><td>3.82</td></tr>
+<tr><td>ABCD$\rightarrow$D</td><td>Yes</td><td>Yes</td><td><strong>0.949</strong></td><td><strong>0.731</strong></td><td><strong>4.21</strong></td></tr>
+<tr><td>ABC$\rightarrow$D</td><td>No</td><td>No</td><td>0.823</td><td>0.225</td><td>2.40</td></tr>
+<tr><td>ABC$\rightarrow$D</td><td>No</td><td>Yes</td><td>0.815</td><td>0.297</td><td>2.65</td></tr>
+<tr><td>ABC$\rightarrow$D</td><td>Yes</td><td>Yes</td><td><strong>0.854</strong></td><td><strong>0.401</strong></td><td><strong>3.06</strong></td></tr>
+<tr><td>10% data</td><td>No</td><td>No</td><td>0.526</td><td>0.022</td><td>1.04</td></tr>
+<tr><td>10% data</td><td>No</td><td>Yes</td><td>0.698</td><td>0.052</td><td>1.52</td></tr>
+<tr><td>10% data</td><td>Yes</td><td>Yes</td><td><strong>0.778</strong></td><td><strong>0.139</strong></td><td><strong>2.00</strong></td></tr>
+</table>
+<p>The ablation conclusion is divided into two levels: first, adding video prediction without pre-training has usually improved, indicating that the future frame auxiliary task itself is useful; second, adding large-scale video pre-training further improves, especially in unseen scenes and small data. The authors explain that pre-training helps the model learn a more robust video prediction model, thereby forming hints about future states.<span class="appendix-ref">Appendix Ablation Studies</span></p>
+<table>
+<tr><th>Future Step</th><th>1 task</th><th>2 tasks</th><th>3 tasks</th><th>4 tasks</th><th>5 tasks</th><th>Avg. Len.</th></tr>
+<tr><td>1</td><td>0.895</td><td>0.802</td><td>0.710</td><td>0.643</td><td>0.562</td><td>3.61</td></tr>
+<tr><td>3</td><td><strong>0.918</strong></td><td><strong>0.833</strong></td><td><strong>0.761</strong></td><td><strong>0.685</strong></td><td><strong>0.619</strong></td><td><strong>3.82</strong></td></tr>
+<tr><td>5</td><td>0.909</td><td>0.806</td><td>0.719</td><td>0.649</td><td>0.583</td><td>3.67</td></tr>
+</table>
+<p>Prediction $\Delta t=3$ is better than 1 and 5. The explanation given by the author is: when the continuous frames are too close, the information difference is insufficient, and when they are too far away, they are not suitable for guiding the current local action.</p>
+<h3>5.6 Task-by-task success rate and more visualizations</h3>
+<p>The task-by-task success rate table shows that video pre-training has a greater improvement in tasks involving block manipulation, such as rotate blue block right from 71.2 to 94.9, stack block from 45.7 to 80.1, and lift red block table from 76.7 to 97.7. The author explains that the difficulty of these tasks lies in the need to grasp the correct square first and then operate according to the language; video generative pre-training improves the performance of such tasks.<span class="appendix-ref">Appendix Task Success Rates</span></p>
+<div class="scroll">
+<table>
+<tr><th>Task</th><th>GR-1</th><th>GR-1 w/o Video Prediction &amp; Pre-training</th><th>GR-1 10% data</th></tr>
+<tr><td>rotate blue block right</td><td>94.9</td><td>71.2</td><td>51.6</td></tr>
+<tr><td>stack block</td><td>80.1</td><td>45.7</td><td>43.2</td></tr>
+<tr><td>lift red block table</td><td>97.7</td><td>76.7</td><td>36.5</td></tr>
+<tr><td>place in slider</td><td>91.3</td><td>89.1</td><td>34.8</td></tr>
+<tr><td>open drawer</td><td>99.4</td><td>100.0</td><td>94.2</td></tr>
+<tr><td>turn on/off LED</td><td>100.0 / 100.0</td><td>98.7 / 100.0</td><td>95.6 / 95.6</td></tr>
+<tr><td>push red/blue block right</td><td>54.2 / 53.6</td><td>49.3 / 50.0</td><td>43.6 / 33.9</td></tr>
+</table>
+</div>
+<div class="figure">
+<img alt="CALVIN rollouts" src="figures/calvin_rollout.png"/>
+<div class="caption"><strong>Figure 8.</strong> More rollouts on the CALVIN benchmark.</div>
+</div>
+<div class="figure">
+<img alt="Real robot rollouts" src="figures/real_robot_rollout.png"/>
+<div class="caption"><strong>Figure 9.</strong> Real robot rollout; the first five lines are object handling, and the last two lines are drawer-type operations.</div>
+</div>
+<div class="figure">
+<img alt="CALVIN video prediction appendix" src="figures/calvin_pre.png"/>
+<div class="caption"><strong>Figure 10.</strong> Supplementary future frame prediction results on CALVIN.</div>
+</div>
+<div class="figure">
+<img alt="Real robot video prediction appendix 1" src="figures/fwd_pred_appendix.png"/>
+<div class="caption"><strong>Figure 11.</strong> Supplementary future frame prediction results in object handling and drawer operations.</div>
+</div>
+<div class="figure">
+<img alt="Real robot video prediction appendix 2" src="figures/real_pre.png"/>
+<div class="caption"><strong>Figure 12.</strong> Future frame prediction results in ablation pick-and-place experiments.</div>
+</div>
+</section>
+<section id="reproduce">
+<h2>6. Reproducible auditing</h2>
+<div class="audit-card">
+<h4>Code and resources</h4>
+<p><span class="pass">There is official code: </span><a href="https://github.com/bytedance/GR-1">github.com/bytedance/GR-1</a>. README provides CALVIN environment installation, CALVIN data download, MAE ViT-Base weight download, GR-1 ABCD-D/ABC-D checkpoint download, and `evaluate_calvin.sh` evaluation command.</p>
+</div>
+<table>
+<tr><th>Recurring items</th><th>Information given by the paper/code</th><th>Status</th></tr>
+<tr><td>Model structure</td><td>12 layers, 12 heads, hidden size 384, 195M parameters, 46M trainable; CLIP text encoder and MAE ViT image encoder frozen.</td><td><span class="pass">fully</span></td></tr>
+<tr><td>Training hyperparameters</td><td>Batch size, learning rate, dropout, optimizer, cosine decay, warmup, and epochs are all given in the appendix.</td><td><span class="pass">fully</span></td></tr>
+<tr><td>Pre-training data construction</td><td>Ego4D; 3 seconds clips; 800k clips/8M frames; equally spaced frames, 1/3 second apart.</td><td><span class="pass">relatively sufficient</span></td></tr>
+<tr><td>CALVIN Review</td><td>1000 instruction chains; up to 5 consecutive tasks; 360 timesteps timeout; ABCD$\rightarrow$D and ABC$\rightarrow$D split.</td><td><span class="pass">fully</span></td></tr>
+<tr><td>real robot</td><td>The robot model, camera, task, number of training trajectories, scene settings, and batch/epoch changes are all given.</td><td><span class="warn">Replicate high physical dependence</span></td></tr>
+<tr><td>Pre-trained weights</td><td>The official README provides GR-1 CALVIN checkpoint; the paper does not describe all training logs of complete Ego4D pre-training weights.</td><td><span class="warn">The evaluation is reproducible, but the complete training cost is high</span></td></tr>
+</table>
+<div class="pseudocode">CALVIN evaluation skeleton from official README: export CALVIN_ROOT=/path/to/calvin/directory/
+export EVAL_DIR=eval_logs/
+export POLICY_CKPT_PATH=logs/snapshot_ABCD.pt
+export MAE_CKPT_PATH=/path/to/mae/checkpoint/
+bash evaluate_calvin.sh --dataset_dir /path/to/calvin/dataset/task_ABCD_D/directory/</div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own experiments, the core value lies in advancing "outside large-scale video" from ordinary visual representation pre-training to "future state prediction", a goal closer to robot strategy learning. The evidence is not a single benchmark number, but the main result and ablation support at the same time: only the existing gains in video prediction are retained, and after superimposing Ego4D pre-training, it is further improved under multi-tasking, unseen scenes and small data.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The paper uses multiple complementary settings: in CALVIN there are multi-task learning of ABCD$\rightarrow$D, as well as unseen scenes, 10% data, and unseen language of ABC$\rightarrow$D; in real robots there are seen objects, unseen instances, unseen categories and articulated object manipulation. Appendix ablation separates video prediction from pre-training and compares future steps, reducing the explanation space of "just model capacity or Transformer architecture causing improvement".</p>
+<h3>7.3 Explanations and failure modes given by the author</h3>
+<p>The author believes that the unseen scene generalization comes from the visual-text alignment brought by the rich human-object interaction in Ego4D; the unseen language generalization comes from the diverse language exposure and frozen CLIP text encoder in pre-training. In the real robot, the author clearly lists the failure modes of GR-1: objects with similar colors will be confused in the unseen category, such as bell pepper and peach; the drawer task will not be fully closed or the handle will not be grasped. In the video prediction results, the author also pointed out that details such as occluded objects may be missing.</p>
+<h3>7.4 Future work as described by the author</h3>
+<p>In Conclusion, the author proposes three directions: combine video data training with and without language to enhance robustness and generalization; explore the difference between "arbitrary video pre-training" and "more relevant operation video pre-training"; expand robot data to include more trajectories in different environments and more operating skills.</p>
+<h3>7.5 Applicable boundaries</h3>
+<ul>
+<li>The experiments of GR-1 mainly cover tasks in which language-conditioned visual operations and future frames can be used as action cues; the paper does not prove that this method is equally effective for all contact dynamics or high-precision force control tasks.</li>
+<li>The scale of the real robot experiment is smaller than that of CALVIN, and the tasks focus on object handling and drawer operation; reproducing the experiment requires cameras, robots, VR acquisition and scene layout.</li>
+<li>Complete pre-training relies on large-scale Ego4D data and larger batches, and the computational cost is significantly higher than just downloading the official checkpoint for evaluation.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

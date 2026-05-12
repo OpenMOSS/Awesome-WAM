@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>DexWorldModel - arXiv: 2604.16484 Reading Report</title>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="title-wrap">
+<h1>DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks</h1>
+<p class="subtitle">arXiv: 2604.16484 Reading Report - CLWM / EmbodiChain</p>
+<div class="meta">
+<span class="pill">Yueci Deng, Guiliang Liu, Kui Jia</span>
+<span class="pill">DexForce AI</span>
+<span class="pill">DINOv3 Latent World Model</span>
+<span class="pill">Dual-State TTT Memory</span>
+<span class="pill">Speculative Asynchronous Inference</span>
+</div>
+</div>
+</header>
+<nav class="toc">
+<a href="#overview">1. Quick overview of the paper</a>
+<a href="#motivation">2. Motivation and background</a>
+<a href="#prelim">3. Preliminary knowledge</a>
+<a href="#method">4. Detailed explanation of CLWM method</a>
+<a href="#embodichain">5. EmbodiChain</a>
+<a href="#experiments">6. Key points for experimental reproducibility</a>
+<a href="#discussion">7. Discussion and limitations</a>
+<a href="#questions">8. Questioning at the group meeting</a>
+<a href="#repro">9. reproducibility information</a>
+</nav>
+<article>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<p class="lead">DexWorldModel proposes Causal Latent World Model (CLWM), with the goal of truly deploying the World-Action Model into robot execution. It changes future state generation from pixel/VAE latent to DINOv3 feature, uses Dual-State TTT Memory to replace the linearly growing KV cache, and uses Speculative Asynchronous Inference (SAI) to hide part of the denoising calculation in physical execution time. On the data side, EmbodiChain is proposed to replace limited static data sets with continuously generated physically credible simulation trajectories.</p>
+<table>
+<tr><th>What should the paper solve?</th><td>Existing WAM/VLA has three types of bottlenecks in robot deployment: future image reconstruction wastes capacity; the autoregressive history KV cache grows over time $\mathcal{O}(T)$; it must wait for real observations before reasoning, resulting in high closed-loop control latency. Another system bottleneck is that robot training data production is much slower than model capacity growth.</td></tr>
+<tr><th>The author's approach</th><td>CLWM uses DINOv3 latent as the generation target, and MoT shares the video/action transformer backbone; Dual-State TTT Memory pushes history into MLP weights that are updated when testable; SAI uses predicted future semantics for background pre-denoising; EmbodiChain uses generative simulation, domain expansion, and ODS to continuously inject new trajectories.</td></tr>
+<tr><th>most important results</th><td>The average success rate of RoboTwin is 94.00%, higher than $\pi_{0.5}$ 76.76%, X-VLA 72.84%, Motus 87.02%, and LingBot-VA 91.55%; the real two-arm zero-shot sim-to-real four tasks reach 95/90/80/65%, higher than using real teaching fine-tuning $\pi_0$ with GR00T N1.5; SAI reduces blocking latency by approximately 50%.</td></tr>
+<tr><th>Things to note when reading</th><td>This article does not simply propose a policy, but a combined system of "model representation + long-term memory + inference scheduling + data generation infrastructure". The experimental conclusions are strong, but the cost of reproducibility is also extremely high: 64 H100, 20 days of training, and the EmbodiChain data engine are not lightweight conditions.</td></tr>
+</table>
+<div class="grid three">
+<div class="card"><div class="kpi">94.00%</div><div class="kpi-label">RoboTwin average success rate</div></div>
+<div class="card"><div class="kpi">O(1)</div><div class="kpi-label">Dual-State TTT Memory space complexity</div></div>
+<div class="card"><div class="kpi">~50%</div><div class="kpi-label">SAI blocking latency reduced</div></div>
+</div>
+<figure>
+<img alt="CLWM pipeline" src="figures/Pipeline_p1.png"/>
+<figcaption>CLWM Overview: DINOv3 extracts latent video features; latent video model first predicts future semantics; action model then decodes action chunks based on future semantics; TTT Memory assumes historical context.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation and background</h2>
+<p>The paper starts from the "reactive" limitations of VLA: conventional VLA directly maps vision and language to actions, lacking explicit forward dynamics, so it is easy to confuse visual correlation with real physical cause and effect. World Action Models first predict the future world state, and then infer actions based on the future state, making action generation explicitly dependent on physical imagination.</p>
+<p>The author believes that existing WAM is still stuck on three engineering bottlenecks. First, pixel/VAE latent future prediction will spend a lot of capacity reconstructing details such as lighting, background, and texture that are irrelevant to control. Second, long-term autoregression must maintain the KV cache, and the memory grows linearly with time. Third, the serial process of "executing actions, waiting for observation, and then reasoning" in real robot execution causes the control frequency to be slowed down by diffusion/flow matching sampling.</p>
+<div class="note"><strong>One sentence version: </strong>CLWM moves the examination room of the world model from "whether the future video is good or not" to "whether the robot can perform tasks with low latency, long duration and cross-domain".</div>
+</section>
+<section id="prelim">
+<h2>3. Preliminary knowledge</h2>
+<h3>3.1 VLA and WAM</h3>
+<p>VLA maps current historical observations and language to future action blocks: </p>
+<p>$$a_{t: t+K-1}\sim \pi_\theta(\cdot\mid o_{\le t}, l).$$</p>
+<p>WAM is divided into two steps: forward visual dynamics and inverse/action dynamics: </p>
+<p>$$\hat{o}_{t+1}\sim p_\theta(\cdot\mid o_{\le t}, a_{<t>
+<p>$$a_t\sim g_\psi(\cdot\mid o_{\le t}, a_{<t>
+<p>This split makes action generation no longer just reactive mapping, but a causal structure based on "what should I do if the world becomes like this next?"</p>
+<h3>3.2 Conditional Flow Matching</h3>
+<p>CFM uses ODE flow to transform from noise $\epsilon$ to target $x$: </p>
+<p>$$\frac{dx^{(s)}}{ds}=v_\phi(x^{(s)}, s\mid c), \quad x^{(0)}=\epsilon\sim\mathcal{N}(0, I).$$</p>
+<p>If linear interpolation $x^{(s)}=(1-s)\epsilon+s x$ is used, the target speed is $\dot{x}^{(s)}=x-\epsilon$, and the training goal is: </p>
+<p>$$\mathcal{L}_{CFM}=\mathbb{E}_{s, \epsilon, x, c}\left[\|v_\phi(x^{(s)}, s\mid c)-\dot{x}^{(s)}\|^2\right].$$</p>
+</t></p></t></p></section>
+<section id="method">
+<h2>4. Detailed explanation of CLWM method</h2>
+<h3>4.1 DINOv3 Latent as world state</h3>
+<p>CLWM does not generate RGB, but uses frozen DINOv3 base model to extract latent feature map: </p>
+<p>$$f_t=\Phi_{\mathrm{DINO}}(o_t)\in\mathbb{R}^{C\times H'\times W'}, \quad H'=H/P, \ W'=W/P, \ P=16.$$</p>
+<p>This is similar to the idea of LDA-1B: put the future prediction target in a structured semantic space, reduce the pressure of background and texture reconstruction, and let the model capacity serve interactive semantics and object state transfer.</p>
+<h3>4.2 Mixture of Transformers</h3>
+<p>CLWM uses MoT: latent video model and action model share core transformer blocks, initialized from Wan2.2-5B; different modes are only independent in flow timestep embedding and input/output projection: </p>
+<p>$$\phi_{vid}=\phi_{vid}^{out}\circ\phi_{share}\circ\phi_{vid}^{in}, \quad \phi_{act}=\phi_{act}^{out}\circ\phi_{share}\circ\phi_{act}^{in}.$$</p>
+<p>The shared backbone forces visual latent and action learning to share environmental dynamics, while the projection layer preserves modal differences.</p>
+<h3>4.3 Two-stage autoregressive generation</h3>
+<p><strong>Stage 1: Latent Video Flow Matching.</strong> Given the historical memory context $h_{\le t}$ and the language $l$, the video model denoises the noise $\epsilon_{vid}$ into the future DINO feature $f_{t+1}$: </p>
+<p>$$\mathcal{L}_{video}=\mathbb{E}\left[\left\|v_{\phi_{vid}}(f_{t+1}^{(s)}, s\mid h_{\le t}, l)-\dot{f}_{t+1}^{(s)}\right\|^2\right].$$</p>
+<p><strong>Stage 2: Action Flow Matching.</strong> The action model decodes action chunks $a_t=\{a_{t, 1},..., a_{t, \tau}\}$, $\tau=16$, and the conditions include history, language, and Stage 1 predicted future semantics $\hat f_{t+1}$. In order to allow the action model to handle imperfect history, $p=0.5$ is used to inject noise into the historical latent during training, $s_{aug}\in[0.5, 1]$: </p>
+<p>$$\tilde f_{\le t}=(1-s_{aug})\epsilon+s_{aug}f_{\le t}.$$</p>
+<p>The action goals are: </p>
+<p>$$\mathcal{L}_{action}=\mathbb{E}\left[\left\|v_{\phi_{act}}(a_t^{(s)}, s\mid\tilde h_{\le t}, l, \tilde f_{t+1})-\dot a_t^{(s)}\right\|^2\right].$$</p>
+<h3>4.4 Dual-State TTT Memory</h3>
+<figure>
+<img alt="TTT Memory" src="figures/TTT_Memory_p1.png"/>
+<figcaption>Dual-State TTT Memory: Use TTT layer to replace KV cache; Long-Term memory only receives real history, Working memory comes out of long-term fork, and absorbs predicted future latent for action generation use.</figcaption>
+</figure>
+<p>The self-supervised task of the TTT layer is to reconstruct $\theta_V z_t$ using $\theta_K z_t$: </p>
+<p>$$\ell_{self}(\mathcal{W}; z_t)=\|f(\theta_K z_t; \mathcal{W})-\theta_V z_t\|^2.$$</p>
+<p>The output is obtained via query projection: </p>
+<p>$$l_t=f_{TTT_{mlp}}(\theta_Q z_t; \mathcal{W}_t).$$</p>
+<p>To stabilize fine-tuning, the TTT output is injected with gated residuals: </p>
+<p>$$f_{TTT}(z_t; \mathcal{W}_t)=\tanh(\alpha)\otimes f_{TTT_{mlp}}(\theta_Q z_t; \mathcal{W}_t)+z_t, $$</p>
+<p>Among them, $\alpha$ is initially 0.1. Long-Term TTT Memory is updated as real observations and actions arrive: </p>
+<p>$$\mathcal{W}_t^{long}=\mathcal{W}_{t-1}^{long}-\eta\nabla_\mathcal{W}\ell_{self}(\mathcal{W}_{t-1}^{long}; h_t).$$</p>
+<p>Fork out Working Memory when generating. The working memory is frozen during Stage 1 ODE; after obtaining $\hat f_{t+1}$, the working memory is immediately updated at $s=0$ and then used by Stage 2 action generation. In this way, the real history will not be polluted by the predicted state, and the context length will no longer cause linear growth of the KV cache.</p>
+<h3>4.5 Speculative Asynchronous Inference</h3>
+<figure>
+<img alt="Speculative asynchronous inference" src="figures/SAI_p1.png"/>
+<figcaption>SAI: The traditional process must wait for action execution and real observations to come back before starting the next step of denoising; SAI uses predicted future semantics to do background pre-denoising first, and only performs remaining calibration after the real observations arrive.</figcaption>
+</figure>
+<p>SAI is a two-step process. In Phase 1, when the robot executes the current action chunk, the model uses the $\hat f_t$ predicted in the previous step as the surrogate observation, and pre-integrates the ODE from $s=0$ to $s_{mid}$. In Phase 2, after the arrival of the real $o_t$, the DINO feature $f_t$ is extracted, the long-term memory is updated, the speculative context is replaced with the real context, and then integrated from $s_{mid}$ to $s=1$. Since the action model has seen noisy history during training, the speculative denoising in the first half will not easily deviate.</p>
+</section>
+<section id="embodichain">
+<h2>5. EmbodiChain</h2>
+<p>EmbodiChain is the data engine of the paper. Its core argument is the Efficiency Law: in embodied learning, effective scaling depends primarily on the rate of generation of "fresh, diverse, physically valid experiences" during training, rather than static data set size. The author uses Experience Throughput $\mathcal{E}$ to describe the unique state-action pairs ingested in each training iteration; under a fixed compute $C$ and parameter $P$, intelligence will grow effectively only when $\mathcal{E}$ exceeds the threshold $\tau(C, P)$.</p>
+<figure>
+<img alt="Efficiency law" src="figures/efficiency-law.png"/>
+<figcaption>Efficiency Law: Loss varies with data generation rate. The paper contends that the key bottleneck of embodied intelligence is physical experience throughput.</figcaption>
+</figure>
+<h3>5.1 Generative Simulation</h3>
+<ul>
+<li><strong>Asset generation and optimization: </strong> After using the generative model to generate 3D meshes, optimize the geometry, scale, coordinate system, mass distribution, friction coefficient, collision attribute, grasp pose and affordance, and output USD assets with physical/semantic metadata.</li>
+<li><strong>Scene layout synthesis: </strong> Generate scene layout and place task-related foreground objects within the robot's reachable work area; background assets avoid penetration through gradient optimization to ensure freedom of collision.</li>
+</ul>
+<figure>
+<img alt="PAct generated assets" src="figures/PAct-demo.png"/>
+<figcaption>EmbodiChain generated/optimized articulated 3D objects: containing part-decomposed structure, geometry, appearance and articulation parameters.</figcaption>
+</figure>
+<h3>5.2 Domain Expansion</h3>
+<ul>
+<li><strong>Reachability-aware sampling: </strong> Sampling candidate robot states in the reachable workspace, maximizing differences according to task-centric features such as end approach direction, contact geometry, interaction results, etc., to avoid trajectory homogeneity.</li>
+<li><strong>Closed-loop error recovery: </strong> When failures such as slipping, grasping misalignment, and out-of-bounds failure occur, replanning generates corrective trajectories, and the recovery sequences are re-labeled and incorporated into the data.</li>
+<li><strong>Visual augmentation: </strong> Online sampling of visual factors such as lighting temperature, BRDF, sensor drift, etc., and using smooth random processes to ensure temporal consistency.</li>
+<li><strong>Physics-grounded generation: </strong> Domain expansion does not perform unconstrained randomization, but keeps the multi-body structure, mass, friction and joint parameters physically consistent.</li>
+</ul>
+<h3>5.3 Online Data Streaming</h3>
+<p>ODS is a storage-less online pipeline: simulation and generation workers write asynchronously to the lock-free circular buffer of CPU/GPU VRAM, and learner workers consume batches through zero-copy. Data can be reused in a limited manner to amortize the generation cost, but the number of replays will be strictly controlled to prevent the buffer from becoming a static data set.</p>
+</section>
+<section id="experiments">
+<h2>6. Key points for experimental reproducibility</h2>
+<h3>6.1 Data and training</h3>
+<table>
+<tr><th>stage</th><th>settings</th></tr>
+<tr><td>Pretraining Data</td><td>Open source robot operation data such as RoboMind, Agibot World Beta, InternData-A1, etc.</td></tr>
+<tr><td>Video representation</td><td>DINOv3 base, patch size $P=16$</td></tr>
+<tr><td>Action representation</td><td>LingBot-VA style unified action; both arms $((7\mathrm{DoF\ EEF}+7\mathrm{joint}+1\mathrm{gripper})\times2)=30$ dimension</td></tr>
+<tr><td>Post-training</td><td>Completely relies on EmbodiChain to generate data and does not manually collect downstream real-world demos</td></tr>
+<tr><td>Optimizer</td><td>AdamW, lr $1\times10^{-4}$, global batch 128, about 20 epochs</td></tr>
+<tr><td>Compute</td><td>64 NVIDIA H100 GPUs, continuous training for about 20 days</td></tr>
+<tr><td>RoboTwin finetune</td><td>25, 000 synthetic trajectories, 40k iterations, lr $1\times10^{-5}$</td></tr>
+</table>
+<h3>6.2 RoboTwin main results</h3>
+<p>The average success rate of CLWM on RoboTwin's multiple dual-arm tasks is 94.00%, which is higher than $\pi_{0.5}$ 76.76%, X-VLA 72.84%, Motus 87.02%, and LingBot-VA 91.55%. Tasks with obvious advantages include Blocks Ranking Size 97% vs LingBot-VA 96%/Motus 63%, Handover Block 80% vs 78%/73%, Hanging Mug 40% vs 28%/38%, Place Mouse Pad 98% vs 96%/68%, Turn Switch 65% vs 44%/78% (Motus is higher than CLWM here).</p>
+<table>
+<tr><th>Method</th><th>Average Success</th></tr>
+<tr><td>$\pi_{0.5}$</td><td>76.76%</td></tr>
+<tr><td>X-VLA</td><td>72.84%</td></tr>
+<tr><td>Motus</td><td>87.02%</td></tr>
+<tr><td>LingBot-VA</td><td>91.55%</td></tr>
+<tr><td><strong>CLWM</strong></td><td><strong>94.00%</strong></td></tr>
+</table>
+<h3>6.3 EmbodiChain ablation</h3>
+<table>
+<tr><th>Configuration</th><th>ID Success</th><th>OOD Success</th></tr>
+<tr><td>Spatial Randomization Only</td><td>64%</td><td>25%</td></tr>
+<tr><td>+ Visual Augmentation</td><td>75%</td><td>42%</td></tr>
+<tr><td>+ Physics-grounded Generation</td><td>81%</td><td>56%</td></tr>
+<tr><td><strong>+ Reachability-aware Sampling</strong></td><td><strong>95%</strong></td><td><strong>82%</strong></td></tr>
+</table>
+<table>
+<tr><th>Training Configuration</th><th>Hanging Mug</th><th>Turn Switch</th><th>Stack Bowls</th></tr>
+<tr><td>Static Baseline (1, 500 demos)</td><td>62%</td><td>85%</td><td>88%</td></tr>
+<tr><td>ODS sample 213</td><td>60%</td><td>84%</td><td>85%</td></tr>
+<tr><td>ODS sample 50</td><td>92%</td><td>92%</td><td>96%</td></tr>
+<tr><td><strong>ODS sample 10</strong></td><td><strong>96%</strong></td><td><strong>98%</strong></td><td><strong>98%</strong></td></tr>
+</table>
+<p>This set of experiments supports the Efficiency Law: when the online data replay bound drops from 213 to 50/10, single trajectory reuse decreases, fresh experience throughput increases, and the success rate increases significantly.</p>
+<h3>6.4 Zero-shot Sim-to-Real</h3>
+<p>The real platform is the Agilex CobotMagic bimanual platform. CLWM and Sim2Real-VLA are trained using only EmbodiChain simulation data; $\pi_0$ and GR00T N1.5 are fine-tuned using 50 real expert demos per task.</p>
+<table>
+<tr><th>Methods</th><th>Dual-Arm Water Pouring</th><th>Table Rearrangement</th><th>Items Hand-Over and Place</th><th>Pan Open and Place</th></tr>
+<tr><td>$\pi_0$</td><td>25%</td><td>20%</td><td>20%</td><td>5%</td></tr>
+<tr><td>GR00T N1.5</td><td>35%</td><td>20%</td><td>15%</td><td>5%</td></tr>
+<tr><td>Sim2Real-VLA</td><td>80%</td><td>80%</td><td>40%</td><td>35%</td></tr>
+<tr><td><strong>CLWM</strong></td><td><strong>95%</strong></td><td><strong>90%</strong></td><td><strong>80%</strong></td><td><strong>65%</strong></td></tr>
+</table>
+</section>
+<section id="discussion">
+<h2>7. Discussion and limitations</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable thing is to split the world model deployment bottleneck into four layers and process them simultaneously: the representation layer uses DINOv3 latent to avoid pixel reconstruction; the memory layer uses TTT to replace the KV cache; the reasoning layer uses SAI to overlap calculation and physical execution; the data layer uses EmbodiChain to provide continuous experience flow. This combination is closer to real robotic system needs than single point model improvements.</p>
+<p>The second value is to clearly present the data throughput perspective of embodied scaling. While many robotics papers understand "more data" to mean larger static data sets, this paper emphasizes fresh, physically valid, and failure-recoverable online data streams.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li><strong>The main tasks cover a wide range of areas: </strong>RoboTwin lists nearly 50 dual-arm/object manipulation tasks, with an average success rate higher than multiple strong baselines.</li>
+<li><strong>Ablation corresponds to system claim: </strong>Each time a module is added to domain expansion, ID/OOD increases; the lower the number of ODS replays, the higher the success rate, which directly verifies the Efficiency Law.</li>
+<li><strong>The conclusions of the real mission are impactful: </strong>CLWM zero-shot sim-to-real exceeds $\pi_0$/GR00T N1.5 fine-tuned with real teaching, indicating that data generation and latent characterization indeed alleviate the virtual-real gap.</li>
+</ul>
+<h3>7.3 Limitations</h3>
+<div class="danger">
+<p><strong>The threshold for recurrence is extremely high: </strong>64 H100 for about 20 consecutive days, plus EmbodiChain data infrastructure, well beyond typical lab resources.</p>
+<p><strong>Architectural contribution coupling is strong: </strong>DINO latent, MoT, TTT, SAI, and EmbodiChain appear at the same time. Although there is ablation on the data side, the ablation information alone on the model side is insufficient.</p>
+<p><strong>The number of real tasks is limited: </strong>Results for the four-arm task were strong, but not sufficient to demonstrate generalization to all open real-world scenarios.</p>
+<p><strong>Appendix not actually entered: </strong>`sections/8_appendix.tex` is commented out in the source code, and no more model-side hyperparameters, real hardware details or failure cases are provided.</p>
+</div>
+</section>
+<section id="questions">
+<h2>8. Questioning at the group meeting</h2>
+<h3>Q1: Why is DINOv3 latent more suitable for WAM than VAE/pixel?</h3>
+<p>DINOv3 latent prefers object semantics and spatial structure, weakening texture, lighting and background. The goal of WAM is control, not video quality; using DINO latent can focus the generation capacity on the evolution of interactive semantics.</p>
+<h3>Q2: Why can TTT Memory achieve O(1)?</h3>
+<p>It does not save the growing historical token/KV cache, but pushes the history into the dynamic weight $\mathcal{W}$ of TTT-MLP through inner-loop gradient update. The weight scale is fixed, so the space complexity does not increase with time.</p>
+<h3>Q3: Why should we distinguish between Long-Term and Working Memory?</h3>
+<p>Long-Term only absorbs real observations and executed actions, keeping the physical history anchor; Working comes out of the Long-Term fork and can absorb the predicted $\hat f_{t+1}$ as the action generation context, but it will not pollute the real history.</p>
+<h3>Q4: Will SAI perform pre-denoising in vain because it predicts the future wrong?</h3>
+<p>There will be this risk. The author uses history augmentation to train the action model to handle noisy/imperfect history, and uses Long-Term Memory to calibrate it after the real observations arrive, leaving only the remaining fine-grained denoising. The effectiveness of SAI relies on the predicted latent not deviating too much from the true latent.</p>
+<h3>Q5: Isn't the core of EmbodiChain domain randomization?</h3>
+<p>Not simple randomization. It includes physically constrained asset/scene generation, reachability-aware sampling, fail-resilient trajectory reflow, time-consistent visual enhancement, and ODS streaming training. The focus is on "continuous physical effective experience throughput", not static random data volume.</p>
+</section>
+<section id="repro">
+<h2>9. reproducibility information</h2>
+<h3>9.1 Resource links</h3>
+<ul>
+<li>arXiv: <a href="https://arxiv.org/abs/2604.16484">https: //arxiv.org/abs/2604.16484</a></li>
+<li>DexForce PDF: <a href="https://dexforce.com/docs/DexWorldModel.pdf">https: //dexforce.com/docs/DexWorldModel.pdf</a></li>
+<li>EmbodiChain project: <a href="https://dexforce.com/embodichain/index.html">https: //dexforce.com/embodichain/index.html</a></li>
+<li>EmbodiChain GitHub: <a href="https://github.com/DexForce/EmbodiChain">https: //github.com/DexForce/EmbodiChain</a></li>
+</ul>
+<h3>9.2 Training Shorthand</h3>
+<pre><code>Visual target: DINOv3 base latent, patch size P=16
+Backbone: Mixture of Transformers initialized from Wan2.2-5B
+Action chunk: tau = 16
+Action dim: dual-arm 30D = (7 EEF + 7 joints + 1 gripper) * 2
+TTT Memory: TTT-MLP, 4x expansion, GELU, alpha init 0.1
+History augmentation: p = 0.5, s_aug in [0.5, 1]
+Pretraining: AdamW, lr 1e-4, global batch 128, about 20 epochs
+Compute: 64 H100 GPUs, about 20 days
+RoboTwin finetune: 25k synthetic trajectories, 40k iters, lr 1e-5</code></pre>
+<h3>9.3 Coverage check</h3>
+<p>This report covers Abstract, Introduction, Preliminaries, Causal Latent World Model, EmbodiChain, Experiments, and Conclusion. `sections/8_appendix.tex` is commented in the source code, and no actual appendix text has been found to be integrated; the relevant implementation details have been integrated from the text long sections and tables into the methods, data and experimental chapters.</p>
+<p class="small">Generation date: 2026-05-09. The source code, PDF and unzipped directories are retained for subsequent verification.</p>
+</section>
+</article>
+</main>
+</body>
+</html>

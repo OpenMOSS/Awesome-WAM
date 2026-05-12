@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Action Verifier - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>World Action Verifier: Self-Improving World Models via Forward-Inverse Asymmetry</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Yuejiang Liu, Fan Feng, Lingjing Kong, Weifeng Lu, Jinzhou Tang, Kun Zhang, Kevin Murphy, Chelsea Finn, Yilun Du</p>
+      <p><strong>机构：</strong>Stanford University; UC San Diego; Carnegie Mellon University; Google DeepMind; Harvard University</p>
+      <p><strong>版本：</strong>arXiv:2604.01985，提交于 2026-04-02</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2604.01985">arXiv</a> | <a href="https://arxiv.org/pdf/2604.01985">PDF</a> | <a href="https://world-action-verifier.github.io">Project</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 论文速览</a></li>
+      <li><a href="#sec2">2. 动机与相关工作</a></li>
+      <li><a href="#sec3">3. 问题设定与核心方法</a></li>
+      <li><a href="#sec4">4. 理论分析</a></li>
+      <li><a href="#sec5">5. 实验与附录设置</a></li>
+      <li><a href="#sec6">6. 结果解读</a></li>
+      <li><a href="#sec7">7. 分析、局限与边界</a></li>
+      <li><a href="#sec8">8. 复现审计</a></li>
+    </ul>
+  </nav>
+<section id="sec1">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>这篇论文提出 World Action Verifier (WAV)，利用“生成完整未来状态很难，但从低维 action-relevant 状态变化反推动作更容易”的 forward-inverse asymmetry，让 action-conditioned world model 在欠探索区域识别自己的高误差预测，并用少量新环境反馈自我改进。
+    </div>
+    <p><strong>难度评级：</strong>★★★★☆。读懂实验主线不难，但完整理解需要同时掌握 world model、inverse dynamics、active exploration、latent causal identifiability、OLS sample complexity 以及机器人 imagination-based policy learning。</p>
+    <p><strong>关键词：</strong>world model, inverse dynamics, active exploration, verification, self-improvement, action-free video。</p>
+    <table>
+      <tr><th>阅读定位</th><th>内容</th></tr>
+      <tr><td>论文要解决什么</td><td>通用 world model 不只要覆盖专家动作，还要在 suboptimal、random、exploratory actions 上可靠预测。但 action-labeled robot data 昂贵，现有 uncertainty/progress 等方法在最欠探索的区域反而最难可靠估计世界模型错误。</td></tr>
+      <tr><td>作者的方法抓手</td><td>把 action-conditioned prediction 的验证拆成 state plausibility 与 action reachability：前者用 action-free video 训练的 subgoal generator 检查未来状态是否 plausible，后者用 sparse inverse dynamics model 检查 transition 是否可由动作解释，然后用 reverse cycle discrepancy 选择最值得采集的交互。</td></tr>
+      <tr><td>最重要的结果</td><td>在 MiniGrid、RoboMimic、ManiSkill 共 9 个任务上，WAV 获得约 2 倍 world model sample efficiency，并使 downstream policy performance 平均提升 18%。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>WAV 不是直接提高 policy，也不是纯 synthetic self-training；它仍需要环境反馈。核心是利用 verifier 对候选交互排序，优先采集 forward model 最可能失败但 inverse verifier 仍可信的 transition。</td></tr>
+    </table>
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>提出 World Action Verifier。</strong>WAV 用 subgoal generator、sparse IDM 与 forward world model 构成 reverse cycle，用 cycle discrepancy 指示 world model 的潜在错误。</li>
+      <li><strong>提出 forward-inverse asymmetry 的验证视角。</strong>论文将 world model verification 分解为 state plausibility 和 action reachability，并指出两种不对称性：action-free data 更丰富、action-relevant features 更低维。</li>
+      <li><strong>给出理论条件与样本复杂度解释。</strong>主文和附录分别说明 sparse inverse verifier 在 compositional OOS 下何时可泛化，以及 forward/inverse gap 如何由维度、随机性和样本数决定。</li>
+      <li><strong>跨 synthetic 与 robotics benchmark 验证。</strong>MiniGrid 用于可控地分离 sample size、state complexity、stochasticity；RoboMimic/ManiSkill 用于验证机器人 world model quality 与 downstream policy reward。</li>
+    </ul>
+    <div class="figure">
+      <img src="figures/x1.png" alt="WAV overview">
+      <div class="caption">Figure 1. WAV 总览：diverse subgoal generator 提议 plausible future states，sparse inverse model 从 action-relevant features 反推动作，world model 前向 rollout 后与 subgoal 比较一致性。</div>
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 动机与相关工作</h2>
+    <h3>2.1 为什么 world model 的验证很难</h3>
+    <p>论文关注的 world model 是 action-conditioned forward dynamics model：给定当前状态和动作，预测未来状态。这类模型可用于 policy evaluation、policy optimization、test-time planning 和 imagined rollouts。但与 imitation learning 主要建模专家动作不同，world model 要覆盖更宽的动作分布，包括随机动作、探索动作和失败动作。问题在于，这类 action-labeled robot interactions 往往慢、贵，真实环境中还可能不安全。</p>
+    <p>已有 exploration 方法通常使用 on-policy data、information gain、epistemic uncertainty、ensemble disagreement 或 learning progress 来选样。但论文指出一个实践悖论：这些信号在 well-explored regions 更可靠，而真正需要采集的是 under-explored regimes；最有信息量的交互恰恰是先验最少、最难验证的交互。</p>
+
+    <h3>2.2 论文的关键 insight</h3>
+    <p>作者的 insight 是：不要直接让 world model 自己估计自己的 dense forward error，而是验证一个预测是否满足两个必要条件。第一，预测的未来状态是否是环境中 plausible 的状态转移。第二，这个状态转移是否能由给定动作 reach。前者可以利用大量 action-free video，因为视频不用动作标签也能覆盖丰富的 plausible state evolution；后者可以用 inverse dynamics，而且只需要 action-relevant state subset。</p>
+
+    <h3>2.3 相关工作脉络</h3>
+    <table>
+      <tr><th>方向</th><th>论文如何定位</th><th>与 WAV 的关系</th></tr>
+      <tr><td>World Models for Robotics</td><td>从 MBRL 到 latent/pixel world models，核心目标是用预测未来做 planning、policy evaluation 或 control。</td><td>WAV 不替代 world model，而是为 action-conditioned world model 提供 verification-guided data acquisition。</td></tr>
+      <tr><td>Exploration for World Models</td><td>已有方法用 count、density、uncertainty、disagreement、learning progress 或 curiosity 来找 informative data。</td><td>WAV 的差异是不用 forward model 自身 uncertainty 直接估错，而是组合 video prior 与 sparse inverse reachability。</td></tr>
+      <tr><td>Inverse Dynamics on Videos</td><td>IDM 可作为 policy、regularizer、labeler 或 verifier，从状态变化恢复动作。</td><td>WAV 把 IDM 用作 verifier，并强调 sparse action-relevant subset 的 OOS 泛化优势。</td></tr>
+      <tr><td>World Action Models</td><td>WAMs 通常联合利用 action-free internet video 与 action-labeled robot data 来做 policy learning。</td><td>WAV 形式上像 future-state generation + inverse action prediction，但用途是验证 world model 和指导采样。</td></tr>
+    </table>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 问题设定与核心方法</h2>
+    <h3>3.1 Semi-supervised verification setting</h3>
+    <p>论文首先定义 action-conditioned world model：</p>
+    <div class="formula-block">
+      <p class="intuition">world model 做的事情：给定当前状态和动作，预测下一状态。</p>
+      $$\hat{s}^{t+1}=f_\theta(s^t,a^t)$$
+      <table class="symbol-table">
+        <tr><td>$s^t$</td><td>当前状态，可以是 grid state、latent state、视觉观测或机器人状态。</td></tr>
+        <tr><td>$a^t$</td><td>动作或 action chunk。</td></tr>
+        <tr><td>$\hat{s}^{t+1}$</td><td>world model 预测的后继状态。</td></tr>
+      </table>
+    </div>
+    <p>数据分为小规模 action-labeled robot interaction dataset 和大规模 action-free video dataset：</p>
+    <div class="formula-block">
+      $$\mathcal{D}_{act}=\{(s^t,a^t,s^{t+1})\},\quad \mathcal{D}_{vid}=\{(s^t,s^{t+1},\ldots)\}$$
+      <p>目标不是只让 $f_\theta$ 拟合 $\mathcal{D}_{act}$ 的窄动作分布，而是利用 $\mathcal{D}_{vid}$ 的广泛 transition support 来改善欠探索区域的 action following。</p>
+    </div>
+    <p>如果真实后继状态可得，预测误差是：</p>
+    <div class="formula-block">
+      <p class="intuition">理想选样应挑 world model 最容易犯错的交互。</p>
+      $$\varepsilon(s^t,a^t):=\ell(\hat{s}^{t+1},s^{t+1})=\ell(f_\theta(s^t,a^t),s^{t+1})$$
+    </div>
+    <p>但执行前没有 $s^{t+1}$，所以 verifier $\hat{\varepsilon}$ 至少要保留候选间的相对难度排序：</p>
+    <div class="formula-block">
+      $$\varepsilon(s^t,a_i^t)<\varepsilon(s^t,a_j^t)\Rightarrow \hat{\varepsilon}(s^t,a_i^t,\hat{s}_i^{t+1})<\hat{\varepsilon}(s^t,a_j^t,\hat{s}_j^{t+1})$$
+    </div>
+
+    <h3>3.2 两个互补 verification factors</h3>
+    <p>WAV 的分解来自 Bayes rule：</p>
+    <div class="formula-block">
+      <p class="intuition">一个正确预测既要像自然未来状态，也要能由该动作造成。</p>
+      $$p(s^{t+1}\mid s^t,a^t)=\frac{p(a^t\mid s^t,s^{t+1})p(s^{t+1}\mid s^t)}{p(a^t\mid s^t)}
+      \propto p(s^{t+1}\mid s^t)p(a^t\mid s^t,s^{t+1})$$
+      <table class="symbol-table">
+        <tr><td>$p(s^{t+1}\mid s^t)$</td><td>state plausibility：未来状态是否在环境 plausible dynamics manifold 上。</td></tr>
+        <tr><td>$p(a^t\mid s^t,s^{t+1})$</td><td>action reachability：该 transition 是否可由给定动作解释。</td></tr>
+      </table>
+    </div>
+    <p>state plausibility 通过 action-free video subgoal generator $p_\phi$ 实现：</p>
+    <div class="formula-block">
+      $$\{\tilde{s}^{t+1}_k\}_{k=1}^K\sim p_\phi(\cdot\mid s^t)$$
+      <p>这些 $\tilde{s}^{t+1}_k$ 是在视频 prior 上 plausible 的候选 subgoals。</p>
+    </div>
+    <p>action reachability 通过 sparse inverse dynamics model 实现：</p>
+    <div class="formula-block">
+      <p class="intuition">IDM 不看完整状态，而只看 mask 选出的 action-relevant features。</p>
+      $$\hat{a}^{t}=h_\psi(M\odot s^t,\;M\odot s^{t+1})$$
+      <table class="symbol-table">
+        <tr><td>$M$</td><td>learned mask，选择和动作最相关的 state features。</td></tr>
+        <tr><td>$h_\psi$</td><td>sparse inverse dynamics model。</td></tr>
+      </table>
+    </div>
+    <div class="figure">
+      <img src="figures/x2.png" alt="decomposition">
+      <div class="caption">Figure 2. Verification 被分解为 state plausibility 和 action reachability；右侧算法展示 WAV-guided exploration。</div>
+    </div>
+
+    <h3>3.3 Reverse self-improving cycle</h3>
+    <p>一个自然但脆弱的方案是 forward-first：先采动作，roll out $f_\theta$，再用 inverse model 检查能否恢复动作。作者认为这在早期很容易失败，因为 $f_\theta$ 的错误会产生 off-manifold rollouts，使 inverse model 也不可靠。</p>
+    <p>WAV 改用 reverse cycle：</p>
+    <div class="formula-block">
+      $$s^t\xrightarrow{p_\phi}\tilde{s}^{t+1}\xrightarrow{h_\psi}\hat{a}^t\xrightarrow{f_\theta}\hat{s}^{t+1}$$
+      $$\hat{\varepsilon}(s^t,\hat{a}^t,\hat{s}^{t+1})=\ell(\tilde{s}^{t+1},\hat{s}^{t+1})$$
+      <p>如果 plausible subgoal 与 world model rollout 不一致，说明该 transition 对当前 world model 很难，WAV 选择高 discrepancy 的候选在真实环境中执行并加入数据集。</p>
+    </div>
+    <pre class="pseudocode">WAV-Guided Exploration
+Input: current state s, world model f, subgoal generator v, inverse model h, candidate count K
+for each exploration iteration:
+  s_g = v.sample(s, K)       # plausible subgoals from action-free video prior
+  a = h.inverse(s, s_g)      # infer actions reaching those subgoals
+  s_p = f.predict(s, a)      # forward rollout under inferred actions
+  scores = dist(s_g, s_p)    # cycle disagreement
+  idx = argmax(scores)       # most informative candidate
+  s_n = env.step(a[idx])     # collect real feedback
+  D.append((s, a[idx], s_n))
+  f.update(D), h.update(D)</pre>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 理论分析</h2>
+    <h3>4.1 Distribution-level robustness</h3>
+    <p>理论部分把观测状态写成 latent blocks $\mathbf{z}^t=(\mathbf{z}_1^t,\ldots,\mathbf{z}_k^t)$。mask $M$ 选择一个 action-relevant latent subset $\mathcal{S}$。关键结构条件是 <strong>generation-verification gap</strong>：完整 pair $(\mathbf{z}^t,a^t)$ 可能 out-of-support，但 restricted pair $(\mathbf{z}_{\mathcal{S}}^t,a^t)$ 仍在 seed data 的 support 上。</p>
+    <div class="formula-block">
+      <p class="intuition">OOS novelty 可以发生在全场景层面，但动作在 agent-centric subset 上留下的轨迹仍是熟悉的。</p>
+      <p><strong>非正式命题：</strong>如果存在 identifiable verification subset $\mathcal{S}$，满足 (i) $\mathbf{z}_{\mathcal{S}}^{t+1}$ 只依赖 $(\mathbf{z}_{\mathcal{S}}^t,a^t)$；(ii) full pair OOS 时 restricted pair 仍 on-support；(iii) 动作可由 subset transition 识别，那么 seed data 上训练的 inverse model 可以在 compositional OOS transition 上恢复正确动作。</p>
+    </div>
+    <p>这保证了 WAV 的 forward-inverse mismatch 主要定位的是 forward-model error，而不是 action-label ambiguity。附录进一步用 time-lagged latent causal model (TLCM) 形式化该结论，要求 latent blocks 可识别、generation-verification gap 成立、动作可从 subset transition 识别。<span class="appendix-ref">附录 C.1</span></p>
+
+    <h3>4.2 Sample-efficiency advantage</h3>
+    <p>第二个理论问题是：为什么 sparse inverse verifier 比 dense forward world model 更容易学。作者分析线性高斯模型：</p>
+    <div class="formula-block">
+      $$s'=As+Ba+\xi,\quad \xi\sim\mathcal{N}(0,\sigma_s^2 I_{d_s})$$
+      $$a=H\begin{bmatrix}z\\z'\end{bmatrix}+\eta,\quad z=Ms,\quad z'=Ms',\quad \eta\sim\mathcal{N}(0,\sigma_a^2 I_{d_a})$$
+      <table class="symbol-table">
+        <tr><td>$d_s$</td><td>完整状态维度。</td></tr>
+        <tr><td>$d_a$</td><td>动作维度。</td></tr>
+        <tr><td>$d_z$</td><td>sparse action-relevant slice 维度，假设 $d_z\ll d_s$。</td></tr>
+        <tr><td>$\sigma_s,\sigma_a$</td><td>分别表示环境转移随机性与动作恢复不可约歧义。</td></tr>
+      </table>
+    </div>
+    <p>dense forward model 拟合 $[s;a]\in\mathbb{R}^{d_s+d_a}$，sparse inverse model 拟合 $[z;z']\in\mathbb{R}^{2d_z}$。两者都用 $n$ 个 labeled transitions 做 OLS，且把 inverse error 映射回 state space 比较：</p>
+    <div class="formula-block">
+      $$\mathcal{E}_F=\frac{1}{d_s}\mathbb{E}\|f_\theta(s,a)-f^\star(s,a)\|_2^2$$
+      $$\mathcal{E}_I=\frac{1}{d_s}\mathbb{E}\|f^\star(s,h_\psi(z,z'))-f^\star(s,h(z,z'))\|_2^2$$
+    </div>
+    <p>主文给出的非正式 gap bound 是：</p>
+    <div class="formula-block">
+      $$\frac{\mathbb{E}[\mathcal{E}_F]}{\mathbb{E}[\mathcal{E}_I]}
+      \ge
+      \left(\frac{d_s+d_a}{2d_z}\cdot\frac{d_s}{d_a}\right)
+      \left(\frac{\sigma_s}{\lambda\sigma_a}\right)^2
+      \left(\frac{n-2d_z-1}{n-(d_s+d_a)-1}\right)$$
+    </div>
+    <table>
+      <tr><th>因子</th><th>含义</th><th>实验对应</th></tr>
+      <tr><td>Dimensionality</td><td>forward model 要估计高维 full state dynamics，sparse inverse 只看 $2d_z$。</td><td>MiniGrid 增加 objects 数量，使有效 $d_s$ 增大。</td></tr>
+      <tr><td>Stochasticity</td><td>forward prediction 受环境噪声 $\sigma_s$ 影响，inverse verification 只受 action recovery ambiguity $\sigma_a$ 影响。</td><td>MiniGrid 加 noisy floor tiles。</td></tr>
+      <tr><td>Sample size</td><td>当 $n$ 只比 $d_s+d_a$ 大一点时，forward estimator 更不稳定。</td><td>MiniGrid 改变 labeled training data 数量。</td></tr>
+    </table>
+    <p>附录给出 exact OLS excess risk derivation：$\mathbb{E}[\mathcal{E}_F]=\sigma_s^2(d_s+d_a)/(n-(d_s+d_a)-1)$，而 $\mathbb{E}[\mathcal{E}_I]\le \lambda^2(d_a/d_s)\sigma_a^2(2d_z)/(n-2d_z-1)$。<span class="appendix-ref">附录 C.2</span></p>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 实验与附录设置</h2>
+    <h3>5.1 研究问题与 baselines</h3>
+    <table>
+      <tr><th>研究问题</th><th>目标</th></tr>
+      <tr><td>RQ1</td><td>inverse dynamics 是否比 action-conditioned world model 更容易学、更鲁棒？哪些因素驱动差距？</td></tr>
+      <tr><td>RQ2</td><td>sparse IDM 是否比 vanilla IDM 更能泛化到 unseen objects 与 novel interactions？</td></tr>
+      <tr><td>RQ3</td><td>forward-inverse asymmetry 是否能有效自改进 world model？</td></tr>
+      <tr><td>RQ4</td><td>world model 的自改进是否转化为更好的 downstream policy learning？</td></tr>
+    </table>
+    <p>Baselines 包括 Random、Uncertainty、Progress、Vanilla IDM 和 Oracle。Random 均匀采样，Uncertainty 选预测不确定性最高的候选，Progress 选两轮之间 model loss change 最大的候选，Oracle 用 ground-truth action labels 计算真实 world-model prediction loss 作为上界。</p>
+
+    <h3>5.2 MiniGrid 设置</h3>
+    <p>MiniGrid 使用 <code>EmptyEnv</code>，包含 key、ball、box 三类对象，每个对象可为 red 或 blue。动作共 7 个：turn left、turn right、move forward、pick up、drop、toggle、swap。toggle 对 key/ball 改变颜色，对 box 执行交换；swap 是作者额外定义的动作，用来交换前方物体与 agent 当前携带物体。</p>
+    <table>
+      <tr><th>任务</th><th>定义</th></tr>
+      <tr><td>Key Delivery</td><td>找 key，调成目标 box 颜色，放入 box，再与 ball 交换，调 ball 颜色并到达 goal。</td></tr>
+      <tr><td>Ball Delivery</td><td>Key Delivery 的结构镜像，先处理 ball，再处理 key。</td></tr>
+      <tr><td>Object Matching</td><td>识别 box reference color，使 key 和 ball 与 box 同色，并放到 box 周围后到达 goal。</td></tr>
+    </table>
+    <table>
+      <tr><th>Category</th><th>Count (Transitions)</th></tr>
+      <tr><td>Total Collected</td><td>66,641</td></tr>
+      <tr><td>Unlabeled Pre-training Set</td><td>28,000</td></tr>
+      <tr><td>Exploration Pool</td><td>28,273</td></tr>
+      <tr><td>Test Set (Action-balanced)</td><td>10,368</td></tr>
+    </table>
+    <p>正文另写到探索池由 action-labeled seed set 200 sequences 与 unlabeled candidate set 20k sequences 组成；附录表则以 transition 计数列出完整池。二者单位不同，读实验时要分清 sequence-level 与 transition-level 描述。</p>
+    <table>
+      <tr><th>Action \ Object</th><th>red key</th><th>blue key</th><th>red ball</th><th>blue ball</th></tr>
+      <tr><td>Pick up</td><td>absent</td><td>seen</td><td>absent</td><td>OOS</td></tr>
+      <tr><td>Drop</td><td>OOS</td><td>absent</td><td>seen</td><td>absent</td></tr>
+      <tr><td>Toggle</td><td>OOS</td><td>seen</td><td>seen</td><td>OOS</td></tr>
+      <tr><td>Swap (box for ...)</td><td>OOS</td><td>absent</td><td>seen</td><td>absent</td></tr>
+    </table>
+    <p>MiniGrid 指标包括 Dynamics Accuracy、prediction loss、Spearman rank correlation 与 Kendall rank correlation。Dynamics Accuracy 只在发生时间变化的元素上计算，以避免静态背景让分数虚高。<span class="appendix-ref">附录 A</span></p>
+
+    <h3>5.3 Robotics 设置</h3>
+    <p>机器人实验在 Roboverse 中进行，任务来自 RoboMimic 的 Lift、Can、Square，以及 ManiSkill 的 PullCube、PokeCube、LiftPeg。每个任务使用 wrist-mounted camera、front-facing camera 和 proprioception；动作空间为 7 维连续向量 $[-1,1]$，控制 end-effector position/orientation 变化和 gripper 开合。</p>
+    <div class="figure">
+      <img src="figures/x17.png" alt="robot tasks">
+      <div class="caption">Figure 10. RoboMimic 与 ManiSkill 任务可视化。</div>
+    </div>
+    <p>每个任务训练 10 个 diffusion policy checkpoints 来采集多样轨迹，共 1500 samples per task。9 个 checkpoints 构成 exploration dataset，剩下 1 个 checkpoint 作为 validation set。默认 horizon：Lift 100，Can/Square 200，PullCube 50，PokeCube 100，LiftPeg 150。</p>
+
+    <h3>5.4 模型与超参</h3>
+    <table>
+      <tr><th>World Model</th><th>设置</th></tr>
+      <tr><td>Backbone</td><td>Dreamer-V3 style action-conditioned latent RSSM。</td></tr>
+      <tr><td>Observation encoder</td><td>Visual observations 用 stride-2 convolutional encoder；proprioceptive states 用 5-layer MLP；image 和 state 分开编码。</td></tr>
+      <tr><td>Latent state</td><td>包含 deterministic recurrent component $h_t$ 和 stochastic component $s_t$；GRU hidden state 512；stochastic representation dimension 1024；rollout horizon 32。</td></tr>
+      <tr><td>Training hyperparams</td><td>Replay capacity $10^5$，batch size 16，batch length 32，Adam，reconstruction loss scale 1.0，learning rate $10^{-4}$。</td></tr>
+    </table>
+    <table>
+      <tr><th>Inverse Dynamics / Action Decoder</th><th>Value</th></tr>
+      <tr><td>Base architecture</td><td>CLAM-style latent inverse dynamics model，ST Transformer encoders for visual observations。</td></tr>
+      <tr><td>Sparsity</td><td>对 inferred latent actions $z_t$ 加 $\ell_1$ regularization；sparsity loss weight 0.1。</td></tr>
+      <tr><td>Num updates</td><td>500,000</td></tr>
+      <tr><td>Action decoder</td><td>每 2 步训练一次；batch size 128；loss weight 1；hidden dim [1024,1024,1024]；embedding dim 512。</td></tr>
+      <tr><td>Latent action dim / context</td><td>latent action dim 16；context len 2；embedding dim 128。</td></tr>
+    </table>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 结果解读</h2>
+    <h3>6.1 MiniGrid：验证理论三因子</h3>
+    <div class="figure">
+      <img src="figures/x3.png" alt="legend">
+      <img src="figures/x4.png" alt="sample efficiency">
+      <img src="figures/x5.png" alt="complexity">
+      <img src="figures/x6.png" alt="noise">
+      <div class="caption">Figure 3. MiniGrid robustness：左侧验证样本数因子，中间验证状态复杂度因子，右侧验证随机性因子。IDM 在低数据、高对象数和 noisy floors 下都比 WM 更稳定。</div>
+    </div>
+    <p>Figure 3 对应理论 bound 的三个项。样本效率图显示，在不同 labeled data regimes 下，IDM-induced transition accuracy 高于 action-conditioned WM，低数据时差距最明显。复杂度图通过把 objects 从 6 增到 14，提高有效 $d_s$，WM 明显退化而 IDM 稳定。噪声图通过 noisy floor tiles 增大 $\sigma_s$，WM 对噪声敏感，而 IDM 基本不变。</p>
+
+    <h3>6.2 MiniGrid：Sparse IDM 与 acquisition</h3>
+    <div class="figure">
+      <img src="figures/x7.png" alt="legend idm">
+      <img src="figures/x8.png" alt="legend methods">
+      <img src="figures/x9.png" alt="idm oos">
+      <img src="figures/x10.png" alt="correlation">
+      <img src="figures/x11.png" alt="active learning">
+      <div class="caption">Figure 4. MiniGrid OOS 与 active learning：Sparse IDM 在 interaction-heavy actions 上优于 Vanilla IDM；WAV 分数与 Oracle ranking 的 Spearman/Kendall correlation 更高；WAV acquisition 接近 Oracle 且优于 Random/Uncertainty/Progress。</div>
+    </div>
+    <p>RQ2 的重点是 Vanilla IDM 在 limited data 下对 interaction actions 泛化失败，而 Sparse IDM 维持更强表现，说明 full observation 中的 spurious correlations 会损害 OOS 泛化。RQ3 的 active learning 图显示，在初始 200 条 labeled transitions 后，每轮采 100 条，WAV 选择的样本更能降低 world model prediction error。作者解释 Random 不够频繁采到 sparse interaction events，Progress 容易冗余地采已经会的区域，Uncertainty warm-up 慢。</p>
+
+    <h3>6.3 Robotics：ranking、world model quality 与 policy reward</h3>
+    <div class="figure">
+      <img src="figures/x12.png" alt="robot rank correlation">
+      <div class="caption">Figure 5. RoboMimic 与 ManiSkill 上，WAV 的 verification scores 与 Oracle informative-sample ranking 更一致。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/x13.png" alt="world model prediction">
+      <div class="caption">Figure 6. 机器人任务中 world model observation prediction MSE 随训练数据量变化。WAV 在低数据区间优势更明显，Sparse IDM variants 通常优于 dense variants。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/x14.png" alt="policy reward">
+      <div class="caption">Figure 7. Downstream policy performance：用 WAV self-improved world model 做 imagination-based policy refinement，平均 reward 比最强 baseline 高 18%，仅次于 privileged Oracle。</div>
+    </div>
+    <p>机器人实验验证 RQ4：更准确的 world model 是否能转化为更好 policy。作者沿用 SAILOR protocol，用 learned reward model 在 imagined latent trajectories 上做 online search / policy refinement。结果显示 Can、Square、PokeCube 等接触复杂或歧义更高的任务差距更明显；Lift 动态简单，各方法差距较小。</p>
+
+    <h3>6.4 附录可视化</h3>
+    <div class="figure">
+      <img src="figures/x15.png" alt="scatter">
+      <img src="figures/x16.png" alt="prediction error distribution">
+      <div class="caption">Figures 8-9. WAV verification score 与真实误差更接近单调对齐；不同 exploration strategy 选出的样本 prediction-error distribution 不同。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/x18.png" alt="qualitative MiniGrid part 1">
+      <img src="figures/x19.png" alt="qualitative MiniGrid part 2">
+      <div class="caption">Figures 11-12. MiniGrid qualitative rollouts：Random baseline 容易预测常见 primitive motions，如 Turn；WAV 选择的数据更能帮助模型捕捉 Toggle/Swap 等 interaction-induced state changes。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/x20.png" alt="RoboMimic Lift qualitative">
+      <img src="figures/x21.png" alt="RoboMimic Square qualitative">
+      <div class="caption">Figures 13-14. RoboMimic Lift/Square open-loop rollouts。Sparse IDM 减少长 horizon 的 gripper orientation、object occlusion 等细节错误。</div>
+    </div>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>从论文自身论证看，最有价值的地方是把 world model exploration 中“如何在欠探索区域可靠估错”这个难点，转化为一个更容易验证的 forward-inverse consistency 问题。它不是只提出一个新 acquisition score，而是给出一套结构性解释：action-free video 提供 broader plausible state support，sparse inverse dynamics 提供 low-dimensional action reachability check，二者合起来让 world model 能在自己不可靠的区域得到外部锚点。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>论文的证据链比较完整。MiniGrid 先用受控变量分别验证样本数、状态复杂度和随机性三类理论因子，再用 OOS action-object-color compositions 验证 Sparse IDM 相对 Vanilla IDM 的优势；随后用 Spearman/Kendall correlation 对齐 Oracle ranking，而不是只看最终 loss。机器人部分继续检验 ranking robustness、world model prediction MSE 和 downstream policy reward，说明 verifier 的优势不仅停留在合成环境中，也能影响实际 manipulation 的 imagined planning quality。</p>
+
+    <h3>7.3 作者自述的局限</h3>
+    <p>第一，当前 WAV 需要三次 inference pass：subgoal generator、inverse model 和 forward world model。因此相比传统 exploration methods 计算更贵。作者明确提出未来可通过 shared intermediate representations 或 adaptive computation 降低开销。</p>
+    <p>第二，WAV 仍依赖额外 environment feedback 来纠正 action-conditioned prediction errors。作者在 conclusion 中对比语言模型可从纯合成 reasoning data 自改进的情况，指出完全 self-improving world models 在复杂 embodied settings 中仍未实现，可能需要更强 verifier、更强 generative priors 和更 expressive inverse models。</p>
+    <p>第三，理论条件有适用边界。附录说明 WAV 最适合 verifying subset 小且固定维、OOS novelty 集中在非验证变量、动作 imprint 强且可识别的场景；在 action aliasing、underactuation、latency 或 OOS dynamics 反过来影响 proprioceptive verifier 时，pseudo-label 可能漂移甚至失败。<span class="appendix-ref">附录 C.1</span></p>
+
+    <h3>7.4 适用边界</h3>
+    <ul>
+      <li><strong>适合：</strong>高维视觉状态、有限 action labels、大量 action-free trajectories、动作可由低维 agent-centric features 识别的 manipulation 或 embodied tasks。</li>
+      <li><strong>不适合：</strong>动作对可观测 subset 的影响不可区分，或环境接触反馈强烈改变 verifier subset 的任务。</li>
+      <li><strong>实验边界：</strong>机器人部分是模拟任务而非真实机器人部署；真实环境安全与实时性仍需额外验证。</li>
+      <li><strong>资源边界：</strong>虽然采集样本更省，但系统需要维护三个模型组件，并执行多次推理与更新。</li>
+    </ul>
+  </section>
+
+  <section id="sec8">
+    <h2>8. 复现审计</h2>
+    <div class="audit-card">
+      <h4>代码与项目页</h4>
+      <p><span class="audit-warn">项目页可定位：</span>论文给出 <a href="https://world-action-verifier.github.io">world-action-verifier.github.io</a>。arXiv 源码没有在正文中列出 GitHub URL；复现需以项目页后续发布为准。</p>
+    </div>
+    <div class="audit-card">
+      <h4>MiniGrid</h4>
+      <p><span class="audit-pass">设置较完整：</span>附录给出任务定义、动作集合、对象/颜色组合 OOS split、数据量、metrics、world model 与 IDM 结构描述。需要自行实现 swap action、toggle semantics 和 action-balanced test set 构造。</p>
+    </div>
+    <div class="audit-card">
+      <h4>Robotics</h4>
+      <p><span class="audit-warn">可复现但依赖较多：</span>需要 Roboverse、RoboMimic、ManiSkill、Dreamer-V3 world model、CLAM-style IDM、diffusion policy checkpoints 采样以及 SAILOR reward model/policy refinement setup。</p>
+    </div>
+    <div class="audit-card">
+      <h4>关键超参</h4>
+      <p>World model: replay capacity $10^5$，batch size 16，batch length 32，Adam，LR $10^{-4}$，rollout horizon 32。IDM/action decoder: 500k updates，latent action dim 16，sparsity loss weight 0.1，action decoder batch size 128。</p>
+    </div>
+    <div class="audit-card">
+      <h4>最小复现实验建议</h4>
+      <p>先复现 MiniGrid 的三组 controlled tests：labeled data 数量、objects 数量、noisy floors 数量。它们直接对应理论 bound 的三个因子，是验证 WAV 核心假设的最低成本路径。</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

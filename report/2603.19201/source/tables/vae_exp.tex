@@ -1,0 +1,19 @@
+\begin{table*}[t]
+\centering
+\caption{Performance comparison of different methods across robotic tasks using L2 and cosine similarity metrics. Lower L2 ($\downarrow$) and higher cos ($\uparrow$) indicate better performance.}
+\label{tab:vae}
+\small 
+\renewcommand{\arraystretch}{1.2}
+
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l ccccc ccccc cc}
+\toprule
+\textbf{Method} & \multicolumn{2}{c}{\textbf{Wipe}} & \multicolumn{2}{c}{\textbf{Peel}} & \multicolumn{2}{c}{\textbf{Cut}} & \multicolumn{2}{c}{\textbf{Assembly}} & \multicolumn{2}{c}{\textbf{Grasp}} & \multicolumn{2}{c}{\textbf{Adjustment}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11} \cmidrule(lr){12-13}
+& {L2 $\downarrow$} & {cos $\uparrow$} & {L2 $\downarrow$} & {cos $\uparrow$} & {L2 $\downarrow$} & {cos $\uparrow$} & {L2 $\downarrow$} & {cos $\uparrow$} & {L2 $\downarrow$} & {cos $\uparrow$} & {L2 $\downarrow$} & {cos $\uparrow$} \\
+\midrule
+PCA         & 0.091 & 0.810 & 0.085 & 0.430 & 0.109 & 0.400 & 0.071 & 0.720 & 0.036 & 0.600 & 0.069 & 0.560 \\
+PointNet-AE & 0.059 & 0.910 & 0.067 & 0.850 & 0.062 & 0.840 & 0.058 & 0.900 & 0.028 & \textbf{0.750} & 0.047 & 0.760 \\
+\textbf{Ours} & \textbf{0.038} & \textbf{0.930} & \textbf{0.033} & \textbf{0.880} & \textbf{0.031} & \textbf{0.940} & \textbf{0.022} & \textbf{0.910} & \textbf{0.011} & 0.720 & \textbf{0.017} & \textbf{0.850} \\
+\bottomrule
+\end{tabular*}
+\end{table*}

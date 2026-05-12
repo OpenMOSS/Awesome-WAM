@@ -1,0 +1,25 @@
+
+\label{sec:ae}
+To bridge the gap between decoupled geometric and semantic foresight and physical control, our action expert employs a Uni-Perceiver to aggregate a holistic context, guiding a diffusion policy to predict actions.
+
+\noindent \textbf{Uni-Perceiver.}
+We first construct a holistic conditioning context, denoted as $\mathcal{C}=\textnormal{Concat}(\tilde{F}^{K}_\textnormal{geo}, \tilde{F}^{K}_\textnormal{sem}, F)\in\mathbb{R}^{T\times C_{\textnormal{hol}} \times h \times w}$, by concatenating the geometric and semantic foresight with the original one-step diffusion feature along the feature channel dimension. Retaining the original feature $F$ is critical, as it preserves residual global context that complements the explicit geometric and semantic foresight.
+To mitigate the curse of dimensionality and the associated computational overhead introduced by $\mathcal{C}$, we compress it into a highly condensed token representation $F_\textnormal{agg} \in \mathbb{R}^{N \times C_\textnormal{agg}}$. This condensation effectively filters out redundant information to facilitate the diffusion policy in learning to predict precise actions. Specifically, we initialize a compact set of $N$ learnable latent queries $\mathcal{Q}$ that aggregate spatiotemporal information through a QFormer-style~\cite{li2023blip,jaegle2022perceiver} token condensation module:
+\begin{equation}
+    F_\textnormal{agg} = \text{FFN}(\text{SelfAttn}(\text{CrossAttn}(\mathcal{Q}, \mathcal{C}))).
+    \label{eq:aggregation}
+\end{equation}
+Here, the cross-attention layer $\textnormal{CrossAttn}(\cdot)$ aggregates salient spatiotemporal features from the holistic context $\mathcal{C}$ into latent queries $\mathcal{Q}$, while the subsequent self-attention layer $\textnormal{SelfAttn}(\cdot)$ models the internal interactions among these $N$ condensed tokens. Finally, a feed-forward network $\textnormal{FFN}(\cdot)$ further enhances the expressiveness of the condensed tokens.
+
+
+\noindent \textbf{Diffusion Policy.}
+Finally, we incorporate the aggregated representation $F_\textnormal{agg}$ and the text embedding $E$ of the task description into a Diffusion Transformer (DiT) architecture via cross-attention layers. The policy is trained to reconstruct the ground-truth action sequence $a_0$ from the pure noise $a_J$ by predicting the added noise $\epsilon$. The training objective is formulated as follows:
+\begin{equation}
+    \mathcal{L}_A = \mathbb{E}_{j, a_j, \epsilon} \left[ \left\| \epsilon - \epsilon_\phi(a_j, F_\textnormal{agg}, E, j) \right\|_2^2 \right],
+\end{equation}
+where $a_j$ is the noisy action at diffusion timestep $j$, and $\epsilon_\phi(\cdot)$ denotes the noise prediction network.
+
+
+
+
+

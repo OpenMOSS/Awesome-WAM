@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MotuBrain - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>MotuBrain: An Advanced World Action Model for Robot Control</h1>
+<div class="meta">
+<p><strong>arXiv ID: </strong>2604.27792v2</p>
+<p><strong>Authors: </strong>MotuBrain Team; Chendong Xiang; Fan Bao; Haitian Liu; Hengkai Tan; Hongzhe Bi; James Li; Jiabao Liu; Jingrui Pang; Kiro Jing; Louis Liu; Mengchen Cai; Rongxu Cui; Ruowen Zhao; Runqing Wang; Shuhe Huang; Yao Feng; Yinze Rong; Zeyuan Wang; Jun Zhu</p>
+<p><strong>Official page: </strong><a href="https://www.shengshu.com/en/motubrain">ShengShu MotuBrain</a></p>
+<p><strong>Commit/revision: </strong>2026-04-30 v1; 2026-05-01 v2</p>
+<p><strong>Source: </strong><a href="https://arxiv.org/abs/2604.27792">arXiv abs</a> · <a href="https://arxiv.org/pdf/2604.27792">PDF</a> · Local LaTeX source code analysis · Official page verification</p>
+<p><strong>Code: </strong>No official GitHub or model download links were found for arXiv, source code, and limited web searches.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Reading orientation and group meeting guide</a></li>
+<li><a href="#sec2">2. Background: Why VLA is not enough and why WAM makes sense</a></li>
+<li><a href="#sec3">3. Detailed explanation of methods: UniDiffuser, third-rate MoT, pre-training and deployment stack</a></li>
+<li><a href="#sec4">4. Experimental results: RoboTwin, WorldArena, real long-range control</a></li>
+<li><a href="#sec5">5. Intensive reading of charts</a></li>
+<li><a href="#sec6">6. reproducibility list and project details</a></li>
+<li><a href="#sec7">7. Critical discussion and group meeting questions</a></li>
+</ul>
+</nav>
+<div class="tldr">
+<strong>One-sentence summary: </strong>MotuBrain is an upgraded version of the Motus route Unified World Action Model: it uses UniDiffuser to simultaneously model video and action, and uses three-stream Mixture-of-Transformers to integrate text/video/action. Through multi-view representation, cross-embodiment action representation, and 50x+ reasoning acceleration, it advances WAM from "being able to predict the world" to "being able to control robots in real time."
+ </div>
+<section id="sec1">
+<h2>1. Reading orientation and group meeting guide</h2>
+<table>
+<thead>
+<tr>
+<th>Introductory items</th>
+<th>What does this paper answer?</th>
+<th>Where do you focus on when reading?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Research object</strong></td>
+<td>A unified model simultaneously performs policy, world modeling, video generation, inverse dynamics, and joint video-action prediction.</td>
+<td>It is not a single policy head, but a multimodal generative model that can switch distributions conditionally.</td>
+</tr>
+<tr>
+<td><strong>core motivation</strong></td>
+<td>VLA has strong semantic generalization, but lacks fine-grained world dynamics; WAM learns future visual prediction and action generation together.</td>
+<td>See how action learning can move from isolation imitation to joint training with predictive world modeling.</td>
+</tr>
+<tr>
+<td><strong>Main contributions</strong></td>
+<td>Three-stream MoT, H-bridge attention, multi-view 3D RoPE, unified relative EEF actions, post-training and real-time deployment acceleration stack.</td>
+<td>The most worthy of careful reading are Method's inference optimization and real-time chunk fusion.</td>
+</tr>
+<tr>
+<td><strong>Experiment positioning</strong></td>
+<td>RoboTwin 2.0 to 95.8/96.1; WorldArena EWMScore 63.77; few-sample adaptation for real long-distance housework tasks.</td>
+<td>Pay attention to distinguishing between public benchmarks, official page lists, and self-set real robot scores for papers.</td>
+</tr>
+</tbody>
+</table>
+<div class="bluebox">
+<strong>Recommended reading by the group: </strong>First write the five distributions in Table 1 on the whiteboard, and then read the three-stream architecture in Fig. 1. Then focus on the discussion: Does MotuBrain's "strength" come from world-action unified modeling, pre-training data pyramid, or system-level inference acceleration that enables closed-loop deployment.
+ </div>
+</section>
+<section id="sec2">
+<h2>2. Background: Why VLA is not enough and why WAM makes sense</h2>
+<h3>2.1 Shortcomings of VLA</h3>
+<p>
+ The VLA model maps visual observations and language instructions to robot actions and inherits the semantic priors of VLM, so it is strong in object and instruction generalization. However, the author believes that the pre-training of VLA mainly comes from static image-text data and lacks prediction of fine-grained world dynamics: contact, inertia, timing changes, status updates after failure, etc. are not directly covered by static semantics.
+ </p>
+<h3>2.2 From video generation to world model</h3>
+<p>
+ Video generation models learn spatiotemporal priors on large-scale web videos, which are naturally suitable for predicting future visual states. The intuition for using it for robotic world modeling is strong: if the model can predict future scenes based on current observations and actions, it is possible to learn object persistence, hand-object interaction, and physical transfer.
+ </p>
+<h3>2.3 VGM + IDM and WAM</h3>
+<p>
+ The early route was to first use the video generation model to predict future vision, and then use the inverse dynamics model to promote action. This two-stage method can exploit video priors, but will accumulate errors. WAM puts visual dynamics and action prediction under the same generation goal, allowing future visual state and action to be aligned during training.
+ </p>
+<h3>2.4 Upgrade of MotuBrain relative to Motus</h3>
+<p>
+ Motus has proposed a unified world-action formulation that allows the same model to support five reasoning modes. MotuBrain continues to use UniDiffuser and Mixture-of-Transformers, but adds a more deployment-oriented design: multi-view input, independent text stream, cross-embodiment action representation, AR/Non-AR post-training, V2A-style action-only inference and real-time chunked closed-loop execution.
+ </p>
+</section>
+<section id="sec3">
+<h2>3. Detailed explanation of methods: UniDiffuser, third-rate MoT, pre-training and deployment stack</h2>
+<div class="figure">
+<img alt="MotuBrain architecture" src="figures/framework.png"/>
+<div class="caption">Figure 1: MotuBrain architecture. The model contains three Transformer streams: text/video/action, and uses H-bridge attention to control the number of cross-modal interaction layers; multi-view input is uniformly encoded through view-dependent 3D RoPE offsets.</div>
+</div>
+<h3>3.1 Five prediction distributions</h3>
+<p>
+ MotuBrain uses UniDiffuser to simultaneously schedule two continuous modes, video and action, so that the same model supports multiple conditional distributions. Five goals in the non-autoregressive mode are given in Table 1 of the paper: </p>
+<table class="compact">
+<thead>
+<tr>
+<th>mode</th>
+<th>predicted target</th>
+<th>Intuition</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>VLA</td><td>$p(\bm{a}_{t+1: t+k}\mid \bm{o}_t, \ell)$</td><td>Given current observations and language, predict future actions.</td></tr>
+<tr><td>WM</td><td>$p(\bm{o}_{t+1: t+k}\mid \bm{o}_t, \bm{a}_{t+1: t+k})$</td><td>Given current observations and actions, predict future vision.</td></tr>
+<tr><td>IDM</td><td>$p(\bm{a}_{t+1: t+k}\mid \bm{o}_{t: t+k})$</td><td>Give visual trajectory and reverse the action.</td></tr>
+<tr><td>VGM</td><td>$p(\bm{o}_{t+1: t+k}\mid \bm{o}_t, \ell)$</td><td>Given current observations and language, future videos are generated.</td></tr>
+<tr><td>Joint</td><td>$p(\bm{o}_{t+1: t+k}, \bm{a}_{t+1: t+k}\mid \bm{o}_t, \ell)$</td><td>Simultaneously generate future videos and actions.</td></tr>
+</tbody>
+</table>
+<h3>3.2 Third-rate Mixture-of-Transformers</h3>
+<p>
+ The model includes text stream, video stream, and action stream. Text stream is a conditional branch, and its hidden states participate in attention, but there is no text output head; video/action streams are trained with flow matching to predict the velocity fields of video latents and action tokens respectively.
+ </p>
+<p>
+ Inputs include text tokens, condition-image latents encoded by Vidu VAE, noisy future video latents, and noisy action tokens. The condition image is represented as the first video latent frame and is teacher-forced in the video stream; remaining future video latents and action tokens are denoised by their respective streams.
+ </p>
+<h3>3.3 H-bridge attention</h3>
+<p>
+ Full-layer full video-action joint attention is costly and may also inject too much irrelevant modal information in shallow/deep layers. Therefore, MotuBrain uses H-bridge: the middle 50% Transformer layers use full V-A joint attention, and the bottom 25% and top 25% use decoupled attention, allowing video tokens and action tokens to be processed independently. Intuitively, the shallow layer retains modal features, the middle layer does semantic/action alignment, and the deep layer returns to modality-specific output.
+ </p>
+<h3>3.4 Multi-view 3D RoPE</h3>
+<p>
+ For multiview inputs, each camera view is independently encoded by Vidu VAE and then spliced at the token level. Since the video model uses 3D RoPE, the paper only adds view-dependent offsets in the spatial dimension, and the time dimension remains unchanged. This is equivalent to mapping different perspectives to different areas in a shared spatial position encoding, so that any number of camera views can share the same backbone.
+ </p>
+<h3>3.5 Pre-training data pyramid</h3>
+<p>
+ MotuBrain's data organization follows Motus' four-layer pyramid, gradually narrowing from broad vision to target embodiment control: </p>
+<ol>
+<li><strong>Internet videos: </strong>Train the Vidu video generation base model.</li>
+<li><strong>Egocentric videos: </strong>Provides first perspective on hand-object interaction dynamics.</li>
+<li><strong>Heterogeneous-embodiment data: </strong>Different robot platforms, tasks and scenarios; only dual-arm robot data is used in the settings of this article.</li>
+<li><strong>Specific-embodiment data: </strong>Target robot action space, camera configuration and deployment distribution.</li>
+</ol>
+<h3>3.6 Two-stage pre-training</h3>
+<p>
+ Starting from Vidu pre-training weights, stage 1 only trains the video branch, and the action branch is randomly initialized but not updated. The goal is to adapt Internet video prior to embodied manipulation. In order to enhance the robustness to imperfect conditioning, the paper uses the noisy-conditioning strategy: perturbing the condition-frame latent with probability 0.5: </p>
+<div class="formula-block">
+ $$\tilde{z}_0=s_{\mathrm{aug}}z_0+(1-s_{\mathrm{aug}})\epsilon, \quad s_{\mathrm{aug}}\sim\mathcal{U}[0.3, 0.7], \quad \epsilon\sim\mathcal{N}(0, I).$$
+ <p class="intuition">Meaning: </p>
+<p>The condition frame is not always clean input, and the model is forced to learn to recover future dynamics from imperfect visual conditions.</p>
+</div>
+<p>
+ Stage 2 is initialized from the stage 1 checkpoint, only trains the action branch, freezes the video branch, and learns a unified action representation on heterogeneous-embodiment data. Although only the action branch is updated, the target still contains two items: video/action: </p>
+<div class="formula-block">
+ $$\mathcal{L}=\lambda_v\mathcal{L}_v+\lambda_a\mathcal{L}_a, $$
+ $$\mathcal{L}_v=\mathrm{MSE}(v_{\mathrm{out}}, v_{\mathrm{target}}), \quad \mathcal{L}_a=\mathrm{MSE}(a_{\mathrm{out}}, a_{\mathrm{target}}).$$
+ </div>
+<h3>3.7 Relative EEF actions across embodiments</h3>
+<p>
+ Let the absolute end-effector chunk be $E^{abs}=\{e^{abs}_1, \ldots, e^{abs}_n\}$, and the end-effector state of the conditioned frame be $s$. Relative action is defined as: </p>
+<div class="formula-block">
+ $$e_i^{rel}=e_i^{abs}\ominus s.$$
+ <p>If $e=(p, R, g)$, where $p$ is the position, $R$ is the rotation, and $g$ is the gripper state, then: </p>
+ $$e_i^{rel}=(p_i-p_s, \; R_s^{-1}R_i, \; g_i).$$
+ </div>
+<p>
+ The original pose is input as quaternion, and the training target uses 6D rotation representation. Each end-effector action has 10 dimensions: position, rotation, and gripper state. The author only normalizes the gripper to $[-1, 1]$, and keeps the remaining dimensions in physical scale. This makes it easier to share motion patterns between different robot embodiments and initial poses.
+ </p>
+<div class="figure">
+<img alt="Attention masks" src="figures/map.png"/>
+<div class="caption">Figure 2: Training and post-training attention masks. Stage 1 only updates the video branch; stage 2 full joint attention; Non-AR disables video-to-action attention; AR uses chunk-level causal mask.</div>
+</div>
+<h3>3.8 Post-training: Non-AR and AR</h3>
+<p>
+ Post-training adaptation target embodiment, including Non-AR and AR settings. Non-AR forward denoises video/action tokens in the entire observation window at one time, suitable for efficient execution of shorter horizons. AR handles long-range tasks according to chunk-level factorization: chunks are processed in parallel during training, but block-causal mask is used; during deployment, rollout is performed sequentially, and the new observation frame is used as the clean context of the next chunk.
+ </p>
+<p>
+ The key deployment tip is V2A-style attention: action tokens can attend to video/language tokens, but video tokens do not attend action tokens. In this way, when reasoning, you can first perform a short joint denoising prefix, then freeze the video stream, and only continue to update the action stream.
+ </p>
+<h3>3.9 Inference acceleration stack</h3>
+<table class="compact">
+<thead>
+<tr>
+<th>Technology</th>
+<th>Steps</th>
+<th>Latency</th>
+<th>Frequency</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Baseline</td><td>50</td><td>4.90s</td><td>0.20 Hz</td><td>1.00x</td></tr>
+<tr><td>+ Noise sampling</td><td>30</td><td>2.90s</td><td>0.34 Hz</td><td>1.69x</td></tr>
+<tr><td>+ torch.compile</td><td>30</td><td>0.98s</td><td>1.02 Hz</td><td>5.00x</td></tr>
+<tr><td>+ FP8 quantization</td><td>30</td><td>0.88s</td><td>1.14 Hz</td><td>5.57x</td></tr>
+<tr><td>+ DiT cache</td><td>30</td><td>0.20s</td><td>5.00 Hz</td><td>24.5x</td></tr>
+<tr><td>+ V2A-style</td><td>30 action-only</td><td>0.09s</td><td>11.11 Hz</td><td>54.4x</td></tr>
+</tbody>
+</table>
+<h3>3.10 Real-time chunk fusion</h3>
+<p>
+ For closed-loop control, MotuBrain decouples the model inference loop and the robot action execution loop: the controller executes the current action chunk, and the model asynchronously generates the next chunk based on the latest observations. The problem is that chunk switching will cause jumps. The paper uses the unexecuted part of the current chunk to constrain the next chunk: the inference delay $\delta$ and the control period $\Delta t$ define the number of freezing steps: </p>
+<div class="formula-block">
+ $$d=\left\lceil\frac{\delta}{\Delta t}\right\rceil.$$
+ <p>The first $d$ steps are completely constrained by the remaining actions of the previous chunk; after that, exponential decay weights are used: </p>
+ $$g(\rho_i)=\frac{\rho_i(e^{\rho_i}-1)}{e-1}, $$
+ $$w_i=\begin{cases}1, &amp;0\le i<d a_i="" i="" l="">
+<p>
+ System maintenance delay queue $Q$, use $\hat{d}_{t+1}=\max(Q)$ as a conservative estimate to adapt to network and model latency fluctuations. This section is very engineering, but very critical for real robots.
+ </p>
+<section id="sec4">
+<h2>4. Experimental results: RoboTwin, WorldArena, real long-range control</h2>
+<h3>4.1 RoboTwin 2.0</h3>
+<p>
+ According to the RoboTwin 2.0 protocol, the model uses 2, 500 clean demonstrations (50 tasks, 50 per task) and 25, 000 randomized demonstrations (500 per task). Video downsampled to 5 Hz, motion to 10 Hz. MotuBrain is fine-tuned from pretrained weights, reaching 95.8 and 96.1 in clean and randomized settings respectively.
+ </p>
+<table class="compact">
+<thead>
+<tr><th>model</th><th>Clean</th><th>Randomized</th></tr>
+</thead>
+<tbody>
+<tr><td>$\pi_0$</td><td>65.9</td><td>58.4</td></tr>
+<tr><td>X-VLA</td><td>72.9</td><td>72.8</td></tr>
+<tr><td>$\pi_{0.5}$</td><td>82.7</td><td>76.8</td></tr>
+<tr><td>starVLA</td><td>88.2</td><td>88.3</td></tr>
+<tr><td>LingBot-VLA</td><td>86.5</td><td>85.3</td></tr>
+<tr><td>Motus</td><td>88.7</td><td>87.0</td></tr>
+<tr><td>LingBot-VA</td><td>92.9</td><td>91.5</td></tr>
+<tr><td>Fast-WAM</td><td>91.9</td><td>91.8</td></tr>
+<tr><td>MotuBrain w/o Pretrain</td><td>91.5</td><td>91.3</td></tr>
+<tr><td>MotuBrain-Non-AR</td><td>91.9</td><td>92.3</td></tr>
+<tr><td><strong>MotuBrain</strong></td><td><strong>95.8</strong></td><td><strong>96.1</strong></td></tr>
+</tbody>
+</table>
+<p>
+ The paper further reports: MotuBrain has 24 tasks with perfect scores in the clean setting, 25 tasks with perfect scores in the randomized setting, and 19 tasks with 100% in both settings. The number of tasks with more than 90% success rate is 42 clean tasks and 44 randomized tasks. The improvement focuses on tasks under multi-stage coordination, contact richness, spatial arrangement, and random visual perturbations.
+ </p>
+<div class="grid-2">
+<div class="figure">
+<img alt="Task scaling" src="figures/scaling_curve_task.png"/>
+<div class="caption">Figure 3: Task number scaling. The more training tasks there are, the average success rate of MotuBrain continues to increase, indicating that task diversity brings reusable world knowledge.</div>
+</div>
+<div class="figure">
+<img alt="Data scaling" src="figures/scaling_curve_data.png"/>
+<div class="caption">Figure 4: Data volume scaling. Even with subsample demonstrations per data budget, MotuBrain can still benefit from more data.</div>
+</div>
+</div>
+<h3>4.2 WorldArena</h3>
+<p>
+ WorldArena evaluates embodied world models from 16 indicators in six sub-dimensions: visual quality, motion quality, content consistency, physics adherence, 3D accuracy, and controllability. MotuBrain participated in the evaluation in forward-dynamics mode, using 5 Hz video and 10 Hz actions. The EWMScore was 63.77, which the paper said was the highest in the comparison table.
+ </p>
+<table class="compact">
+<thead>
+<tr><th>model</th><th>EWMScore ↑</th><th>Remarks</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>MotuBrain</strong></td><td><strong>63.77</strong></td><td>The motion quality indicator is particularly strong.</td></tr>
+<tr><td>Veo3.1</td><td>57.77</td><td>instruction following is high, but motion metrics are low.</td></tr>
+<tr><td>Wan2.6</td><td>59.80</td><td>The visual quality is strong.</td></tr>
+<tr><td>Ctrl-World</td><td>59.98</td><td>subject/background consistency is highly competitive.</td></tr>
+<tr><td>ABot-PW</td><td>62.63</td><td>The interaction quality is high.</td></tr>
+<tr><td>GigaWorld-1</td><td>62.34</td><td>JEPA similarity/depth/trajectory is highly competitive.</td></tr>
+</tbody>
+</table>
+<p>
+ MotuBrain leads in three motion quality indicators: Dynamic Degree, Flow Score, and Motion Smoothness. The paper emphasizes that this shows that the model does not generate beautiful videos that are close to stillness, but produces continuous, smooth, locally focused motion over embodied-relevant regions.
+ </p>
+<div class="figure">
+<img alt="WorldArena leaderboard" src="figures/worldarena_leaderboard.png"/>
+<div class="caption">Figure 5: WorldArena public leaderboard. The official page also lists MotuBrain 63.77 EWMScore and RoboTwin 95.8/96.1.</div>
+</div>
+<h3>4.3 Real robots: few-sample adaptation</h3>
+<p>
+ Real experiments start from a pretrained model and use 50 to 100 same-embodiment trajectories to adapt to new humanoid platforms. The paper emphasizes not relying on VLM planner, dual-system decomposition, external memory or retry-specific data.
+ </p>
+<table class="compact">
+<thead>
+<tr><th>Task</th><th>Evaluation scale</th><th>Number of atomic actions</th><th>average execution time</th><th>total score</th></tr>
+</thead>
+<tbody>
+<tr><td>Making Oden</td><td>5 trials</td><td>7</td><td>33 s</td><td>98.54</td></tr>
+<tr><td>Mixing Cocktails</td><td>7 trials</td><td>15</td><td>124 s</td><td>97.34</td></tr>
+<tr><td>Flower Arrangement</td><td>10 trials</td><td>10</td><td>138 s</td><td>83.30</td></tr>
+</tbody>
+</table>
+<p>
+ The score is out of 100, with equal weight for each sub-task step. Full marks will be given if the first retry is completed, 80% for one retry, 50% for two retries, and 0 for three or more retries. In Flower Arrangement, the author particularly emphasizes that the model shows certain online self-correction capabilities without explicit recovery supervision.
+ </p>
+<h3>4.4 Qualitative results of real tasks</h3>
+<div class="grid-2">
+<div class="figure">
+<img alt="Bathroom demo" src="figures/b_Bathroom_1.jpg"/>
+<div class="caption">Bathroom tidying up: put the toothbrush in the cup and put the soap back in its place.</div>
+</div>
+<div class="figure">
+<img alt="Cocktail demo" src="figures/b_Cocktail_vstack.jpg"/>
+<div class="caption">Make cocktails: remove bottles, pour liquids, place trays and hand to customers.</div>
+</div>
+<div class="figure">
+<img alt="Oden demo" src="figures/b_Oden_1.jpg"/>
+<div class="caption">Oden/Beverage Arm Task: Pour juice with right hand, scoop food with left hand.</div>
+</div>
+<div class="figure">
+<img alt="Flower demo" src="figures/b_flower_vstack.jpg"/>
+<div class="caption">Arrange flowers and spray water: Long-range fine-grained manipulation.</div>
+</div>
+</div>
+</section>
+<section id="sec5">
+<h2>5. Intensive reading of charts</h2>
+<h3>5.1 Fig. 1: Three things in the architecture diagram</h3>
+<p>
+ There are three layers to look at in this picture: first, text/video/action are independent streams instead of simply splicing tokens; second, H-bridge only does full cross-modal attention in the middle layer; third, multiview enters the unified RoPE space through position offsets. These three things correspond to semantic control, cross-modal alignment and real robot multi-camera input respectively.
+ </p>
+<h3>5.2 Table 1: Five distributions are the core of unified modeling</h3>
+<p>
+ The unity of MotuBrain is not as simple as "one model outputs many things", but writing conditional distributions as different conditional problems under the same multimodal diffusion/flow family. During the report group meeting, it was recommended to use Table 1 as the main line. The subsequent architecture, training masks and V2A inference are all to support these distributions efficiently.
+ </p>
+<h3>5.3 Speedup table: deployment contribution is heavy</h3>
+<p>
+ If you just look at the model structure, MotuBrain may seem like a natural extension of Motus; but the 54.4x speedup is the key engineering contribution of this paper. Without V2A-style action-only inference, DiT cache and chunk fusion, it is difficult for this type of WAM to approach real-time closed loop on real robots.
+ </p>
+<h3>5.4 Real-world table: strong but depends on caliber</h3>
+<p>
+ The real task score is very high, but it is not compared with the external baseline for the same protocol, but the paper's custom step scoring. It is valuable because it demonstrates the feasibility of long-range control with a small number of samples; but rigorous comparison of different methods also requires the disclosure of task definitions, evaluation scripts, complete failure examples, and multi-environment statistics.
+ </p>
+</section>
+<section id="sec6">
+<h2>6. reproducibility list and project details</h2>
+<h3>6.1 Key configurations that can be extracted</h3>
+<table>
+<thead>
+<tr><th>Project</th><th>Paper information</th></tr>
+</thead>
+<tbody>
+<tr><td>base model</td><td>Vidu video generation model as foundation.</td></tr>
+<tr><td>Modeling framework</td><td>UniDiffuser, continuous video/action modalities.</td></tr>
+<tr><td>structure</td><td>Text/video/action Third-rate Mixture-of-Transformers.</td></tr>
+<tr><td>cross-modal attention</td><td>H-bridge: 50% layers full V-A attention in the middle; 25% decoupled at the bottom/top.</td></tr>
+<tr><td>multiple perspectives</td><td>Each view has independent Vidu VAE encoding and spatial dimension 3D RoPE offsets.</td></tr>
+<tr><td>action expression</td><td>relative EEF action; position direct subtraction, rotation $R_s^{-1}R_i$, gripper unchanged. </td></tr>
+<tr><td>action dimension</td><td>Each end-effector action has 10 dimensions: position + 6D rotation + gripper.</td></tr>
+<tr><td>RoboTwin data</td><td>2, 500 clean demos + 25, 000 randomized demos; 50 tasks. </td></tr>
+<tr><td>Frequency</td><td>RoboTwin videos 5 Hz, actions 10 Hz. </td></tr>
+<tr><td>Inference optimization</td><td>step reduction, torch.compile, FP8, DiT cache, V2A action-only, action smoothing, frequency-aware interpolation. </td></tr>
+</tbody>
+</table>
+<h3>6.2 Recurring gaps</h3>
+<ul>
+<li><strong>No public code: </strong>There is currently no official GitHub, and it is difficult to truly reproduce the details of the inference stack.</li>
+<li><strong>The pre-training data size is incomplete: </strong>Scales, cleaning and mixing ratios for Internet/ego-centric/heterogeneous data are not fully listed.</li>
+<li><strong>Model scale is missing: </strong>The paper emphasizes architecture and deployment, but does not give a complete table of parameters/layers/hidden size like common model cards.</li>
+<li><strong>H-bridge details: </strong>Which specific layers are joint, which decoupled, and whether the text stream is fully involved requires code confirmation.</li>
+<li><strong>Real robot control stack: </strong>The low-level controller, communication delay, limiting, safety stop, failure determination and retry statistics are not fully disclosed.</li>
+<li><strong>WorldArena Repeatability: </strong>Papers report leaderboard scores, but require benchmark submission configuration and generation parameters for full review.</li>
+</ul>
+</section>
+<section id="sec7">
+<h2>7. Critical discussion and group meeting questions</h2>
+<h3>7.1 Strong points of the paper</h3>
+<ul>
+<li><strong>Complete unity: </strong>Five inference modes and attention masks make the unifying goal of WAM clear.</li>
+<li><strong>Strong deployment awareness: </strong>Not only the model score is reported, but also the inference optimization path from 4.90s to 0.09s is given.</li>
+<li><strong>Multiple perspectives and embodiment migration: </strong>Solve the common problems of multiple cameras and inconsistent action spaces in real robots.</li>
+<li><strong>Experimental coverage is wide: </strong>There are results for simulation, world model benchmark, and real housework tasks.</li>
+</ul>
+<h3>7.2 Points to be cautious about</h3>
+<ul>
+<li><strong>Systems engineering contributions and modeling contributions are intertwined: </strong>Whether RoboTwin/real deployment improvement comes from WAM representation, data, post-training, or the engineering stack requires more ablation.</li>
+<li><strong>The official self-evaluation contains more elements: </strong>There is no external baseline for real tasks compared to the protocol, and the scoring method also requires more transparency.</li>
+<li><strong>High threshold for recurrence: </strong>Without code, model cards, and complete data recipes, junior PhD is difficult to reproduce end-to-end.</li>
+<li><strong>The Action Following indicator is not always strong: </strong>The Action Following of MotuBrain in the WorldArena table is lower than Wan2.6/Veo3.1, etc. It is necessary to understand the relationship between this indicator and the control success rate.</li>
+</ul>
+<h3>7.3 Group meeting discussion question 1: Does WAM's ability come from "predicting the world" or "deployment optimization"?</h3>
+<div class="card">
+<p>
+ MotuBrain also proposes model structure, pre-training pyramid, post-training, action-only inference and real-time control fusion. To judge scientific contributions, it needs to be dismantled: fixed inference stacks are compared with different architectures, fixed architectures are compared with and without world modeling, and fixed data are compared with VLA vs WAM. Otherwise it is difficult to know the core source of 95.8/96.1.
+ </p>
+</div>
+<h3>7.4 Group meeting discussion question 2: Will unifying the five distributions restrain each other?</h3>
+<div class="card">
+<p>
+ It is elegant for a model to do VLA, WM, IDM, VGM, and joint prediction at the same time, but different tasks may have conflicting requirements for attention mask, timestep sampling, loss weight, and data distribution. MotuBrain uses stage-wise training and V2A mask to alleviate this problem, but whether routing, task-specific adapters or dynamic loss balancing will be needed in the future is worthy of in-depth discussion.
+ </p>
+</div>
+<h3>7.5 Follow-up research directions</h3>
+<ol>
+<li><strong>Publicly reproducible kit: </strong>Publish model cards, inference stack code, benchmark configs, and failure cases.</li>
+<li><strong>Fine ablation: </strong>Separate independent contributions of H-bridge, text stream, multi-view RoPE, relative EEF, V2A inference.</li>
+<li><strong>Uncertainty and security: </strong>Estimate risks when WAM generates actions and incorporate security constraints/online error correction.</li>
+<li><strong>Stronger open world test: </strong>Validating the world prior in mobile operations, dynamic human environments, haptically rich tasks, and long-duration tasks.</li>
+<li><strong>More extreme migration across embodiments: </strong>Platforms with huge differences in shapes from double-arm humanoid to single-arm, mobile chassis, and gripper.</li>
+</ol>
+<div class="good">
+<strong>Final verdict: </strong>MotuBrain is a WAM paper that is more like a "system-based technical report". Its most valuable part is not a single formula, but the unified world-action modeling, cross-embodiment data, real-time reasoning optimization and real long-range control in the same engineering link. This can be read in group meetings as a clear sample of the current WAM path toward deployable robots.
+ </div>
+</section>
+</d></div></section></main></body>
+</html>

@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Action Models are Zero-shot Policies - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<div class="page">
+    <article class="card">
+      <header>
+            <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div class="eyebrow">read-paper-phd / junior PhD 组会精读</div>
+        <h1>World Action Models are Zero-shot Policies</h1>
+        <div class="meta">
+          <p><strong>作者</strong>：Seonghyeon Ye, Yunhao Ge, Kaiyuan Zheng, Shenyuan Gao, Sihyun Yu, George Kurian 等</p>
+          <p><strong>机构</strong>：NVIDIA</p>
+          <p><strong>arXiv</strong>：<a href="https://arxiv.org/abs/2602.15922">2602.15922</a></p>
+          <p><strong>项目页 / 代码</strong>：<a href="https://dreamzero0.github.io">dreamzero0.github.io</a>；<a href="https://github.com/dreamzero0/dreamzero">github.com/dreamzero0/dreamzero</a></p>
+        </div>
+      </header>
+
+      <div class="toc">
+        <h2 style="margin-top:0">目录</h2>
+        <div class="toc-grid">
+          <div>
+            <div><a href="#sec1">1. 论文速览</a></div>
+            <div><a href="#sec2">2. 动机</a></div>
+            <div><a href="#sec3">3. 相关工作梳理</a></div>
+          </div>
+          <div>
+            <div><a href="#sec5">4. 方法详解</a></div>
+            <div><a href="#sec6">5. 实验</a></div>
+            <div><a href="#sec7">6. 分析与讨论</a></div>
+          </div>
+        </div>
+      </div>
+<section id="sec1">
+          <h2>1. 论文速览</h2>
+          <div class="tldr">
+            <strong>一句话总结</strong>：这篇论文提出 <code>DreamZero</code>，把预训练视频扩散模型改造成同时预测未来视频和动作的 <code>World Action Model</code>，并声称这种“视频世界建模 + 动作联合生成”的路线比现有 VLA 更擅长从异构、非重复机器人数据里学到可泛化的物理技能，甚至能在零样本任务和跨 embodiment 迁移上取得显著收益。
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <p><strong>难度评级</strong>：★★★★☆</p>
+              <p class="small">需要熟悉视频扩散模型、flow matching、inverse dynamics、闭环控制系统优化，以及 VLA / WAM 的建模差异。</p>
+              <p><strong>关键词</strong></p>
+              <div class="chip-list">
+                <span class="chip">World Action Model</span>
+                <span class="chip">Video Diffusion</span>
+                <span class="chip">Zero-shot Robotics</span>
+                <span class="chip">Cross-embodiment Transfer</span>
+                <span class="chip">Real-time Inference</span>
+              </div>
+            </div>
+            <div class="panel audit-card">
+              <p><strong>核心贡献清单</strong></p>
+              <ul>
+                <li>提出 <code>DreamZero</code>：一个 14B 的 WAM，联合预测未来视频和动作，强调它能从异构、非重复的真实机器人数据里学到广泛技能。</li>
+                <li>提出方法论主张：WAM 相比 VLA 的优势不只是“多一个视频分支”，而是把动作学习转化成“从未来视觉计划中恢复动作”的隐式 inverse dynamics。</li>
+                <li>提出一整套实时推理优化：系统级、实现级和模型级加速，把 14B 视频扩散控制模型从 5.7 秒/块压到约 150ms/块，给出 38x 加速和 7Hz 闭环控制。</li>
+                <li>展示两类跨 embodiment 迁移：只用 10-20 分钟的视频示范做 robot-to-robot / human-to-robot transfer，以及 30 分钟 play data 做 few-shot 新 embodiment 适配。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/dreamzero-header-v2.png" type="image/png">
+              <a href="figure/dreamzero-header-v2.png">Figure 1 PNG</a>
+            </object>
+            <div class="caption">Figure 1。总览图直接给出四个主张：从异构数据学习、开放世界泛化、跨 embodiment 视频迁移、few-shot embodiment adaptation。整篇论文都围绕这四条展开。</div>
+          </div>
+        </section>
+
+        <section id="sec2">
+          <h2>2. 动机</h2>
+
+          <h3>2.1 要解决什么问题</h3>
+          <p>作者认为，当前机器人 foundation model 的主流路线是 VLA：把预训练 VLM 扩展到动作输出。这条路线很擅长语义泛化，例如看懂复杂语言、识别新物体、把“what to do”对齐到语言知识；但它不擅长“how to do”，也就是新的物理动作、环境变化和精细运动控制。论文开头给的典型反例是：VLA 可以理解“把可乐罐移到 Taylor Swift 那里”，因为它知道 Taylor Swift 是谁、在哪里；但如果机器人数据里从未有过“untie the shoelace”，VLA 往往不会自己长出这个新动作。</p>
+          <p>因此论文想解决的不是单纯的“多任务机器人控制”，而是更尖锐的问题：机器人基础模型能否在没有专门收集大量重复演示的前提下，从更像现实世界的数据分布中学到新技能，并在新任务、新环境、甚至新 embodiment 上零样本泛化。</p>
+
+          <h3>2.2 已有方法的局限</h3>
+          <ul>
+            <li><strong>VLA 的预训练偏静态语义</strong>：VLM 在静态图文上学到的是语义概念，不是精确时空动力学。作者明确说，这让它们缺乏动作执行时的几何、动力学和 motor control 表征。</li>
+            <li><strong>VLA 往往依赖大量、重复、任务中心的数据</strong>：要想在机器人上表现稳定，现有 VLA 往往需要很多 embodiment-specific robot data，而且这些数据通常是大量重复示范。</li>
+            <li><strong>旧的 WAM 还没有把泛化潜力完全挖出来</strong>：已有视频-动作联合模型证明了世界建模目标有帮助，但不少工作仍然在重复演示场景里验证，或者没有系统研究数据多样性、架构形态和实时推理。</li>
+            <li><strong>视频模型直接用于闭环控制很慢</strong>：视频扩散本身要多步去噪，参数量又大，天然不适合毫秒级反应式控制。作者把这一点单独作为三大核心挑战之一。</li>
+          </ul>
+
+          <h3>2.3 本文的解决思路（高层次）</h3>
+          <p>DreamZero 的主张是：与其让模型直接做“观察到动作”的纯行为克隆，不如让它同时预测未来世界状态和动作，把动作学习变成一种由视觉未来引导的隐式 inverse dynamics。直觉上，如果模型已经能很好地想象“接下来世界应该长成什么样”，那么把这个未来视觉计划翻译成动作，应该比从当前观测直接回归动作更容易泛化。</p>
+          <p>为此，作者用预训练视频扩散模型做 backbone，让模型在给定语言、视觉历史和本体状态时，联合生成未来视频和动作；同时采用自回归视频生成、teacher forcing、KV cache 以及真实观测替换预测帧的闭环推理，避免纯视频 AR 里常见的误差积累问题。</p>
+        </section>
+
+        <section id="sec3">
+          <h2>3. 相关工作梳理</h2>
+
+          <h3>3.1 论文自述的相关工作</h3>
+          <ul>
+            <li><strong>Vision-Language-Action Models</strong>：论文把 RT 系列、OpenVLA、GR00T、π 系列等都归到这条线。它们把语言语义和动作输出放在同一个端到端模型里，但预训练先验主要来自静态图文。</li>
+            <li><strong>Video Model-based Robot Policies</strong>：一类是先生成视频再用 inverse dynamics / optical flow / planning 提取动作；另一类是直接做视频-动作联合生成。作者把后者统称为 WAM。</li>
+            <li><strong>替代性 world model 架构</strong>：附录里作者还专门比较了 latent-space world model 和 3D point-cloud world model。作者认为这些方案多是学 $p(s_{t+1}\mid s_t,a_t)$，部署时还要配逆动力学或显式搜索；WAM 则直接学联合分布并输出动作轨迹。</li>
+          </ul>
+
+          <h3>3.2 直接前作对比</h3>
+          <table>
+            <tr>
+              <th>维度</th>
+              <th>VLA</th>
+              <th>传统 world model / latent world model</th>
+              <th>已有 WAM</th>
+              <th>DreamZero</th>
+            </tr>
+            <tr>
+              <td>预训练先验</td>
+              <td>静态图文 VLM</td>
+              <td>常从头学动态</td>
+              <td>部分工作已使用视频扩散</td>
+              <td>Wan2.1 I2V-14B 预训练视频扩散</td>
+            </tr>
+            <tr>
+              <td>学习目标</td>
+              <td>多为直接动作预测</td>
+              <td>学 forward dynamics，再额外规划/反解动作</td>
+              <td>视频与动作联合或耦合</td>
+              <td>联合视频与动作，强调隐式 inverse dynamics</td>
+            </tr>
+            <tr>
+              <td>数据偏好</td>
+              <td>偏向大量重复、结构化演示</td>
+              <td>依任务而异</td>
+              <td>通常仍以机器人数据为主</td>
+              <td>强调异构、非重复、真实长时序数据也可用</td>
+            </tr>
+            <tr>
+              <td>推理方式</td>
+              <td>通常快</td>
+              <td>常需 MPC / search</td>
+              <td>速度和闭环能力差异较大</td>
+              <td>通过异步执行 + 缓存 + Flash 训练实现 7Hz</td>
+            </tr>
+            <tr>
+              <td>论文声称优势</td>
+              <td>语义泛化强</td>
+              <td>显式规划性强</td>
+              <td>视频先验可提升泛化</td>
+              <td>对 unseen motion / environment / embodiment 更强</td>
+            </tr>
+          </table>
+        </section>
+
+        <section id="sec5">
+          <h2>4. 方法详解</h2>
+
+          <h3>5.1 方法概览</h3>
+          <p>DreamZero 的计算图可以按“输入组织、联合建模、闭环执行、实时优化”四层理解：</p>
+          <ul>
+            <li>输入：视觉历史 $\mathbf{o}_{0:l}$、当前 proprioception $\mathbf{q}_l$、语言指令 $\mathbf{c}$。</li>
+            <li>模型：预训练视频扩散 backbone + 少量新增的 state encoder、action encoder、action decoder。</li>
+            <li>目标：联合预测未来视频 chunk $\mathbf{o}_{l:l+H}$ 和动作 chunk $\mathbf{a}_{l:l+H}$。</li>
+            <li>部署：动作块异步执行，执行后把真实观测重新写进 KV cache，取代模型刚才生成的视觉未来，从而防止视频 AR 的误差滚雪球。</li>
+          </ul>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/dreamzero_model.png" type="image/png">
+              <a href="figure/dreamzero_model.png">Model Architecture PNG</a>
+            </object>
+            <div class="caption">Figure 4。主架构图。左边是训练：clean context + noisy current chunk；右边是推理：异步执行动作，并把真实观测回灌到 KV cache。这个“用 GT observation 替换生成帧”的操作是作者为 AR WAM 辩护的关键。</div>
+          </div>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/dreamzero_gen.png" type="image/png">
+              <a href="figure/dreamzero_gen.png">Joint prediction PNG</a>
+            </object>
+            <div class="caption">Figure 2。论文用完全未见任务的案例展示视频与动作的强对齐：模型生成的未来视频和实际执行出的动作风格是一致的。作者后面甚至把 failure 也解释成“视频先想错了，所以动作忠实执行了错误计划”。</div>
+          </div>
+
+          <h3>5.2 方法演变脉络</h3>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-label">阶段 A</div>
+              <div>VLA 路线：静态图文 foundation model 加动作头，擅长语义泛化，但对新物理动作和新环境泛化不足。</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-label">阶段 B</div>
+              <div>world model / 视频策略路线：开始用未来预测帮助动作学习，但很多方法仍然要么从头学动态，要么部署时依赖额外搜索或 inverse dynamics。</div>
+            </div>
+            <div class="tl-item current">
+              <div class="tl-label">阶段 C</div>
+              <div>DreamZero：直接拿预训练视频扩散做 backbone，把未来视频和动作联合建模，并结合闭环真实观测注入、KV cache 和 Flash 训练，把 WAM 做成可实时部署的零样本策略。</div>
+            </div>
+          </div>
+
+          <h3>5.3 核心设计与数学推导</h3>
+
+          <div class="formula-block">
+            <p class="intuition">公式 1 说明 DreamZero 其实是在学一个联合分布：未来视频和未来动作一起生成，而这个联合分布可以看成“视频预测 × inverse dynamics”的乘积。</p>
+            <p>$$
+            \pi_0(\mathbf{o}_{l:l+H}, \mathbf{a}_{l:l+H}\mid \mathbf{o}_{0:l}, \mathbf{c}, \mathbf{q}_l)
+            =
+            \pi_0(\mathbf{o}_{l:l+H}\mid \mathbf{o}_{0:l}, \mathbf{c}, \mathbf{q}_l)
+            \cdot
+            \pi_0(\mathbf{a}_{l:l+H}\mid \mathbf{o}_{0:l+H}, \mathbf{q}_l)
+            $$</p>
+            <table class="symbol-table">
+              <tr><td>$\mathbf{o}_{0:l}$</td><td>到当前时刻为止的视觉历史。</td></tr>
+              <tr><td>$\mathbf{o}_{l:l+H}$</td><td>未来一个 horizon 内的视频观测。</td></tr>
+              <tr><td>$\mathbf{a}_{l:l+H}$</td><td>对应 horizon 内的动作块。</td></tr>
+              <tr><td>$\mathbf{c}$</td><td>语言指令。</td></tr>
+              <tr><td>$\mathbf{q}_l$</td><td>当前 proprioceptive state。</td></tr>
+            </table>
+            <div>
+              <strong>直觉</strong>：作者不想把模型拆成“先视频模型，再 inverse dynamics 模型”，而是用一个端到端模型一起学，理由是这样视频和动作更容易对齐。
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <p class="intuition">公式 2 和 3 是标准 flow matching 训练，但做成了 chunk-wise joint denoising：视频和动作在每个 chunk 上一起加噪、一起预测速度。</p>
+            <p>$$
+            \mathbf{z}_{t_k}^{k}=t_k\mathbf{z}_{1}^{k}+(1-t_k)\mathbf{z}_{0}^{k}, \qquad
+            \mathbf{a}_{t_k}^{k}=t_k\mathbf{a}_{1}^{k}+(1-t_k)\mathbf{a}_{0}^{k}
+            $$</p>
+            <p>$$
+            \mathcal{L}(\theta)=
+            \mathbb{E}_{\mathbf{z},\mathbf{a},\{t_k\}}
+            \Bigg[
+            \frac{1}{K}\sum_{k=1}^{K}
+            w(t_k)
+            \left\|
+            \mathbf{u}_{\theta}([\mathbf{z}_{t_k}^{k},\mathbf{a}_{t_k}^{k}];\mathcal{C}_k,\mathbf{c},\mathbf{q}_k,t_k)
+            -\mathbf{v}^{k}
+            \right\|^2
+            \Bigg]
+            $$</p>
+            <table class="symbol-table">
+              <tr><td>$\mathbf{z}_1^k, \mathbf{a}_1^k$</td><td>第 $k$ 个 chunk 的干净视频 latent 和干净动作。</td></tr>
+              <tr><td>$\mathbf{z}_0^k, \mathbf{a}_0^k$</td><td>标准高斯噪声。</td></tr>
+              <tr><td>$\mathcal{C}_k$</td><td>teacher forcing 的 clean 历史上下文，也就是前面所有 chunk 的真实 latent。</td></tr>
+              <tr><td>$\mathbf{u}_\theta$</td><td>联合视频-动作 DiT，输出速度向量。</td></tr>
+              <tr><td>$\mathbf{v}^k$</td><td>目标速度，即干净样本减噪声样本。</td></tr>
+            </table>
+            <div>
+              <strong>关键点</strong>：DreamZero 在默认训练里让视频和动作共享同一个去噪时间步，这和很多近期 WAM 不同；作者说这有利于训练早期更快收敛。<span class="appendix-ref">[附录 模型细节]</span>
+            </div>
+          </div>
+
+          <div class="formula-block">
+            <p class="intuition">Flash 的核心不是“少去噪几步”这么简单，而是把训练分布改成：动作要学会在视频仍然很脏时先收敛到接近干净的值。</p>
+            <p>标准 DreamZero：
+            $$
+            t_k^{\text{video}} = t_k^{\text{action}} = t_k,\quad t_k\sim\mathcal{U}(0,1)
+            $$
+            </p>
+            <p>DreamZero-Flash：
+            $$
+            t_k^{\text{video}} = 1-\eta,\quad \eta\sim\text{Beta}(\alpha,\beta),\quad
+            t_k^{\text{action}}\sim\mathcal{U}(0,1)
+            $$
+            </p>
+            <table class="symbol-table">
+              <tr><td>标准设置</td><td>视频和动作同噪声水平训练。</td></tr>
+              <tr><td>Flash 设置</td><td>视频更多处于高噪声，动作保持均匀时间步。</td></tr>
+              <tr><td>$\alpha=7,\beta=1$</td><td>论文示例配置，对应视频时间步均值约 0.125，即大多数训练样本的视频都很“脏”。</td></tr>
+            </table>
+            <div>
+              <strong>直觉</strong>：few-step / single-step 推理时，动作必须比视频更快变干净。Flash 训练就是直接把这种推理条件搬到训练里。
+            </div>
+            <details>
+              <summary>为什么这能提速</summary>
+              <div>
+                <p>如果不改训练分布，1-step 推理时视频 latent 还在噪声区，动作分支依赖的视觉条件质量会很差。Flash 通过训练时就暴露这种“视觉很脏、动作要先准”的情况，使 1-step 动作生成仍能工作。</p>
+              </div>
+            </details>
+          </div>
+
+          <div class="figure">
+            <img src="figure/dreamzero-flash_noise_distribution_comparison.png" alt="DreamZero Flash noise distribution">
+            <div class="caption">Figure 11。Flash 噪声调度图。红色是 Flash：视频偏高噪声，动作仍均匀；蓝色是标准 DreamZero：视频和动作统一调度。</div>
+          </div>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/dreamzero_attention_figure.png" type="image/png">
+              <a href="figure/dreamzero_attention_figure.png">Attention mask PNG</a>
+            </object>
+            <div class="caption">Appendix Figure。训练/推理 attention mask。最重要的信息是：推理时 KV cache 里存的不是模型自己上一轮生成的视频，而是执行后新获得的 GT 观测。<span class="appendix-ref">[附录 模型细节]</span></div>
+          </div>
+
+          <h3>5.4 实现要点</h3>
+          <ul>
+            <li><strong>多视角处理方式很朴素</strong>：多视角不是改 backbone 结构，而是把不同视角直接拼接成单帧送入视频模型。</li>
+            <li><strong>只有视频是 AR，动作不是纯 AR rollout</strong>：作者说这样能避免 closed-loop action prediction 的误差传播，同时又保留 KV cache 带来的速度好处。</li>
+            <li><strong>chunk 设计与控制频率强绑定</strong>：AgiBot 是 5FPS 视频、30Hz 动作、48 步动作 horizon，每 chunk 正好 1.6 秒；DROID 是 5FPS 视频、15Hz 动作、24 步 horizon，同样 1.6 秒。上下文总长默认 4 个 chunk，对应 6.6 秒视觉历史。<span class="appendix-ref">[附录 模型细节]</span></li>
+            <li><strong>训练更新范围</strong>：更新所有 DiT blocks、state encoder、action encoder、action decoder；冻结 text encoder、image encoder 和 VAE。作者还专门提到 LoRA 试过但效果不佳。<span class="appendix-ref">[正文 §4.1]</span></li>
+            <li><strong>异步执行是必要条件</strong>：不是为了更快好看，而是为了把反应式约束从“推理必须先于动作”改成“推理只要在当前 action chunk 过期前完成”。作者给的目标延迟是低于约 200ms。</li>
+            <li><strong>action chunk smoothing</strong>：生成后的动作块先上采样 2x，再用 Savitzky-Golay 滤波，最后下采样回原分辨率，专门抑制高频抖动。<span class="appendix-ref">[附录 实时执行]</span></li>
+          </ul>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/bidiraug.png" type="image/png">
+              <a href="figure/bidiraug.png">Bidirectional vs AR PNG</a>
+            </object>
+            <div class="caption">Appendix Figure。作者为 AR 架构辩护的关键图：双向模型为了和语言对齐，经常需要子采样视频，结果会破坏原始 FPS，从而伤害视频-动作对齐。</div>
+          </div>
+        </section>
+
+        <section id="sec6">
+          <h2>5. 实验</h2>
+
+          <h3>6.1 实验设置</h3>
+
+          <h4>数据集与平台</h4>
+          <table>
+            <tr>
+              <th>平台</th>
+              <th>数据</th>
+              <th>规模</th>
+              <th>主要特点</th>
+            </tr>
+            <tr>
+              <td>AgiBot G1</td>
+              <td>自采 teleoperation 数据</td>
+              <td>约 500 小时，7.2K episodes，22 个真实环境</td>
+              <td>强调整体异构性、长时序、多子任务；单 episode 平均 4.4 分钟、约 42 个 subtasks</td>
+            </tr>
+            <tr>
+              <td>DROID / Franka</td>
+              <td>DROID 公共数据</td>
+              <td>论文未在正文给总小时数，只强调其异构性高</td>
+              <td>用于证明 WAM 在公开多样化机器人数据上也有效，并支撑可复现性</td>
+            </tr>
+            <tr>
+              <td>跨 embodiment 数据</td>
+              <td>YAM 双臂机器人视频；人类第一视角视频</td>
+              <td>各 72 条轨迹；YAM 约 20 分钟，人类约 12 分钟</td>
+              <td>只用视频目标，不用动作标签，测试 video-only transfer 的可行性</td>
+            </tr>
+          </table>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/agibot_dc_envs.png" type="image/png">
+              <a href="figure/agibot_dc_envs.png">AgiBot environments PNG</a>
+            </object>
+            <div class="caption">Appendix Figure。数据采集环境分布图。作者的数据集不是实验室内 1-2 个场景，而是覆盖办公室、餐馆、超市、咖啡店、仓库、家庭、酒店等 22 个环境。<span class="appendix-ref">[附录 数据采集]</span></div>
+          </div>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/agibot_stats_1.png" type="image/png">
+              <a href="figure/agibot_stats_1.png">Episode duration PNG</a>
+            </object>
+            <div class="caption">Figure 5(a)。episode duration 分布。</div>
+          </div>
+          <div class="figure">
+            <object class="pdf-frame" data="figure/agibot_stats_2.png" type="image/png">
+              <a href="figure/agibot_stats_2.png">Subtask count PNG</a>
+            </object>
+            <div class="caption">Figure 5(b)。每个 episode 的子任务数分布。</div>
+          </div>
+          <div class="figure">
+            <object class="pdf-frame" data="figure/agibot_stats_3.png" type="image/png">
+              <a href="figure/agibot_stats_3.png">Skill distribution PNG</a>
+            </object>
+            <div class="caption">Figure 5(c)。技能覆盖分布。三张图合起来支撑了作者“我们不是在收集重复 demo，而是在收集真实长期、多技能 episode”的叙事。</div>
+          </div>
+
+          <h4>训练配置</h4>
+          <table>
+            <tr>
+              <th>设置</th>
+              <th>AgiBot 预训练</th>
+              <th>DROID 预训练</th>
+              <th>后训练</th>
+            </tr>
+            <tr>
+              <td>backbone</td>
+              <td colspan="2">Wan2.1-I2V-14B-480P</td>
+              <td>从预训练 DreamZero checkpoint 继续</td>
+            </tr>
+            <tr>
+              <td>steps</td>
+              <td>100K</td>
+              <td>100K</td>
+              <td>每下游任务 50K</td>
+            </tr>
+            <tr>
+              <td>global batch</td>
+              <td>128</td>
+              <td>128</td>
+              <td>正文未单列；继承同类训练配置</td>
+            </tr>
+            <tr>
+              <td>更新参数</td>
+              <td colspan="3">所有 DiT blocks + state/action encoders/decoder；冻结 text encoder、image encoder、VAE</td>
+            </tr>
+            <tr>
+              <td>动作表示</td>
+              <td colspan="3">默认使用 relative joint positions；过滤 idle actions</td>
+            </tr>
+          </table>
+
+          <h4>基线</h4>
+          <p>主要基线是两类 VLA：GR00T N1.6 和 π<sub>0.5</sub>。每个基线又分为两种初始化：</p>
+          <ul>
+            <li><strong>from-scratch</strong>：只拿预训练 VLM 权重，不使用机器人预训练 checkpoint，和 DreamZero 做“苹果对苹果”的比较。</li>
+            <li><strong>from-pretrained</strong>：使用官方机器人预训练权重，再在作者数据上继续训练。</li>
+          </ul>
+
+          <h4>评测协议</h4>
+          <ul>
+            <li><strong>AgiBot seen tasks</strong>：10 个 seen 任务，4 台机器人，每任务 8 次 rollout，共 80 次 / checkpoint；分成 PnP Easy、PnP Hard、Contact-Rich 三类。<span class="appendix-ref">[附录 AgiBot Eval]</span></li>
+            <li><strong>AgiBot unseen tasks</strong>：10 个训练分布外任务，如 untie shoelaces、ironing、painting、shake hands、pulling cart 等，同样 80 次 / checkpoint。<span class="appendix-ref">[附录 AgiBot Eval]</span></li>
+            <li><strong>DROID</strong>：20 个 seen 任务 + 20 个 unseen-verb 任务，每任务 2 次 rollout，总 80 次；指标同时看 task progress 和 success rate。<span class="appendix-ref">[附录 DROID Eval]</span></li>
+            <li><strong>后训练任务</strong>：shirt folding、fruit packing、table bussing；每任务 10 次 rollout，指标是 task progress。</li>
+          </ul>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/main_eval_setting.png" type="image/png">
+              <a href="figure/main_eval_setting.png">AgiBot evaluation PNG</a>
+            </object>
+            <div class="caption">Figure 6。AgiBot 评测场景示意。作者强调默认就是 unseen environment + unseen object，所以它们把评测定义成“真正的 OOD generalization”，不是训练分布内插值。</div>
+          </div>
+
+          <h4>附录中给出的任务清单</h4>
+          <table>
+            <tr>
+              <th>评测集</th>
+              <th>任务概览</th>
+            </tr>
+            <tr>
+              <td>AgiBot seen</td>
+              <td>PnP Fruit、Taking out Fruit、Wipe the Mess、PnP Fork/Spoon、Put Pen in Holder、Put Cup on Coaster、Stack Bowls/Cups、Folding Shirts、Folding Shorts、Stacking Clothes</td>
+            </tr>
+            <tr>
+              <td>AgiBot unseen</td>
+              <td>Untie Shoelaces、Remove/Put Hat、Draw Circle、Take out Straw、Cube Stacking、Painting、Ironing、Shake Hands、Folding (Map)、Pulling Cart</td>
+            </tr>
+            <tr>
+              <td>DROID seen</td>
+              <td>例如 put marker in box、remove gloves from drawer、put bread into toaster、push toaster lever、pick up apple and put in basket 等 20 个日常操作</td>
+            </tr>
+            <tr>
+              <td>DROID unseen verbs</td>
+              <td>Orient、Fan、Slice、Type、Extricate、Reveal、Match、Maneuver、Affix、Combine、Hook、Pinch、Withdraw、Cinch、Dispense、Bake、Fry、Depress、Elevate、Weave</td>
+            </tr>
+          </table>
+
+          <h3>6.2 主要结果</h3>
+
+          <h4>Q1：是否能从异构、非重复数据里学好策略？</h4>
+          <p>作者首先在 AgiBot seen 任务上看零样本环境泛化。核心结论是：DreamZero 的平均 task progress 达到 <strong>62.2%</strong>，而最佳 pretrained VLA baseline 只有 <strong>27.4%</strong>；from-scratch VLA 几乎接近零。作者把这个结果解释为：WAM 借助视频预测先验，不需要从稀疏状态-动作对应里硬学动力学，因此更能消化异构数据。</p>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/eval_bar_chart.png" type="image/png">
+              <a href="figure/eval_bar_chart.png">Seen task evaluation PNG</a>
+            </object>
+            <div class="caption">Figure 7。seen 任务柱状图。最强信息不是“DreamZero 比 baseline 高多少”，而是“from-scratch VLAs 基本学不出来”，说明作者采集的数据分布对 VLA 很不友好，但对 WAM 反而有效。</div>
+          </div>
+
+          <h4>Q2：是否能零样本泛化到未见任务？</h4>
+          <p>AgiBot unseen 任务上，DreamZero 平均达到 <strong>39.5%</strong> task progress，而 pretrained VLA baseline 是 <strong>16.3%</strong>，from-scratch VLA 低于 1%。作者特别提到 Remove Hat from Mannequin 有 85.7%，Shake Hands 有 59.2%。</p>
+          <p>DROID 设置下，DreamZero 也明显领先：<strong>49%</strong> task progress、<strong>22.5%</strong> success rate；GR00T N1.6 是 31% / 12.5%，π<sub>0.5</sub> 是 33% / 7.5%。这里作者强调的是 unseen verbs，也就是命令中的动词本身没有出现在训练集中。</p>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/unseen_success_rates.png" type="image/png">
+              <a href="figure/unseen_success_rates.png">Unseen tasks PNG</a>
+            </object>
+            <div class="caption">Figure 8。未见任务结果。作者把这一节作为全文最核心的结果之一：WAM 不只是泛化到新环境，而是开始对从未在机器人数据里出现的动作语义和物理技能产生非平凡零样本能力。</div>
+          </div>
+
+          <h4>Q3：task-specific post-training 后，泛化是否还能保留？</h4>
+          <p>作者在 shirt folding、fruit packing、table bussing 三个任务上做 post-training。论文没有在正文给出每个方法的精确数字表，但图中结论很明确：DreamZero 在三个任务上都至少匹配 VLA，fruit packing 上明显更好。作者用这组实验支撑“环境泛化在 task-specific post-training 后并没有消失”。</p>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/posttrain.png" type="image/png">
+              <a href="figure/posttrain.png">Posttraining PNG</a>
+            </object>
+            <div class="caption">Figure 9。后训练结果。最值得注意的是，作者并没有把后训练当作“分布内拟合”，而是依然在未见环境里测，所以这张图其实在问“预训练学到的环境泛化能力能不能 survive 微调”。</div>
+          </div>
+
+          <h4>Q4：video-only 跨 embodiment transfer 是否有用？</h4>
+          <table>
+            <tr>
+              <th>方法</th>
+              <th>平均 unseen-task progress</th>
+            </tr>
+            <tr><td>DreamZero</td><td>38.3% ± 7.6%</td></tr>
+            <tr><td>DreamZero + Human2Robot transfer</td><td>54.3% ± 10.4%</td></tr>
+            <tr class="highlight-row"><td>DreamZero + Robot2Robot transfer</td><td>55.4% ± 9.5%</td></tr>
+          </table>
+          <p>只加 10-20 分钟的 video-only 示范，就能把 unseen 任务平均进度从 38.3 拉到 54 左右，提升相对比例超过 42%。作者认为这是 WAM 的一个独特扩展方向：它可以用大量没有动作标签的人类视频继续提高 world model 的任务理解。</p>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/embodiment_transfer.png" type="image/png">
+              <a href="figure/embodiment_transfer.png">Cross embodiment transfer PNG</a>
+            </object>
+            <div class="caption">Figure 10。跨 embodiment 迁移。robot-to-robot 略优于 human-to-robot，作者给出的解释是 YAM 和 AgiBot 都是双臂平行夹爪，形态差距更小。</div>
+          </div>
+
+          <h4>Q5：few-shot 新 embodiment adaptation 是否可行？</h4>
+          <p>作者把 DreamZero-AgiBot checkpoint 用 <strong>约 30 分钟、55 条轨迹、11 个任务</strong> 的 YAM play data 做后训练，展示了在新双臂机器人上仍保留语言跟随和一定的零样本能力。这里结果主要是定性展示，没有像前几节那样给数值表，但这部分的论点是：如果动作学习主要是从未来视频反解动作，那么迁移到新 embodiment 时，模型只需要少量数据去校准“视觉未来到动作”的映射。</p>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/yam_transfer.png" type="image/png">
+              <a href="figure/yam_transfer.png">Few-shot embodiment adaptation PNG</a>
+            </object>
+            <div class="caption">Figure 11。few-shot 新 embodiment 适配的定性结果图。作者把它当成一个早期信号，说明 WAM 可能天然更适合 sample-efficient embodiment transfer。</div>
+          </div>
+
+          <h4>Q6：Flash 能否在少步去噪时保住性能？</h4>
+          <table>
+            <tr>
+              <th>方法</th>
+              <th>去噪步数</th>
+              <th>Task Progress</th>
+              <th>Inference Speed</th>
+              <th>加速比</th>
+            </tr>
+            <tr><td>DreamZero</td><td>4</td><td>83% ± 6.1%</td><td>350ms</td><td>1x</td></tr>
+            <tr><td>DreamZero</td><td>1</td><td>52% ± 10.2%</td><td>150ms</td><td>2.33x</td></tr>
+            <tr class="highlight-row"><td>DreamZero-Flash</td><td>1</td><td>74% ± 10.1%</td><td>150ms</td><td>2.33x</td></tr>
+          </table>
+          <p>这里的关键信息是：直接把 DreamZero 从 4 步压到 1 步，性能掉很多；而 Flash 训练能把 1-step 性能拉回大部分，从 52% 回到 74%。所以 Flash 的价值不只是更快，而是让“极少步数推理”成为一个可训练的工作点。</p>
+
+          <h3>6.3 消融实验</h3>
+          <table>
+            <tr>
+              <th>问题</th>
+              <th>设置</th>
+              <th>结果</th>
+              <th>作者结论</th>
+            </tr>
+            <tr>
+              <td>数据多样性</td>
+              <td>同样 500 小时，repetitive vs diverse</td>
+              <td>33% → 50%</td>
+              <td>对 WAM 来说，异构数据明显优于重复数据</td>
+            </tr>
+            <tr>
+              <td>模型规模</td>
+              <td>DreamZero 5B vs 14B</td>
+              <td>21% vs 50%</td>
+              <td>WAM 明显随视频 backbone 规模上升</td>
+            </tr>
+            <tr>
+              <td>VLA 扩大规模</td>
+              <td>VLA 5B / 14B</td>
+              <td>都约 0%</td>
+              <td>单纯加大 VLA 容量不能解决异构数据学习问题</td>
+            </tr>
+            <tr>
+              <td>架构</td>
+              <td>bidirectional vs autoregressive</td>
+              <td>task progress 都是 50%</td>
+              <td>AR 在平滑性和速度上更优，虽然最终进度接近</td>
+            </tr>
+          </table>
+          <p>这组消融非常直接地支撑了论文的三条方法论主张：<strong>数据必须多样、模型要大、自回归更适合闭环 WAM</strong>。</p>
+
+          <h3>6.4 补充实验与实时执行细节</h3>
+          <h4>实时执行速度来源</h4>
+          <table>
+            <tr>
+              <th>优化项</th>
+              <th>H100</th>
+              <th>GB200</th>
+            </tr>
+            <tr><td>Baseline</td><td>1x</td><td>1.1x</td></tr>
+            <tr><td>+ CFG Parallelism</td><td>1.9x</td><td>1.8x</td></tr>
+            <tr><td>+ DiT Caching</td><td>5.5x</td><td>5.4x</td></tr>
+            <tr><td>+ Torch Compile + CUDA Graphs</td><td>8.9x</td><td>10.9x</td></tr>
+            <tr><td>+ Kernel &amp; Scheduler Opts</td><td>9.6x</td><td>14.8x</td></tr>
+            <tr><td>+ Quantization (NVFP4)</td><td>不适用</td><td>16.6x</td></tr>
+            <tr class="highlight-row"><td>+ DreamZero-Flash</td><td>不适用</td><td>38x</td></tr>
+          </table>
+          <p>作者给出的整体延迟叙事是：naive 单 GPU DreamZero 需要约 <strong>5.7 秒 / action chunk</strong>，而在 GB200 上叠加所有优化后可以降到约 <strong>150ms / chunk</strong>，从而满足异步执行下的 7Hz 闭环控制。</p>
+
+          <div class="figure">
+            <object class="pdf-frame" data="figure/free_form.png" type="image/png">
+              <a href="figure/free_form.png">Free-form evaluation PNG</a>
+            </object>
+            <div class="caption">Figure 3。free-form prompt 的 qualitative 展示。作者用它来说明模型不只会 benchmark 里的 10 个 unseen tasks，而是还会在更多口头指令下做出非平凡行为。</div>
+          </div>
+        </section>
+
+        <section id="sec7">
+          <h2>6. 分析与讨论</h2>
+
+          <h3>7.1 论文原文已经给出的解释</h3>
+          <ul>
+            <li>作者把 DreamZero 的优势归因于“视频预测提供强先验”，而不是简单的模型更大。尤其在异构数据上，WAM 不需要像 VLA 那样从 noisy state-action pairs 里硬学动作规律。</li>
+            <li>作者反复强调：DreamZero 的动作和视频预测高度对齐，因此失败往往不是“动作 decoder 出错”，而是“视频计划先错了”。这也是为什么他们认为提升视频 backbone 能直接提升策略质量。</li>
+            <li>跨 embodiment transfer 的收益，被作者解释成“世界模型先学任务 dynamics，动作映射只需少量新 embodiment 数据去重新对齐”。</li>
+            <li>AR 和 bidirectional 在 task progress 上接近，但 AR 更平滑、更快。作者因此认为 WAM 的核心收益不仅是最终成功率，还包括视频-动作-语言对齐的工程可用性。</li>
+          </ul>
+
+          <h3>7.2 作者自述的局限性</h3>
+          <div class="panel warn-card">
+            <p><strong>限制 1：推理依然昂贵。</strong> 即便做完优化，DreamZero 也要 2 台 GB200 才能实现 7Hz；和能在消费级 GPU 上跑到 20Hz 以上的 VLA 相比，部署门槛仍高。</p>
+            <p><strong>限制 2：长时记忆仍短。</strong> 当前可用视觉上下文只有约 6.6 秒，离真正长时任务还远。</p>
+            <p><strong>限制 3：高精度任务仍难。</strong> 作者承认，像 key insertion、精细装配这类需要亚厘米精度的任务，对行为克隆类方法仍然困难。</p>
+            <p><strong>限制 4：规模定律尚不清楚。</strong> 论文只给了有限的 5B vs 14B 和 diverse vs repetitive 消融，还不足以支撑 WAM 的完整 scaling law。</p>
+          </div>
+
+          <h3>7.3 失败案例与适用边界</h3>
+          <div class="figure">
+            <object class="pdf-frame" data="figure/generated.png" type="image/png">
+              <a href="figure/generated.png">Failure case PNG</a>
+            </object>
+            <div class="caption">Appendix Figure。失败案例：AgiBot 画白板时视频先预测成“左右手交接笔”，执行就照着交接；DROID 烤面包时视频先计划成“先抓面包再开烤箱”，执行也忠实照做。作者用这张图证明 WAM 失败多数来自 visual planning 错误，而不是 action extractor 乱动。</div>
+          </div>
+
+          <ul>
+            <li>DreamZero 现在最强的边界是：<strong>开放环境、未见动作、跨 embodiment</strong>。这是论文真正想证明的主战场。</li>
+            <li>它不是显式规划器，不做 test-time MPC / MPPI；它依赖的是联合视频-动作生成本身带来的隐式视觉规划。</li>
+            <li>few-shot embodiment adaptation 的结果仍然主要是定性，说明这个方向有潜力，但还不是完全成熟的量化结论。</li>
+            <li>作者特别指出，若未来能接入更大规模 egocentric human video，WAM 的上限可能远高于当前实验所示，因为视频数据规模天然远大于动作标注机器人数据。</li>
+          </ul>
+
+        </section>
+</article>
+  </div>
+</main>
+</body>
+</html>

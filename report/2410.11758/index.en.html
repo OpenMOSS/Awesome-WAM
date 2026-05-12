@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Latent Action Pretraining From Videos - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Latent Action Pretraining From Videos</h1>
+<div class="meta">
+<p><strong>arXiv: </strong> 2410.11758v2</p>
+<p><strong>Publication: </strong> ICLR 2025 conference paper</p>
+<p><strong>Authors: </strong> Seonghyeon Ye, Joel Jang, Byeongguk Jeon, Sejune Joo, Jianwei Yang, Baolin Peng, Ajay Mandlekar, Reuben Tan, Yu-Wei Chao, Yuchen Lin, Lars Liden, Kimin Lee, Jianfeng Gao, Luke Zettlemoyer, Dieter Fox, Minjoon Seo</p>
+<p><strong>Affiliations: </strong> KAIST, University of Washington, Microsoft Research, NVIDIA, Allen Institute for AI</p>
+<p><strong>Project page: </strong> <a href="https://latentactionpretraining.github.io/">latentactionpretraining.github.io</a></p>
+<p><strong>Report positioning: </strong> A Reading Report prepared for junior PhD group meetings, covering the main text, appendices A-G, main tables and images.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Research questions and motivations</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#repro">6. reproducibility Key Points</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+ This paper proposes <strong>Latent Action Pretraining, LAPA</strong>: First learn discrete latent actions from videos without robot action labels, then train VLA to predict these latent actions, and finally use a small amount of real robot action data to map latent actions to executable actions. Its core goal is to enable basic robot models to take advantage of Internet-scale video without being stuck with expensive human teleoperation action tags.
+ </div>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>Existing VLA pre-training usually relies on robot action labels, which require human teleoperation to collect and are difficult to scale. Internet videos and human-operated videos are huge, but there are no robot action labels, and the distribution is different from the robot embodiment/environment. What the paper wants to solve is: how to learn action priors useful for robot strategies from videos without using ground-truth robot action labels.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>The gripper "tokenizes" the action. The first stage trains a VQ-VAE style latent action quantization model to learn the discrete latent action \(z_t\) from the current frame \(x_t\) and the future frame \(x_{t+H}\). The second stage uses these \(z_t\) as pseudo labels to let VLM predict latent actions based on current observations and language instructions. In the third stage, only small-scale action-labeled robot trajectories are used for action finetuning, and latent actions are migrated to real 7-DoF end-effector delta actions.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>In real desktop operations, the total success rate of LAPA (Open-X) is 50.09%, which is higher than the 43.87% of OpenVLA (Open-X). The paper summarizes the improvement as +6.22% relative to OpenVLA; at the same time, LAPA pre-training only uses 8×H100 for 34 hours of training, about 272 H100-hours, while OpenVLA is about 21, 500 A100-hours. LAPA also shows that pre-training using only Something-Something V2 human operation videos can also achieve positive transfer, and the average performance on real robots exceeds OpenVLA (Bridge).</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The focus is not on "pre-training VLA with video" itself, but on whether the latent action truly becomes a shared action representation across embodiments and environments. When reading, you should keep an eye on three things: whether the tokens learned by the quantitative model are semantically interpretable; whether latent pretraining is more stable than baselines without action labels such as VPT/UniPi; and finally, whether a small amount of action finetuning is enough to fill the gap from latent action to real robot action, especially fine-grained grasping.</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img alt="Problem formulation" src="figures/x1.png"/>
+<figcaption>Figure 1. Problem setting: Large-scale robot data has action labels but is expensive. Internet/human videos are large-scale but do not have robot action labels and there is a human-to-robot gap. The goal of LAPA is to pre-train a basic robot model on videos without action labels.</figcaption>
+</figure>
+<div class="grid">
+<div class="audit-card">
+<h3>Contribution in one sentence</h3>
+<p>LAPA uses discrete latent actions to turn videos without action labels into action pseudo-labels that can be trained on VLA, thus integrating Internet/human videos into robot strategy pre-training.</p>
+</div>
+<div class="audit-card">
+<h3>keywords</h3>
+<p>
+<span class="pill">Vision-Language-Action</span>
+<span class="pill">Latent Action</span>
+<span class="pill">VQ-VAE</span>
+<span class="pill">Actionless Video Pretraining</span>
+<span class="pill">Cross-Embodiment Transfer</span>
+</p>
+</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Research questions and motivations</h2>
+<h3>2.1 Why action labels are the bottleneck of VLA</h3>
+<p>VLA models usually connect the VLM with the action head and are trained on real robot trajectories. The problem is that robot action labels come from remote operations, which have high acquisition costs, strong hardware dependence, and limited data scale. Models such as OpenVLA have proven the value of action-labeled robot data, but they are still limited by the data source "must have robot actions".</p>
+<p>In contrast, Internet videos and videos of human actions contain a large number of physical interactions and task behaviors. They do not have robot end-effector action, joint position, or torque tags, and the embodiment is different from robots. The basic judgment of LAPA is: if discrete action tokens can be learned from pure visual changes, these videos can be turned into VLA pre-training data.</p>
+<h3>2.2 Why not just create world model or IDM directly?</h3>
+<p>The video world model route can generate future frames, and then use the inverse dynamics model to rotate the action, but the paper believes that this method is susceptible to diffusion planning and IDM errors in long horizon and precise 7-DoF actions. The VPT route relies on action-labeled data to train IDM, and then pseudo-labels the video; this makes IDM unstable across environments. The difference between LAPA is that latent action quantization does not require real action labels and directly learns discrete action representations from the changes between two visual states.</p>
+<h3>2.3 The core hypothesis of the paper</h3>
+<p>The core assumption is that visible state changes in different embodiments and environments can be expressed through a shared latent action space. This space is not necessarily equivalent to real robot movements, but it is enough to carry coarse-grained behavioral priors such as "visual changes related to left, downward, approaching, and grabbing". Subsequently, a small amount of labeled robot data is used to align this prior to the action space of the specific robot.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<h3>3.1 Vision-Language-Action models</h3>
+<p>VLAs such as RT-2 and OpenVLA unify vision, language and actions in one model, which can be generalized to new instructions and new objects, but still rely on action-labeled robot trajectories. The difference between this article and these works lies in the pre-training stage: LAPA tries not to use real action labels and only uses a small number of labeled trajectories in the final action finetuning.</p>
+<h3>3.2 Training robot policies from videos</h3>
+<p>Existing work will learn visual representations from egocentric human videos, generate future trajectories from video generation models, or obtain robot motions from human motion retargeting. They often encounter problems such as task-specific, requiring hand pose estimation/alignment environment, or being unable to stably convert to low-level actions. LAPA is more like adding a discrete latent action bottleneck between "label-free video" and "VLA action prediction".</p>
+<h3>3.3 Latent actions</h3>
+<p>Work such as GENIE maps user input or actions to latent actions, making generative models interactive. This article draws on this direction, but the key difference is: LAPA's latent action is learned directly from observed changes and is not converted from ground-truth action; it is then used as an action token for VLA, rather than just serving video games or interactive environment generation.</p>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall process</h3>
+<p>Latent Action Pretraining consists of two sequentially learned models and a fine-tuning stage: </p>
+<ol>
+<li><strong>Latent Action Quantization. </strong>Train an encoder-decoder to learn the discrete latent action \(z_t\) using \(x_t\) and \(x_{t+H}\).</li>
+<li><strong>Latent Pretraining. </strong>Use the quantized model encoder to give latent action pseudo-labels to videos without action labels, and train VLM to predict \(z_t\) from the current image and language instructions.</li>
+<li><strong>Action Finetuning. </strong>Throw away the latent action head, replace it with a real action head, and learn an executable end-effector delta action with a small number of robot action labels.</li>
+</ol>
+<figure>
+<img alt="Overview of Latent Action Pretraining" src="figures/x2.png"/>
+<figcaption>Figure 2. Overview of LAPA: First unsupervised learning of discrete latent actions, then letting VLM do latent action behavior cloning, and finally using small-scale action label data to fine-tune to the real robot action space.</figcaption>
+</figure>
+<h3>4.2 Latent Action Quantization</h3>
+<p>The quantization model inputs the current frame \(x_t\) and the future frame \(x_{t+H}\), and outputs latent action \(z_t\). The Encoder looks at two frames at the same time and uses spatial transformer and temporal/causal transformer to obtain continuous embedding; the Decoder inputs \(x_t\) and \(z_t\) and reconstructs \(x_{t+H}\). Intuitively, \(z_t\) is forced to encode an "action change" from a current observation to a future observation.</p>
+<p>The paper is based on the VQ-VAE objective and discretizes continuous differential embedding into the codebook. Appendix A gives a more specific form: two frames of patch embedding, then spatial transformer, and then causal transformer to get \(e_1, e_2\), let \(d_1=e_2-e_1\), and select the nearest codebook token: </p>
+<div class="formula-block">
+ $$z_1=\arg\min_{z_k}\|d_1-z_k\|_2$$
+ </div>
+<p>In order to avoid the common codebook / representation collapse in VQ-VAE, the author uses NSVQ and applies stop gradient to the current frame patch embedding \(p_1\) in the decoder. Decoder uses cross attention to let the quantized action represent the attend current frame: </p>
+<div class="formula-block">
+ $$\hat{x}_2=D(\mathrm{Attn}(\mathrm{sg}[p_1], \tilde{d}_1, \tilde{d}_1)), \qquad
+ L=\|x_2-\hat{x}_2\|_2^2$$
+ </div>
+<p>The paper also shows that it is easier to capture semantically meaningful latent actions using cross attention empirically than with GENIE-style additive embedding.</p>
+<figure>
+<img alt="Latent action quantization architecture" src="figures/x12.png"/>
+<figcaption>Figure 8. The latent action quantization model architecture of Appendix A: C-ViViT style encoder-decoder, extracts discrete latent actions from two frames, and reconstructs future frames through the decoder.</figcaption>
+</figure>
+<h3>4.3 Latent Pretraining</h3>
+<p>After training the quantized model, use its encoder as the inverse dynamics model: given \(x_t\) and future frames, mark the latent action \(z_t\). Then train the pre-trained VLM, input the current image \(x_t\) and video language instructions, and predict \(z_t\). Here a separate latent action head, an MLP, is used to output the token distribution on the codebook vocabulary \(|C|\).</p>
+<p>In the default training settings, the vision encoder is frozen and the language model is unfrozen. This design allows pre-training to not rely on any robot action labels, nor does it require preset action granularity, such as end-effector position, joint position or torque; the action granularity is determined by the observed changes themselves.</p>
+<h3>4.4 Action Finetuning</h3>
+<p>The latent action is not a directly executable robot action, so in the end a small number of labeled trajectories are needed. The author discretizes each dimension of the continuous robot action into equal-frequency bins to perform action token prediction similar to RT-2/OpenVLA. During fine-tuning, the latent action head is discarded and the real action head is re-initialized; the vision encoder is still frozen and the language model is unfrozen.</p>
+<p>The author also tried to retain the latent action head and add additional heads to decode the real action, but the effect was not as good as reinitializing the action head. The paper speculates that the reason may be that the underlying policy model is very large, and it is easier to directly fine-tune the new action head to adapt to the real robot action space.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<p>The paper was evaluated on 2 simulation environments and 3 real robot tasks, covering a total of 9 types of tasks. Core questions include: whether cross-task, cross-environment, and cross-embodiment transfer; whether LAPA is more suitable for multiple embodiments than ground-truth action pretraining; whether using only human manipulation videos is also effective.</p>
+<table>
+<thead>
+<tr>
+<th>environment</th>
+<th>Category</th>
+<th>Pre-training data</th>
+<th>Pre-trained trajectories</th>
+<th>Fine-tuning data</th>
+<th>Fine-tune the trajectory</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>LangTable</td><td>In-domain</td><td>Sim 5 tasks</td><td>181k</td><td>5 tasks, MT/MI</td><td>1k</td></tr>
+<tr><td>LangTable</td><td>Cross-task</td><td>Sim 5 tasks</td><td>181k</td><td>1 task, MI</td><td>7k</td></tr>
+<tr><td>LangTable</td><td>Cross-env</td><td>Real 5 tasks</td><td>442k</td><td>5 tasks, MT/MI</td><td>1k</td></tr>
+<tr><td>SIMPLER</td><td>In-domain</td><td>Bridgev2</td><td>60k</td><td>4 tasks, MT</td><td>100</td></tr>
+<tr><td>SIMPLER</td><td>Cross-emb</td><td>Something v2</td><td>200k</td><td>4 tasks, MT</td><td>100</td></tr>
+<tr><td>Real-world</td><td>Cross-emb</td><td>Bridgev2</td><td>60k</td><td>3 tasks, MI</td><td>450</td></tr>
+<tr><td>Real-world</td><td>Multi-emb</td><td>Open-X</td><td>970k</td><td>3 tasks, MI</td><td>450</td></tr>
+<tr><td>Real-world</td><td>Cross-emb</td><td>Something v2</td><td>200k</td><td>3 tasks, MI</td><td>450</td></tr>
+</tbody>
+</table>
+<div class="figgrid">
+<figure>
+<img alt="Language Table setup" src="figures/x13.png"/>
+<figcaption>Figure 9(a). Language Table setup: 2-DoF push block simulation, evaluating seen/unseen objects and combinations.</figcaption>
+</figure>
+<figure>
+<img alt="SIMPLER setup" src="figures/x14.png"/>
+<figcaption>Figure 9(b). SIMPLER setup: 7-DoF WidowX simulation task, the author additionally screened 100 successful trajectories for fine-tuning.</figcaption>
+</figure>
+</div>
+<figure>
+<img alt="Real-world setup" src="figures/x15.png"/>
+<figcaption>Figure 9(c). Real desktop operation setup: Franka Emika Panda, three types of multi-instruction tasks, a total of 54 real robot rollouts per model.</figcaption>
+</figure>
+<h3>5.2 Baselines</h3>
+<p>The underlying VLM uses the 7B Large World Model (LWM-Chat-1M). The main baselines include: SCRATCH, which is only fine-tuned on downstream tasks; UNIPI, which uses a video diffusion model to generate video rollouts and then uses IDM to convert actions; VPT, which uses action-labeled data to train IDM and then gives pseudo actions to the original video; ACTIONVLA, which is pre-trained with ground-truth robot action labels and can be regarded as having a label upper bound; OpenVLA, which currently has a 7B VLA baseline.</p>
+<p><span class="appendix-ref">[Appendix C]</span> The UNIPI diffusion model is trained with batch 128, and is re-planned every two steps during inference; VPT's IDM is ResNet18 + MLP, trained on a single A6000 with Adam and learning rate \(10^{-4}\); OpenVLA fine-tuning defaults to LoRA, batch size 32, until the action accuracy reaches 95%. ACTIONVLA and LAPA use batch size 128 and use image augmentation when fine-tuning the real robot.</p>
+<h3>5.3 Language Table results</h3>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>In-domain Seen</th>
+<th>In-domain Unseen</th>
+<th>Cross-task Seen</th>
+<th>Cross-task Unseen</th>
+<th>Cross-env Seen</th>
+<th>Cross-env Unseen</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>SCRATCH</td><td>15.6 ± 9.2</td><td>15.2 ± 8.3</td><td>27.2 ± 13.6</td><td>22.4 ± 11.0</td><td>15.6 ± 9.2</td><td>15.2 ± 8.3</td></tr>
+<tr><td>UNIPI</td><td>22.0 ± 12.5</td><td>13.2 ± 7.7</td><td>20.8 ± 12.0</td><td>16.0 ± 9.1</td><td>13.6 ± 8.6</td><td>12.0 ± 7.5</td></tr>
+<tr><td>VPT</td><td>44.0 ± 7.5</td><td>32.8 ± 4.6</td><td>72.0 ± 6.8</td><td>60.8 ± 6.6</td><td>18.0 ± 7.7</td><td>18.4 ± 9.7</td></tr>
+<tr><td>LAPA</td><td><strong>62.0 ± 8.7</strong></td><td><strong>49.6 ± 9.5</strong></td><td><strong>73.2 ± 6.8</strong></td><td>54.8 ± 9.1</td><td><strong>33.6 ± 12.7</strong></td><td><strong>29.6 ± 12.0</strong></td></tr>
+<tr><td>ACTIONVLA</td><td>77.0 ± 3.5</td><td>58.8 ± 6.6</td><td>77.0 ± 3.5</td><td>58.8 ± 6.6</td><td>64.8 ± 5.2</td><td>54.0 ± 7.0</td></tr>
+</tbody>
+</table>
+<p>Reading of this table: LAPA does not use action labels for pre-training, but it significantly exceeds SCRATCH, UNIPI and VPT. The advantages are obvious in in-domain and cross-env; VPT is slightly higher in cross-task unseen. The author explains that VPT uses more labeled data to train IDM, and the pseudo labels may be more accurate. ACTIONVLA is pre-trained with real action labels, so it is still a strong upper bound, especially cross-env.</p>
+<h3>5.4 Real robot results</h3>
+<figure>
+<img alt="Real-world tabletop manipulation results" src="figures/x3.png"/>
+<figcaption>Figure 3. Average success rate of real desktop operations. The task covers unseen object combinations, unseen objects, and unseen instructions, for a total of 54 rollouts/model.</figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>Seen Obj. Unseen Combo</th>
+<th>Unseen Obj.</th>
+<th>Seen Obj. Unseen Instr.</th>
+<th>AVG</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>SCRATCH</td><td>18.0</td><td>20.3</td><td>25.4</td><td>21.2</td></tr>
+<tr><td>ACTIONVLA (Bridge)</td><td>38.3</td><td>31.8</td><td>27.7</td><td>32.6</td></tr>
+<tr><td>OPENVLA (Bridge)</td><td>35.6</td><td>34.6</td><td>22.1</td><td>30.8</td></tr>
+<tr><td>LAPA (Bridge)</td><td>43.4</td><td>31.4</td><td>35.6</td><td>36.8</td></tr>
+<tr><td>OPENVLA (Open-X)</td><td>46.2</td><td>42.1</td><td>43.4</td><td>43.9</td></tr>
+<tr><td>LAPA (Open-X)</td><td><strong>57.8</strong></td><td><strong>43.9</strong></td><td><strong>48.5</strong></td><td><strong>50.1</strong></td></tr>
+<tr><td>LAPA (Human Videos)</td><td>36.5</td><td>37.4</td><td>28.1</td><td>34.0</td></tr>
+</tbody>
+</table>
+<p>The most critical comparison is LAPA(Open-X) vs OpenVLA(Open-X): LAPA is higher on all three generalization settings, AVG 50.1 vs 43.9. The summary table in Appendix G.3 gives a more precise total success rate of 50.09% vs 43.87%. The author also pointed out that LAPA is inferior to OpenVLA in pick-and-place, and the main failure comes from early grasping; however, LAPA's reaching success is higher than OpenVLA, indicating that its language conditions and coarse-grained planning are stronger, and fine-grained grasping still needs to be improved.</p>
+<figure>
+<img alt="Real-world tabletop examples" src="figures/x16.png"/>
+<figcaption>Figure 10. Examples of real desktop operations: Knock object down, Cover object with towel, Pick up object and put it in sink, covering seen/unseen objects.</figcaption>
+</figure>
+<h3>5.5 Human manipulation videos</h3>
+<p>The authors test the extreme embodiment gap using 220k human operation videos from Something-Something V2. Because human videos do not have robot action labels, ACTIONVLA is not trainable; LAPA can still learn latent actions from visual changes.</p>
+<div class="figgrid">
+<figure>
+<img alt="Human video pretraining SIMPLER" src="figures/x4.png"/>
+<figcaption>Figure 4(a). Results of Human video pretraining on SIMPLER. LAPA outperforms SCRATCH, UNIPI and VPT.</figcaption>
+</figure>
+<figure>
+<img alt="Human video pretraining real robot" src="figures/x5.png"/>
+<figcaption>Figure 4(b). Results of Human video pretraining on real robots. LAPA(Human Videos) outperforms OpenVLA(Bridge) on average.</figcaption>
+</figure>
+</div>
+<p><span class="appendix-ref">[Appendix G.2]</span> In the SIMPLER human-video table, Success AVG: VPT 45.8, UNIPI 0.7, LAPA 52.1, LAPA(10%) 50.0; Moving AVG: VPT 66.6, UNIPI 27.1, LAPA 72.9, LAPA(10%) 62.5. This supports the claim that "human videos can also be positively migrated", but it also shows that 10% of the data is already very close to complete data, and a more systematic scaling law is needed in the future.</p>
+<h3>5.6 SIMPLER and efficiency</h3>
+<p><span class="appendix-ref">[Appendix G.2]</span> The SIMPLER table of Bridgev2 pretraining shows that Success AVG: SCRATCH 34.4, UNIPI 1.3, VPT 51.0, LAPA 57.3, ACTIONVLA 63.5, OpenVLA 36.4. LAPA significantly outperforms the baseline without action labels and is close to ACTIONVLA using full Bridgev2 action labels.</p>
+<p>In terms of efficiency, LAPA (Open-X) uses 8 H100s to train for 34 hours, batch size 128, totaling about 272 H100-hours; OpenVLA requires about 21, 500 A100-hours, batch size 2048. Based on this, the author believes that LAPA pre-training is about 30-40 times more efficient, while the real robot results are still better than OpenVLA.</p>
+<h3>5.7 Scaling and latent action analysis</h3>
+<p>Ablation shows that LAPA improves with increasing model size, data volume, and latent action space. The paper points out that in the main experiment, except for the Language Table, the generation space of LAPA is maintained at \(8^4\). For a visually simple Language Table, increasing vocabulary is more effective than increasing sequence length; for more complex operations, both sequence length and vocab may need to be expanded with the action dimension.</p>
+<div class="figgrid">
+<figure>
+<img alt="Model scaling" src="figures/x6.png"/>
+<figcaption>Figure 5(a). Latent action quantization model size scaling. </figcaption>
+</figure>
+<figure>
+<img alt="Data scaling" src="figures/x7.png"/>
+<figcaption>Figure 5(b). Bridgev2 data scaling.</figcaption>
+</figure>
+<figure>
+<img alt="Latent action length" src="figures/x8.png"/>
+<figcaption>Figure 5(c). Latent action sequence length scaling. </figcaption>
+</figure>
+<figure>
+<img alt="Latent action vocab" src="figures/x9.png"/>
+<figcaption>Figure 5(d). Latent action vocabulary scaling. </figcaption>
+</figure>
+</div>
+<figure>
+<img alt="Latent action semantic analysis" src="figures/x10.png"/>
+<figcaption>Figure 6. Latent action analysis on Open-X multiple embodiments: The same latent action corresponds to similar semantic actions in different embodiments/environments, such as down, left, or up.</figcaption>
+</figure>
+<figure>
+<img alt="Closed loop rollout" src="figures/x11.png"/>
+<figcaption>Figure 7. Closed-loop rollout: LAPA predicts latent actions without action finetuning, and then the quantization model decoder generates future frames, demonstrating its potential as a coarse-grained world model / neural simulator.</figcaption>
+</figure>
+<h3>5.8 Appendix Supplementary Charts</h3>
+<div class="figgrid">
+<figure>
+<img alt="Pairwise win rate without ties" src="figures/extracted_6441904_figures_pair_test2.png"/>
+<figcaption>Figure 11(a). LAPA(Open-X) vs OpenVLA(Open-X) pairwise win rate, excluding ties, LAPA's win rate is 65.4%.</figcaption>
+</figure>
+<figure>
+<img alt="Pairwise win rate with ties" src="figures/extracted_6441904_figures_pair_test1.png"/>
+<figcaption>Figure 11(b). When ties are included, LAPA wins 31.5%, OpenVLA wins 16.7%, and ties 51.9%.</figcaption>
+</figure>
+<figure>
+<img alt="Language Table latent actions" src="figures/x17.png"/>
+<figcaption>Figure 12. Language Table latent action Semantics: 0-7 respectively correspond to actions such as forward left, back left, back right, right move, and motionless.</figcaption>
+</figure>
+<figure>
+<img alt="Latent action map" src="figures/extracted_6441904_figures_langtable_analysis_map.png"/>
+<figcaption>Figure 13. Clustering relationship between latent actions and ground-truth 2-DoF actions.</figcaption>
+</figure>
+<figure>
+<img alt="Human video latent actions" src="figures/x18.png"/>
+<figcaption>Figure 14. The latent action in Human manipulation videos not only captures hand movements, but also captures camera perspective movements.</figcaption>
+</figure>
+<figure>
+<img alt="UNIPI failure case" src="figures/x23.png"/>
+<figcaption>Figure 17. UNIPI success/failure cases: short tasks may generate correct plans, long horizon instructions may generate incorrect plans.</figcaption>
+</figure>
+</div>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Latent action quantization</h3>
+<p><span class="appendix-ref">[Appendix A]</span> The quantitative model uses a C-ViViT style architecture to reproduce GENIE's latent action model. Input two frames of \(x_1, x_2\), obtain \(e_1, e_2\) through patch embedding, spatial transformer, and causal transformer, and then perform codebook nearest neighbor quantization on \(d_1=e_2-e_1\). The decoder only contains the spatial transformer and uses cross attention and stop-gradient embedding of the current frame to reconstruct future frames.</p>
+<p>Window size \(H\) is set according to video fps: robot operation videos default to future frames about 0.6 seconds after the current frame; human manipulation videos are set to about 2.4 seconds due to slower inter-frame dynamics. Appendix F shows the default \(H=3\) on Bridgev2, and the performance decreases if the window is too large.</p>
+<h3>6.2 Pretraining / finetuning configuration</h3>
+<ul>
+<li><strong>Backbone: </strong> 7B LWM-Chat-1M. </li>
+<li><strong>Latent pretraining: </strong> Freeze the vision encoder, unfreeze the language model, and add latent action MLP head.</li>
+<li><strong>Action finetuning: </strong> Discard the latent head and re-initialize the action head; each dimension of the continuous action is discretized according to equal frequency bins.</li>
+<li><strong>LAPA(Open-X) pre-training: </strong> 8×H100, 34 hours, batch size 128, about 272 H100-hours.</li>
+<li><strong>OpenVLA comparison: </strong> About 21, 500 A100-hours, batch size 2048.</li>
+<li><strong>Real robot fine-tuning: </strong> ACTIONVLA and LAPA use batch size 128 and use image augmentation.</li>
+</ul>
+<h3>6.3 Evaluation protocol</h3>
+<p><span class="appendix-ref">[Appendix B]</span> Language Table evaluates 50 rollouts per subtask category, for a total of 250 rollouts/model/table across 5 categories of tasks. SIMPLER evaluates 24 rollouts per task, randomizing initial object positions. The real robot has 3 categories of evaluation capabilities for each task: seen objects unseen combinations, unseen objects, and seen objects unseen instructions; 6 rollouts per category, totaling 54 rollouts/model for the 3 tasks.</p>
+<p>The real robot part uses partial success: knocking reaches the correct object and gives 0.5, knocking down gives 1; covering picks up the towel 0.33, contact/partial coverage 0.66, complete coverage 1; pick-and-place reaches 0.25, grabs 0.5, moves to the sink direction 0.75, and puts into the sink 1.</p>
+<h3>6.4 Recurrence risk list</h3>
+<ul>
+<li><strong>arXiv source code restrictions: </strong> This local source code package has only one PDF image source, and the report images are mainly downloaded from the arXiv HTML rendering; it is recommended to cross-check with PDF/HTML when reproducing the charts.</li>
+<li><strong>latent action space hyperparameters: </strong> Sequence length, vocab size, and window \(H\) will affect the action granularity; the optimal values are different in different environments.</li>
+<li><strong>Human video annotation: </strong> LAPA requires video language instructions or descriptions; when web videos scale, video text quality will affect latent pretraining.</li>
+<li><strong>Real robot variance: </strong> 54 rollouts/model is not large. The paper uses pairwise win rate to supplement statistics. However, the real robot evaluation may still be affected by the initial position, object attributes, and grasp difficulty.</li>
+<li><strong>Fine-grained actions: </strong> Grasping is the main shortcoming of LAPA. A small amount of finetuning data may not be enough to learn grasping related to the physical properties of objects.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is turning "videos without action labels" into action pre-training signals that can be consumed by VLA. Rather than just learning visual representations or generating future videos, LAPA explicitly learns discrete latent action tokens and connects them to the action prediction training goal of monolithic VLA. This makes it possible for Internet videos, human operation videos, and multi-embodiment robot videos to enter the same pre-training paradigm.</p>
+<p>The second value point is that the evidence chain covers cross-task, cross-environment, cross-embodiment and human-to-robot scenarios. The paper not only compares the unlabeled pre-training baseline in Language Table / SIMPLER, but also compares it with OpenVLA on real robots, and analyzes the relationship between pre-training task distribution and downstream tasks. This makes the claim that "latent action is a shared action space" not just based on method intuition.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results are relatively tenable, first of all because the baseline design is relatively targeted: SCRATCH measures no pre-training, UNIPI measures video generative planning, VPT measures IDM pseudo-labels, ACTIONVLA measures the upper bound of real action labels, and OpenVLA measures existing VLA. LAPA achieves stable improvements over multiple no-action label baselines and outperforms OpenVLA in real robot Open-X settings.</p>
+<p>Secondly, the appendix adds a lot of decomposition evidence: Language Table detailed table for each type of task, SIMPLER success/grasping/moving decomposition, real robot three-type ability decomposition, pairwise win rate, latent action semantic visualization and scaling ablation. Together, these evidences suggest that improvements in LAPA are not a single-table coincidence, but result from interpretable latent action representations and data scale/action space expansion.</p>
+<h3>7.3 Clear limitations of the paper</h3>
+<ul>
+<li><strong>Insufficient fine-grained actions: </strong> LAPA is not as good as action-labeled pretraining in fine-grained motion generation such as grasping. The author believes that expanding the latent action generation space may be helpful.</li>
+<li><strong>Real-time inference latency: </strong> Similar to other VLAs, LAPA also suffers from real-time inference latency issues. The author recommends using hierarchical architecture in the future to allow the small head to predict actions at high frequency.</li>
+<li><strong>The scope of application is still narrow: </strong> Although latent action captures camera movements, the paper has not explored non-manipulation videos such as autonomous driving, navigation, and landscape videos.</li>
+</ul>
+<h3>7.4 Additional boundaries and questionable points</h3>
+<ul>
+<li><strong>latent action is not isomorphic to real control: </strong> It learns from visual changes, possibly mixing camera motion, object motion, and robot motion; this is useful for human videos, but can also make real-life motion decoding harder.</li>
+<li><strong>A small amount of action finetuning is still not possible: </strong> LAPA reduces the dependence on action labels, but does not completely eliminate the need for real robot action data.</li>
+<li><strong>Task distribution is important: </strong> Appendix D shows that Sthv2 has more knocking/covering related trajectories, and Bridgev2 has more pick-and-place; whether the pre-training data contains similar skills still strongly affects the downstream.</li>
+<li><strong>The world model capability is still a qualitative demonstration: </strong> Figure 7 shows a latent decoder closed-loop rollout, but this is not yet a strict interactive physics simulation evaluation.</li>
+</ul>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: Both LAPA and VPT use pseudo action tags, what is the difference?</h3>
+<p>VPT first uses action-labeled data to train IDM, and then uses IDM to add pseudo actions to the video; therefore, IDM quality and environment migration are critical. LAPA's latent action quantization does not require real action labels and directly learns discrete tokens from the changes between two visual states, so it is more suitable for actionless videos and cross-embodiment data.</p>
+<h3>Q2: Can latent action be executed directly?</h3>
+<p>No. The latent action is a visual change token, not the end-effector delta action. LAPA must go through action finetuning, using a small number of trajectories with real action labels to map the pre-training prior to the specific robot action space.</p>
+<h3>Q3: Why might LAPA be more suitable for many embodiments than action-labeled pretraining?</h3>
+<p>Real action labels have different coordinates, joints, control frequencies and action spaces in different robots, and direct mixing may introduce representation mismatch. LAPA learns to observe changing latent tokens, which are shared across datasets more like language/image representations, and therefore have positive migration in Open-X multi-embodiment settings.</p>
+<h3>Q4: What is the strongest quantitative evidence in the paper?</h3>
+<p>The total success rate of real robots: LAPA (Open-X) 50.09%, OpenVLA (Open-X) 43.87%; at the same time, LAPA pre-training is about 272 H100-hours, OpenVLA is about 21, 500 A100-hours. This result supports both performance and efficiency claims.</p>
+<h3>Q5: What is the most questionable aspect?</h3>
+<p>Mainly fine-grained actions and real robot statistics. LAPA is still weaker than OpenVLA in pick-and-place grasping, indicating that the coarse-grained prior of latent action is not equal to precise control; the 54 rollouts/model of real robots are still limited, and more tasks and larger-scale real evaluations are needed to confirm generalization.</p>
+</section>
+</main>
+</body>
+</html>

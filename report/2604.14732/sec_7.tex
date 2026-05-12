@@ -1,0 +1,151 @@
+
+\label{sec:theory}
+\paragraph{Action-Space Planning and the Curse of Feasibility.} 
+Long-horizon decision making in VLA tasks
+poses a fundamental challenge for planning-based methods.
+
+An intuitive idea of model-based planning seems to be to sample candidate action sequences and generalize them through a dynamic process.
+However, as the planning horizon increases,
+this approach quickly becomes ineffective.
+The reason is not merely that the action space is high-dimensional,
+but that the set of feasible trajectories occupies
+an increasingly negligible fraction of the ambient trajectory space.
+
+Formally, a horizon-$H$ trajectory resides in the space
+$\mathcal{X} = \mathcal{S}^H \times \mathcal{A}^H$,
+whose dimensionality grows linearly with $H$.
+In VLA settings, visual constraints (e.g., scene geometry and object states), physical dynamics (e.g., contact and kinematics), and task-level semantic requirements (e.g., instruction grounding) jointly restrict valid behaviors to a thin manifold
+$\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$
+with substantially lower intrinsic dimension.
+Lemma~\ref{lem:vanishing_mass_main} formalizes the consequence of this mismatch: under uniform exploration in trajectory space, the probability of sampling even approximately feasible trajectories decays exponentially with the planning horizon.
+This result reveals a fundamental limitation of direct action-space search in VLA systems: the vast majority of sampled trajectories are infeasible by construction, irrespective of the planner’s sophistication or the fidelity of the underlying models.
+
+\begin{lemma}[Vanishing Feasible Mass in Trajectory Space]
+\label{lem:vanishing_mass_main}
+Let $\mathcal{X} = \mathcal{S}^H \times \mathcal{A}^H$ be a bounded trajectory space
+with ambient dimension
+$
+D = H(\dim \mathcal{S} + \dim \mathcal{A}),
+$
+equipped with a reference measure $\mu$.
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ be a compact subset
+with intrinsic dimension $d \ll D$.
+Then, for any fixed tolerance $\epsilon \in (0,1)$,
+there exists a constant $c > 0$ such that
+\begin{equation}
+
+\frac{\mu\big(\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}})\big)}{\mu(\mathcal{X})}
+\le \exp(-cH),
+\end{equation}
+where $\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}})$ denotes the $\epsilon$-neighborhood
+of $\mathcal{M}_{\mathrm{traj}}$.
+\end{lemma}
+
+\paragraph{Latent Planning as Probability Mass Reweighting.}
+
+Latent planning alleviates the feasibility bottleneck in VLA tasks by reshaping the sampling distribution over trajectories.
+Rather than sampling directly in the ambient action space, it samples a latent variable and decodes it into a full trajectory via a learned generative model.
+When this generator captures the manifold of perceptually grounded and executable behaviors, latent sampling induces a distribution that concentrates probability mass on trajectories consistent with scene geometry, task semantics, and action affordances.
+Proposition~\ref{prop:latent_reweighting_main} shows that, compared to uniform action-space sampling, this leads to exponentially higher probability of feasible trajectories as the horizon grows.
+This advantage arises not from dimensionality reduction, but from reweighting the search toward dynamically and semantically valid regions, effectively acting as a probabilistic projection onto the feasible trajectory manifold.
+
+\begin{proposition}[Latent Reweighting of the Search Distribution]
+\label{prop:latent_reweighting_main}
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ denote the feasible trajectory set.
+Consider a latent generator
+$\mathcal{W}_\theta : \mathbb{R}^{d_z} \to \mathcal{X}$
+and a state-conditioned latent distribution $f_\theta(s_t)$.
+Assume that the learned model approximately parameterizes feasible trajectories
+in the sense that there exists $\delta \in (0,1)$ such that
+$
+\textstyle
+P_{\mathrm{latent}}(\mathcal{M}_{\mathrm{traj}})
+=
+\Pr_{z \sim f_\theta(s_t)}
+\big[
+\mathcal{W}_\theta(z) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+\ge 1 - \delta .
+$
+Let $\Phi : \mathcal{A}^H \to \mathcal{X}$ denote the trajectory rollout map
+induced by the system dynamics.
+Then the ratio of feasible-trajectory probabilities satisfies
+\begin{equation}
+
+\frac{
+\Pr_{z \sim f_\theta(s_t)}
+\big[
+\mathcal{W}_\theta(z) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+}{
+\Pr_{a_{t:t+H} \sim \mathrm{Unif}(\mathcal{A}^H)}
+\big[
+\Phi(a_{t:t+H}) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+}
+\ge
+\exp(cH)\,(1-\delta).
+\end{equation}
+
+Consequently, latent planning assigns exponentially larger probability mass
+to feasible trajectories relative to direct action-space sampling
+as the horizon grows.
+\end{proposition}
+
+\paragraph{Why Feasibility Is Not Enough.}
+While Proposition~\ref{prop:latent_reweighting} explains why latent planning avoids the exponential infeasibility of direct action-space search in VLA tasks, feasibility alone is insufficient for high-quality decision making.
+The feasible set $\mathcal{M}_{\mathrm{traj}}$ still contains trajectories with widely varying task returns, from minimally valid behaviors to those that correctly satisfy language intent under visual constraints.
+Thus, merely assigning non-vanishing probability mass to perceptually grounded and executable trajectories does not ensure that high-value solutions will be found with a practical number of samples.
+Corollary~\ref{cor:iterative_inference_main} formalizes this limitation by showing that one-shot latent sampling fails under any subexponential sample budget.
+Instead, effective VLA planning requires iterative inference that progressively concentrates probability mass within the feasible set toward trajectories that are both semantically aligned and high-value.
+
+\begin{corollary}[Necessity of Iterative Latent Planning]
+\label{cor:iterative_inference_main}
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ denote the feasible trajectory set,
+and let
+$
+V(\tau)
+=
+\sum_{h=0}^{H-1} \gamma^h r(s_{t+h}, a_{t+h})
+$
+denote the cumulative discounted return of a trajectory $\tau$,
+where $r$ is a bounded per-step reward and $\gamma \in (0,1]$.
+Let
+$\mathcal{W}_\theta : \mathbb{R}^{d_z} \to \mathcal{X}$
+be a learned latent trajectory generator inducing the distribution
+$P_{\mathrm{latent}} = (\mathcal{W}_\theta)_\# f_\theta$.
+Assume that
+$
+P_{\mathrm{latent}}(\mathcal{M}_{\mathrm{traj}}) \ge 1 - \delta
+\quad \text{for some } \delta \in (0,1).
+$
+Then, for any fixed sample budget $N$ that grows subexponentially with
+the planning horizon $H$, one-shot sampling from $P_{\mathrm{latent}}$
+does not, in general, guarantee with high probability
+the discovery of a near-optimal trajectory.
+Iterative inference procedures that adaptively reweight
+the latent distribution are therefore necessary
+to concentrate probability mass on high-value feasible trajectories.
+\end{corollary}
+
+Taken together, these results motivate the structure of proposed WAV model.
+Latent planning resolves the feasibility bottleneck
+by reshaping the search distribution,
+while iterative inference resolves the remaining optimization challenge
+within the feasible manifold.
+Therefore, we first construct a modular end-to-end model architecture, and then explicitly combine these two components on this basis, thereby enabling efficient long-horizon planning in complex VLA tasks, as shown in Fig.~\ref{fig:pipline}.
+The theoretical analysis details are given in Appendix Sec.~\ref{appendix:latent_planning}.
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/vla_mpc_overview_1.png}
+\caption{
+
+The proposed WAV model decomposes planning and control into three tightly coupled components: 
+\textbf{1)} a language-conditioned video generation module for predicting future visual trajectories; 
+\textbf{2)} a trajectory value module for long-horizon evaluation; 
+and \textbf{3)} an action module for generating executable robot actions. 
+Together, these components enable implicit planning in latent space, where action generation arises from inference over predicted futures guided by trajectory value.
+}
+  \label{fig:pipline}
+\end{figure*}
+

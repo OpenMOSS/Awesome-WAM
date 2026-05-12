@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoVAR - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+    <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>CoVAR: Co-generation of Video and Action for Robotic Manipulation via Multi-Modal Diffusion</h1>
+
+  <div class="meta">
+    <p><strong>arXiv ID：</strong>2512.16023</p>
+    <p><strong>作者：</strong>Liudi Yang, Yang Bai, George Eskandar, Fengyi Shen, Mohammad Altillawi, Dong Chen, Ziyuan Liu, Abhinav Valada</p>
+    <p><strong>机构：</strong>University of Freiburg; Ludwig Maximilian University of Munich; MCML; Technical University of Munich; Huawei Heisenberg Research Center (Munich)</p>
+    <p><strong>提交时间：</strong>2025-12-17</p>
+    <p><strong>来源：</strong><a href="https://arxiv.org/abs/2512.16023">arXiv abs</a> · <a href="https://arxiv.org/pdf/2512.16023">PDF</a> · 本地 LaTeX 源码解析</p>
+    <p><strong>代码/项目页：</strong>在 arXiv 页面和 LaTeX 源码中未发现官方公开代码或项目主页链接。</p>
+  </div>
+
+</header>
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 阅读定位与组会导读</a></li>
+      <li><a href="#sec2">2. 问题背景：为什么视频生成还不等于机器人策略</a></li>
+      <li><a href="#sec3">3. 方法拆解：Multi-modal Rectified Flow + 双 DiT + Bridge Attention</a></li>
+      <li><a href="#sec4">4. 实验与结果：视频质量、动作成功率和消融</a></li>
+      <li><a href="#sec5">5. 图表精读</a></li>
+      <li><a href="#sec6">6. 可复现清单与实现细节</a></li>
+      <li><a href="#sec7">7. 批判性讨论与组会问题</a></li>
+    </ul>
+  </nav>
+<div class="tldr">
+    <strong>一句话总结：</strong>CoVAR 把预训练视频扩散模型 OpenSora-1.2 扩展成“视频 + 动作”的联合生成器：保留视频 DiT 主干，再并联一个 Action DiT，并用 Bridge Attention 让两种模态交换信息；它的目标不是只生成好看的未来视频，而是生成能直接驱动机器人执行的动作序列。
+  </div>
+
+  
+
+  <section id="sec1">
+    <h2>1. 阅读定位与组会导读</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>导读项</th>
+          <th>这篇论文回答什么</th>
+          <th>读的时候重点盯哪里</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>研究对象</strong></td>
+          <td>给定初始图像、机器人初始关节状态和语言指令，同时生成未来视频与逐帧动作。</td>
+          <td>它不是传统 VLA 的直接动作回归，而是把动作当成与视频共同生成的模态。</td>
+        </tr>
+        <tr>
+          <td><strong>核心假设</strong></td>
+          <td>预训练视频扩散模型已经拥有有用的视觉动态先验，动作分支应当利用但不能破坏这个先验。</td>
+          <td>看双分支设计和 Bridge Attention 是否真的比单一 joint DiT 更合理。</td>
+        </tr>
+        <tr>
+          <td><strong>主要贡献</strong></td>
+          <td>并联 Action DiT、Bridge Attention、低分辨率场景下的 Action Refinement Model。</td>
+          <td>把“架构新意”和“实验增益”分开判断：哪个模块真正被消融支持？</td>
+        </tr>
+        <tr>
+          <td><strong>潜在影响</strong></td>
+          <td>为 action-free video 数据进入机器人策略学习提供一种路线：先学视频世界，再补动作生成。</td>
+          <td>注意它当前仍依赖专家动作数据训练联合模型，还没有证明大规模无动作视频可直接带来策略提升。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="bluebox">
+      <strong>组会推荐读法：</strong>先读 Fig. 1/2 理清“二阶段、单 joint model、CoVAR”的结构差异，再读 Eq. (1)(2)(3) 和 Tab. IV 的消融。不要先纠结视频扩散细节；这篇的关键判断是“如何在保留视频先验的同时让动作分支受益”。
+    </div>
+
+    <p>
+      这篇论文位于 embodied video diffusion / world model / robot policy learning 的交叉点。它面对的典型矛盾是：视频扩散模型可以从大量无动作标签的视频中学习视觉动态，但机器人策略需要动作；如果先生成视频再用 inverse dynamics 推动作，视频误差会传递到动作，且当机械臂或末端执行器不可见时动作推断会变弱；如果直接把视频和动作塞进一个 joint DiT，又可能牺牲已经学好的视频生成能力。
+    </p>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 问题背景：为什么视频生成还不等于机器人策略</h2>
+
+    <h3>2.1 二阶段方法的问题</h3>
+    <p>
+      二阶段方法通常先根据初始观测和语言目标生成未来视频，再训练 inverse dynamics 或策略网络把视频计划转为动作。这个思路直观，但有两个瓶颈：
+    </p>
+    <ol>
+      <li><strong>误差级联：</strong>视频里物体位置、手爪姿态或接触时刻略有偏差，后续动作回归就会放大这些偏差。</li>
+      <li><strong>可见性依赖：</strong>若视频中机器人本体被遮挡、裁剪，或者相机视角不足，单靠视觉变化很难还原真实关节控制。</li>
+    </ol>
+
+    <h3>2.2 早期融合 joint model 的问题</h3>
+    <p>
+      另一类方法把视频 token 和动作 token 拼接到同一个 DiT 里共同去噪。好处是信息共享直接，坏处是模态差异很大：视频是高维时空视觉 latent，动作是低维连续控制向量。论文认为，在专家演示数据有限时，让一个统一 DiT 同时适配两种模态，可能会干扰预训练视频模型的视觉知识。
+    </p>
+
+    <h3>2.3 CoVAR 的中间路线</h3>
+    <p>
+      CoVAR 的折中是“双分支 + 受控通信”：视频分支沿用预训练 OpenSora-1.2 的 video DiT，动作分支新增一个 Action DiT；两者不是完全隔离，而是在每个需要交互的位置通过 Bridge Attention 交换信息。这样既避免纯二阶段的后验动作推断，又避免单一 joint DiT 对视频先验的过度改写。
+    </p>
+
+    <div class="figure">
+      <img src="figures/teaser.png" alt="Architectural comparison">
+      <div class="caption">图 1：论文对二阶段模型、joint model 与 CoVAR 的结构对比。CoVAR 的关键是并联 Action DiT，同时让动作分支通过 Bridge Attention 访问视频分支的信息。</div>
+    </div>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 方法拆解：Multi-modal Rectified Flow + 双 DiT + Bridge Attention</h2>
+
+    <h3>3.1 输入输出定义</h3>
+    <p>
+      模型输入包括初始观测图像 $v_0 \in \mathbb{R}^{3 \times H \times W}$、初始机器人关节状态 $a_0 \in \mathbb{R}^{L}$ 和语言指令 $c$。输出是未来视频 $v \in \mathbb{R}^{T \times 3 \times H \times W}$ 以及配对动作序列 $a \in \mathbb{R}^{T \times L}$。这里的动作不是从生成视频后再推断，而是在扩散/flow 过程中与视频共同生成。
+    </p>
+
+    <table class="symbol-table">
+      <tbody>
+        <tr><td>$v_0$</td><td>初始 RGB 观测图像。</td></tr>
+        <tr><td>$a_0$</td><td>初始关节状态，维度为 $L$。</td></tr>
+        <tr><td>$c$</td><td>自然语言任务指令。</td></tr>
+        <tr><td>$v$</td><td>生成的未来视频序列，长度为 $T$。</td></tr>
+        <tr><td>$a$</td><td>生成的动作序列，与视频帧时间对齐。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 Multi-modal Rectified Flow</h3>
+    <p>
+      论文采用 rectified flow 来建模联合模态的生成路径。设联合数据样本为
+      $X_0=(x_0^1,x_0^2)\sim \Pi_{data}$，其中 $x_0^1$ 是视频 latent，$x_0^2$ 是动作。噪声端为
+      $X_1=(x_1^1,x_1^2)\sim(\mathcal{N}(0,I_{d_1}),\mathcal{N}(0,I_{d_2}))$。
+      线性路径对应的 ODE 是：
+    </p>
+
+    <div class="formula-block">
+      $$\frac{dX_t}{dt}=X_1-X_0,\quad t\in[0,1].$$
+      <p class="intuition">直觉：</p>
+      <p>rectified flow 希望学习一个从数据到噪声，或采样时从噪声回到数据的“直线路径速度场”。多模态版本只是把视频 latent 和动作一起作为联合状态。</p>
+    </div>
+
+    <p>
+      神经网络 $v_\theta=(v_\theta^1,v_\theta^2)$ 预测两个模态的向量场，训练损失为：
+    </p>
+
+    <div class="formula-block">
+      $$L=\|x_1^1-x_0^1-v_\theta^1\|_2+\|x_1^2-x_0^2-v_\theta^2\|_2.$$
+      <p class="intuition">阅读提醒：</p>
+      <p>论文公式里直接把两个模态的误差相加，没有展开说明两个模态的权重、归一化、时间采样是否完全共享。若要复现，这是一个需要从代码中确认的细节，但当前未发现官方代码链接。</p>
+    </div>
+
+    <h3>3.3 模型架构：保留视频主干，并联 Action DiT</h3>
+    <p>
+      CoVAR 建在 OpenSora-1.2 之上。视频分支保留预训练视频 diffusion backbone；动作分支使用一个并联的 Action DiT。动作数据维度较低，所以作者没有为动作训练 VAE，而是用轻量 MLP encoder 得到 action embeddings。Action DiT 也通过 cross-attention 接收文本指令 $c$，形成与 Video DiT 对称的条件生成结构。
+    </p>
+
+    <div class="figure">
+      <img src="figures/method_compress.png" alt="CoVAR overview">
+      <div class="caption">图 2：CoVAR 总览。(A) 预训练视频 DiT + 并联 Action DiT；(B) Bridge Attention 负责跨模态通信；(C) 低分辨率数据集上使用 Action Refinement Module。</div>
+    </div>
+
+    <h3>3.4 Bridge Attention</h3>
+    <p>
+      Bridge Attention 的目标是让两种模态交互，但保留各自的表示空间。设视频特征为
+      $f_v \in \mathbb{R}^{B\times N_v\times C}$，动作特征为
+      $f_a \in \mathbb{R}^{B\times N_a\times C}$。不同于标准 self-attention 使用同一组 Q/K/V 投影处理拼接 token，Bridge Attention 为视频和动作分别参数化 query、key、value：
+    </p>
+
+    <div class="formula-block">
+      $$
+      \begin{bmatrix}f_v\\f_a\end{bmatrix}
+      =
+      \mathrm{Attention}\left(
+      \begin{bmatrix}q_1 f_v\\q_2 f_a\end{bmatrix},
+      \begin{bmatrix}k_1 f_v\\k_2 f_a\end{bmatrix},
+      \begin{bmatrix}v_1 f_v\\v_2 f_a\end{bmatrix}
+      \right).
+      $$
+      <p class="intuition">直觉：</p>
+      <p>它像是在“各自翻译成自己的 Q/K/V 语言后再开会”。模态内部的投影保持独立，但注意力矩阵仍然允许视频 token 与动作 token 相互读取。</p>
+    </div>
+
+    <p>
+      论文把它和两种替代通信方式比较：一种是直接 self-attention 拼接所有 token，另一种是 bidirectional cross-attention。消融显示 Bridge Attention 在视频质量和真实任务成功率上都更好。
+    </p>
+
+    <h3>3.5 Action decoder 与 Action Refinement</h3>
+    <p>
+      作者强调 action decoder 对动作精度和训练收敛很关键。CoVAR 用 UNet 作为动作解码器，而不是常见 MLP 或 ResNet。论文的解释是 UNet 的多尺度处理更适合捕捉时间动作序列中的层级运动结构。
+    </p>
+
+    <p>
+      对 Libero90 这类低分辨率数据集，论文额外使用 Action Refinement Model。原始 CoVAR 先产生 coarse actions，再由 refinement module 接收粗动作、初始图像 token 和文本条件，把粗动作变成更精细的控制。这个模块在 Libero90 上非常关键：没有 refinement 时成功率明显低于完整模型。
+    </p>
+
+    <div class="figure">
+      <img src="figures/action_refinement_compress.png" alt="Action refinement rollout">
+      <div class="caption">图 3：Action refinement 的可视化。没有 refinement 时动作只捕捉大趋势；加入 refinement 后轨迹更适合完成精细抓取和放置。</div>
+    </div>
+
+    <h3>3.6 训练/推理伪代码</h3>
+    <pre class="pseudocode"><code>训练阶段：
+for each demo (v0, a0, instruction c, future video v, action sequence a):
+    encode video into video latent x0_video
+    encode action into action embedding x0_action
+    sample Gaussian noise x1_video, x1_action
+    sample time t
+    interpolate joint state Xt between X0 and X1
+    Video DiT predicts video flow with text/image conditions
+    Action DiT predicts action flow with text/joint-state conditions
+    Bridge Attention exchanges video/action information
+    optimize video flow loss + action flow loss
+
+推理阶段：
+given current observation, current joint state, instruction:
+    initialize video/action noise
+    integrate learned rectified flow for 30 sampling steps
+    decode video frames and actions
+    if low-resolution setting: refine coarse actions
+    interpolate generated 35-frame open-loop actions to 100 Hz robot control</code></pre>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 实验与结果：视频质量、动作成功率和消融</h2>
+
+    <h3>4.1 数据集与训练设置</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>数据集</th>
+          <th>规模/特点</th>
+          <th>CoVAR 设置</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CALVIN</td>
+          <td>约 20k 个 teleoperated demonstrations，带文本指令，视频分辨率 200×200。</td>
+          <td>训练设置 ABCD，随机生成 200 个 novel test scenes 做 rollout。</td>
+        </tr>
+        <tr>
+          <td>Libero90</td>
+          <td>90 个任务，每个任务 50 条专家演示，视频分辨率 128×128。</td>
+          <td>使用 action refinement；refinement model 用 450 个 video-action pairs 微调。</td>
+        </tr>
+        <tr>
+          <td>Real dataset</td>
+          <td>作者自采 1K 条演示，包含碗堆叠、螺母/螺丝/木榫拾取放置等。</td>
+          <td>分辨率 180×320；UR5 平台；每 35 帧生成一次 video-action pair。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      模型总参数量约 1.4B，其中视频扩散部分 1.1B，新增模块 0.3B。训练约 1 天，使用 4 张 GPU。真实机器人推理时，rectified flow sampling step 设为 30，一段 35 帧 video-action pair 生成耗时约 4 秒；机器人控制频率为 100 Hz，所以需要对生成的 open-loop 动作序列做插值。
+    </p>
+
+    <h3>4.2 视频质量</h3>
+    <p>
+      视频质量用 PSNR、SSIM、LPIPS 和 FVD 衡量。CoVAR 在 CALVIN 与 Libero90 上相对 UVA、PAD、UWM 这些 joint-model baselines 全面占优，并且接近纯视频模型 OpenSora-1.2。这一点支持作者的核心主张：加入动作模态后，没有显著破坏预训练视频模型的视频生成能力。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>数据集</th>
+          <th>方法</th>
+          <th>PSNR ↑</th>
+          <th>SSIM ↑</th>
+          <th>LPIPS ↓</th>
+          <th>FVD ↓</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="5">CALVIN</td><td>UVA</td><td>19.01</td><td>0.758</td><td>0.180</td><td>97.90</td></tr>
+        <tr><td>PAD</td><td>18.72</td><td>0.734</td><td>0.174</td><td>83.40</td></tr>
+        <tr><td>UWM</td><td>18.04</td><td>0.730</td><td>0.181</td><td>85.85</td></tr>
+        <tr><td>OpenSora</td><td>19.60</td><td><strong>0.768</strong></td><td>0.171</td><td><strong>61.00</strong></td></tr>
+        <tr><td><strong>CoVAR</strong></td><td><strong>19.95</strong></td><td>0.766</td><td><strong>0.156</strong></td><td>72.42</td></tr>
+        <tr><td rowspan="5">Libero90</td><td>UVA</td><td>19.57</td><td>0.716</td><td>0.154</td><td>86.21</td></tr>
+        <tr><td>PAD</td><td>19.65</td><td>0.781</td><td>0.218</td><td>98.39</td></tr>
+        <tr><td>UWM</td><td>19.87</td><td>0.735</td><td>0.212</td><td>87.83</td></tr>
+        <tr><td>OpenSora</td><td><strong>20.18</strong></td><td>0.817</td><td>0.156</td><td><strong>63.33</strong></td></tr>
+        <tr><td><strong>CoVAR</strong></td><td>20.09</td><td><strong>0.826</strong></td><td><strong>0.143</strong></td><td>70.64</td></tr>
+      </tbody>
+    </table>
+
+    <div class="figure">
+      <img src="figures/video_comparison_compress.png" alt="Generated video comparison">
+      <div class="caption">图 4：生成视频质量对比。作者声称 CoVAR 相比 joint-model baselines 产生更少伪影，并保持较好的机器人和物体一致性。</div>
+    </div>
+
+    <h3>4.3 动作成功率</h3>
+    <p>
+      动作评估更能体现论文价值。CALVIN 上，CoVAR 在 drawer、cabinet、light、pick、push 五类任务上均优于 UVA/UWM/PAD/Unipi。Libero90 上，完整 CoVAR 明显好于无 refinement 版本，说明 refinement 不是装饰模块，而是低分辨率场景成功率的核心来源之一。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>CALVIN 方法</th>
+          <th>Drawer</th>
+          <th>Cabinet</th>
+          <th>Light</th>
+          <th>Pick</th>
+          <th>Push</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>UVA</td><td>0.875</td><td>0.667</td><td>0.711</td><td>0.758</td><td>0.785</td></tr>
+        <tr><td>UWM</td><td>0.813</td><td>0.733</td><td>0.644</td><td>0.576</td><td>0.714</td></tr>
+        <tr><td>PAD</td><td>0.781</td><td>0.467</td><td>0.489</td><td>0.485</td><td>0.642</td></tr>
+        <tr><td>Unipi</td><td>0.469</td><td>0.267</td><td>0.289</td><td>0.182</td><td>0.452</td></tr>
+        <tr><td><strong>CoVAR</strong></td><td><strong>1.000</strong></td><td><strong>0.800</strong></td><td><strong>0.867</strong></td><td><strong>0.909</strong></td><td><strong>0.929</strong></td></tr>
+      </tbody>
+    </table>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>Libero90 方法</th>
+          <th>Pick-and-place</th>
+          <th>Open/Close</th>
+          <th>Combination</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>UVA</td><td>0.676</td><td>0.640</td><td>0.489</td></tr>
+        <tr><td>UWM</td><td>0.606</td><td>0.600</td><td>0.400</td></tr>
+        <tr><td>PAD</td><td>0.625</td><td>0.480</td><td>0.355</td></tr>
+        <tr><td>CoVAR w/o refinement</td><td>0.592</td><td>0.520</td><td>0.422</td></tr>
+        <tr><td><strong>CoVAR</strong></td><td><strong>0.873</strong></td><td><strong>0.860</strong></td><td><strong>0.711</strong></td></tr>
+      </tbody>
+    </table>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>Real 方法</th>
+          <th>Nut</th>
+          <th>Screw</th>
+          <th>Dowel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Unipi</td><td>0.00</td><td>0.06</td><td>0.02</td></tr>
+        <tr><td>RoboEnvision</td><td>0.04</td><td>0.10</td><td>0.12</td></tr>
+        <tr><td><strong>CoVAR</strong></td><td><strong>0.64</strong></td><td><strong>0.74</strong></td><td><strong>0.70</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="figure">
+      <img src="figures/video_rollout_compress.png" alt="Real-world generated videos and rollouts">
+      <div class="caption">图 5：真实机器人实验中的生成视频与 rollout。论文用连续 pick-and-place 说明视频和动作对齐可以落到物理执行上。</div>
+    </div>
+
+    <h3>4.4 消融实验</h3>
+    <p>
+      消融在作者自采真实数据集上进行。Bridge Attention、UNet action head、视频分支都对结果有明显贡献。尤其是移除视频分支后，动作成功率降到 0.08，说明动作分支并不只是从语言和初始图像直接学策略，而强烈依赖视频分支提供的动态信息和预训练先验。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>变体</th>
+          <th>PSNR ↑</th>
+          <th>SSIM ↑</th>
+          <th>LPIPS ↓</th>
+          <th>FVD ↓</th>
+          <th>Success ↑</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>w/o BA (SA)</td><td>16.83</td><td>0.693</td><td>0.255</td><td>137.66</td><td>0.32</td></tr>
+        <tr><td>w/o BA (CA)</td><td>16.56</td><td>0.645</td><td>0.263</td><td>145.26</td><td>0.20</td></tr>
+        <tr><td>w/o UNet</td><td>16.85</td><td>0.690</td><td>0.255</td><td>141.62</td><td>0.24</td></tr>
+        <tr><td>w/o video</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.08</td></tr>
+        <tr><td><strong>CoVAR</strong></td><td><strong>17.67</strong></td><td><strong>0.736</strong></td><td><strong>0.238</strong></td><td><strong>133.89</strong></td><td><strong>0.68</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="figure">
+      <img src="figures/ablation_compress.png" alt="Ablation qualitative results">
+      <div class="caption">图 6：消融可视化。红线为真实动作，蓝线为生成动作；w/o BA 中还展示了不同注意力替代方案的轨迹差异。</div>
+    </div>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 图表精读</h2>
+
+    <h3>5.1 Fig. 1：论文真正想说的不是“联合生成”本身</h3>
+    <p>
+      Fig. 1 的三栏对比非常关键。二阶段模型的问题是视频和动作之间没有端到端对齐；joint model 的问题是所有模态在同一个 DiT 中过早混合；CoVAR 的主张是“动作需要视频先验，但不应该吞掉视频主干”。因此，论文的技术中心不是又提出一个 multi-modal diffusion，而是提出一种针对机器人视频/动作这种非对称模态的通信结构。
+    </p>
+
+    <h3>5.2 Fig. 2：Action DiT 的定位</h3>
+    <p>
+      Action DiT 不是一个小的 inverse dynamics head。它参与 rectified flow 去噪，和视频分支一起生成完整 action sequence。动作分支可以看文本，也可以通过 Bridge Attention 读视频分支信息。这个定位解释了为什么 w/o video 成功率极低：视频分支不只是输出可视化结果，还承担了动态先验的中间表征角色。
+    </p>
+
+    <h3>5.3 Fig. 7：视频-动作轨迹对齐</h3>
+    <div class="figure">
+      <img src="figures/video_trajectory_compress.png" alt="Video-action trajectory visualization">
+      <div class="caption">图 7：生成视频-动作对。图中用红线标注 ground truth，蓝线标注生成动作，展示不同数据集和平台上的轨迹匹配。</div>
+    </div>
+    <p>
+      这张图最适合在组会中用来讨论“视频质量指标”和“动作可执行性”之间的关系。视频看起来合理并不自动意味着动作可执行；CoVAR 的优势在于它让动作生成直接受视频动态建模约束，而不只是事后从视频估计动作。
+    </p>
+
+    <h3>5.4 表格读法：不要只看粗体</h3>
+    <p>
+      视频质量表中，CoVAR 并不总是压过 OpenSora，尤其 FVD 上 OpenSora 更好。这其实是合理的：OpenSora 是纯视频生成模型，CoVAR 额外承担动作生成。论文真正需要证明的是：CoVAR 比 joint baselines 视频更好，同时动作成功率也更高。按这个标准，结果是支持主张的。
+    </p>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 可复现清单与实现细节</h2>
+
+    <h3>6.1 从论文可直接抽出的复现参数</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>论文给出的设置</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>基础代码/模型</td><td>OpenSora-1.2 codebase；视频扩散部分约 1.1B 参数。</td></tr>
+        <tr><td>新增模块</td><td>约 0.3B 参数，包括 Action DiT、Bridge Attention 相关参数、UNet action decoder/refinement 等。</td></tr>
+        <tr><td>总参数量</td><td>约 1.4B。</td></tr>
+        <tr><td>训练帧数</td><td>每条数据采样 35 帧。</td></tr>
+        <tr><td>训练资源</td><td>约 1 天，4 张 GPU。</td></tr>
+        <tr><td>真实数据分辨率</td><td>180×320，用于更快收敛和推理。</td></tr>
+        <tr><td>真实机器人推理</td><td>35 帧 video-action pair；rectified flow sampling step = 30；每段约 4 秒。</td></tr>
+        <tr><td>控制执行</td><td>UR5 平台；机器人 100 Hz 控制，对 open-loop 动作序列插值。</td></tr>
+        <tr><td>Libero90 refinement</td><td>用 450 个 video-action pairs 微调 action refinement model。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>6.2 仍需代码确认的细节</h3>
+    <ul>
+      <li>视频 latent 的具体 VAE/patch/token 形状，以及 Action DiT 的 depth、width、attention 插入位置。</li>
+      <li>视频 loss 和动作 loss 是否做尺度归一化，是否存在额外权重。</li>
+      <li>两个模态是否共享同一个时间步 $t$ 和噪声调度；论文直觉上应当共享，但公式未详细展开。</li>
+      <li>UNet action decoder 的具体输入排列：动作 token 是按时间维做 1D/2D 结构，还是映射成类似 feature map。</li>
+      <li>Action refinement 的训练目标、学习率、输入 coarse action 是否 detach，以及推理时是否总是启用。</li>
+      <li>真实机器人实验中每个任务的 trial 数量和失败统计口径。</li>
+    </ul>
+
+    <div class="warn">
+      <strong>复现风险：</strong>论文给出了高层结构和主要训练设置，但缺少可执行级别的超参数表。若没有官方代码，复现难点会集中在 OpenSora-1.2 的改造、Bridge Attention 插入层、动作 token 化、以及 real robot action normalization 四处。
+    </div>
+
+    <h3>6.3 与已有路线的关系</h3>
+    <p>
+      CoVAR 和 UVA/UWM/PAD 都属于“视频与动作联合建模”阵营，但它更强调复用预训练视频扩散模型。和 Unipi/RoboEnvision 这类二阶段方法相比，它避免把动作学习完全交给后验 inverse dynamics。可以把它理解为 embodied diffusion 里的一个架构选择：视频分支保留强视觉先验，动作分支以独立 DiT 学控制，再通过受控 attention 建立耦合。
+    </p>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 批判性讨论与组会问题</h2>
+
+    <h3>7.1 论文的强点</h3>
+    <ul>
+      <li><strong>问题切得准：</strong>视频扩散与机器人策略之间的 action label 缺口是真问题。</li>
+      <li><strong>架构动机清楚：</strong>并联 Action DiT 比“把动作硬塞进视频 DiT”更符合视频/动作非对称模态的特点。</li>
+      <li><strong>消融有支撑：</strong>Bridge Attention、UNet decoder、视频分支都通过 ablation 体现了贡献。</li>
+      <li><strong>真实实验有说服力：</strong>真实小物体操作成功率比二阶段 baseline 高很多，说明动作精度不是只在仿真里有效。</li>
+    </ul>
+
+    <h3>7.2 需要保持谨慎的点</h3>
+    <ul>
+      <li><strong>对大规模 action-free video 的利用尚未完整证明：</strong>论文动机说 CoVAR 有助于利用大规模视频数据，但实验主要仍是有动作演示的数据集。</li>
+      <li><strong>推理速度偏慢：</strong>真实机器人每段 35 帧生成约 4 秒，适合 open-loop chunking，但离高频闭环控制还有距离。</li>
+      <li><strong>Action refinement 的泛化边界不清楚：</strong>Libero90 上提升很大，但它本身用 450 对 video-action 数据微调，是否能迁移到更复杂真实场景仍需验证。</li>
+      <li><strong>缺少 3D 几何：</strong>作者也承认当前只使用 monocular videos，空间几何理解受限。</li>
+      <li><strong>真实数据规模较小：</strong>1K demos 足以展示 proof-of-concept，但还不足以说明大规模真实操作的鲁棒性。</li>
+    </ul>
+
+    <h3>7.3 组会讨论题 1：Bridge Attention 的收益来自哪里？</h3>
+    <div class="card">
+      <p>
+        可以让大家比较三种信息交换方式：直接 self-attention、bidirectional cross-attention、Bridge Attention。关键问题是：Bridge Attention 的提升到底来自“模态特定 Q/K/V 投影”，还是来自更大的参数量和更好的初始化路径？如果要进一步证明，理想实验应控制参数量，把 self-attention baseline 做成同等规模，并报告 attention map 或模态间 token 读取强度。
+      </p>
+    </div>
+
+    <h3>7.4 组会讨论题 2：CoVAR 是 world model、policy，还是数据生成器？</h3>
+    <div class="card">
+      <p>
+        CoVAR 同时生成未来视频和动作，因此可以被解释为 world model，也可以作为 open-loop policy 使用，还可以为视频数据补动作标签。三个定位会导向不同评价标准：world model 看长期预测一致性，policy 看闭环成功率和安全性，数据生成器看生成样本能否提升下游策略。论文当前最强证据是 policy 成功率；“可扩展数据生成器”的证据还需要下游数据增强实验来补齐。
+      </p>
+    </div>
+
+    <h3>7.5 后续研究方向</h3>
+    <ol>
+      <li><strong>加入 3D 表示：</strong>结合 depth、point cloud 或 3D foundation model，把 monocular 视频先验扩展到更可靠的空间推理。</li>
+      <li><strong>闭环化：</strong>将 35 帧 open-loop chunking 改为 receding horizon，并用实时观测纠偏。</li>
+      <li><strong>验证 action-free video scaling：</strong>用大量无动作机器人视频或人类操作视频预训练视频分支，再少量动作数据对齐。</li>
+      <li><strong>更严格的 action refinement ablation：</strong>测试 refinement 对其他 baseline 的帮助，确认它是 CoVAR 特有优势还是通用后处理器。</li>
+    </ol>
+
+    <div class="good">
+      <strong>最终判断：</strong>这篇论文的价值在于给“预训练视频扩散模型如何变成机器人动作生成器”提供了一个很具体的架构答案。它不是把 VLA 或 world model 问题彻底解决了，但对想研究 video diffusion for robotics 的 junior PhD 来说，是一篇值得细读架构和消融的论文。
+    </div>
+  </section>
+</main>
+</body>
+</html>

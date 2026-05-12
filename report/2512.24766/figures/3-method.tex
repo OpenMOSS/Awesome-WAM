@@ -1,0 +1,54 @@
+\section{Method}
+\begin{figure*}[!thbp]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figs/method.pdf}
+    \caption{ \textbf{An overview of \algo.} Given a task instruction and an initial RGB-D observation, an image-to-video model synthesizes video frames conditioned on the instruction. We additionally obtain object masks, video depth, and point tracking from vision foundation models, which are used to reconstruct \flow. Finally, a robot policy generates executable actions that track the \flow using trajectory optimization or reinforcement learning.}
+    \label{fig:particle_tracking}
+    \vspace{-0.5em}
+\end{figure*}
+
+Herein, we introduce the problem formulation of \algo in Sec.~\ref{sec:problem}.
+Leveraging \flow as an interface, we subsequently discuss how to extract \flow from video generations in Sec.~\ref{sec:particle_tracking} and how to plan actions with \flow for manipulation in Sec.~\ref{sec:planning}.
+
+\subsection{Problem Formulation}
+\label{sec:problem}
+
+Given a task instruction $\ell$, an initial RGB-D observation $(I_0 \in \mathbb{R}^{H\!\times\!W\!\times\!3},\, D_0 \in \mathbb{R}^{H\!\times\!W})$, and a known camera projection $\Pi$ (intrinsics and extrinsics to the robot frame), our goal is to output an action sequence $u_{0:H-1} \in \mathcal{U}^H$ that accomplishes the task by following an object motion inferred from a generated video. We make no assumption about a specific action parameterization: $\mathcal{U}$ may represent motion primitives, end-effector poses, or low-level controls.
+
+\textbf{Extracting 3D Object Flow.} From $(I_0,\ell)$, an image-to-video model produces frames $\{V_t\}_{t=1}^T$, and a video-depth estimator provides a per-frame depth sequence $\{Z_t\}_{t=1}^T$. Using a binary mask $M$ of the task-relevant object, and the projection $\Pi$, we lift masked image points with $Z_{1:T}$ to obtain an object-centric 3D trajectory $P_{1:T} \in \mathbb{R}^{T\times n\times 3}$ in the robot frame; we refer to $P_{1:T}$ as the 3D object flow.
+
+\textbf{Action Inference with 3D Object Flow.} We represent state as the task-relevant object and the robot: $x_t = (x_t^{\text{obj}}, r_t)$, where $x_t^{\text{obj}} \in \mathbb{R}^{n\times 3}$ are object points and $r_t$ denotes the robot state. Let $f$ be a dynamics model and $\hat{x}_{t+1} = f(\hat{x}_t, u_t)$ with $\hat{x}_0 = x_0$. At each planning step $t$, we use a time-aligned target $\tilde{P}_t \in \mathbb{R}^{n\times 3}$ derived from the video object flow (e.g., via uniform time-warping or nearest-shape matching). We formulate action inference as an optimization problem:
+\begin{equation*}
+\label{eq:problem}
+\begin{aligned}
+\min_{\{u_t \in \mathcal{U}\}} \ \ & \sum_{t=0}^{H-1} \lambda_{\text{task}}\big(\hat{x}^{\text{obj}}_t, \tilde{P}_t\big) + \lambda_{\text{control}}(\hat{x}_t, u_t) \\
+\text{s.t.}\ \ & \hat{x}_{t+1} = f(\hat{x}_t, u_t), \quad \hat{x}_0 = x_0,\\
+                 & \lambda_{\text{task}}\big(\hat{x}^{\text{obj}}_t, \tilde{P}_t\big) = \sum_{i=1}^n \big\|\hat{x}^{\text{obj}}_t[i]-\tilde{P}_t[i]\big\|_2^2,
+\end{aligned}
+\end{equation*}
+Section~\ref{sec:planning} instantiates $\mathcal{U}$ and $f$ for different domains.
+
+\subsection{Extracting 3D Object Flows from Videos}
+\label{sec:particle_tracking}
+
+\textbf{Video Generation:} Given the task language instruction $\ell$ and an RGB image of the workspace without the robot visible $I_0\!\in\!\mathbb{R}^{H \times W \times 3}$, \algo uses an off-the-shelf image-to-video generation model
+to produce an RGB video $\{V_t\}_{t=1}^T$ with $V_t\!\in\!\mathbb{R}^{H \times W \times 3}$, showing the task being performed. We do not include the robot in the initial frame or mention the robot in the text prompt, as we empirically find that current image-to-video generation models not specifically finetuned on robotics data tend to produce physically implausible fine-grained interactions, and consequently have worse object trajectories (for details see Appendix~\ref{sec:vid_gen_prompts}).
+
+\textbf{Video Depth Estimation:} Given the generated video, \algo leverages SpatialTrackerV2~\cite{xiao2025spatialtracker,yang2024depth} to estimate per-frame depth $\{\tilde{Z}_t\}_{t=1}^T$, $\tilde{Z}_t\!\in\!\mathbb{R}^{H \times W}$. Due to the scale-shift ambiguity of monocular video, we compute global $(s^\star,b^\star)$ by aligning the first frame to the initial depth $D_0$ from the robot, and obtain calibrated depths $Z_t = s^\star\tilde{Z}_t + b^\star$.
+
+\textbf{3D Object Flow Extraction:} \flow aims to produce 3D trajectories $P_{1:T}\!\in\!\mathbb{R}^{T \times n \times 3}$ with visibilities $V\!\in\!\{0,1\}^{T\times n}$ for the task-relevant object. We first localize the relevant object using Grounding DINO~\cite{liu2023grounding} to produce a bounding box from $(I_0,\ell)$, and then use the box to prompt SAM 2~\cite{ravi2024sam2} for a binary mask. From the masked region at $t{=}1$, we sample $n$ pixels and track them across the video with CoTracker3~\cite{karaev2024cotracker3} to obtain 2D trajectories $c_i^t$ and visibilities $v_i^t$. Visible points are lifted to 3D using the calibrated depths and camera intrinsics/extrinsics, producing $P_{1:T}$ as in Sec.~\ref{sec:problem}.
+
+\subsection{Action Inference with 3D Object Flow}
+\label{sec:planning}
+
+\textbf{Simulated Push-T Domain.} For tasks involving non-prehensile manipulation, such as the Push-T task, \algo uses a push skill primitive parameterized with the start push position on a flat table $(c_x, c_y)$, a unit push direction $(\Delta c_x, \Delta c_y)$, and the distance of the push $d$. In this setting, we learn a forward dynamics model that takes as input a feature-augmented particles $\Tilde{x}_t \in \mathbb{R}^{N \times 14}$ of the whole scene and produces $\Delta \hat{x}_{t+1}$, the delta of positions of each point for the next timestep. The features associated with each point consist of the position, RGB color, and normal vector as determined from camera observations along with the push parameters (as further elaborated in Appendix~\ref{sec:particle_dynamics_details}).
+
+To optimize the 3D object flow following cost with the learned dynamics model, we use random-shooting, where $r$ push skill parameters are randomly sampled such that all pushes will make contact with the object of interest at different points and directions. Then, we select the push skill parameter out of $r$ ones that has the least cost according to the predicted point positions from the dynamics model. For determining which timestep from the video should be used in the cost function, we find the timestep $t^{\star}$ where the points of the relevant object in the trajectory are closest to the current observed points with further details in Appendix~\ref{sec:pusht_planning}.
+
+\textbf{Real-World Domain.} We use absolute end-effector poses as the action space and a rigid-grasp dynamics model for the real robot domain. With this combination, we first proceed to grasp the desired part from the relevant object, and then use the dynamics model and point-flow following objective to move the end-effector such that the grasped part moves in a fashion similar to the video. We use AnyGrasp~\cite{fang2023anygrasp} to propose candidate grasps on the object of interest, but these grasps may not lie exactly on the desired part. We select the grasp closest to the thumb as detected from the video by HaMer~\cite{pavlakos2024reconstructing}, as we observe that in generated videos, the hand tends to interact with the relevant part of an object, such as the handle.
+
+The rigid-grasp dynamics model assumes that the grasped part is rigid; consequently, the prediction of point positions to the next timestep can be described by a sequence of rigid transformations for the grasped subset, while non-grasped points remain unchanged. To produce a trajectory of end-effector poses, \algo directly optimizes the objective using PyRoki~\cite{kim2025pyroki}, incorporating pose smoothness and reachability costs as $\lambda_{\text{control}}$ in addition to the 3D object-flow following cost $\lambda_{\text{task}}$ as in Appendix~\ref{sec:real_world_planning}.
+
+\textbf{Simulated Door Opening Domain.}
+For the Door Opening task, we use reinforcement learning to learn a sensimotor policy which moves the object according to the \flow with SAC~\cite{haarnojaSAC2018}. This approach can be viewed as using the simulator as a dynamics model for compiling the optimization process prescribed in Eq.~\ref{eq:problem} into a parametric policy in an offline fashion, using \flow as the reward function. Depending on the embodiment used, the action space consists of delta end-effector poses and delta joint angles for the gripper or dexterous hand. The reward function used consists of one term which encourages the end-effector to move toward the current mean object particle position along with another term for encouraging matching the \flow, $\frac{t^{\star}}{t_{\text{end}}}$, where $t^{\star}$ is the timestep with the closest particle positions to the 3D object flow and $t_{\text{end}}$ is the last timestep of the object motion (further details in Appendix~\ref{sec:open_door_rl}).
+By training policies with such an object-centric reward, we observe different strategies emerge to accomplish the same object motion across embodiments, including quadruped manipulators, humanoids with dexterous hands, and fixed-base arms with parallel grippers.

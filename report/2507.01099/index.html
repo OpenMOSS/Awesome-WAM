@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Geometry-Aware 4D Video Generation for Robot Manipulation - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+  <header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div>
+      <span class="tag">arXiv:2507.01099</span>
+      <span class="tag">4D Video Generation</span>
+      <span class="tag">Multi-view RGB-D</span>
+      <span class="tag">Robot Manipulation</span>
+    </div>
+    <h1>Geometry-Aware 4D Video Generation for Robot Manipulation</h1>
+    <p>这篇论文提出一个面向机器人操作的 4D 视频生成模型：给定两路 RGB-D 初始观测，生成未来多视角 RGB-D / pointmap 序列，并通过跨视角 pointmap 对齐，让视频在时间上连续、在几何上跨视角一致。</p>
+    <div class="meta">
+      <div><strong>作者</strong>：Zeyi Liu, Shuang Li, Eric Cousineau, Siyuan Feng, Benjamin Burchfiel, Shuran Song</div>
+      <div><strong>机构</strong>：Stanford University; Toyota Research Institute</div>
+      <div><strong>版本</strong>：arXiv v3, 4 Feb 2026</div>
+      <div><strong>项目页</strong>：<a href="https://robot4dgen.github.io/">https://robot4dgen.github.io/</a></div>
+    </div>
+    
+  
+
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#s1">1. 论文速览</a></li>
+      <li><a href="#s2">2. 问题设定与动机</a></li>
+      <li><a href="#s3">3. 相关工作定位</a></li>
+      <li><a href="#s4">4. 方法精读</a></li>
+      <li><a href="#s5">5. 实验与结果</a></li>
+      <li><a href="#s6">6. 复现与实现细节</a></li>
+      <li><a href="#s7">7. 分析、局限与边界</a></li>
+      <li><a href="#s8">8. 组会问答准备</a></li>
+    </ul>
+  </nav>
+<section id="s1">
+    <h2>1. 论文速览</h2>
+    <table class="overview">
+      <tr>
+        <th>论文要解决什么</th>
+        <td>解决机器人操作中视频生成的“两难”：RGB 视频生成模型通常时间连续但缺少 3D 几何一致性；3D-aware 生成方法能约束几何但往往局限于简单物体或静态背景。作者希望生成既时间平滑、又跨相机视角几何一致的未来 RGB-D 视频，并从中提取机器人末端轨迹。</td>
+      </tr>
+      <tr>
+        <th>作者的方法抓手</th>
+        <td>在 Stable Video Diffusion backbone 上增加 pointmap 生成分支，用 DUSt3R 风格的 cross-view pointmap alignment 做几何监督；再在 U-Net decoder 中加入 multi-view cross-attention，让参考视角和第二视角共享几何信息。生成的 4D RGB-D 视频用 FoundationPose 追踪 gripper 6DoF pose，转成机器人动作。</td>
+      </tr>
+      <tr>
+        <th>最重要的结果</th>
+        <td>在多视角 4D 视频生成上，本文方法在仿真和真实数据集上整体取得更高 cross-view consistency、更好 RGB FVD 和更低 depth error；在三项仿真机器人操作中，平均成功率达到 0.64，显著高于 Dreamitate 0.12、Diffusion Policy 0.12 和 DP3 0.25。</td>
+      </tr>
+      <tr>
+        <th>阅读时要注意的点</th>
+        <td>这篇不是直接训练一个端到端 policy，而是把 4D 视频生成当作可用于 pose extraction 的世界模型。关键要看清：几何一致性来自 pointmap 对齐和跨视角 attention；动作来自生成 RGB-D 视频上的 6DoF pose tracking，而不是模型直接输出 action。</td>
+      </tr>
+    </table>
+    <figure>
+      <img src="figures/figures_teaser.png" alt="Geometry-aware 4D video generation teaser">
+      <figcaption>图 1：模型从两个 RGB-D 视角生成未来 4D pointmaps，并把第二视角投影到参考视角坐标系中，以学习跨视角一致的 3D 表示。</figcaption>
+    </figure>
+  </section>
+
+  <section id="s2">
+    <h2>2. 问题设定与动机</h2>
+    <p>机器人在操作时需要预测环境如何随交互而变化，尤其要处理遮挡、长时物体运动和相机视角变化。视频生成模型看起来像天然的“视觉世界模型”，但如果视频跨视角不一致，后续从视频里追踪机器人末端或物体位姿就会非常不稳定。</p>
+    <p>作者指出现有方法的核心矛盾是 temporal coherence 与 3D consistency 往往不能兼得。纯 RGB 视频模型可能出现 flickering、变形、物体消失等问题；4D / 3D-aware 方法则常局限于简单单物体场景。机器人操作场景更难，因为它有多物体、机械臂遮挡、精确抓取和跨相机泛化。</p>
+    <div class="callout">
+      <strong>动机直觉：</strong>如果生成的视频要拿来控制机器人，视频不只是“看起来像”，还要“几何上能被追踪”。这篇论文把 RGB-D pointmap 放进生成目标，就是为了让未来视频能被下游 6DoF tracker 使用。
+    </div>
+  </section>
+
+  <section id="s3">
+    <h2>3. 相关工作定位</h2>
+    <h3>3.1 Video Generation</h3>
+    <p>传统视频生成从 RNN、GAN 发展到 diffusion 和 latent diffusion。Stable Video Diffusion 等模型具备较强短时视觉预测能力，但主要优化 RGB 序列，缺少明确的 3D 空间约束。本文继承 SVD 的时间建模能力，同时新增 RGB-D / pointmap 的几何监督。</p>
+    <h3>3.2 Multi-view and 4D Video Generation</h3>
+    <p>已有 camera-conditioned video generation 通过相机姿态提高空间一致性；也有 4D generation 工作把视频模型和 novel-view synthesis 分开优化。本文的定位是把 temporal consistency 和 spatial consistency 放到同一个视频扩散框架中，通过跨视角 pointmap 对齐直接训练多视角 4D 预测。</p>
+    <h3>3.3 Generative Models for Robot Planning</h3>
+    <p>生成模型可被用作 dynamics model、inverse dynamics 的输入、policy condition 或 action-video joint model。本文没有训练 inverse dynamics，也没有直接生成 action，而是让 4D 视频产生可追踪的 RGB-D 轨迹，再用现成 6DoF pose tracker 提取末端执行器轨迹。</p>
+  </section>
+
+  <section id="s4">
+    <h2>4. 方法精读</h2>
+    <h3>4.1 总体结构</h3>
+    <p>输入是来自两个相机视角的 RGB-D 历史观测，输出是未来 RGB 视频和未来 pointmap 序列。Pointmap 是每个像素对应的 3D 坐标图，因此它比普通 depth map 更直接地携带几何结构。模型在参考视角 $v_n$ 中生成本视角 pointmap，同时把另一个视角 $v_m$ 的 pointmap 预测到 $v_n$ 的坐标系里。</p>
+    <figure>
+      <img src="figures/figures_method.png" alt="4D video generation method">
+      <figcaption>图 2：方法框架。RGB 分支生成各视角视频；pointmap 分支通过 U-Net decoder 中的 cross-attention 做跨视角几何信息共享；生成 4D 视频后用 pose tracker 提取 gripper 6DoF pose。</figcaption>
+    </figure>
+
+    <h3>4.2 RGB 视频扩散 backbone</h3>
+    <p>模型采用 Stable Video Diffusion。历史帧先由 pretrained VAE encoder 投到 latent space，U-Net diffusion model 预测未来 latent，再由 VAE decoder 解码为未来 RGB 帧。训练时使用类似 DDPM 的目标，直接预测 clean latent：</p>
+    <div class="callout">
+      $$L_{\text{diff}}(t') = \mathbb{E}\left[\|z_{t'}^{(0)} - f_{\theta}(z_{t'}^{(k)}, k)\|^2\right]$$
+    </div>
+    <p>这部分提供 temporal prior：模型可以利用大规模视频预训练带来的运动平滑性和视觉先验。</p>
+
+    <h3>4.3 Geometry-consistent pointmap supervision</h3>
+    <p>核心创新在 3D pointmap 监督。给定视角 $v_n$ 的历史 pointmaps，Pointmap VAE 将其编码到 latent space，再用 diffusion 预测未来 pointmaps。与此同时，模型也从第二视角 $v_m$ 预测未来 pointmaps，但这些点不是在 $v_m$ 自己坐标系中表达，而是投影到参考视角 $v_n$ 的坐标系中，记作 $X^{m \rightarrow n}_{t+1:t+h}$。</p>
+    <p>训练时对本视角 pointmap latent 和投影视角 pointmap latent 同时施加 diffusion loss。相机位姿在训练时用于定义这个投影关系；推理时模型只根据每个视角的初始 RGB-D 观测，就能在参考坐标系里生成未来 pointmaps，不需要把 camera pose 作为输入。</p>
+
+    <h3>4.4 Multi-view cross-attention</h3>
+    <p>RGB 视频可以让各视角各自在自己的坐标系中生成；但 pointmap 预测必须显式对齐跨视角几何。为此，作者使用两个独立 U-Net decoder 分支，并在 view $v_m$ 分支的每个 decoder block 后加入 cross-attention，让 $v_m$ 的中间 feature attend 到参考视角 $v_n$ 的对应 feature。</p>
+    <p>Appendix 说明，总共新增 12 个 cross-attention layers。Query 来自 $v_m$ 分支 decoder block 的 feature map tokens，key/value 来自 $v_n$ 分支对应 block 的 feature map tokens。这一步是 Table 1 中 “OURS w/o MV attn” 明显变差的直接原因。</p>
+
+    <h3>4.5 Joint temporal and 3D consistency objective</h3>
+    <p>完整 loss 是所有未来时间步、两个视角上的 RGB diffusion loss 加 pointmap 3D consistency loss：</p>
+    <div class="callout">
+      $$L = \sum_{t'=t+1}^{t+h} \left[ L^n_{\text{diff}}(t') + L^m_{\text{diff}}(t') + \lambda L_{\text{3D-diff}}(t') \right]$$
+    </div>
+    <p>实验中 $\lambda = 1$。Appendix 还加入 gripper-region reweighting：用 gripper mask 下采样 8 倍到 latent resolution，对 gripper 区域 loss 加权，使模型更关注后续 pose tracking 最关键的区域。</p>
+
+    <h3>4.6 从 4D 视频恢复机器人动作</h3>
+    <p>生成未来 RGB-D 后，作者用 FoundationPose 做 6DoF pose tracking。输入包括单视角 RGB-D、初始帧目标物体 mask、相机内参和 gripper CAD model。两个视角分别估计 gripper pose，选择 confidence score 更高的结果，再用参考视角 extrinsics 转到 global frame，作为机器人执行轨迹。</p>
+    <p>Gripper open/close 不是由模型直接输出，而是从生成 RGB-D 中分割左右 gripper fingers，投影成 3D 点云并计算两个 finger centroid 的距离。阈值按任务设定：StoreCerealBoxUnderShelf 为 0.10 m，PutSpatulaOnTable 为 0.06 m，PutAppleFromBowlIntoBin 为 0.12 m。</p>
+  </section>
+
+  <section id="s5">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 数据集与任务</h3>
+    <p>仿真使用 Toyota Research Institute 的 LBM simulation，基于 Drake。三项桌面操作任务为 StoreCerealBoxUnderShelf、PutSpatulaOnTable 和 PlaceAppleFromBowlIntoBin。每个任务 25 条 demonstrations，每条 demo 有 16 个相机位姿的 RGB-D 观测，因此每任务共 400 个视频；12 个视角训练，4 个视角测试，对应 300 个训练相机视角和 100 个测试相机视角。</p>
+    <p>真实数据集包含两个 Franka Panda 双臂收集的 4 个任务：AddOrangeSlicesToBowl、PutCupOnSaucer、TwistCapOffBottle、PutSpatulaOnTable。每个任务 20 条 teleoperation demonstrations，用两台 FRAMOS D415e 相机同步采集 RGB-D 序列。</p>
+    <figure>
+      <img src="figures/figures_tasks.png" alt="Simulation tasks">
+      <figcaption>图 6 / 图 8：仿真和真实任务。仿真包含架下放 cereal box、放置 spatula、双臂搬 apple；真实任务包含橙片、杯碟、拧瓶盖、放置 spatula 等。</figcaption>
+    </figure>
+
+    <h3>5.2 4D 视频生成指标</h3>
+    <table>
+      <tr><th>评估维度</th><th>指标</th><th>含义</th></tr>
+      <tr><td>RGB video quality</td><td>FVD-n, FVD-m</td><td>分别衡量参考视角和第二视角生成视频与真实视频的 Fréchet Video Distance，越低越好。</td></tr>
+      <tr><td>Depth quality</td><td>AbsRel-n/m, δ1-n/m</td><td>从 predicted pointmaps 取 z 值作为 depth，与真实 depth 比较；AbsRel 越低越好，δ1 越高越好。</td></tr>
+      <tr><td>Cross-view 3D consistency</td><td>mIoU</td><td>用 SAM2 跟踪 gripper mask，将参考视角 mask lift 到 3D 后重投影到另一视角，与原 gripper mask box 计算 IoU，越高表示跨视角对齐越强。</td></tr>
+    </table>
+    <p>Baselines 包括 OURS w/o MV attn、4D Gaussian、SVD、SVD w/ MV attn。所有模型在同一多视角 RGB-D 视频数据集上训练，并在 novel viewpoints 上测试。</p>
+
+    <h3>5.3 4D 视频生成主结果</h3>
+    <p>Table 1 显示，本文方法在三项仿真任务和真实多任务数据集上总体获得最高 cross-view consistency，并在 RGB FVD、depth AbsRel / δ1 上整体优于 baselines。几个代表性数值如下：</p>
+    <table>
+      <tr><th>Setting</th><th>OURS mIoU</th><th>OURS w/o MV attn mIoU</th><th>4D Gaussian mIoU</th><th>简要解读</th></tr>
+      <tr><td>StoreCerealBoxUnderShelf</td><td>0.70</td><td>0.41</td><td>0.39</td><td>跨视角 attention 对遮挡严重任务很关键。</td></tr>
+      <tr><td>PutSpatulaOnTable</td><td>0.69</td><td>0.44</td><td>0.46</td><td>OURS 同时保持较低 FVD 和高 depth accuracy。</td></tr>
+      <tr><td>PlaceAppleFromBowlIntoBin</td><td>0.64</td><td>0.26</td><td>0.44</td><td>长时双臂任务中去掉 MV attention 后一致性明显崩塌。</td></tr>
+      <tr><td>Real-world multi-task</td><td>0.56</td><td>0.32</td><td>0.00</td><td>真实场景中 4D Gaussian 的跨视角一致性几乎失效。</td></tr>
+    </table>
+    <figure>
+      <img src="figures/figures_result-main.png" alt="Main generation results">
+      <figcaption>图 3 / 图 4：定性结果。本文方法在 novel camera views 下生成更稳定的 RGB-D 序列；baselines 常见跨视角错位、RGB 模糊或 depth artifacts。</figcaption>
+    </figure>
+
+    <h3>5.4 机器人策略结果</h3>
+    <p>机器人策略评估在三项仿真任务上进行。每个任务测试 30 次 rollouts，初始物体 pose 未见过，相机视角也来自测试集 novel viewpoints。生成模型输入两个 novel camera views 的 RGB-D，生成 10 个未来帧，FoundationPose 提取双臂 gripper 6DoF 轨迹。执行是分段 open-loop：执行一段后，用更新后的 RGB-D 重新推理。</p>
+    <table>
+      <tr><th>Method</th><th>Task 1</th><th>Task 2</th><th>Task 3</th><th>Avg</th></tr>
+      <tr><td>Dreamitate</td><td>0.10</td><td>0.17</td><td>0.10</td><td>0.12</td></tr>
+      <tr><td>Diffusion Policy</td><td>0.10</td><td>0.27</td><td>0.00</td><td>0.12</td></tr>
+      <tr><td>DP3</td><td>0.23</td><td>0.27</td><td>0.00</td><td>0.25</td></tr>
+      <tr><td><strong>OURS</strong></td><td><strong>0.73</strong></td><td><strong>0.67</strong></td><td><strong>0.53</strong></td><td><strong>0.64</strong></td></tr>
+    </table>
+    <p>Dreamitate 不预测 depth，且缺少几何一致性监督，导致提取的 pose 质量差。Diffusion Policy 即使用多视角训练，也难以泛化到 novel viewpoints，因为它没有显式建模跨视角几何对应。DP3 使用 RGB-D 点云输入后 Task 1 略好，但对小物体抓取帮助有限。本文方法通过生成 RGB-D 并显式追踪 gripper pose，动作精度更高。</p>
+
+    <h3>5.5 资源与效率</h3>
+    <table>
+      <tr><th>Method</th><th>Inference Time</th><th>Training Memory</th><th>Trainable Parameters</th></tr>
+      <tr><td>OURS</td><td>30.0 s</td><td>47 G</td><td>2.4 B</td></tr>
+      <tr><td>OURS w/o MV attn</td><td>29.3 s</td><td>46.5 G</td><td>2.38 B</td></tr>
+      <tr><td>4D Gaussian</td><td>2 s</td><td>2813 M</td><td>856,774</td></tr>
+      <tr><td>SVD (Dreamitate)</td><td>13.4 s</td><td>45.8 G</td><td>1.54 B</td></tr>
+      <tr><td>SVD w/ MV attn</td><td>15.1 s</td><td>46.3 G</td><td>2.4 B</td></tr>
+    </table>
+    <p>OURS 明显更慢，但换来了 RGB-D 质量和几何一致性。作者也承认 30 秒生成 10 帧对于闭环 reactive policy 仍偏慢。</p>
+  </section>
+
+  <section id="s6">
+    <h2>6. 复现与实现细节</h2>
+    <div class="cols">
+      <div class="mini">
+        <h3>模型输入</h3>
+        <p>实际使用最新观测并重复 $h=10$ 次以匹配要预测的未来帧数。RGB VAE 和 pointmap VAE 都产生 $h \times c \times w' \times h'$ latent，其中 $h=10$、$c=4$、$w'=32$、$h'=40$。</p>
+      </div>
+      <div class="mini">
+        <h3>U-Net 输入</h3>
+        <p>RGB / pointmap condition latent 与未来 noisy latent 沿 channel 拼接，形成 $h \times 16 \times 32 \times 40$ 输入张量。</p>
+      </div>
+      <div class="mini">
+        <h3>Cross-attention</h3>
+        <p>在 $v_m$ 分支的每个 decoder block 后加入 cross-attention，总共 12 层；query 来自 $v_m$，key/value 来自参考视角 $v_n$。</p>
+      </div>
+      <div class="mini">
+        <h3>Gripper reweighting</h3>
+        <p>用 simulation segmentation 或真实场景 SAM2 得到 gripper mask，下采样 8 倍到 latent 分辨率，对 gripper 区域 loss 加权，以提高 pose tracking 所需区域质量。</p>
+      </div>
+      <div class="mini">
+        <h3>训练</h3>
+        <p>每个任务单独训练约 60 epochs，使用 4 张 NVIDIA RTX A6000 48GB。全 U-Net fine-tune，learning rate 为 $1 \times 10^{-5}$，AdamW，batch size 4；image 和 pointmap VAE encoders 冻结。</p>
+      </div>
+      <div class="mini">
+        <h3>推理</h3>
+        <p>使用 EulerEDMSampler，25 denoising steps。机器人部署中生成模型和 pose tracker 跑在单张 NVIDIA GeForce RTX 4090 上；10 个未来帧约 30 秒。</p>
+      </div>
+    </div>
+    <h3>相机采样</h3>
+    <p>Appendix 中相机采样使用半球壳：内半径 $r_1=0.7$m，外半径 $r_2=1.2$m，中心为桌面世界坐标原点；限制范围为 $0.2 \le x \le 0.6$m、$-0.5 \le y \le 0.5$m、$0.7 \le z \le 1.2$m。每个 episode 随机采样 16 个 camera poses，训练和测试视角分开。</p>
+    <figure>
+      <img src="figures/figures_camera-vis.png" alt="Camera sampling visualization">
+      <figcaption>图 7：相机采样可视化。绿色相机用于训练，红色相机用于评估，测试时考察 novel viewpoint 泛化。</figcaption>
+    </figure>
+    <div class="callout warn">
+      <strong>源码状态：</strong>arXiv 源包主要包含图片和一段图注 LaTeX，正文 LaTeX 未随源包完整提供。本报告正文和 appendix 内容主要依据 <code>tmp/pdf_text_2507.01099.txt</code>，图片来自 <code>Report/2507.01099/figures/</code>。
+    </div>
+  </section>
+
+  <section id="s7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方是把“机器人可用的视频生成”从 RGB 外观推进到 RGB-D / pointmap 的几何一致性。很多视频世界模型只要看起来连贯就算成功，但机器人需要从视频中提取可执行轨迹；本文明确把跨视角 3D 对齐作为训练目标，并证明这能提升 FoundationPose 提取末端轨迹后的任务成功率。</p>
+    <p>第二个价值是它给出了一个很清楚的 robot pipeline：4D 生成不是终点，后面接 pose tracking、gripper state inference 和分段 open-loop execution。这样论文能回答“生成视频到底怎样变成动作”的问题，而不是只展示漂亮未来帧。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果站得住，首先因为评估拆成了生成质量和下游机器人成功率两层。Table 1 用 FVD、AbsRel、δ1、mIoU 同时评估 RGB、depth 和跨视角一致性；Table 2 再验证这些改进能否转化为机器人任务成功率。其次，ablations 直接击中关键设计：去掉 multi-view cross-attention 后 mIoU 和 depth 指标明显下降，说明提升不是简单来自参数量增加。</p>
+    <p>机器人结果也有说服力：baselines 包括视频生成路线 Dreamitate、RGB 行为克隆路线 Diffusion Policy，以及 RGB-D 点云路线 DP3，且都在 novel camera viewpoints 上测试。OURS 平均 0.64 对比 0.12/0.12/0.25，差距足够大，和“显式建模几何对应能改善视角泛化”的论点一致。</p>
+
+    <h3>7.3 局限</h3>
+    <ul>
+      <li><strong>数据要求高：</strong>训练需要带多相机视角的 RGB-D 视频数据。仿真中容易生成，真实世界采集会受硬件、标定和深度质量限制。</li>
+      <li><strong>真实深度质量是瓶颈：</strong>RGB-D 相机在反光、透明、遮挡、小物体场景下会有噪声，直接影响 pointmap 监督和 pose tracking。</li>
+      <li><strong>推理速度慢：</strong>当前 10 帧生成约 30 秒，比端到端 BC policy 慢很多，不适合高频闭环控制。</li>
+      <li><strong>仍依赖外部 pose tracker：</strong>动作质量不仅取决于生成视频，还取决于 FoundationPose 对 gripper CAD 的追踪能力和 mask 质量。</li>
+      <li><strong>主要机器人策略实验在仿真中：</strong>真实数据展示了 4D 生成质量，但下游机器人成功率主要在模拟任务中报告，真实闭环部署仍需进一步验证。</li>
+    </ul>
+
+    <h3>7.4 边界条件</h3>
+    <p>这套方法适合多视角 RGB-D 数据可获得、目标几何可由 pointmap 表示、末端执行器可被 6DoF tracker 稳定追踪的任务。它不适合需要高频触觉反馈、强接触动力学、动态相机快速移动或没有可靠深度/相机标定的真实场景。</p>
+  </section>
+
+  <section id="s8">
+    <h2>8. 组会问答准备</h2>
+    <h3>Q1：为什么不直接用 SVD 生成 RGB 视频再做 pose tracking？</h3>
+    <p>SVD 只生成 RGB，缺少 depth 和跨视角几何一致性。机器人末端 pose tracking 需要稳定 RGB-D 和可对齐的几何结构。实验中 Dreamitate/SVD 路线平均成功率只有 0.12，说明仅有 RGB 视频不足以支撑 novel-view manipulation。</p>
+
+    <h3>Q2：为什么 pointmap 比 depth map 更适合这里？</h3>
+    <p>Depth 只给每个像素沿相机射线的距离；pointmap 给每个像素的 3D 坐标。跨视角对齐时，pointmap 能直接表达“另一个视角中的点投影到参考坐标系后在哪里”，更适合做 cross-view 3D supervision。</p>
+
+    <h3>Q3：训练时需要相机位姿，推理时为什么不需要？</h3>
+    <p>训练时相机位姿用于构造监督信号，即把 $v_m$ 的 pointmap 投到 $v_n$ 坐标系。推理时模型已经学会从 RGB-D observation 到参考坐标系 pointmap 的映射，因此不把 camera pose 作为输入也能预测对齐的未来 pointmaps。</p>
+
+    <h3>Q4：机器人动作是怎么从生成视频来的？</h3>
+    <p>生成 RGB-D 视频后，用 FoundationPose 对 gripper CAD model 做 6DoF pose tracking。两个视角独立追踪，取 confidence 高的结果，再转到 global frame。Gripper 开合由左右 finger 的 3D centroid 距离阈值判断。</p>
+
+    <h3>Q5：这篇和 Dream2Flow / NovaFlow 的关系是什么？</h3>
+    <p>Dream2Flow / NovaFlow 主要把生成视频蒸馏成 object flow，用物体运动作为控制接口；这篇更关注生成视频本身的多视角 RGB-D 几何一致性，并从生成视频中追踪 robot gripper pose。三者都在解决“视频生成怎样变成机器人动作”，但接口层不同：object flow vs. gripper 6DoF pose trajectory。</p>
+  </section>
+</main>
+</body>
+</html>

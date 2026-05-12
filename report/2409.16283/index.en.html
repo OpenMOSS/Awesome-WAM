@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gen2Act: Human Video Generation in Novel Scenarios enables Generalizable Robot Manipulation</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="hero">
+<h1>Gen2Act: Human Video Generation in Novel Scenarios enables Generalizable Robot Manipulation</h1>
+<div>
+<span class="tag">arXiv: 2409.16283</span>
+<span class="tag">Gen2Act</span>
+<span class="tag">human video generation</span>
+<span class="tag">video-conditioned policy</span>
+<span class="tag">point tracks</span>
+</div>
+<div class="meta">
+<div><strong>Authors: </strong>Homanga Bharadhwaj, Debidatta Dwibedi, Abhinav Gupta, Shubham Tulsiani, Carl Doersch, Ted Xiao, Dhruv Shah, Fei Xia, Dorsa Sadigh, Sean Kirmani</div>
+<div><strong>Organization: </strong>Google DeepMind; Carnegie Mellon University; Stanford University</div>
+<div><strong>Project page: </strong><a href="https://homangab.github.io/gen2act/">https: //homangab.github.io/gen2act/</a></div>
+<div><strong>Source code structure: </strong>single <code>main.tex</code>, including Appendix; images 6 PNGs</div>
+</div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+<li><a href="#overview">Paper quick overview</a></li>
+<li><a href="#motivation">Motivation and problem definition</a></li>
+<li><a href="#related">Related work context</a></li>
+<li><a href="#method">Detailed explanation of method</a></li>
+<li><a href="#experiments">Experiments and results</a></li>
+<li><a href="#repro">Key points to reproduce</a></li>
+<li><a href="#analysis">Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">Preparation for group meeting Q&amp;A</a></li>
+</ol>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>Robot operation strategies are difficult to generalize to new object types, new action types, and unseen real scenes; directly expanding robot data collection is costly and unrealistic. The question the paper wants to solve is: Can the existing human operation motion knowledge of the web-scale video model be used to allow the robot to perform new tasks not covered in the training data under a small number of robot demonstrations?</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Split the language condition operation into two steps: first use pre-trained VideoPoet to generate a video of "human completing the task" based on the first frame of the scene and language, and then train a closed-loop robot strategy $\pi_\theta(\mathbf{I}_{t-k: t}, \mathbf{V}_g)$ to translate the generated human video into robot actions. When training the policy, an additional point trajectory prediction auxiliary loss is added to allow the latent policy to explicitly absorb motion cues in the video.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>Gen2Act achieved an average success rate of 60% in real mobile manipulator experiments, which is higher than RT1's 22%, RT1-GC's 26%, Vid2Robot's 37%, and 49% without track loss. Achieving 58% and 30% on the more difficult Object-Type Generalization and Motion-Type Generalization respectively, an absolute improvement of about 30 percentage points relative to the strongest baseline.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>This paper does not ask the video model to generate robot videos, but to generate human videos; what is really evaluated is "whether motion cues in human videos can be reliably translated into robot actions by the policy." Focus on three things: whether the video generation error caused the failure, how much the point track auxiliary loss contributed, and whether the chain execution of long-term tasks is just the multiplication accumulation of the success rate of short tasks.</td>
+</tr>
+</tbody>
+</table>
+<div class="note">
+<strong>One sentence version: </strong>Gen2Act uses a ready-made web video model to first "imagine what people would do", and then uses a closed-loop strategy with trajectory-assisted supervision to convert this human video into robot actions, thereby transferring the motion priors in non-robotic videos to real robot operations.
+ </div>
+<figure>
+<img alt="Gen2Act teaser" src="figures/figures_teaser_new_gen2act.png"/>
+<figcaption>Figure 1. The core process of Gen2Act: generate a human operation video, and then the robot strategy performs tasks based on the video.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation and problem definition</h2>
+<h3>2.1 Why go around to "human videos"</h3>
+<p>The author observed that the distribution of daily operation tasks is extremely wide: there are different objects, different backgrounds, and different movement patterns in offices, kitchens, and laboratories. Collecting robot data for every task is expensive. In contrast, human videos on the Internet contain a lot of motor knowledge of "how to operate objects", such as opening a microwave, pouring water, wiping the table, rotating objects, etc.</p>
+<p>Existing video generation models are trained on massive web videos and can generate reasonable human operation videos from zero samples when given scene images and text tasks. The core assumption of Gen2Act is that although these human videos are not robot actions, they contain enough motion cues to serve as conditional input for the robot's strategy.</p>
+<h3>2.2 Formalization of tasks</h3>
+<p>Given the initial scene image $\mathbf{I}_0$ and the language target $\mathcal{G}$, the goal is to let the robot output the action sequence $\mathbf{a}_{1: H}$ to complete the task. Gen2Act breaks it down into: </p>
+<div class="formula">$$\mathbf{V}_g = \mathcal{V}(\mathbf{I}_0, \mathcal{G}), $$</div>
+<p>Among them, $\mathcal{V}$ is a pre-trained video generation model, which outputs human operation video $\mathbf{V}_g$. Then the closed-loop strategy outputs the robot action: </p>
+<div class="formula">$$\mathbf{a}_{t: t+h} \sim \pi_\theta(\mathbf{I}_{t-k: t}, \mathbf{V}_g).$$</div>
+<p>Note that the strategy here is not to copy the video in open loop, but to also look at the latest $k$ frame robot observation at each step, so it can react to the real execution status.</p>
+<h3>2.3 Paper contribution</h3>
+<ul>
+<li>It is proposed to rewrite the language-conditional robot operation as "zero-sample human video generation + human video to robot action translation".</li>
+<li>Without fine-tuning the video generation model, directly utilize VideoPoet's web-scale motion knowledge to reduce robot data collection requirements.</li>
+<li>It is proposed to add prediction auxiliary losses of generated-human-video tracks and robot-observation tracks to policy training to make latent tokens more motion-aware.</li>
+<li>The system evaluates mild, standard, object-type, motion-type four-level generalization on a real mobile manipulator, and demonstrates long-range task chain execution.</li>
+</ul>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<div class="grid-2">
+<div class="mini">
+<h3>3.1 Visual Imitation</h3>
+<p>Works such as RT-1, RT-2, BC-Z, DROID, and RoboAgent directly use robot interaction data to train multi-task strategies. The advantage is that action supervision is direct; the problem is that the data collection cycle is long, the cost is high, and the generalization to new objects and new action types is still limited.</p>
+</div>
+<div class="mini">
+<h3>3.2 Non-robotic visual representation</h3>
+<p>R3M, VIP, Voltron, PVR, etc. use ImageNet, Ego4D or other non-robotic data to pre-train visual encoders to enhance the visual representation of strategies. But they usually still rely on a large amount of in-domain robot interaction data and provide abstract representations that do not directly tell the robot "how it should move."</p>
+</div>
+<div class="mini">
+<h3>3.3 Generative data enhancement</h3>
+<p>GenAug, CACTI, ROSIE, etc. use generative models to change the background, object appearance or semantic changes to help the strategy become robust. This type of method mainly enhances visual distribution and is difficult to provide motion trajectory knowledge for new action types.</p>
+</div>
+<div class="mini">
+<h3>3.4 Human Video / Motion Conditioning</h3>
+<p>Vid2Robot, MimicPlay, etc. use human video conditions to train robot strategies, but usually require paired or manually collected human-robot data. The difference with Gen2Act is that human videos are automatically generated by pre-trained models, and there is no need to collect real-person demonstration videos for each task.</p>
+</div>
+</div>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall architecture</h3>
+<p>Gen2Act has two phases. The first stage uses a video model to generate human videos, and the second stage uses a closed-loop strategy to translate the generated videos into robot actions. During training, the strategy not only clones behaviors, but also predicts point trajectories; during inference, the point trajectory prediction head is no longer used, and only the video condition strategy is retained.</p>
+<figure>
+<img alt="Gen2Act architecture" src="figures/figures_archfigure_new.png"/>
+<figcaption>Figure 2. Gen2Act translation policy architecture: generated video and robot observation are converted into a fixed number of tokens through ViT and Perceiver-Resampler respectively; track prediction auxiliary loss is added during training; only the video model and closed-loop strategy are used during inference.</figcaption>
+</figure>
+<h3>4.2 Human Video Generation</h3>
+<p>The author uses VideoPoet for text+image conditioned video generation. The input is a scene image and task text, and the output is a video of a human completing the task. There are three key points in project selection: </p>
+<ul>
+<li><strong>Not generating bot videos: </strong>Current video generation models are trained on human videos on the web, and generating robot videos from zero samples is unreliable; if fine-tuned for robot videos, the generalization of the web-scale model in new scenes may be sacrificed.</li>
+<li><strong>Without fine-tuning VideoPoet: </strong>The paper directly uses the pre-trained model. The appendix says that VideoPoet is trained on more than 270M videos, so it has a wide range of daily operation priors.</li>
+<li><strong>Automatic pairing during training: </strong>For each robot trajectory, the corresponding human video is generated using the first frame of the trajectory and language instructions to form $(\texttt{generated\_human\_video}, \texttt{robot\_demo})$ pairing data.</li>
+</ul>
+<p>The form of prompt given in the appendix is very simple: <code>A person task-name, static camera</code>. For example, when turning on the microwave, enter <code>A person opening the microwave, static camera</code>. The author also emphasizes that the robot arm should try not to block the scene in the first frame, so the robot will return to a fixed reset pose before each task.</p>
+<figure>
+<img alt="Zero-shot human video generations" src="figures/figures_qualgens_new.png"/>
+<figcaption>Figure. Zero-shot human video generation: blue boxes are input images, black boxes are generated video sample frames.</figcaption>
+</figure>
+<h3>4.3 Generated Human Video to Robot Action Translation</h3>
+<p>The translation strategy inputs two parts: the generated human video $\mathbf{V}_g$ and the recent $k$ frame robot observation $\mathbf{I}_{t-k: t}$. Both first extract visual features through ViT encoder $\chi$: </p>
+<div class="formula">$$i_g=\chi(\mathbf{V}_g), \qquad i_r=\chi(\mathbf{I}_{t-k: t}).$$</div>
+<p>Since the number of video tokens is large and the time is not regular enough, the author uses Perceiver-Resampler style Transformer encoders $\Phi_g, \Phi_r$ to compress them into a fixed number of tokens: </p>
+<div class="formula">$$z_g=\Phi_g(i_g), \qquad z_r=\Phi_r(i_r), \qquad N=64.$$</div>
+<p>Appendix supplement: Both the generated video token and the robot observation token use 2-layer Perceiver-Resampler; the generated video is fixedly sampled at 16 frames, and is guaranteed to include the first and last frames; the robot history uses the last 8 frames; all images are resized to $224\times224$.</p>
+<h3>4.4 Point Track Prediction auxiliary loss</h3>
+<p>Gen2Act not only treats the generated video as visual features, but also expects latent tokens to encode "how the points move". The author uses off-the-shelf trackers such as TAPIR / BootsTAP to extract random point trajectories $\tau_g$ from the generated video and $\tau_r$ from the robot observation video.</p>
+<p>For the generated video, given the first frame point $P^0$, the first frame feature $i_g^0$ and the video tokens $z_g$, the track prediction transformer $\psi_g$ predicts the trajectory: </p>
+<div class="formula">$$\hat{\tau}_g=\psi_g(P^0, i_g^0, z_g), \qquad \mathcal{L}_{\tau, g}=\|\tau_g-\hat{\tau}_g\|_2.$$</div>
+<p>The observation side of the robot is similar, except that the input is the chunk start time $P^{t-k}$, $i_{t-k}$ and observation tokens $z_r$. Appendix description: The track prediction transformer has 6 self-attention layers and 8 heads.</p>
+<div class="good">
+<strong>Why this step is important: </strong>If only video visual features are used, the strategy may only learn "what the target object is"; point trajectory loss requires latent to be able to recover "how the target object or contact area moves", which is the motion information most needed for generalization of new action types.
+ </div>
+<h3>4.5 Behavior Cloning action prediction</h3>
+<p>The action space is discretized with 256 bins per action dimension, and action values are evenly bucketed within the upper and lower bounds of each dimension. The strategy predicts the future action $\hat a_{t: t+h}$, and uses the cross-entropy and ground-truth actions $a_{t: t+h}$ to make behavioral clones. The action is end-effector space, and it also predicts whether the episode will terminate and the gripper will open and close.</p>
+<p>The overall training goal can be understood as: </p>
+<div class="formula">$$\mathcal{L}=\mathcal{L}_{BC}+\lambda_\tau(\mathcal{L}_{\tau, g}+\mathcal{L}_{\tau, r}), $$</div>
+<p>The paper does not emphasize the specific $\lambda_\tau$ value, but clearly states that track prediction is only used for training and does not increase the calculation during testing.</p>
+<h3>4.6 Deployment and long-range task chain execution</h3>
+<p>Single-task deployment: the robot sees the current scene image, the user gives a language task, VideoPoet generates a human video, and the closed-loop strategy continuously outputs actions based on the video and the robot's recent observations.</p>
+<p>Long-term task deployment: First use Gemini to decompose the activity into several sub-tasks, for example, "Making Coffee" is divided into opening the lid, putting in the K-Cup, and closing the lid. Each time a subtask is completed, the last frame after the execution of the previous robot is used as the first frame of the next video generation, instead of generating all subtask videos at once from the initial picture. The appendix says that VideoPoet takes less than 10 seconds to generate the first subsequent new video.</p>
+<figure>
+<img alt="Long horizon chaining examples" src="figures/figures_longhorizon_new.png"/>
+<figcaption>Figure. Long-range task chain execution: the last frame after the execution of the previous stage becomes the video generation input of the next stage.</figcaption>
+</figure>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Assessment setup</h3>
+<p>The real experiments cover kitchen, office and laboratory scenarios. The robot is a mobile manipulator with a compliant two-finger gripper. The manipulator is installed on the right side, with end-effector control and an operating frequency of 3Hz. The robotic arm is reset to a fixed posture before each task to reduce occlusion of the camera's field of view.</p>
+<p>The authors assessed four levels of generalization: </p>
+<table>
+<thead>
+<tr><th>Abbreviation</th><th>definition</th><th>Intuition</th></tr>
+</thead>
+<tbody>
+<tr><td>MG</td><td>Mild Generalization: New configurations of seen object instances in seen scenes, as well as natural changes in lighting/background etc.</td><td>closest to the training distribution.</td></tr>
+<tr><td>G</td><td>Standard Generalization: Instances of unseen objects in seen or unseen scenes.</td><td>The object instances change, but the types usually remain familiar.</td></tr>
+<tr><td>OTG</td><td>Object-Type Generalization: Completely unseen object type, and in an unseen scene.</td><td>Test "how new things work".</td></tr>
+<tr><td>MTG</td><td>Motion-Type Generalization: No action type is seen at all, and in an unseen scene.</td><td>Test "How to do the new sports mode".</td></tr>
+</tbody>
+</table>
+<h3>5.2 Main results: four-level generalization</h3>
+<table>
+<thead>
+<tr><th>method</th><th>MG</th><th>G</th><th>OTG</th><th>MTG</th><th>Avg.</th></tr>
+</thead>
+<tbody>
+<tr><td>RT1</td><td>68</td><td>18</td><td>0</td><td>0</td><td>22</td></tr>
+<tr><td>RT1-GC</td><td>75</td><td>24</td><td>5</td><td>0</td><td>26</td></tr>
+<tr><td>Vid2Robot</td><td>83</td><td>38</td><td>25</td><td>0</td><td>37</td></tr>
+<tr><td>Gen2Act w/o track</td><td>83</td><td>58</td><td>50</td><td>5</td><td>49</td></tr>
+<tr><td><strong>Gen2Act</strong></td><td><strong>83</strong></td><td><strong>67</strong></td><td><strong>58</strong></td><td><strong>30</strong></td><td><strong>60</strong></td></tr>
+</tbody>
+</table>
+<p>Key points of table reading: Vid2Robot and Gen2Act on MG are both 83, indicating that when close to the training distribution, the real human video pairing method is also very strong; the real difference appears in G/OTG/MTG. Especially in MTG, RT1, RT1-GC, and Vid2Robot are all 0, while Gen2Act reaches 30, indicating that the generated video does provide motion patterns that are not found in the training robot data.</p>
+<p>The contribution of track loss is also very direct: Gen2Act w/o track averages 49, and the complete model averages 60; MTG ranges from 5 to 30, which is the number that best reflects "point trajectory auxiliary supervision provides motion information".</p>
+<figure>
+<img alt="Qualitative rollouts" src="figures/figures_qualevals_new.png"/>
+<figcaption>Figure. The upper row is the generated human video, and the lower row is the robot execution. It shows whether the strategy can actually convert movements in human videos into robot behavior.</figcaption>
+</figure>
+<h3>5.3 Baselines</h3>
+<ul>
+<li><strong>RT1: </strong> A language-conditioned policy trained on the same robot data without watching the generated video.</li>
+<li><strong>RT1-GC: </strong> The goal-image conditioned policy only looks at the last frame of the generated video, which is equivalent to using the target image to express "what to make".</li>
+<li><strong>Vid2Robot: </strong> Video-conditioned policies trained with ground-truth paired human-robot videos.</li>
+<li><strong>Gen2Act w/o track: </strong> No point trajectory prediction auxiliary loss is used, only the generated video condition and BC are retained.</li>
+</ul>
+<p>RT1-GC is lower than Gen2Act, indicating that the last frame goal image only expresses what, not enough to express how. Vid2Robot is strong in MG but 0 in MTG, indicating that real paired human videos cannot provide enough clues for new motion types if they have insufficient coverage.</p>
+<h3>5.4 Human Video Generation Analysis</h3>
+<p>The author's qualitative analysis shows that VideoPoet can generate human operation videos that match the task text in unseen robot experimental scenarios: the background is preserved, the corresponding objects are manipulated, and the camera movement is small. This is the premise for the establishment of the entire system, because the downstream strategy does not plan out of thin air from language, but reads the movement direction, contact sequence and target status from the video.</p>
+<h3>5.5 Long-range task chain execution</h3>
+<p>The author uses Gemini to decompose the activity into three subtasks, and then executes Gen2Act in subtask order. There are 5 trials for each activity, and the success rate of the reporting stage is reported.</p>
+<table>
+<thead>
+<tr><th>Activity</th><th>Stages</th><th>Success %: Stage 1, Stage 2, Stage 3</th></tr>
+</thead>
+<tbody>
+<tr><td>Stowing Apple</td><td>Open Drawer; Place Apple in Drawer; Close Drawer</td><td>80, 60, 60</td></tr>
+<tr><td>Making Coffee</td><td>Open Lid; Place K-Cup Pod inside; Close Lid</td><td>40, 20, 20</td></tr>
+<tr><td>Cleaning Table</td><td>Pick Tissues; Press Sanitizer Dispenser; Wipe Table</td><td>60, 40, 40</td></tr>
+<tr><td>Heating Soup</td><td>Open Microwave; Put Bowl inside Microwave; Close Microwave</td><td>40, 20, 20</td></tr>
+</tbody>
+</table>
+<p>These numbers suggest that chained execution is possible, but fragile. The success rate of the two tasks in the third stage did not further decrease from the second stage, possibly because only trials that successfully completed this stage were counted; but overall, once the success rate of a single task is not very high, long-range tasks will quickly be affected by pre-order errors.</p>
+<h3>5.6 Co-training with 400 Teleop Demonstrations</h3>
+<table>
+<thead>
+<tr><th>Configuration</th><th>MG</th><th>G</th><th>OTG</th><th>MTG</th><th>Avg.</th></tr>
+</thead>
+<tbody>
+<tr><td>Gen2Act w/o co-train</td><td>83</td><td>67</td><td>58</td><td>30</td><td>60</td></tr>
+<tr><td><strong>Gen2Act w/ co-train</strong></td><td><strong>85</strong></td><td><strong>75</strong></td><td><strong>62</strong></td><td><strong>35</strong></td><td><strong>64</strong></td></tr>
+</tbody>
+</table>
+<p>After adding about 400 diverse tele-operated trajectories, the average improves from 60 to 64. The improvement is not huge, but it is meaningful: the author's explanation is that the translation model is still limited by insufficient support from robot data at a high generalization level, and a small amount of diverse robot data can help it better utilize the generated videos.</p>
+<h3>5.7 Failure analysis</h3>
+<p>The authors observed that in MG and part of G, the correlation between inaccurate video generation and policy failure is weak, because the policy may be able to correct small video errors due to more bot data support. But in OTG and MTG, if the generated video is unreasonable, the strategy often fails. This shows that high generalization areas rely more on video priors.</p>
+<p>The appendix Figure failures show two types of failures: the first three rows are mostly errors in the video generation itself; the last row of videos looks reasonable, but the robot does not correctly follow the object trajectory after grabbing. This latter category is particularly important because it illustrates that "video is reasonable" is not a sufficient condition and human-to-robot translation itself will still fail.</p>
+<figure>
+<img alt="Failure cases" src="figures/figures_failures_gen2act.png"/>
+<figcaption>Appendix. Failure cases: Most high-generalization failures are related to incorrect video generation, but there are also cases where the video is reasonable but the robot execution fails.</figcaption>
+</figure>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Data preparation</h3>
+<ul>
+<li>The offline robot demonstration data $\mathcal{D}_r$ is required, and each trajectory has a language task description.</li>
+<li>For each robot trajectory, the corresponding human video is automatically generated using the first frame and language prompt to form $\mathcal{D}_g$.</li>
+<li>It is best that the first frame does not contain robot occlusion, so the robot needs to return to a fixed reset pose before the task.</li>
+<li>It is necessary to run the point tracker offline for the generated video and robot video to generate $\tau_g$ and $\tau_r$.</li>
+</ul>
+<h3>6.2 Video generation settings</h3>
+<table>
+<thead>
+<tr><th>Project</th><th>settings</th></tr>
+</thead>
+<tbody>
+<tr><td>model</td><td>VideoPoet, pre-trained on over 270M videos.</td></tr>
+<tr><td>fine-tuning</td><td>No adaptation or fine-tuning is done to VideoPoet.</td></tr>
+<tr><td>input</td><td>square-shaped scene image + language prompt. </td></tr>
+<tr><td>Prompt</td><td><code>A person task-name, static camera</code>. </td></tr>
+<tr><td>long range mission</td><td>After the first segment, VideoPoet generates new videos in less than 10 seconds; each segment uses the last frame of the previous segment as the input image.</td></tr>
+</tbody>
+</table>
+<h3>6.3 Key hyperparameters of policy network</h3>
+<table>
+<thead>
+<tr><th>components</th><th>Details</th></tr>
+</thead>
+<tbody>
+<tr><td>vision encoder</td><td>ViT encoder $\chi$ extracts and generates video and robot observation features.</td></tr>
+<tr><td>token compression</td><td>$\Phi_g, \Phi_r$ uses gated cross-attention / Perceiver-Resampler architecture to output $N=64$ tokens.</td></tr>
+<tr><td>Perceiver layers</td><td>Both generated videos and robot observations use a 2-layer Perceiver-Resampler.</td></tr>
+<tr><td>Generate video frames</td><td>During training, 16 frames are sampled, ensuring that the first frame and the last frame are included.</td></tr>
+<tr><td>Robot History</td><td>Latest 8 frames of robot observations.</td></tr>
+<tr><td>Image size</td><td>All resize to $224\times224$.</td></tr>
+<tr><td>track head</td><td>6 layers of self-attention, 8 heads; only used for training.</td></tr>
+<tr><td>action</td><td>end-effector action; discretized to 256 bins per dimension; also predicts termination and gripper opening and closing.</td></tr>
+<tr><td>action loss</td><td>cross-entropy behavior cloning. </td></tr>
+</tbody>
+</table>
+<h3>6.4 Points to note when evaluating recurrence</h3>
+<ul>
+<li>The definition of success rate is whether the robot trajectory completes the language-specified task; it is calculated after multiple rollouts of different tasks.</li>
+<li>The seen/unseen of MG/G/OTG/MTG is relative to the robot interaction training data, not to the web data of VideoPoet.</li>
+<li>Real robot 3Hz end-effector control obviously relies on hardware, scene layout and reset pose.</li>
+<li>Failure analysis needs to save both the generated video and the robot execution video. Otherwise, it is difficult to determine whether the video generation or translation policy is wrong.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part of this paper is that it states very specifically "what the web video model can do for robots": instead of using web videos to pre-train an abstract encoder, nor requiring the video model to directly output robot actions, the video model is allowed to generate a visual plan for ordinary people to complete tasks, and then train the robot strategy to do translation. This intermediate representation is natural because human videos express both task goals and action processes.</p>
+<p>The second value point is the point track auxiliary loss. It turns "the generated video contains motion information" into a training constraint, rather than just hoping that the Transformer can read the motion from the video token itself. The gap between w/o track and the full model, especially the MTG from 5 to 30, supports this design.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li>Evaluations are done on real robots, real kitchen/office/lab scenarios, not just simulations or offline metrics.</li>
+<li>Generalization is split into four levels: MG/G/OTG/MTG. It can be seen that what the method is really good at is the high generalization level, rather than just relying on tasks close to the training distribution to raise the mean.</li>
+<li>The baseline covers language conditional strategies, goal-image conditional strategies, real human video conditional strategies, and self-ablation without track loss.</li>
+<li>Qualitative plots show both generated video and robot execution, enabling a direct check of whether human videos provide translatable motion plans.</li>
+<li>Failure analysis acknowledges that highly generalized scenarios strongly depend on the quality of video generation, and also acknowledges that reasonable video does not guarantee successful robot execution, and the boundaries are relatively honest.</li>
+</ul>
+<h3>7.3 Main limitations</h3>
+<ul>
+<li><strong>Limited by the capabilities of the video generation model: </strong>The authors explicitly point out that current video models are limited in their ability to generate realistic hands and dexterous manipulations, and are therefore limited in very dexterous tasks.</li>
+<li><strong>The human-to-robot embodiment gap is not disappearing: </strong>Human hands and robot grippers, arm kinematics, and reachable spaces are different, and the translation policy must learn to ignore or convert these differences.</li>
+<li><strong>Just because the video is reasonable does not mean that the action is executable: </strong>The last line of the failure analysis illustrates that even if the generated video looks reasonable, the robot may fail to grasp or be unable to follow the object trajectory.</li>
+<li><strong>Long-range missions remain vulnerable: </strong>The third stage of Making Coffee and Heating Soup has only a 20% success rate; chain execution requires a recovery policy to be more reliable.</li>
+<li><strong>Offline robot data is needed to support the translation model: </strong>Gen2Act reduces but does not eliminate the need for robot demonstrations; co-training 400 teleop trajectories can continue to improve, indicating that data coverage is still a bottleneck.</li>
+<li><strong>Assessment size is limited: </strong>Although real robot experiments are rich, they are not large-scale benchmarks; the number of tasks, trials, and scenarios may still not be enough to cover the deployment-level complexity.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<table>
+<thead>
+<tr><th>Applicable conditions</th><th>Conditions that require caution</th></tr>
+</thead>
+<tbody>
+<tr><td>The task can be clearly expressed by ordinary human videos, and key objects in the scene are visible.</td><td>Tasks that rely on force, touch, hidden states, or details of the human hand are critical.</td></tr>
+<tr><td>Robot movements can approximately imitate the movement trends of objects in videos.</td><td>The robot form is too different from human operations, such as requiring dexterity of both hands to grasp or complex finger operations.</td></tr>
+<tr><td>It is acceptable to generate a video for each task first and then execute it in a closed loop.</td><td>Tasks that require millisecond-level real-time response or highly secure closed-loop control.</td></tr>
+<tr><td>There is a certain offline robot demonstration training translation policy.</td><td>A new platform with absolutely zero robot data; human videos cannot be directly turned into actions at this time.</td></tr>
+</tbody>
+</table>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the biggest difference between Gen2Act and Vid2Robot?</h3>
+<p>Vid2Robot uses real paired human and robot videos for training strategy and is therefore limited by human video data coverage. Gen2Act's human videos are automatically generated based on scene and language by VideoPoet, eliminating the need to collect real-person videos for each new task and thus better leveraging the open-world motion priors of web-scale video models.</p>
+<h3>Q2: Why not use video models to directly generate robot videos?</h3>
+<p>The author believes that the current web-scale video model's zero-sample generation of robot videos is unreliable and usually requires fine-tuning of robot data; this will weaken the advantage of "directly using web model generalization". Generating human videos is closer to the video model training distribution, and it is easier to cover daily operations.</p>
+<h3>Q3: Why is the goal image not enough?</h3>
+<p>The goal image only tells the strategy what the final state should be, that is, what; the generated video contains the intermediate movement process and tells the strategy how. RT1-GC is 26 on average, while Gen2Act is 60, especially RT1-GC is 0 in MTG, indicating that new motion types require process information.</p>
+<h3>Q4: Will track prediction loss increase the cost during inference?</h3>
+<p>No. Point tracking and track prediction heads are only used during training to allow video/observation tokens to encode motion information. No tracker is required during inference, and no track head is used.</p>
+<h3>Q5: What is the strongest evidence for this paper?</h3>
+<p>The strongest evidence is MTG: Gen2Act improves from 5 w/o track to 30, while RT1, RT1-GC, Vid2Robot are all 0. This directly supports that "generated video + motion trajectory auxiliary supervision" can help train new action types outside of the data.</p>
+<h3>Q6: What is the most likely place to be questioned?</h3>
+<p>First, VideoPoet itself was not trained in the paper, and the upper limit of the system strongly depends on the external model; second, the actual evaluation scale is not large; third, there is still an obvious embodiment gap between the generated human video and the robot's actions, and the failure analysis also shows that correct video does not guarantee correct execution.</p>
+</section>
+</main>
+</body>
+</html>

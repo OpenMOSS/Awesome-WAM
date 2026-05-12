@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GR-MG - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>GR-MG: Leveraging Partially-Annotated Data via Multi-Modal Goal-Conditioned Policy</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Peiyan Li, Hongtao Wu, Yan Huang, Chilam Cheang, Liang Wang, Tao Kong</p>
+      <p><strong>机构：</strong>CASIA / UCAS / ByteDance Research</p>
+      <p><strong>发表信息：</strong>IEEE Robotics and Automation Letters；arXiv:2408.14368；论文标注为 2024 年 12 月接收，项目页引用为 2025 年 RA-L 论文</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2408.14368">arXiv</a> | <a href="https://arxiv.org/pdf/2408.14368">PDF</a> | <a href="https://gr-mg.github.io/">项目主页</a> | <a href="https://github.com/bytedance/GR-MG/tree/main">官方代码</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作梳理</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验</a></li>
+      <li><a href="#repro">6. 复现审计</a></li>
+      <li><a href="#discussion">7. 分析、局限与边界</a></li>
+    </ul>
+  </nav>
+<section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>GR-MG 用一个带任务进度条件的目标图像生成模型，把语言指令和当前观测转成中间目标图像，再让多模态目标条件策略同时看语言、目标图像、历史观测和机器人状态来预测动作，从而利用缺动作标签的视频和缺文本标签的机器人轨迹。
+    </div>
+    <p><strong>难度评级：</strong>★★★★☆。阅读需要熟悉语言条件模仿学习、goal-conditioned policy、diffusion image editing、Transformer policy、cVAE 动作轨迹预测，以及 CALVIN 长程评测。</p>
+    <p><strong>关键词：</strong><span class="tag">Robot manipulation</span><span class="tag">Partially annotated data</span><span class="tag">Goal image generation</span><span class="tag">Multi-modal goal-conditioned policy</span><span class="tag">Task progress</span></p>
+
+    <table>
+      <tr><th>阅读定位项</th><th>精简答案</th></tr>
+      <tr><td>论文要解决什么</td><td>语言条件机器人操作需要同时有动作和文本标注的轨迹，但这种 fully-annotated 数据昂贵；论文要把“有文本无动作的视频”和“有动作无文本的机器人轨迹”都纳入训练。</td></tr>
+      <tr><td>作者的方法抓手</td><td>把目标拆成两级：先用 InstructPix2Pix 风格的进度引导目标图像生成器产生 sub-goal image，再用同时条件于 text + goal image 的 GPT-style policy 预测动作轨迹、未来图像和任务进度。</td></tr>
+      <tr><td>最重要的结果</td><td>CALVIN ABC→D 中 5 连续任务平均完成数从 3.35 提到 4.04；真实机器人 simple 设置从 68.7% 到 78.1%，generalization 平均从 44.4% 到 60.6%。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>核心不是单纯“生成好看的目标图”，而是进度条件、text+image 双条件 policy、两类部分标注数据分别进入两个模块的训练路径。</td></tr>
+    </table>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li>提出 Generative Robot Policy with Multi-modal Goals (GR-MG)，训练时可同时利用缺动作标签和缺文本标签的数据。</li>
+      <li>在目标图像生成阶段加入 task progress condition，用文本追加句子的方式把“已完成百分比”注入 T5 文本编码器。</li>
+      <li>在仿真和真实机器人上验证多任务、分布外泛化、数据稀缺、消融与 few-shot novel skill 学习。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/graphics_abstract.png" alt="GR-MG overview">
+      <div class="caption">Fig. 1 / Overview：两个模块和两类部分标注数据的使用方式。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决什么问题</h3>
+    <p>论文关注 language-conditioned visual robot manipulation。一个标准策略可写为：</p>
+    <div class="formula-block">
+      <p class="intuition">策略用语言、历史图像和机器人状态直接预测当前动作轨迹。</p>
+      $$\mathbf{a}_{t} = \pi(l, \mathbf{o}_{t-h:t}, \mathbf{s}_{t-h:t})$$
+      <table class="symbol-table compact">
+        <tr><td>$l$</td><td>自然语言任务指令。</td></tr>
+        <tr><td>$\mathbf{o}_{t-h:t}$</td><td>从 $t-h$ 到 $t$ 的 RGB 观测序列，论文使用 static camera 和 wrist-mounted camera。</td></tr>
+        <tr><td>$\mathbf{s}_{t-h:t}$</td><td>末端执行器 6-DoF 位姿和二值 gripper 状态序列。</td></tr>
+        <tr><td>$\mathbf{a}_{t}$</td><td>当前要输出的动作轨迹，而不是单步动作。</td></tr>
+      </table>
+    </div>
+    <p>难点在数据：fully-annotated trajectory 同时包含语言、图像、状态、动作，采集和标注成本都高。相反，text-annotated human activity videos 缺动作但容易从公开视频数据获得；robot trajectories without text labels 缺语言但可由机器人自主或半自主收集。GR-MG 的目标是把这两类数据都转成可训练信号。</p>
+
+    <h3>2.2 已有方法卡在哪里</h3>
+    <p>论文把已有路线分成两类：一类只利用缺某一种标签的数据，例如从视频学习表征或用无语言机器人轨迹训练；另一类用生成的目标图像/未来视频作为 policy 或 inverse dynamics 的条件。作者指出这些方法通常有两个问题：第一，goal generation 容易忽略任务进度，导致在“当前观测相同但阶段不同”的任务里生成错误目标；第二，如果 policy 只依赖生成图像，生成图一旦偏离语言指令，后续动作预测会变脆弱。</p>
+
+    <h3>2.3 本文解决思路</h3>
+    <p>GR-MG 的高层设计是“生成式目标 + 多模态条件策略”。生成器负责把语言和当前观测转成中间目标图像；策略不只看这个目标图像，也保留语言条件，因此生成图不准确时仍有文本信号约束动作预测。任务进度由 policy 在 rollout 中预测，再反馈给生成器形成闭环。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作梳理</h2>
+    <table>
+      <tr><th>技术线</th><th>代表方向</th><th>GR-MG 的定位</th></tr>
+      <tr><td>多模态目标条件策略</td><td>语言是灵活任务接口，目标图像/视频能提供更具体的视觉目标；VIMA、MDT、Mutex 等探索多模态 task specification。</td><td>GR-MG 在 inference 时仍只需要语言输入，但会先生成 goal image，再让 policy 同时条件于语言和 goal image。</td></tr>
+      <tr><td>基于生成目标的机器人操作</td><td>Susie 使用 pretrained image-editing diffusion model 生成目标图像，再交给 goal-conditioned policy。</td><td>GR-MG 延续“生成 goal image → policy”的范式，但加入 progress condition，并且 policy 不放弃语言条件。</td></tr>
+      <tr><td>部分标注数据</td><td>R3M、masked visual pretraining、world/video model、GR-1 等利用视频或机器人数据缓解标注稀缺。</td><td>缺动作标签的视频训练 goal image generator；缺文本标签的机器人轨迹训练 policy。两种缺口分别对应两个模块。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <div class="figure">
+      <img src="figures/architecture.png" alt="GR-MG architecture">
+      <div class="caption">Fig. 2 / Network Architecture：进度引导目标图像生成器与多模态目标条件策略的闭环。</div>
+    </div>
+
+    <h3>4.1 数据形式与训练信号分配</h3>
+    <p>fully-annotated trajectory 被写成：</p>
+    <div class="formula-block">
+      $$\tau = \{ l, (\mathbf{o}_{1}, \mathbf{s}_{1}, \mathbf{a}_{1}), \ldots, (\mathbf{o}_{T}, \mathbf{s}_{T}, \mathbf{a}_{T}) \}$$
+      <p>其中语言 $l$、观测 $\mathbf{o}$、状态 $\mathbf{s}$、动作 $\mathbf{a}$ 都可用。GR-MG 把数据按标签缺失方式拆给不同模块：</p>
+      <table class="compact">
+        <tr><th>数据类型</th><th>包含什么</th><th>用于训练哪个模块</th><th>训练时如何使用</th></tr>
+        <tr><td>fully-annotated robot trajectories</td><td>语言、图像、状态、动作</td><td>两个模块</td><td>生成器用当前帧、语言、未来帧、进度；policy 用语言、真实目标图、历史观测/状态和动作。</td></tr>
+        <tr><td>data w/o action labels</td><td>有文本的视频，无动作</td><td>goal image generation model</td><td>不需要动作，只要从视频中采样当前图和未来目标图即可。</td></tr>
+        <tr><td>data w/o text labels</td><td>有动作的机器人轨迹，无文本</td><td>multi-modal goal-conditioned policy</td><td>用 null string 作为文本条件，先训练 policy，再用 fully-annotated 数据 finetune。</td></tr>
+      </table>
+    </div>
+
+    <h3>4.2 Progress-guided Goal Image Generation Model</h3>
+    <p>生成器基于 InstructPix2Pix，一个 diffusion-based image-editing model。输入是当前观察图像、文本任务描述和任务进度，输出是 $N$ steps 之后的 sub-goal image。作者沿用 Susie 的 sub-goal 思路，不直接生成最终状态，而是定期更新中间目标。</p>
+    <div class="impl-note">
+      <strong>实现要点：</strong>progress 不是新增一个专门结构，而是拼进文本，例如 “pick up the red block. And 60% of the instruction has been completed.”，再由 T5-Base 编码。训练时进度从视频/轨迹 timestep 计算；推理时由 policy 预测。
+    </div>
+    <p><span class="appendix-ref">附录 Data / Generation Model</span> 给出复现细节：图像先 resize 到 $256\times256$；训练样本为 $(l, o_t, o_{t+k}, p)$；goal image 由未来 $k_\mathrm{min}$ 到 $k_\mathrm{max}$ 范围内的帧采样；latent diffusion 使用 VAE image encoder、U-Net denoising、text cross-attention 和 classifier-free guidance；推理 denoising steps 为 50。</p>
+
+    <table class="compact">
+      <tr><th>数据集</th><th>$k_\mathrm{min}$</th><th>$k_\mathrm{max}$</th><th>说明</th></tr>
+      <tr><td>CALVIN</td><td>20</td><td>22</td><td>仿真基准。</td></tr>
+      <tr><td>Something-Something-V2</td><td>11</td><td>14</td><td>文本标注人类活动视频。</td></tr>
+      <tr><td>RT-1</td><td>5</td><td>6</td><td>真实机器人数据，用于扩展生成器训练。</td></tr>
+      <tr><td>Real</td><td>30</td><td>35</td><td>本文真实机器人数据。</td></tr>
+    </table>
+
+    <h3>4.3 Multi-modal Goal-Conditioned Policy</h3>
+    <p>policy 继承 GR-1 的 GPT-style Transformer 结构，但做了三处关键改动：</p>
+    <ul>
+      <li>加入 goal image condition：用 MAE tokenization 编码生成的目标图像，并把这些 token 放到输入序列前端，使后续 token 可 attend 到目标图。</li>
+      <li>加入 <code>[PROG]</code> query token：该 token 的输出 embedding 经线性层回归 task progress。</li>
+      <li>用 cVAE 预测 $k$ 步动作轨迹：将 action trajectory 编成 style vector，再和 <code>[ACT]</code> token 输出、$k$ 个 learnable token 一起送入 Transformer 解码动作轨迹。</li>
+    </ul>
+    <p><span class="appendix-ref">附录 Multi-modal Goal Conditioned Policy</span> 进一步说明：每张图先编码成 196 个 patch tokens 和 1 个 global token；196 个 patch tokens 经 Perceiver Resampler 降到 9 个 token；语言用 CLIP 编码；机器人状态用线性层编码；所有 token 通过线性层对齐到 GPT hidden size。GPT hidden size 为 384，12 heads，12 layers。</p>
+
+    <pre class="pseudocode">Algorithm: GR-MG inference loop
+Input: text instruction l, observation/history o, robot state s
+progress p = 0
+Every n steps:
+  prompt = l + " And {p}% of the instruction has been completed."
+  goal_image = ProgressGuidedGenerator(current_image, prompt)
+Each policy step:
+  tokens = [MAE(goal_image), CLIP(l), MAE(o_{t-h:t}), Linear(s_{t-h:t}), [PROG], [OBS], [ACT]]
+  action_trajectory, future_images, progress = GPTPolicy(tokens)
+  execute first part of action_trajectory
+  feed predicted progress back to generator at next goal update</pre>
+
+    <h3>4.4 训练目标</h3>
+    <p>goal image generation model 按 DDPM 噪声预测方式训练；policy 则同时预测动作、未来图像和进度。policy loss 为：</p>
+    <div class="formula-block">
+      <p class="intuition">这不是单一行为克隆损失，而是动作、图像预测、VAE 正则和进度回归共同约束。</p>
+      $$L = l_\mathrm{arm} + 0.01 l_\mathrm{gripper} + 0.1 l_\mathrm{img} + l_\mathrm{kl} + l_\mathrm{prog}$$
+      <table class="symbol-table compact">
+        <tr><td>$l_\mathrm{arm}$</td><td>机械臂动作预测损失。</td></tr>
+        <tr><td>$l_\mathrm{gripper}$</td><td>夹爪动作预测损失，权重 0.01。</td></tr>
+        <tr><td>$l_\mathrm{img}$</td><td>未来图像预测损失，权重 0.1，沿用 GR-1 训练信号。</td></tr>
+        <tr><td>$l_\mathrm{kl}$</td><td>cVAE 的 KL divergence。</td></tr>
+        <tr><td>$l_\mathrm{prog}$</td><td>任务进度预测损失，输出被反馈给生成器。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <div class="figure">
+      <img src="figures/data_intro.png" alt="Experimental settings">
+      <div class="caption">Fig. 3 / Experiments：CALVIN 34 个任务与真实机器人 58 个任务示例。</div>
+    </div>
+
+    <h3>5.1 实验设置</h3>
+    <table>
+      <tr><th>实验组</th><th>数据与设置</th><th>评测问题</th></tr>
+      <tr><td>CALVIN ABC→D</td><td>在 Env A/B/C 训练，Env D 测试；约 18k fully-annotated trajectories；评测 1000 条 5-task chains。</td><td>多任务与 unseen environment 泛化。</td></tr>
+      <tr><td>CALVIN data scarcity</td><td>只用 10% fully-annotated 数据，约 1.8k trajectories / 0.1M frames；同时用 Env A/B/C 中 1M frames 的无文本轨迹先训练 policy。</td><td>缺 fully-annotated 数据时，data w/o text labels 是否有帮助。</td></tr>
+      <tr><td>真实机器人</td><td>Kinova Gen-3 + Robotiq 2F-85 + static/wrist cameras；18k demonstrations，37 个训练任务；训练生成器时加入 SSV2 和 RT-1。</td><td>simple、unseen distractors、unseen instructions、unseen backgrounds、unseen objects 的泛化。</td></tr>
+      <tr><td>few-shot novel skills</td><td>从 37 个任务 hold out 8 个任务，其中 7 个为 novel skills；先在 29 个任务/15k trajectories 训练，再用每任务 10 或 30 条轨迹 finetune。</td><td>新技能少样本学习能力。</td></tr>
+    </table>
+
+    <h3>5.2 CALVIN 主结果</h3>
+    <table class="compact">
+      <tr><th>方法</th><th>1 task</th><th>3 tasks</th><th>5 tasks</th><th>Avg. Len.</th></tr>
+      <tr><td>3D Diff Actor</td><td>93.8%</td><td>66.2%</td><td>41.2%</td><td>3.35 ± 0.04</td></tr>
+      <tr><td>GR-MG w/o image</td><td>91.0%</td><td>67.8%</td><td>47.7%</td><td>3.42 ± 0.28</td></tr>
+      <tr><td>GR-MG w/o text</td><td>91.8%</td><td>68.9%</td><td>48.1%</td><td>3.46 ± 0.04</td></tr>
+      <tr><td>GR-MG w/o progress</td><td>94.1%</td><td>75.2%</td><td>56.3%</td><td>3.76 ± 0.11</td></tr>
+      <tr><td><strong>GR-MG</strong></td><td><strong>96.8%</strong></td><td><strong>81.5%</strong></td><td><strong>64.4%</strong></td><td><strong>4.04 ± 0.03</strong></td></tr>
+    </table>
+    <p>主表最关键的读法是看 long-horizon 指标：单任务成功率从 93.8% 到 96.8% 的提升不大，但 5 连续任务从 41.2% 到 64.4%，平均完成长度从 3.35 到 4.04，说明误差累积下的鲁棒性提升更明显。w/o text 和 w/o image 性能相近且都低于完整模型，支持论文关于 text + image 双条件互补的结论。</p>
+
+    <h3>5.3 数据稀缺与部分标注数据</h3>
+    <table class="compact">
+      <tr><th>方法</th><th>fully-annotated data</th><th>partially-annotated data</th><th>1 task</th><th>5 tasks</th><th>Avg. Len.</th></tr>
+      <tr><td>GR-1</td><td>10%</td><td>否</td><td>67.2%</td><td>6.9%</td><td>1.41 ± 0.06</td></tr>
+      <tr><td>GR-MG w/o part. ann. data</td><td>10%</td><td>否</td><td>82.4%</td><td>19.7%</td><td>2.33 ± 0.04</td></tr>
+      <tr><td><strong>GR-MG</strong></td><td>10%</td><td>是</td><td><strong>90.3%</strong></td><td><strong>37.5%</strong></td><td><strong>3.11 ± 0.08</strong></td></tr>
+    </table>
+    <p>在只给 10% 完整标注数据时，额外 1M frames 的无文本轨迹显著提高 policy 能力。作者观察到 w/o part. ann. data 往往能生成正确目标图，但 policy 跟随目标图能力不足，因此无文本机器人轨迹主要补强的是 policy，而不是生成器。</p>
+
+    <h3>5.4 进度条件消融</h3>
+    <table class="compact">
+      <tr><th>方法</th><th>MSE ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>CD-ResNet50 ↑</th></tr>
+      <tr><td>GR-MG w/o progress</td><td>965.347</td><td>18.821</td><td>0.721</td><td>0.945</td></tr>
+      <tr><td><strong>GR-MG</strong></td><td><strong>903.139</strong></td><td><strong>19.121</strong></td><td><strong>0.730</strong></td><td><strong>0.946</strong></td></tr>
+    </table>
+    <p>这组实验把“progress condition 是否只是额外 prompt 装饰”变成可检验问题。四个目标图相似度指标都改善；定性图显示 w/o progress 可以生成视觉质量较高但与语言不一致的目标图，而完整模型更接近 ground truth。</p>
+
+    <div class="figure">
+      <img src="figures/real_simulation_generate.png" alt="Generated goal image comparison">
+      <div class="caption">Fig. 4 / Generated goal images：进度信息和额外部分标注视频对目标图准确性的影响。</div>
+    </div>
+
+    <h3>5.5 真实机器人结果</h3>
+    <div class="figure">
+      <img src="figures/multi_task_success_rate.png" alt="Real robot success rates">
+      <div class="caption">Fig. 5 / Success rates：真实机器人 simple 与四类 generalization setting。</div>
+    </div>
+    <p>真实机器人共评估 58 个任务。论文报告 GR-MG 在 simple 设置中把平均成功率从 68.7% 提到 78.1%，在四类 generalization 平均中从 44.4% 提到 60.6%。作者还逐一解释了 baseline 的典型失败：OpenVLA 的离散动作空间与缺少历史/腕部相机输入影响抓取与开合夹爪时机；Octo 有历史和 proprioception，但 unseen backgrounds / objects 泛化较弱；GR-1 在 unseen objects 中容易选错对象。对比 w/o part. ann. data 时，作者把改进归因于额外缺动作标签视频提升语言语义理解和 OOD 鲁棒性。</p>
+
+    <h3>5.6 Few-shot Novel Skills</h3>
+    <table class="compact">
+      <tr><th>方法</th><th>10-shot</th><th>30-shot</th></tr>
+      <tr><td>OpenVLA</td><td>0.0%</td><td>2.5%</td></tr>
+      <tr><td>Octo</td><td>0.0%</td><td>0.0%</td></tr>
+      <tr><td>GR-1</td><td>2.5%</td><td>22.5%</td></tr>
+      <tr><td>GR-MG w/o part. ann. data</td><td>10.0%</td><td>27.5%</td></tr>
+      <tr><td><strong>GR-MG</strong></td><td><strong>17.5%</strong></td><td><strong>37.5%</strong></td></tr>
+    </table>
+    <p>few-shot 部分的一个重要观察是：目标图生成器在少样本 finetune 后能生成较准确目标图，但 policy 仍是主要瓶颈。这个观察和结论中的 future work 对应，即进一步扩大 policy 的真实世界无文本轨迹训练。</p>
+  </section>
+
+  <section id="repro">
+    <h2>6. 复现审计</h2>
+    <h3>6.1 代码与资源</h3>
+    <div class="audit-card">
+      <p><span class="audit-pass">已公开：</span>官方 GitHub 为 <a href="https://github.com/bytedance/GR-MG/tree/main">bytedance/GR-MG</a>。README 中给出 goal image generation model 与 multi-modal goal-conditioned policy 的安装脚本、训练脚本和 CALVIN 评估脚本，并提供 policy checkpoint、goal generation checkpoint、InstructPix2Pix、MAE 和 CALVIN 数据下载入口。</p>
+      <p><span class="audit-warn">依赖较重：</span>官方 README 标注测试环境为 CUDA 12.1 + Python 3.9；goal generation 与 policy 分别安装依赖。复现不仅需要 CALVIN，还涉及 Ego4D pretraining checkpoint 或自行预训练。</p>
+    </div>
+
+    <h3>6.2 关键超参数</h3>
+    <table class="compact">
+      <tr><th>项目</th><th>Goal Image Generation Model</th><th>Multi-modal Goal-Conditioned Policy</th></tr>
+      <tr><td>batch size</td><td>1024</td><td>512</td></tr>
+      <tr><td>learning rate</td><td>8e-5</td><td>1e-3</td></tr>
+      <tr><td>optimizer</td><td>AdamW</td><td>AdamW</td></tr>
+      <tr><td>weight decay</td><td>1e-2</td><td>0</td></tr>
+      <tr><td>Adam beta1 / beta2</td><td>0.95 / 0.999</td><td>0.9 / 0.999</td></tr>
+      <tr><td>epochs</td><td>50</td><td>50</td></tr>
+    </table>
+    <p><span class="appendix-ref">附录 Training</span>：生成器在 16 张 NVIDIA A100 80GB 上训练 50 epochs，CALVIN 约 18 小时，真实机器人约 30 小时；policy 在 32 张 NVIDIA A800 40GB 上训练 50 epochs，CALVIN 约 17 小时，真实机器人约 7 小时。生成器训练使用 CenterCrop、ColorJitter，EMA 对稳定性能很关键。</p>
+
+    <h3>6.3 复现路径</h3>
+    <ol>
+      <li>准备官方环境：分别安装 <code>goal_gen/install.sh</code> 与 <code>policy/install.sh</code> 所需依赖。</li>
+      <li>下载 InstructPix2Pix 权重到 <code>resources/IP2P/</code>，下载 MAE encoder 到 <code>resources/MAE/</code>，准备 CALVIN 数据。</li>
+      <li>训练目标图生成器：修改 <code>goal_gen/config/train.json</code> 后运行 <code>bash ./goal_gen/train_ip2p.sh ./goal_gen/config/train.json</code>。</li>
+      <li>policy 预训练：可使用作者提供的 Ego4D-pretrained checkpoint，也可用 <code>bash ./policy/main.sh ./policy/config/pretrain.json</code> 自行预训练。</li>
+      <li>训练 policy：设置 <code>/policy/config/train.json</code> 中的 pretrained model path，运行 <code>bash ./policy/main.sh ./policy/config/train.json</code>。</li>
+      <li>CALVIN 评估：运行 <code>bash ./evaluate/eval.sh ./policy/config/train.json</code>，并在脚本中指定 goal generation model 与 policy checkpoint。</li>
+    </ol>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>从论文自己的实验设计看，价值集中在“把两种不同缺失标签的数据分别接入不同模块”这一点。缺动作标签的视频不适合直接监督 action，但适合训练“当前图 + 语言 + 进度 → 未来目标图”；缺文本标签的机器人轨迹不适合训练语言理解，但适合训练 goal image conditioned policy 如何把视觉目标转成动作。这种模块分工让 partially-annotated data 的使用路径比较清楚。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>论文不是只给单一主表，而是用多组互相对应的证据支撑核心设计：CALVIN 主表验证完整 GR-MG 的 long-horizon 提升；w/o text、w/o image 验证双模态条件；w/o progress 与目标图相似度指标验证进度条件；10% data scarcity 验证无文本机器人轨迹对 policy 有用；真实机器人 w/o part. ann. data 和生成图可视化验证缺动作标签视频对生成器和 OOD 目标理解有帮助。few-shot 部分还指出 policy 是瓶颈，和结论里的扩展方向一致。</p>
+
+    <h3>7.3 作者自述的局限与未来方向</h3>
+    <ul>
+      <li>两个模块目前独立训练：生成器用 timestep 得到 progress 和 ground-truth future frame，policy 用 ground-truth goal image；作者把联合训练留作未来工作。</li>
+      <li>few-shot novel skills 中，目标图生成器可生成准确目标图，但 policy 仍难以执行，作者计划用更多真实世界 data w/o text labels 扩大 policy 训练。</li>
+      <li>结论中还提出要扩大两个模块的 partially-annotated data 训练规模，并考虑引入 depth information 提升动作预测准确性。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>GR-MG 适用于能从视觉中表达中间目标状态的操作任务，并假设生成器可以定期生成对 policy 有用的 sub-goal image。对于目标无法通过单张 RGB sub-goal 表达、深度/接触信息关键、或 policy 对真实执行动力学要求极高的任务，论文没有给出充分覆盖。真实机器人实验虽包含非 pick-and-place 任务与多类 OOD 设置，但仍是在作者自建平台、相机配置和任务集合内验证。</p>
+  </section>
+</main>
+</body>
+</html>

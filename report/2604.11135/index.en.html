@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AIM: Intent-Aware Unified world action Modeling with Spatial Value Maps - Reading Report</title>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\(', '\)']], displayMath: [['$$', '$$'], ['\[', '\]']] }, svg: { fontCache: 'global' } };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>AIM: Intent-Aware Unified world action Modeling with Spatial Value Maps</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Liaoyuan Fan, Zetian Xu, Chen Cao, Wenyao Zhang, Mingqi Yuan, Jiayu Chen</p>
+<p><strong>Organization: </strong>INFIFORCE Intelligent Technology Co., Ltd.; The University of Hong Kong; Shanghai Jiao Tong University</p>
+<p><strong>Publication: </strong>arXiv preprint / NeurIPS 2025 template, source code version 2026-03-23</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2604.11135">2604.11135</a> | <strong>PDF: </strong><a href="https://arxiv.org/pdf/2604.11135">Download</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#s1">1. Quick overview of the paper</a></li><li><a href="#s2">2. Motivation</a></li><li><a href="#s3">3. Summary of related work</a></li>
+<li><a href="#s4">4. Detailed explanation of method</a></li><li><a href="#s5">5. Experiment</a></li><li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<h2 id="s1">1. Quick overview of the paper</h2>
+<div class="tldr"><strong>One-sentence summary: </strong>AIM uses a unified generative world-action model of "future RGB + spatial value map + action" to transform the future imagination ability of the video generation model into explicit spatial cues of "where to interact" in robot control, and achieved an average Easy / Hard success rate of 94.0% / 92.1% on RoboTwin 2.0.</div>
+<table>
+<tr><th>Reading positioning</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>There are unified world action models that can predict future images, but action decoding still requires implicit recovery of contact positions and operation intentions from dense RGB latent, resulting in high robot domain adaptation costs.</td></tr>
+<tr><td>The author's approach</td><td>Introducing action-based spatial value maps aligned to future frames as an explicit spatial interface between future visual prediction and action decoding.</td></tr>
+<tr><td>most important results</td><td>On the 50 simulation tasks of RoboTwin 2.0, AIM reached Easy 94.0%, Hard 92.1%, and an average of 93.1%, which is higher than Stage1's 92.5% and external baselines.</td></tr>
+<tr><td>Things to note when reading</td><td>The core is not to "add one more heatmap supervision", but to use intent-causal attention to force the action branch to read future information only through the value map.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand video diffusion / flow matching, Transformer attention mask, VLA / world-action model, and PPO / GRPO type goals in RL post-training.</p>
+<p><strong>Keywords: </strong>Unified World Action Model; Spatial Value Map; Intent-Causal Attention; Mixture-of-Transformers; GRPO Post-Training; RoboTwin 2.0. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Intent-aware unified world action model: </strong>Adding a spatial value-map interface between future prediction and action decoding enables the model to explicitly represent task-related interaction structures.</li>
+<li><strong>Spatially grounded control training framework: </strong>Put joint frame-value generation, intent-causal attention and self-distillation RL post-training into the same framework.</li>
+<li><strong>30K simulation trajectory data set: </strong>Construct data containing multi-view videos, action sequences, task identifiers, and step-by-step value-map annotations for training and evaluation.</li>
+<li><strong>RoboTwin 2.0 performance: </strong>Achieving 94.0%/92.1% average SR on Easy/Hard settings, respectively, for 50 simulation tasks.</li>
+</ul>
+<p><span class="appendix-ref">Appendix status</span> No Appendix / Supplementary section was found in the source code; all contents of this report come from the text, charts and reference files.</p>
+<h2 id="s2">2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The core issue that the paper focuses on is: how to reliably transform the visual dynamic priors learned by large-scale video generation models into continuous actions in contact-intensive robot operations. Video models are good at answering "what does the scene look like next", but robot control also needs to answer "where should the end effector touch and why this position is useful for the task." In tasks such as grabbing, placing, pressing, scanning, switching, etc., this kind of information is usually sparse contact area, while RGB future latent contains a lot of appearance details.</p>
+<p>The authors point out that existing unified world-action models typically have the action head decode actions directly from a shared future visual representation. This forces the model to implicitly recover the manipulation intent from the dense visual representation; this inverse dynamics problem is more difficult for cluttered scenes or contact-sensitive tasks.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li><strong>Traditional VLA: </strong>Directly from observation + language to action, it can imitate the demonstration, but does not explicitly model how the action changes future observations.</li>
+<li><strong>Two-stage WAM: </strong>The future state is predicted first and then handed over to the action model; there is a lack of controllable and explicit interactive interface between the future state and action decoding.</li>
+<li><strong>Phase 1 WAM: </strong>Future state prediction and action prediction share the observation stream; the action head still needs to extract sparse action cues from the dense RGB future.</li>
+<li><strong>Spatial grounding method: </strong>Existing work has proven that operable regions, voxel-aligned action spaces, etc. are useful for manipulation, but they are usually used as independent policy heads or perception modules, without being directly embedded in the generative world-action model.</li>
+</ul>
+<div class="figure"><img alt="Typical WAM vs AIM" src="figures/typicalvsaim.png"/><div class="caption">Figure 1: A typical unified WAM decodes actions directly from the future visual representation; AIM adds a spatial value-map interface in the middle.</div></div>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The high-level insight of AIM is to let the model first compress future visual dynamics into "task-related spatial interaction areas", and then let the action head generate actions based on this spatial representation. In other words, future RGB is used to model how the world evolves, value map is used to express future interaction intentions, and action head only receives future information through value map.</p>
+<h2 id="s3">3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3>
+<table>
+<tr><th>Technical line</th><th>How to position the paper</th><th>The difference between AIM</th></tr>
+<tr><td>Video generation for robot learning</td><td>Work such as DreamZero, VPP, and Video Generators use pretrained video generators as visual dynamic priors for robot learning.</td><td>AIM uses Wan2.2-TI2V-5B as the video backbone, but adds value-map prediction and action branches.</td></tr>
+<tr><td>Unified world action model</td><td>LingBot-VA, GigaWorld-Policy, Fast-WAM, DreamZero, etc. put future observations and actions into a unified architecture.</td><td>AIM does not let actions directly depend on future RGB, but adds an explicit spatial intermediate interface.</td></tr>
+<tr><td>Spatially grounded representations</td><td>Where2Act, PerAct, CLIPort, CALAMARI, etc. emphasize the role of interaction region / spatial grounding on manipulation.</td><td>AIM integrates spatial value prediction directly into the generative world-action model, rather than a separate perception or policy head.</td></tr>
+</table>
+<h3>3.2 Direct comparison with previous works</h3>
+<table>
+<tr><th>Dimensions</th><th>LingBot-VA</th><th>GigaWorld-Policy / Fast-WAM</th><th><strong>AIM</strong></th></tr>
+<tr><td>Core idea</td><td>Learning video prediction and action generation in a shared latent space.</td><td>Emphasis on action-centered or efficient world-action modeling.</td><td>Jointly predict future RGB, future value map and future action.</td></tr>
+<tr><td>key assumptions</td><td>Shared visual latent is sufficient to serve motion decoding.</td><td>world-action cotraining improves strategy.</td><td>Actions require explicit spatial intent representation and cannot rely solely on dense future RGB.</td></tr>
+<tr><td>information flow</td><td>Actions can take information from the shared future representation.</td><td>Depending on the specific model design, there is usually no value-map gating.</td><td>Intent-causal attention prevents the action branch from looking directly at future RGB.</td></tr>
+<tr><td>Experimental performance</td><td>RoboTwin has an average SR of 92.2%.</td><td>Fast-WAM 91.8%, Giga-World 86.0%. </td><td>RoboTwin has an average SR of 93.1%.</td></tr>
+</table>
+<h2 id="s4">4. Detailed explanation of method</h2>
+<h3>4.1 Method overview</h3>
+<p>The input of AIM is the history window $\mathcal{H}_t=\{o_{t-k: t}, a_{t-k: t-1}\}$, where $o_t$ is the simultaneous multi-view observation and $a_t$ is the robot action. The model outputs future RGB frames $X^+$, future value maps $M^+$, and future actions $A^+$ for horizon-$h$.</p>
+<div class="figure"><img alt="AIM framework" src="figures/framework.png"/><div class="caption">Figure 2: AIM Stage I simultaneously learns future frame generation, action prediction and spatial value map estimation; Stage II uses sparse + dense rewards for GRPO.</div></div>
+<div class="formula-block">
+<p class="intuition">This decomposition is saying: first predict the future world and spatial intention, and then generate actions based on the spatial intention.</p>
+$$p(X^+, M^+, A^+ \mid \mathcal{H}_t)=p(X^+, M^+ \mid \mathcal{H}_t)\, p(A^+ \mid \mathcal{H}_t, M^+)$$
+<table><tr><td>$X^+$</td><td>A sequence of future RGB frames representing the future visual state imagined by the model.</td></tr><tr><td>$M^+$</td><td>A value map spatially aligned with future frames, encoding task-relevant interaction regions.</td></tr><tr><td>$A^+$</td><td>Future continuous robot action chunk.</td></tr><tr><td>$\mathcal{H}_t$</td><td>The context consists of historical observations, historical actions and language instructions.</td></tr></table>
+</div>
+<h3>4.2 Method evolution</h3>
+<div class="note">Traditional VLA: $o_t, c
+ightarrow a_t$, no explicit future world modeling.</div>
+<div class="note">Unified WAM: $\mathcal{H}_t
+ightarrow (X^+, A^+)$, combines future observations and actions to predict, but the action head still needs to extract the intention from the RGB future.</div>
+<div class="note">AIM: $\mathcal{H}_t
+lightarrow (X^+, M^+)
+ightarrow A^+$, using spatial value map as future information interface for action decoding.</div>
+<h3>4.3 Core design and mathematical derivation</h3>
+<h4>4.3.1 Tokenization and prefix construction</h4>
+<p>The three inputs are packed RGB, packed ASVM and continuous action. The paper follows LingBot-VA's multi-view packing: the head camera is placed at the top, and the left and right wrist cameras are placed on both sides to form a T-pose canvas.</p>
+<div class="formula-block"><p class="intuition">This formula feeds both the RGB image and the value map into the same Wan2.2 VAE, so that they are geometrically aligned in latent space.</p>
+$$z_t^o = E_{\mathrm{vae}}(	ilde x_t), \qquad z_t^m = E_{\mathrm{vae}}(	ilde m_t)$$
+<table><tr><td>$	ilde x_t$</td><td>RGB observation after three-view splicing.</td></tr><tr><td>$	ilde m_t$</td><td>RGB ASVM with the same T-pose layout.</td></tr><tr><td>$z_t^o, z_t^m$</td><td>VAE latent tokens; shared VAE avoids redoing the visual tokenizer.</td></tr></table></div>
+<div class="formula-block"><p class="intuition">This formula turns actions and languages into tokens so that they can enter the Transformer framework.</p>
+$$z_t^a=E_a(a_t), \qquad z^\ell=E_{\mathrm{t5}}(c)$$
+<p>Among them, $a_t\in\mathbb{R}^{d_a}$ is the continuous action vector of both arms, $E_a$ is a lightweight MLP, and $c$ is a language instruction. Language tokens are only injected into the video model through cross-attention and are not directly injected into the action branch.</p></div>
+<div class="formula-block"><p class="intuition">This prefix defines the historical context that the model can see when rolling out.</p>
+$$\mathcal{H}^{\mathrm{tok}}_t=[z_{t-k: t}^o, \, z_{t-k: t-1}^a, \, z^\ell]$$
+<p>It also contains recent observations, recent actions and task language, which are used to estimate robot status and predict future chunks.</p></div>
+<h4>4.3.2 Mixture-of-Transformers three-stream architecture</h4>
+<p>The model includes video generation model and action head. The video branch is initialized by Wan2.2 and is used for future RGB and value-map generation; the action head has the same depth but smaller hidden width and is used for action denoising.</p>
+<div class="formula-block"><p class="intuition">When rollout begins, the three future token streams all start with noise and then gradually denoise.</p>
+$$\hat z_0^x, \hat z_0^m, \hat z_0^a\sim\mathcal{N}(0, I)$$
+<p>The value stream also receives the learned value noise token $n^m$, and the actual input is $[\hat z_0^m, n^m]$. The RGB and value maps denoise along the same flow-matching trajectory, and the action token is denoised by the action head.</p></div>
+<div class="formula-block"><p class="intuition">Each output is reduced to an interpretable object by the corresponding decoder.</p>
+$$\hat X^+=D_x(z^x), \qquad \hat M^+=D_m(z^m), \qquad \hat A^+=D_a(z^a)$$
+<table><tr><td>$D_x$</td><td>Future RGB decoder.</td></tr><tr><td>$D_m$</td><td>value-map decoder.</td></tr><tr><td>$D_a$</td><td>Continuous action decoder.</td></tr></table></div>
+<div class="formula-block"><p class="intuition">The key to MoT is: attention shares interactions, FFN keeps branches private.</p>
+$$Q_s^\ell=h_s^\ell W_{Q, s}^\ell, \quad K_s^\ell=h_s^\ell W_{K, s}^\ell, \quad V_s^\ell=h_s^\ell W_{V, s}^\ell, \quad s\in\{x, m, a\}$$
+<p>Each stream first uses its own projection to obtain Q/K/V, then casts it into the common attention dimension for masked shared self-attention, and finally casts it back to its respective hidden space and goes branch-specific feed-forward.</p></div>
+<div class="formula-block"><p class="intuition">The training goals simultaneously constrain future vision, spatial intentions, and movements.</p>
+$$\mathcal{L}=\mathcal{L}_{\mathrm{rgb}}+\lambda_m\mathcal{L}_{\mathrm{map}}+\lambda_a\mathcal{L}_{\mathrm{act}}$$
+<p>$\mathcal{L}_{\mathrm{rgb}}$ and $\mathcal{L}_{\mathrm{map}}$ supervise flow-matching velocity field; $\mathcal{L}_{\mathrm{act}}$ supervises inverse-dynamics action prediction.</p></div>
+<h4>4.3.3 Intent-Causal Self-Attention</h4>
+<p>This is a structural constraint of AIM: action tokens are not allowed to directly attend future RGB tokens, and future information can only be accessed through future value tokens.</p>
+<div class="formula-block"><p class="intuition">Three visible token sets define what each channel can see in shared attention.</p>
+$$egin{aligned}
+\mathcal{V}_x&amp;=[z_t^o, z_{t-k: t-1}^o, z_{t-k: t-1}^a, z^\ell, z^x], \
+\mathcal{V}_m&amp;=[z_t^o, z_{t-k: t-1}^o, z^x, z^m], \
+\mathcal{V}_a&amp;=[z_t^o, z_{t-k: t-1}^a, z^m, z^a].
+\end{aligned}$$
+<table><tr><td>$\mathcal{V}_x$</td><td>Future video can see current observations, historical observations/actions, language and its own future video token.</td></tr><tr><td>$\mathcal{V}_m$</td><td>The future value map looks at current/historical observations and future video, allowing the value map to be bound to the sampled future state.</td></tr><tr><td>$\mathcal{V}_a$</td><td>Action can see current observations, historical actions, future value map and its own action token, but cannot see future RGB.</td></tr></table></div>
+<div class="formula-block"><p class="intuition">Masked attention only takes K/V from the corresponding visible set.</p>
+$$	ilde h_s^\ell=\mathrm{Attn}(Q_s^\ell, K(\mathcal{V}_s), V(\mathcal{V}_s))$$
+<p>Therefore, the task semantics first enter the video branch, the future state information is then imported into the value stream, and the action branch finally only receives future information through value representation.</p></div>
+<h4>4.3.4 Self-Distillation RL Post-Training</h4>
+<p>The supervised learning of Stage I allows the action head to imitate the actions of the data set; Stage II only updates the action head in a closed-loop environment, freezing the video generator and value-map head to avoid future frame / value-map prediction drift.</p>
+<div class="formula-block"><p class="intuition">dense reward: Whether the reward action point falls in the high value area predicted by the model itself.</p>
+$$r_t=\lambda_d r_t^{\mathrm{dense}}+\lambda_s r_t^{\mathrm{sparse}}, \qquad r_t^{\mathrm{dense}}=M_t(\Pi(p_t))$$
+<table><tr><td>$r_t^{\mathrm{sparse}}$</td><td>Environment-level task success or completion signal.</td></tr><tr><td>$p_t$</td><td>Predict action landing points or end effector targets.</td></tr><tr><td>$\Pi(\cdot)$</td><td>The camera projection function projects the 3D object onto the image plane.</td></tr><tr><td>$M_t$</td><td>Freeze the value map predicted by the value head.</td></tr></table></div>
+<div class="formula-block"><p class="intuition">GRPO uses clipped ratio to limit the policy update range of the action head.</p>
+$$\mathcal{L}_{\mathrm{GRPO}}(\phi)=\mathbb{E}_t\left[\min\left(
+ho_t(\phi)\hat A_t, \mathrm{clip}(
+ho_t(\phi), 1-\epsilon, 1+\epsilon)\hat A_t
+ight)
+ight]$$
+$$
+ho_t(\phi)=rac{\pi_\phi(a_t\mid\mathcal{H}_t, m_{t+1: t+h})}{\pi_{\phi_{\mathrm{old}}}(a_t\mid\mathcal{H}_t, m_{t+1: t+h})}$$
+<p>$\hat A_t$ is an advantage based on combined reward. The authors call it self-distillation because the frozen value head guides the action head online without the need for additional manual labeling.</p></div>
+<h3>4.4 Implementation Points (For reproducibility)</h3>
+<ul>
+<li><strong>Visual input: </strong>Three-view synthesis T-pose canvas remains compatible with the input interface of Wan2.2 video VAE.</li>
+<li><strong>value-map input: </strong>Initialized to a pure black image, equivalent to null value prior; the task-related spatial structure is learned through denoising.</li>
+<li><strong>Language injection: </strong>T5 language token only cross-attends to the video model; the language conditions of the action head must be passed indirectly through the world/value representation.</li>
+<li><strong>attention mask: </strong>When implementing, it must be ensured that the action token is not visible to future RGB tokens, otherwise the intent-causal constraints of the paper will be violated.</li>
+<li><strong>Reasoning efficiency: </strong>Autoregressive chunk-wise rollout supports KV cache and only recalculates attention for newly added real observations and prediction tokens.</li>
+<li><strong>RL stability: </strong>Stage II freezes the video generation model and value-map head, and only updates the action head.</li>
+</ul>
+<div class="pseudocode">Algorithm: AIM rollout
+Input: history observations o[t-k: t], actions a[t-k: t-1], instruction c
+1. Pack multi-view RGB into T-pose canvas x_tilde
+2. Encode RGB/value/action/language tokens: z_o, z_m, z_a, z_l
+3. Initialize future tokens z_x, z_m, z_a from Gaussian noise
+4. Denoise RGB and value streams with video model
+5. Apply intent-causal attention mask: action stream sees history action + current observation + future value, not future RGB
+6. Decode X+, M+, A+
+7. Execute action chunk; append new observation/action to KV-cached prefix</div>
+<h2 id="s5">5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<table>
+<tr><th>Project</th><th>settings</th></tr>
+<tr><td>Dataset</td><td>30K RoboTwin 2.0 simulation trajectories; each contains synchronized multi-view video, action sequence, task ID, per-step value-map annotations.</td></tr>
+<tr><td>Task</td><td>RoboTwin 2.0's 50 simulation manipulation tasks, including Easy and Hard settings.</td></tr>
+<tr><td>Backbone</td><td>The video generation model is initialized from Wan2.2-TI2V-5B.</td></tr>
+<tr><td>Baselines</td><td>$\pi_0$, $\pi_{0.5}$, X-VLA, Motus, Fast-WAM, Giga-World, LingBot-VA; also reports Stage1 as RL pre-supervised model.</td></tr>
+<tr><td>indicator</td><td>Success Rate (SR), statistics based on task success rate.</td></tr>
+<tr><td>RL post-training</td><td>The action head is initialized from the Stage1 checkpoint; the video generation model and value-map head are frozen.</td></tr>
+<tr><td>Hardware/Hyperparameters</td><td>The text does not give the specific values of GPU, training duration, batch size, learning rate, $\lambda_m$, $\lambda_a$, $\lambda_d$, $\lambda_s$, and GRPO clipping $\epsilon$.</td></tr>
+<tr><td>code repository</td><td>The arXiv page and source code do not provide an official GitHub/project URL.</td></tr>
+</table>
+<h3>5.2 Value-map annotation process</h3>
+<table>
+<tr><th>Task type</th><th>Mark source</th><th>Generation method</th><th>meaning</th></tr>
+<tr><td>Pick</td><td>The contact surface point cloud when the gripper is in effective gripping contact with the target object.</td><td>Use the camera calibration matrix to project to the image plane, and then perform Gaussian smoothing; the kernel width is dynamically adjusted with the camera parameters and depth.</td><td>The grasp affordance region is the spatial region where the end effector successfully physically interacts with the target object.</td></tr>
+<tr><td>Place</td><td>When the object reaches a stable placement state, the contact region between the grasped object and the target support surface.</td><td>Detect placement completion with a small center-of-mass velocity threshold, and then project the contact area to generate a heat map.</td><td>placement contact region, that is, the location that should contact the environment when the placement target is met.</td></tr>
+</table>
+<h3>5.3 Main results</h3>
+<table>
+<tr><th>Setting</th><th>$\pi_0$</th><th>$\pi_{0.5}$</th><th>X-VLA</th><th>Motus</th><th>Fast-WAM</th><th>Giga-World</th><th>LingBot-VA</th><th>Stage1</th><th>AIM</th></tr>
+<tr><td>Easy</td><td>65.9%</td><td>82.7%</td><td>72.8%</td><td>88.7%</td><td>91.9%</td><td>87.0%</td><td>92.9%</td><td>93.0%</td><td><strong>94.0%</strong></td></tr>
+<tr><td>Hard</td><td>58.4%</td><td>76.8%</td><td>72.8%</td><td>87.0%</td><td>91.8%</td><td>85.0%</td><td>91.6%</td><td>92.0%</td><td><strong>92.1%</strong></td></tr>
+<tr><td>Average</td><td>62.2%</td><td>79.8%</td><td>72.8%</td><td>87.8%</td><td>91.8%</td><td>86.0%</td><td>92.2%</td><td>92.5%</td><td><strong>93.1%</strong></td></tr>
+</table>
+<p>Looking column by column, AIM is +5.3% / +5.0% higher than Motus on Easy / Hard respectively; +11.3% / +15.3% higher than $\pi_{0.5}$ respectively. Stage1 has reached 93.0% / 92.0%, and Stage II RL has further reached 94.0% / 92.1%, indicating that the main gains come from the spatial interface and supervised training, and RL post-training provides additional small improvements.</p>
+<details><summary>Expansion: per-task SR table for 50 tasks</summary>
+<table><tr><th>Task</th><th>$\pi_{0.5}$ Easy</th><th>$\pi_{0.5}$ Hard</th><th>X-VLA Easy</th><th>X-VLA Hard</th><th>Motus Easy</th><th>Motus Hard</th><th>Stage1 Easy</th><th>Stage1 Hard</th><th>AIM Easy</th><th>AIM Hard</th></tr><tr><td>Adjust Bottle</td><td>100%</td><td>99%</td><td>100%</td><td>99%</td><td>89%</td><td>93%</td><td>98%</td><td>99%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Beat Block Hammer</td><td>96%</td><td>93%</td><td>92%</td><td>88%</td><td>95%</td><td>88%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Blocks Ranking RGB</td><td>92%</td><td>85%</td><td>83%</td><td>83%</td><td>99%</td><td>97%</td><td>91%</td><td>77%</td><td>92%</td><td>77%</td></tr>
+<tr><td>Blocks Ranking Size</td><td>49%</td><td>26%</td><td>67%</td><td>74%</td><td>75%</td><td>63%</td><td>47%</td><td>44%</td><td>47%</td><td>43%</td></tr>
+<tr><td>Click Alarmclock</td><td>98%</td><td>89%</td><td>99%</td><td>99%</td><td>100%</td><td>100%</td><td>98%</td><td>99%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Click Bell</td><td>99%</td><td>66%</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td>98%</td><td>99%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Dump Bin Bigbin</td><td>92%</td><td>97%</td><td>79%</td><td>77%</td><td>95%</td><td>91%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Grab Roller</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td>98%</td><td>99%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Handover Block</td><td>66%</td><td>57%</td><td>73%</td><td>37%</td><td>86%</td><td>73%</td><td>92%</td><td>89%</td><td>93%</td><td>90%</td></tr>
+<tr><td>Handover Mic</td><td>98%</td><td>97%</td><td>0%</td><td>0%</td><td>78%</td><td>63%</td><td>82%</td><td>82%</td><td>83%</td><td>81%</td></tr>
+<tr><td>Hanging Mug</td><td>18%</td><td>17%</td><td>23%</td><td>27%</td><td>38%</td><td>38%</td><td>43%</td><td>43%</td><td>43%</td><td>42%</td></tr>
+<tr><td>Lift Pot</td><td>96%</td><td>85%</td><td>99%</td><td>100%</td><td>96%</td><td>99%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Move Can Pot</td><td>51%</td><td>55%</td><td>89%</td><td>86%</td><td>34%</td><td>74%</td><td>99%</td><td>97%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Move Pillbottle Pad</td><td>84%</td><td>61%</td><td>73%</td><td>71%</td><td>93%</td><td>96%</td><td>97%</td><td>99%</td><td>97%</td><td>98%</td></tr>
+<tr><td>Move Playingcard Away</td><td>96%</td><td>84%</td><td>93%</td><td>98%</td><td>100%</td><td>96%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Move Stapler Pad</td><td>56%</td><td>42%</td><td>78%</td><td>73%</td><td>83%</td><td>85%</td><td>91%</td><td>83%</td><td>92%</td><td>84%</td></tr>
+<tr><td>Open Laptop</td><td>90%</td><td>96%</td><td>93%</td><td>100%</td><td>95%</td><td>91%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Open Microwave</td><td>34%</td><td>77%</td><td>79%</td><td>71%</td><td>95%</td><td>91%</td><td>83%</td><td>80%</td><td>83%</td><td>79%</td></tr>
+<tr><td>Pick Diverse Bottles</td><td>81%</td><td>71%</td><td>58%</td><td>36%</td><td>90%</td><td>91%</td><td>99%</td><td>97%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Pick Dual Bottles</td><td>93%</td><td>63%</td><td>47%</td><td>36%</td><td>96%</td><td>90%</td><td>92%</td><td>90%</td><td>93%</td><td>91%</td></tr>
+<tr><td>Place A2B Left</td><td>87%</td><td>82%</td><td>48%</td><td>49%</td><td>82%</td><td>79%</td><td>93%</td><td>91%</td><td>94%</td><td>92%</td></tr>
+<tr><td>Place A2B Right</td><td>87%</td><td>84%</td><td>36%</td><td>36%</td><td>90%</td><td>87%</td><td>89%</td><td>89%</td><td>90%</td><td>88%</td></tr>
+<tr><td>Place Bread Basket</td><td>77%</td><td>64%</td><td>81%</td><td>71%</td><td>91%</td><td>94%</td><td>92%</td><td>90%</td><td>93%</td><td>91%</td></tr>
+<tr><td>Place Bread Skillet</td><td>85%</td><td>66%</td><td>77%</td><td>67%</td><td>86%</td><td>83%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Place Burger Fries</td><td>94%</td><td>87%</td><td>94%</td><td>94%</td><td>98%</td><td>98%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Place Can Basket</td><td>62%</td><td>62%</td><td>49%</td><td>52%</td><td>81%</td><td>76%</td><td>78%</td><td>77%</td><td>78%</td><td>76%</td></tr>
+<tr><td>Place Cans Plasticbox</td><td>94%</td><td>84%</td><td>97%</td><td>98%</td><td>98%</td><td>94%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Place Container Plate</td><td>99%</td><td>95%</td><td>97%</td><td>95%</td><td>98%</td><td>99%</td><td>100%</td><td>96%</td><td>100%</td><td>97%</td></tr>
+<tr><td>Place Dual Shoes</td><td>75%</td><td>75%</td><td>79%</td><td>88%</td><td>93%</td><td>87%</td><td>100%</td><td>99%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Place Empty Cup</td><td>100%</td><td>99%</td><td>100%</td><td>98%</td><td>99%</td><td>98%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Place Fan</td><td>87%</td><td>85%</td><td>80%</td><td>75%</td><td>91%</td><td>87%</td><td>93%</td><td>89%</td><td>93%</td><td>90%</td></tr>
+<tr><td>Place Mouse Pad</td><td>60%</td><td>39%</td><td>70%</td><td>70%</td><td>66%</td><td>68%</td><td>97%</td><td>96%</td><td>97%</td><td>95%</td></tr>
+<tr><td>Place Object Basket</td><td>80%</td><td>76%</td><td>44%</td><td>39%</td><td>81%</td><td>87%</td><td>93%</td><td>88%</td><td>93%</td><td>89%</td></tr>
+<tr><td>Place Object Scale</td><td>86%</td><td>80%</td><td>52%</td><td>74%</td><td>88%</td><td>85%</td><td>100%</td><td>97%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Place Object Stand</td><td>91%</td><td>85%</td><td>86%</td><td>88%</td><td>98%</td><td>97%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Place Phone Stand</td><td>81%</td><td>81%</td><td>88%</td><td>87%</td><td>87%</td><td>86%</td><td>82%</td><td>81%</td><td>82%</td><td>80%</td></tr>
+<tr><td>Place Shoe</td><td>92%</td><td>93%</td><td>96%</td><td>95%</td><td>99%</td><td>97%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Press Stapler</td><td>87%</td><td>83%</td><td>92%</td><td>98%</td><td>93%</td><td>98%</td><td>96%</td><td>95%</td><td>96%</td><td>94%</td></tr>
+<tr><td>Put Bottles Dustbin</td><td>84%</td><td>79%</td><td>74%</td><td>77%</td><td>81%</td><td>79%</td><td>80%</td><td>75%</td><td>80%</td><td>74%</td></tr>
+<tr><td>Put Object Cabinet</td><td>80%</td><td>79%</td><td>46%</td><td>48%</td><td>88%</td><td>71%</td><td>81%</td><td>75%</td><td>81%</td><td>74%</td></tr>
+<tr><td>Rotate QRcode</td><td>89%</td><td>87%</td><td>34%</td><td>33%</td><td>89%</td><td>73%</td><td>98%</td><td>99%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Scan Object</td><td>72%</td><td>65%</td><td>14%</td><td>36%</td><td>67%</td><td>66%</td><td>98%</td><td>97%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Shake Bottle Horizontally</td><td>99%</td><td>99%</td><td>100%</td><td>100%</td><td>100%</td><td>98%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Shake Bottle</td><td>99%</td><td>97%</td><td>99%</td><td>100%</td><td>100%</td><td>97%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Stack Blocks Three</td><td>91%</td><td>76%</td><td>6%</td><td>10%</td><td>91%</td><td>95%</td><td>100%</td><td>99%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Stack Blocks Two</td><td>97%</td><td>100%</td><td>92%</td><td>87%</td><td>100%</td><td>98%</td><td>98%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Stack Bowls Three</td><td>77%</td><td>71%</td><td>76%</td><td>86%</td><td>79%</td><td>87%</td><td>100%</td><td>99%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Stack Bowls Two</td><td>95%</td><td>96%</td><td>96%</td><td>93%</td><td>98%</td><td>98%</td><td>100%</td><td>97%</td><td>100%</td><td>98%</td></tr>
+<tr><td>Stamp Seal</td><td>79%</td><td>55%</td><td>76%</td><td>82%</td><td>93%</td><td>92%</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td></tr>
+<tr><td>Turn Switch</td><td>62%</td><td>54%</td><td>40%</td><td>61%</td><td>84%</td><td>78%</td><td>100%</td><td>99%</td><td>100%</td><td>98%</td></tr></table>
+</details>
+<h3>5.4 Ablation and supplementation results</h3>
+<p>The ablation explicitly reported in the paper is Stage1 vs AIM: Stage1 represents the supervised model before RL post-training, and AIM represents the model after adding self-distillation RL. The average SR ranges from 92.5% to 93.1%, Easy from 93.0% to 94.0%, and Hard from 92.0% to 92.1%. This shows that additional improvements after RL training exist, but the magnitude is smaller than the gap with external baselines.</p>
+<p>The author pointed out that the tasks with more obvious gains are concentrated in contact-sensitive and stage-dependent manipulation: Place Mouse Pad reaches 97% / 95%, Scan Object reaches 100% / 98%, and Turn Switch reaches 100% / 98%. These tasks require accurate localization of task-relevant interaction areas.</p>
+<div class="figure"><img alt="Representative task execution processes" src="figures/visual.png"/><div class="caption">Figure 3: RoboTwin 2.0 represents the task execution process, including place mouse pad, press stapler, scan object, turn switch, and open laptop; the left column is Easy and the right column is Hard.</div></div>
+<h2 id="s7">7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own description and experiments, the core value of AIM lies in splitting the implicit coupling between "future visual prediction" and "action decoding" into a checkable spatial interface: the future frame is responsible for scene evolution, the value map is responsible for the task-relevant interaction region, and the action head only reads future information through the value map. This structure allows model performance improvements to be aligned with value-map localization and projected action targets in visualization.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The evidence given in the paper is three-fold: first, AIM in the average SR table is higher than external baselines in the three summary dimensions of Easy/Hard/Average; second, the comparison from Stage1 to AIM isolates the contribution of RL post-training; third, the author's analysis and visual explanation of contact-sensitive tasks, future frames, value maps and projected actions are consistent in the operation stage, supporting the original explanation of "the benefits come from spatial bridges rather than shortcut correlations".</p>
+<h3>7.3 Analysis and explanation of the results given in the paper</h3>
+<ul>
+<li>The authors explain that AIM has obvious benefits in contact-sensitive and stage-dependent tasks, because these tasks rely on accurate positioning of interaction areas.</li>
+<li>The authors point out that value maps concentrate on meaningful interaction regions rather than generic saliency, and projected action targets fall within high-value areas.</li>
+<li>The author attributes the high performance of Stage1 to joint frame-value generation and intent-causal attention, and RL post-training only brings further improvements.</li>
+</ul>
+<h3>7.4 Limitations of the author's statement</h3>
+<p>The main text and Conclusion do not list limitations separately, nor do they explicitly state failure cases. The coverage boundary of the paper can be objectively summarized from the experimental settings: the experiments were conducted in the RoboTwin 2.0 simulation environment, and the value-map annotation relied on simulation contact API, camera calibration, and physical state; the text did not report real robot experiments, cross-dataset generalization, training costs, hyperparameter sensitivity, or failed task analysis. The above are coverage boundaries based on the original experimental range, not additional performance judgments.</p>
+<h3>7.5 Applicable boundaries and discussion</h3>
+<ul>
+<li><strong>Applicable scenarios: </strong>Multiple perspectives, language conditions, contact-intensive manipulation, and settings for value-map supervision can be obtained or automatically generated.</li>
+<li><strong>Key prerequisites: </strong>The value map must be spatially aligned with the future RGB; the intent-causal mask must block the action branch's direct access to the future RGB.</li>
+<li><strong>Data premise: </strong>Training relies on 30K RoboTwin trajectories containing multi-view videos, actions, and per-step value-map annotations.</li>
+<li><strong>Not covered: </strong>The source code does not provide an Appendix; it does not provide complete hyperparameters, hardware, training duration, code warehouse or real robot deployment details.</li>
+</ul>
+<h2>Acceptance record</h2>
+<ul>
+<li>Chapter coverage: Abstract, Introduction, Related Work, Overview, Method, Dataset and Value-Map Annotation, Experiments, and Conclusion have all been mapped to report chapters.</li>
+<li>Chart overlay: The three separate PNG charts have been copied and embedded; the two results tables have been reconstructed as HTML tables, with the per-task table placed in a collapsed area.</li>
+<li>Appendix coverage: There is no Appendix in the source code; the report is clearly marked.</li>
+<li>Objectivity: The analysis and limitations are based on the original experiments, charts and conclusions, and no additional improvement suggestions are added.</li>
+</ul>
+</main>
+</body>
+</html>

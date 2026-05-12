@@ -1,0 +1,75 @@
+[
+  {
+    "env": "figure",
+    "label": "fig:teaser",
+    "caption": "Motivation and Overview of our Shortcut Video-Action Model.\n(a) Current video-action models struggle with a trade-off: \\textit{one-step feature extraction",
+    "graphics": [
+      "imgs/teaser_35.pdf"
+    ],
+    "block": "[!t]\n    \\centering\n    \\includegraphics[width=.98\\linewidth]{imgs/teaser_35.pdf}\n    \\caption{Motivation and Overview of our Shortcut Video-Action Model.\n(a) Current video-action models struggle with a trade-off: \\textit{one-step feature extraction} is fast but yields noisy and entangled representations, whereas \\textit{multi-step video generation} predicts precise future states but is too slow for real-time control.\n(b) To address this, we propose a shortcut video-action model that foresees coherent geometric and semantic representations via a single forward pass. Specifically, we introduce a self-distillation strategy that extracts vision foundation model (VFM) representations (DPAv3~\\cite{lin2025depth} and DINOv2~\\cite{oquab2023dinov2}) from the diffusion model's own multi-step generated videos to serve as teacher supervision exclusively during training (dashed path). By employing lightweight decouplers as students to map entangled one-step features to these geometry and semantics-oriented targets, our approach condenses structured generative priors of multi-step denoising into one-step inference, thereby enabling real-time and precise action prediction.}\n\\label{fig:teaser}\n\n"
+  },
+  {
+    "env": "figure",
+    "label": "fig:method_overview",
+    "caption": "Architecture of our S-VAM. The core technical novelty lies in establishing a \\textbf{shortcut",
+    "graphics": [
+      "imgs/method_34.pdf"
+    ],
+    "block": "[t]\n  \\centering\n  \\includegraphics[width=0.99\\linewidth]{imgs/method_34.pdf}\n \\caption{Architecture of our S-VAM. The core technical novelty lies in establishing a \\textbf{shortcut} that bypasses the prohibitive latency of iterative video generation. Specifically, specialized decouplers disentangle highly entangled one-step diffusion features into coherent geometric and semantic foresight. This foresight is then aggregated with original features by a Uni-Perceiver, providing a holistic condition context for the downstream diffusion policy to predict precise robot action.} \n  \\label{fig:method_overview}\n"
+  },
+  {
+    "env": "figure",
+    "label": "fig:qualitative_viz",
+    "caption": "Qualitative comparison on CALVIN~\\cite{mees2022calvin",
+    "graphics": [
+      "imgs/calvin_32.pdf"
+    ],
+    "block": "[!t]\n  \\centering\n  \\includegraphics[width=1\\linewidth]{imgs/calvin_32.pdf}\n\n\\caption{Qualitative comparison on CALVIN~\\cite{mees2022calvin}. VPP~\\cite{huvideo} utilizes entangled one-step features, resulting in an erratic attention trajectory that explicitly contradicts the language instruction and leads to failed actuation. In contrast, our S-VAM foresees geometric and semantic representations. This decoupled future blueprint enables the action expert to anchor a coherent attention trajectory that perfectly aligns with the language instruction, thereby ensuring successful execution. \\textit{Note: Geometric foresight is visualized as probe-based depth maps}~\\cite{li2025spatial,wu2026geometry}\\textit{; one-step and semantic features are visualized via PCA computed globally across the entire sequence.}}\n\\label{fig:qualitative_viz}\n\n"
+  },
+  {
+    "env": "figure",
+    "label": "fig:qualitative_viz_meta",
+    "caption": "\nQualitative comparison on MetaWorld~\\cite{yu2020meta",
+    "graphics": [
+      "imgs/meta_32.pdf"
+    ],
+    "block": "[!t]\n  \\centering\n  \\includegraphics[width=1\\linewidth]{imgs/meta_32.pdf}\n\\caption{\nQualitative comparison on MetaWorld~\\cite{yu2020meta}.\nVPP~\\cite{huvideo} utilizes entangled one-step features, resulting in a diverging attention trajectory that completely misses the target ``nut''. In contrast, our S-VAM foresees explicit geometric and semantic representations. This decoupled future blueprint enables the action expert to anchor a coherent attention trajectory that accurately guides to the instructed target, ensuring successful grasping. \\textit{Note: Visualization settings follow~\\cref{fig:qualitative_viz}.}\n}\n\\label{fig:qualitative_viz_meta}\n"
+  },
+  {
+    "env": "figure",
+    "label": "fig:real_world",
+    "caption": "Multi-task real-world experiments. (a) We deploy our system on a dual-arm Cobot using only monocular front-camera observations. (b) Our S-VAM demonstrates a significant success rate improvement over VPP~\\cite{huvideo",
+    "graphics": [
+      "imgs/real_world_35.pdf"
+    ],
+    "block": "[!t]\n  \\centering\n  \\includegraphics[width=0.99\\linewidth]{imgs/real_world_35.pdf}\n \\caption{Multi-task real-world experiments. (a) We deploy our system on a dual-arm Cobot using only monocular front-camera observations. (b) Our S-VAM demonstrates a significant success rate improvement over VPP~\\cite{huvideo} on all tasks without compromising real-time control capabilities.}\n  \\label{fig:real_world}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:results",
+    "caption": "Quantitative comparison on CALVIN~\\cite{mees2022calvin",
+    "graphics": [],
+    "block": "[!t]\n\\centering\n\\small\n\\caption{Quantitative comparison on CALVIN~\\cite{mees2022calvin}. We report stage-wise success rates (1-5) and average sequence length (Avg. Len.). \\textbf{Best} and \\underline{second-best} results are highlighted accordingly.}\n\\label{tab:results}\n\\renewcommand{\\arraystretch}{1.00}\n % 增加行高优化视觉\n\\definecolor{mygray}{gray}{0.95}  % 定义灰色背景\n\\scalebox{0.95}{\n\\begin{tabular}{c|c|ccccc|c}\n\\toprule\n\\multirow{2}{*}{\\textbf{Category}} & \\multirow{2}{*}{\\textbf{Method}} & \\multicolumn{5}{c|}{\\textbf{$i^{th}$ Task Success Rate}} & \\multirow{2}{*}{\\textbf{Avg. Len.} $\\uparrow$} \\\\\n\\cmidrule(lr){3-7} % 绘制中间的短横线，lr表示左右留白\n &  & \\textbf{1} & \\textbf{2} & \\textbf{3} & \\textbf{4} & \\textbf{5} & \\\\\n\\midrule\n\n\\multirow{4}{*}{\\shortstack{Direct Action \\\\\nLearning Methods}} \n & OpenVLA~\\cite{kim2025openvla}   & 91.3 & 77.8 & 62.0 & 52.1 & 43.5 & 3.27 \\\\\n & CLOVER~\\cite{bu2024closedloop}    & \\textbf{96.0} & 83.5 & 70.8 & 57.5 & 45.4 & 3.53 \\\\\n & $\\pi_0$~\\cite{black2024pi_0}   & 93.7 & 83.2 & 74.0 & 62.9 & 51.0 & 3.65 \\\\\n & Spatial Forcing~\\cite{li2025spatial}  &93.6 &85.8 &78.4 &72.0& 64.6& 3.94 \\\\\n\n\n\\midrule\n & SuSIE~\\cite{black2024zeroshot}  & 87.0 & 69.0 & 49.0 & 38.0 & 26.0 & 2.69 \\\\\n & VPP~\\cite{huvideo}    & 90.9 & 81.5 & 71.3 & 62.0 & 51.8 & 3.58 \\\\\n\n &Uni-VLA~\\cite{wang2025unified} & 95.5& 85.8& 74.8& 66.9& 56.5& 3.80 \\\\\n  & HiF-VLA~\\cite{lin2025hif}  & 93.5 &\\underline{87.4} & \\underline{81.4 }& \\underline{75.9} & \\textbf{69.4} & \\underline{4.08} \\\\\n\n\n\\rowcolor{mygray}\n\\cellcolor{white} \\multirow{-5}{*}{\\shortstack{Predictive \\\\  Methods}} \n&\\textbf{S-VAM(our)}  & \\underline{95.8} & \\textbf{90.7} & \\textbf{83.7} & \\textbf{77.0} & \\underline{68.9} & \\textbf{4.16}\\\\\n\n\\bottomrule\n\\end{tabular}\n}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:metaworld_results",
+    "caption": "Quantitative comparison on Metaworld~\\cite{yu2020meta",
+    "graphics": [],
+    "block": "[!t]\n\\centering\n\\small\n\\caption{Quantitative comparison on Metaworld~\\cite{yu2020meta}. We report success rates on easy, middle, and hard tasks, along with the overall average. \\textbf{Best} and \\underline{second-best} results are highlighted accordingly.}\n\\label{tab:metaworld_results}\n\n\\definecolor{mygray}{gray}{0.95}\n\n\\renewcommand{\\arraystretch}{1.00}\n\\scalebox{0.95}{\n\\begin{tabular}{c|cccc|c}\n\n\\toprule\n\\multirow{2}{*}{\\textbf{Category}} & \\multirow{2}{*}{\\textbf{Method}} & \\textbf{Easy} & \\textbf{Middle} & \\textbf{Hard} & \\textbf{Average} $\\uparrow$ \\\\\n & & (28 tasks) & (11 tasks) & (11 tasks) & (50 tasks) \\\\\n\\midrule\n\n% 第一组：Direct Action / Policy Learning\n\\multirow{3}{*}{\\shortstack{Direct Action \\\\\nLearning Methods}} \n & RT-1~\\cite{brohan2022rt}           & 0.605  & 0.042 & 0.015  & 0.346 \\\\\n & Diffusion Policy~\\cite{chi2025diffusion} & 0.442 & 0.062 & 0.095 & 0.279 \\\\\n & Spatial Forcing~\\cite{li2025spatial} & 0.737 & 0.436 & 0.451 & 0.609 \\\\\n \n\\midrule\n\n% 第二组：Future Prediction / Generative\n%\\multirow{5}{*}{\\shortstack{Predictive \\\\  Methods}} \n & SuSIE~\\cite{black2024zeroshot}  & 0.560 & 0.196 & 0.255 & 0.410 \\\\\n & GR-1~\\cite{wu2023unleashing}  & 0.725 & 0.327 & 0.451 & 0.574 \\\\\n & HiF-VLA~\\cite{lin2025hif} & 0.729 & 0.364 & 0.404 & 0.577 \\\\\n & VPP~\\cite{huvideo} & \\textbf{0.818} & \\underline{0.493} & \\underline{0.526} & \\underline{0.682} \\\\\n% & VPP*& 0.818 & 0.493 & 0.526 & 0.682 \\\\\n \n% 注意：原文中的 VPP(our) 被移除，因为它是竞品或旧方法，这里替换为您现在的 HiF-VLA\n\n\n% 第三组：Ours (灰色背景)\n\\rowcolor{mygray}\n\\cellcolor{white} \\multirow{-5}{*}{\\shortstack{Predictive \\\\  Methods}} \n& \\textbf{S-VAM (our)} & \\underline{0.793} & \\textbf{0.607} & \\textbf{0.684} & \\textbf{0.728} \\\\\n\n\\bottomrule\n\\end{tabular}\n}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:ablation",
+    "caption": "Ablation study on key components of our S-VAM.",
+    "graphics": [],
+    "block": "[!t]\n\\centering\n\\small\n\\caption{Ablation study on key components of our S-VAM.}\n\\label{tab:ablation}\n\n\\definecolor{mygray}{gray}{0.95}\n\n\\renewcommand{\\arraystretch}{1.00}\n\\scalebox{0.95}{\n\\begin{tabular}{l|ccccc|c}\n\\toprule\n\\multirow{2}{*}{\\textbf{Method Variant}} & \\multicolumn{5}{c|}{\\textbf{$i^{th}$ Task Success Rate}} & \\multirow{2}{*}{\\textbf{Avg. Len.} $\\uparrow$} \\\\\n\\cmidrule(lr){2-6}\n & \\textbf{1} & \\textbf{2} & \\textbf{3} & \\textbf{4} & \\textbf{5} & \\\\\n\\midrule\n\n% 变体 1: 去掉结构蒸馏\nw/o Geometric Distillation & 94.1 & 87.1 & 79.3 & 73.5 & 66.5 & 4.01 \\\\\n\n% 变体 2: 去掉语义蒸馏\nw/o Semantic Distillation & 94.0 & 87.1 & 80.4 & 73.2 & 64.1 & 3.99 \\\\\n\nw/o Self-Distillation   & 94.2 & 85.2 & 75.9 & 67.8 & 59.0 &  3.82\\\\\n\\midrule\n% 变体 3: 去掉 Uni-Perceiver (例如改用简单的 Concat 或 MLP)\nw/o Uni-Perceiver & 94.0 & 84.6 & 74.7 & 65.1 & 53.8 & 3.72\\\\\n\n% 变体 4: 去掉原始扩散特征 (只用蒸馏后的特征)\nw/o Original Diffusion Feature & 95.3 & 86.6 & 77.6 & 70.9 & 62.5 & 3.93\\\\\n\n%变体 5: 用GT-frames 蒸馏\n\n\n\\midrule\n% 完整模型 (灰色背景高亮)\n\\rowcolor{mygray}\n\\textbf{S-VAM (Full)} & \\textbf{95.8} & \\textbf{90.7} & \\textbf{83.7} & \\textbf{77.0} & \\textbf{68.9} & \\textbf{4.16} \\\\\n\n\\bottomrule\n\\end{tabular}\n}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:ablation_vfm",
+    "caption": "Quantitative comparison of different VFM representations as teacher targets.",
+    "graphics": [],
+    "block": "[t]\n\\centering\n\\small\n\\caption{Quantitative comparison of different VFM representations as teacher targets.}\n\\label{tab:ablation_vfm}\n\n\\definecolor{mygray}{gray}{0.95}\n\n\\renewcommand{\\arraystretch}{1.00}\n\\scalebox{0.96}{\n\\begin{tabular}{c|c|ccccc|c}\n\\toprule\n\\multirow{2}{*}{\\textbf{Type}} & \\multirow{2}{*}{\\shortstack{\\textbf{Representation} \\\\ \\textbf{Source}}} & \\multicolumn{5}{c|}{\\textbf{$i^{th}$ Task Success Rate}} & \\multirow{2}{*}{\\textbf{Avg. Len.} $\\uparrow$} \\\\\n\\cmidrule(lr){3-7}\n & & \\textbf{1} & \\textbf{2} & \\textbf{3} & \\textbf{4} & \\textbf{5} & \\\\\n\\midrule\n\n% --- Group 1: Semantic Representations ---\n\\multirow{4}{*}{\\shortstack{Semantic \\\\ Targets}} \n & CLIP~\\cite{radford2021learning}      & 94.1 & 82.0 & 72.5 & 65.0 & 58.0 & 3.72 \\\\\n & SigLIP~\\cite{zhai2023sigmoid}               & 94.5 & 84.8 & 74.7 & 65.5 & 57.0 & 3.77 \\\\\n & DINOv2~\\cite{oquab2023dinov2}  & 94.1 & 87.1 & 79.3 & 73.5 & 66.5 & 4.01 \\\\\n & DINOv3~\\cite{simeoni2025dinov3}               & 95.6 & 87.7 & 78.8 & 70.3 & 62.1 & 3.95 \\\\\n\\midrule\n\n% --- Group 2: Structure Representations ---\n\\multirow{2}{*}{\\shortstack{Geometric \\\\ Targets}} \n & DPAv3~\\cite{lin2025depth} & 94.0 & 87.1 & 80.4 & 73.2 & 64.1 & 3.99 \\\\\n & VGGT~\\cite{wang2025vggt}   & 93.5 & 84.3 & 74.8 & 65.6 & 55.8 & 3.74 \\\\ \n\n\\midrule\n% --- Group 3: Video Representations ---\n\\multirow{2}{*}{\\shortstack{Motion-aware \\\\ Targets}} \n & VideoMAEv2~\\cite{wang2023videomae}  & 94.6 & 85.9 & 78.0 & 70.2 & 60.8 & 3.90 \\\\\n & V-JEPA2~\\cite{assran2025v}  & 93.1 & 84.3 & 74.3 & 65.6 & 56.4 & 3.74 \\\\\n\\midrule\n\n% --- Group 4: Combinations (Fusion) ---\n  & SigLIP \\& DPAv3       & \\textbf{96.2} & 88.3 & 80.7 & 74.2 & 66.1 & 4.06 \\\\\n  & DINOv2 \\& VGGT     & 95.7 & 88.8 & 80.9 & 73.9 & 64.9 & 4.04 \\\\\n% Ours\n\\rowcolor{mygray}\n\\cellcolor{white} \\multirow{-3}{*}{\\shortstack{Synergistic \\\\ Targets}} & \\textbf{DINOv2 \\& DPAv3 (our)} & {95.8} & {\\textbf{90.7}} & {\\textbf{83.7}} & {\\textbf{77.0}} & {\\textbf{68.9}} & {\\textbf{4.16}} \\\\\n\\bottomrule\n\\end{tabular}\n}\n"
+  }
+]

@@ -1,0 +1,112 @@
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{cuted}
+\usepackage{caption}
+\usepackage{multirow} 
+\usepackage{makecell}
+\usepackage{booktabs}
+\usepackage{fontawesome}
+\usepackage{pifont}
+\usepackage{float}
+\usepackage{url}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+ % ts
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{amssymb}
+\usepackage{siunitx}
+\usepackage{enumitem}
+ 
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\usepackage{balance}
+\begin{document}
+\title{OmniVTA: Visuo-Tactile World Modeling for Contact-Rich \\ Robotic Manipulation}
+\author{
+Yuhang Zheng$^{1,2*}$,
+Songen Gu$^{3*}$,
+Weize Li$^{1}$,
+Yupeng Zheng$^{1,4\dagger}$,
+Yujie Zang$^{1}$,
+Shuai Tian$^{4}$,
+Xiang Li$^{1,5}$, \\
+Ce Hao$^{6}$,
+Chen Gao$^{2,7}$, 
+Si Liu$^{7}$, 
+Haoran Li$^{4}$,
+Yilun Chen$^{1}$,
+Shuicheng Yan$^{2\dagger}$,
+Wenchao Ding$^{1\dagger}$ \\
+\textsuperscript{1}\textbf{TARS Robotics},
+\textsuperscript{2}National University of Singapore,
+\textsuperscript{3}Fudan University,
+\textsuperscript{4}CASIA, \\
+\textsuperscript{5}Tsinghua University,
+\textsuperscript{6}Zhongguancun Academy,
+\textsuperscript{7}Beihang University \\
+\textsuperscript{$\dagger$} Corresponding Author,
+\textsuperscript{*} Equal Contribution \\
+}
+
+\maketitle
+
+\begin{strip}
+    \centering
+    \vspace{-20mm}
+    \includegraphics[width=\textwidth]{fig/teaser.pdf}
+    \captionof{figure}{\textbf{Overview of the proposed visuo-tactile manipulation system.} (Left) We introduce OmniViTac, a large-scale visuo-tactile-action aligned dataset for contact-rich manipulation. (Center) We propose OmniVTA, a world model-based visuo-tactile-action framework that predicts future contact states. It seamlessly unifies tactile representation learning, predictive multimodal modeling, adaptive fusion, and reflexive tactile control. (Right) Extensive real-world experiments demonstrate that OmniVTA outperforms prior methods, exhibiting strong robustness and generalization.}
+    \label{fig:teaser}
+\end{strip}
+
+\begin{abstract}
+Contact-rich manipulation tasks, such as wiping and assembly, require accurate perception of contact forces, friction changes, and state transitions that cannot be reliably inferred from vision alone. Despite growing interest in visuo-tactile manipulation, progress is constrained by two persistent limitations: existing datasets are small in scale and narrow in task coverage, and current methods treat tactile signals as passive observations rather than using them to model contact dynamics or enable closed-loop control explicitly.
+In this paper, we present \textbf{OmniViTac}, a large-scale visuo-tactile-action dataset comprising $21{,}000+$ trajectories across $86$ tasks and $100+$ objects, organized into six physics-grounded interaction patterns. Building on this dataset, we propose \textbf{OmniVTA}, a world-model-based visuo-tactile manipulation framework that integrates four tightly coupled modules: a self-supervised tactile encoder, a two-stream visuo-tactile world model for predicting short-horizon contact evolution, a contact-aware fusion policy for action generation, and a 60Hz reflexive controller that corrects deviations between predicted and observed tactile signals in a closed loop.
+Real-robot experiments across all six interaction categories show that OmniVTA outperforms existing methods and generalizes well to unseen objects and geometric configurations, confirming the value of combining predictive contact modeling with high-frequency tactile feedback for contact-rich manipulation. All data, models, and code will be made publicly available on the project website at \url{https://mrsecant.github.io/OmniVTA}.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Visuo-Tactile Manipulation, Visuo-Tactile World Models, Contact-Rich Manipulation
+\end{IEEEkeywords}
+
+
+\input{sections/1_introduction}
+\input{sections/2_related_work}
+\input{sections/3_dataset}
+\input{sections/4_method}
+\input{sections/5_experiments}
+\input{sections/6_conclusion}
+
+
+
+% \section{Conclusions and Future Work}
+% \subsection{Conclusions}
+% \subsection{Limitations and Future Works}
+
+
+
+\bibliographystyle{elsarticle-num} 
+\bibliography{main}{}  
+
+
+\end{document}

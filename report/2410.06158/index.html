@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GR-2 - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>GR-2: A Generative Video-Language-Action Model with Web-Scale Knowledge for Robot Manipulation</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Chi-Lam Cheang, Guangzeng Chen, Ya Jing, Tao Kong, Hang Li, Yifeng Li, Yuxiao Liu, Hongtao Wu, Jiafeng Xu, Yichu Yang, Hanbo Zhang, Minzhao Zhu</p>
+      <p><strong>机构：</strong>ByteDance Research</p>
+      <p><strong>发表形式：</strong>Tech Report, arXiv v1, 2024-10-08</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2410.06158">arXiv:2410.06158</a> | <a href="https://arxiv.org/pdf/2410.06158">PDF</a> | <a href="https://gr2-manipulation.github.io">Project Page</a></p>
+      <p><strong>源码结构说明：</strong>arXiv LaTeX 源码未提供 Appendix；本报告中凡涉及“附录”的位置均标明为无附录，而不是省略。</p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#quick">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验与结果</a></li>
+      <li><a href="#discussion">6. 论文内分析与讨论</a></li>
+      <li><a href="#boundary">7. 分析、局限与边界</a></li>
+      <li><a href="#repro">8. 可复现性审计</a></li>
+    </ul>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>GR-2 用 3800 万互联网视频做 video-language 生成式预训练，再用机器人轨迹进行 video-language-action 联合微调，使同一个机器人策略能完成 100+ 桌面操作任务、端到端 bin picking，并在未见背景、环境、物体和任务上展示泛化能力。
+    </div>
+    <table>
+      <tr><th>阅读定位项</th><th>紧凑结论</th></tr>
+      <tr><td>论文要解决什么</td><td>在真实机器人数据昂贵、任务和场景变化大的条件下，训练一个能通过语言指令执行多种 manipulation skill，并能迁移到未见场景的通用机器人策略。</td></tr>
+      <tr><td>作者的方法抓手</td><td>先让 GPT-style transformer 在大规模 text-video 数据上预测未来视频，获得环境动态和语义先验；再在机器人轨迹上同时预测未来图像与 action trajectory，并用 WBC 部署到真实机器人。</td></tr>
+      <tr><td>最重要的结果</td><td>在 105 个真实桌面任务 Simple setting 达到 97.7% success rate；bin picking 平均成功率从 GR-1 的 33.3% 提升到 79.0%；CALVIN 5 连任务成功率从 GR-1 的 73.1% 到 85.9%。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>方法的核心不是单纯“用大模型做机器人”，而是把视频生成目标保留下来作为动作预测的伴随任务；同时论文没有公开完整训练超参和代码，复现重点要放在数据规模、tokenization、cVAE action head、WBC 部署接口四处。</td></tr>
+    </table>
+
+    <p><strong>难度评级：</strong>★★★★☆。需要熟悉 language-conditioned robot policy、VQGAN 离散视觉 token、GPT-style autoregressive modeling、conditional VAE action chunking，以及真实机器人控制中的 Cartesian trajectory 到 joint action 的部署链路。</p>
+    <p><strong>关键词：</strong><span class="tag">generalist robot manipulation</span><span class="tag">video generative pre-training</span><span class="tag">video-language-action</span><span class="tag">action trajectory prediction</span><span class="tag">whole-body control</span></p>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>规模化视频预训练。</strong>作者将 GR-1 所用的 0.8M 预训练视频扩大到 38M text-video clips，约 50B tokens；这使模型在机器人 fine-tuning 前先学习“给定文本和当前帧，未来视觉状态应该怎样演化”。</li>
+      <li><strong>Video-language-action 联合策略。</strong>GR-2 在机器人数据上不是只预测动作，而是同时预测未来多视角图像和 action trajectory；论文把这作为从视频生成知识无损迁移到机器人动作学习的关键结构设计。</li>
+      <li><strong>真实机器人多任务和工业化 bin picking 验证。</strong>作者用 105 个桌面任务、94K bin-picking 轨迹、122 个评测物体和 CALVIN benchmark 展示模型的多任务学习、泛化和长序列能力。</li>
+      <li><strong>部署层引入 WBC。</strong>模型输出 Cartesian action trajectory，随后通过 trajectory optimization 与 whole-body control 转为 200 Hz low-level joint actions，覆盖真实机器人运行时的平滑、碰撞和 manipulability 约束。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/overview_p1.png" alt="GR-2 overview">
+      <div class="caption">Figure 1. GR-2 的两阶段训练流程：Video-Language Pre-training 先学习互联网视频动态，Video-Language-Action Fine-tuning 再接入机器人多视角图像、状态和动作。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决的问题</h3>
+    <p>论文把目标设定为 <strong>language-conditioned visual robot manipulation</strong>：人用自然语言给出任务，同一个策略根据语言、历史观测和机器人状态，直接输出未来一段动作轨迹。作者选择语言条件，是因为自然语言是人给机器人指定任务最灵活的接口之一。</p>
+    <p>现实瓶颈是机器人数据采集成本高、系统扩展慢。一个能做 100 个任务的机器人，如果每个任务都需要大量真实轨迹，数据采集会成为主要限制。论文明确强调 GR-2 在 1/8 数据量，即平均每任务约 50 条轨迹时仍能学习 100+ 任务，这是其“快速适配新任务”的关键动机。</p>
+
+    <h3>2.2 已有方法的局限</h3>
+    <p>论文从两个方向定位前作局限。第一，许多 generalist robot policy 依赖大规模机器人数据或目标图像、3D 信息、层级规划等专门信号；这些方法能提升任务覆盖，但仍受限于机器人数据规模或部署条件。第二，已有从非机器人域借知识的方法虽然使用 web-scale vision-language 模型或混合数据训练，但作者认为 <strong>视频中的环境动态</strong> 对 action prediction 尤其重要，因此单纯视觉表征预训练不完全匹配动作学习。</p>
+    <p>相对于 GR-1，GR-2 的论文内对比更具体：GR-1 已经尝试 video generative pre-training，但预训练视频只有 0.8M；GR-2 扩展到 38M，并且通过新的模型结构让预训练知识在机器人 fine-tuning 时继续参与视频预测和动作预测。</p>
+
+    <h3>2.3 本文的高层思路</h3>
+    <p>核心 insight 是：如果模型能根据语言和当前视觉状态预测“下一段视觉世界会怎样变化”，那么这个预测出的视觉轨迹可以成为动作生成的隐式计划。GR-2 因此不把视频生成仅当成预训练任务，而是在 robot fine-tuning 阶段继续同时预测未来图像和 action trajectory。</p>
+    <div class="note">
+      <strong>无附录说明：</strong>源码中未包含 Appendix 或补充实验文件；本节只基于 Introduction、Methods、Related Work 的正文内容整理。
+    </div>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的定位</th><th>GR-2 的差异</th></tr>
+      <tr><td>语言条件通用机器人操作</td><td>RT-1/RT-2、VIMA、HULC、RoboFlamingo、BC-Z、Octo 等工作探索用语言指定任务，训练能覆盖多任务的策略。</td><td>GR-2 仍采用语言条件，但强调先通过大规模视频生成预训练学习动态，再微调到动作预测。</td></tr>
+      <tr><td>机器人学习中的预训练</td><td>masked modeling、contrastive learning、world model、inverse dynamics、video prediction 等方式被用于增强泛化。</td><td>GR-2 选择 text-video generative pre-training，并在 robot fine-tuning 时保留视频生成目标，使动作预测与视觉未来预测并行。</td></tr>
+      <tr><td>Web-scale 知识迁移</td><td>已有方法通过 web-scale VLM、co-training 或 two-stream 架构把互联网知识转入机器人策略。</td><td>GR-2 明确把互联网视频里的 temporal dynamics 作为迁移对象，而不只是静态视觉/语言表征。</td></tr>
+      <tr><td>GR-1 系列延续</td><td>GR-1 已提出用视频生成预训练辅助机器人策略。</td><td>GR-2 把预训练视频从 0.8M 扩展到 38M，并扩展真实任务数、bin-picking 物体数与模型规模实验。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 问题定义</h3>
+    <p>论文把策略写成一个语言条件的端到端函数。给定语言指令 $l$、过去 $h$ 步环境观测 $\mathbf{o}_{t-h:t}$ 和机器人状态 $\mathbf{s}_{t-h:t}$，策略输出从当前时刻开始的未来 $k$ 步动作轨迹：</p>
+    <div class="formula-block">
+      <p class="intuition">这个公式在说：策略不是预测单步动作，而是根据语言、视觉历史和机器人状态一次性生成一段未来动作。</p>
+      $$\mathbf{a}_{t:t+k} = \pi(l, \mathbf{o}_{t-h:t}, \mathbf{s}_{t-h:t})$$
+      <table class="symbol-table">
+        <tr><td>$l$</td><td>自然语言指令，例如 “press the toaster switch”。</td></tr>
+        <tr><td>$\mathbf{o}_{t-h:t}$</td><td>历史视觉观测序列；真实机器人中来自 head camera 和 hand camera 两个视角。</td></tr>
+        <tr><td>$\mathbf{s}_{t-h:t}$</td><td>机器人状态序列，包括末端执行器位置、旋转和二值 gripper state。</td></tr>
+        <tr><td>$\mathbf{a}_{t:t+k}$</td><td>未来一段 Cartesian action trajectory，而不是单个低层关节控制量。</td></tr>
+      </table>
+    </div>
+
+    <h3>4.2 两阶段训练</h3>
+    <p><strong>阶段一：Video generative pre-training。</strong>GR-2 是 GPT-style transformer。预训练输入是 tokenized text 和 image sequence，输出是未来图像的离散 token；这些 token 再由 VQGAN decoder 解码成未来帧。预训练数据由作者整理的 38M video clips 组成，约 50B tokens，来源包括 HowTo100M、Ego4D、Something-Something V2、EPIC-KITCHENS、Kinetics-700，以及 RT-1、Bridge 等公开机器人数据。</p>
+    <div class="figure">
+      <img src="figures/pt_dataset-min_p1.png" alt="pre-training dataset">
+      <div class="caption">Figure 2. 预训练数据示例和动词分布。作者还使用 hand filtering 与 re-captioning 让互联网视频更贴近 manipulation。</div>
+    </div>
+
+    <p><strong>阶段二：Robot data fine-tuning。</strong>fine-tuning 时，GR-2 的输出变成未来图像和动作轨迹的联合预测：</p>
+    <div class="formula-block">
+      <p class="intuition">这个目标把“想象未来视觉状态”和“执行动作”绑定在同一个模型里。</p>
+      $$\pi(l, \mathbf{o}_{t-h:t}, \mathbf{s}_{t-h:t}) \rightarrow \mathbf{o}_{t+1}, \mathbf{a}_{t:t+k}$$
+      <table class="symbol-table">
+        <tr><td>$\mathbf{o}_{t+1}$</td><td>未来图像；在多视角机器人数据中，每个视角都要预测未来图像。</td></tr>
+        <tr><td>$\mathbf{a}_{t:t+k}$</td><td>由 conditional VAE 生成的 action trajectory。论文说经验上轨迹生成比单步动作对平滑性和实时性能更关键。</td></tr>
+      </table>
+    </div>
+
+    <h3>4.3 输入编码和输出头</h3>
+    <ul>
+      <li><strong>语言：</strong>使用 frozen text encoder 对指令编码；论文引用 CLIP text encoder。</li>
+      <li><strong>图像：</strong>使用 VQGAN 把每帧图像转换成离散视觉 token；VQGAN 在互联网数据和机器人域数据上训练，并在训练过程中冻结。</li>
+      <li><strong>机器人状态：</strong>末端执行器 position、rotation 和 gripper state 通过可训练 linear layers 编码。</li>
+      <li><strong>动作：</strong>action trajectory 由 conditional VAE 生成，支持动作多模态和 chunked prediction。</li>
+    </ul>
+
+    <div class="pseudocode">
+Algorithm: GR-2 fine-tuning forward pass
+Input:
+  language l
+  frames from multiple views o[t-h:t]          <span class="dim"># head camera + hand camera</span>
+  robot states s[t-h:t]                        <span class="dim"># pose + rotation + gripper</span>
+
+1. text_tokens = FrozenTextEncoder(l)
+2. image_tokens = FrozenVQGANEncoder(o[t-h:t])
+3. state_tokens = LinearStateEncoder(s[t-h:t])
+4. hidden = GPTTransformer(text_tokens, image_tokens, state_tokens)
+5. future_image_tokens = ImagePredictionHead(hidden)
+6. future_frames = FrozenVQGANDecoder(future_image_tokens)
+7. action_trajectory = cVAEActionHead(hidden)  <span class="dim"># Cartesian trajectory chunk</span>
+Output:
+  future_frames, action_trajectory
+    </div>
+
+    <h3>4.4 真实机器人部署</h3>
+    <p>硬件系统是 7-DoF Kinova Gen3 机械臂和 Robotiq 2F-85 gripper，配两个相机：静态 head camera 提供工作区整体视角，end-effector camera 提供夹爪附近交互视角。GR-2 输出 Cartesian trajectory 后，作者使用 Whole-Body Control 算法执行轨迹优化和实时运动跟踪。该过程把轨迹平滑性、连续性、collision constraints 和 manipulability 纳入优化，并以 200 Hz 执行低层 joint actions。</p>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 实验设置总览</h3>
+    <table>
+      <tr><th>实验</th><th>数据/任务</th><th>评估目标</th><th>关键数字</th></tr>
+      <tr><td>Real-world multi-task learning</td><td>105 个桌面任务，8 类 skill；约 40K teleoperation trajectories，平均 400 条/任务；另有 1/8 数据版本约 50 条/任务。</td><td>多任务学习、干扰物鲁棒性、未见背景/环境/操作泛化。</td><td>Simple setting 97.7%；Unseen Backgrounds 71.4%；Unseen Environments 71.7%；Unseen Manipulation 55.8%。</td></tr>
+      <tr><td>End-to-end bin picking</td><td>55 个训练物体，约 94K pick-and-place trajectories；评估 122 个物体，其中 67 个训练未见。</td><td>工业式混杂物体抓取，seen/unseen/cluttered 泛化。</td><td>平均 success rate 从 GR-1 的 33.3% 到 GR-2 的 79.0%。</td></tr>
+      <tr><td>CALVIN benchmark</td><td>ABCD-D split，34 个任务，20K+ demonstrations；1000 个 5-task instruction chains。</td><td>模拟长序列语言条件操作。</td><td>1-task success 98.6%；5-task success 85.9%；average length 4.64。</td></tr>
+      <tr><td>Scaling</td><td>GR-2-S/B/L/XL 四种规模。</td><td>预训练 video loss 与真实机器人 success rate 是否随模型规模改善。</td><td>trainable parameters 为 30M、95M、312M、719M；默认 GR-2 总参数 230M，其中 95M trainable。</td></tr>
+    </table>
+
+    <div class="figure">
+      <img src="figures/multi_task_setting_p1.png" alt="multi-task settings">
+      <div class="caption">Figure 3. 多任务评估设置：Simple、Distractor、Unseen Backgrounds、Unseen Environments、Unseen Manipulation。</div>
+    </div>
+
+    <h3>5.2 Real-World Multi-Task Learning</h3>
+    <p>任务覆盖 picking、placing、uncapping、capping、opening、closing、pressing、pouring 八类 skill。作者还在 fine-tuning 中做数据增强：插入新物体时训练 diffusion model，并结合自采物体数据和 Open Images；改变背景时用 SAM 分割背景，再用 video generation model 生成保持机器人运动的 augmented video。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/multi_task_p1.png" alt="task examples">
+        <div class="caption">Figure 4. 105 个任务中的样例，覆盖 8 类操作 skill。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/multi_task_rollout_p1.png" alt="multi-task rollouts">
+        <div class="caption">Figure 5. 多任务真实机器人 rollout 样例。</div>
+      </div>
+    </div>
+    <div class="figure">
+      <img src="figures/multi_task_success_rate.png" alt="multi-task success rates">
+      <div class="caption">Figure 6. 多任务 success rate。论文正文给出的关键解读：GR-2 在所有设置中均优于 GR-1；数据增强让 unseen generalization 更强；50 条/任务版本仍能在 Simple setting 达到 73.9%。</div>
+    </div>
+    <p>论文强调的失败案例主要出现在 Unseen Manipulation：模型可能无法抓取新形状的未见物体，或在指令要求抓取未见物体时选错目标物体。这一失败模式也被作者在未来工作中指向“提升 unseen manipulation 的泛化和鲁棒性”。</p>
+
+    <h3>5.3 End-to-End Bin Picking</h3>
+    <p>bin picking 任务使用固定语言指令 <code>move any object from the right basket to the left basket.</code>。训练阶段有 55 个物体、约 94K 轨迹；评测阶段包含 122 个物体，分为 Seen、Unseen、Cluttered Seen、Cluttered Unseen 四种设置。Cluttered 设置把源篮中物体数量增加到训练设置约两倍，因此即使物体 seen，也构成分布外密度。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/bin_picking_setting_p1.png" alt="bin picking settings">
+        <div class="caption">Figure 7. bin picking 环境、物体集合和四种评估设置。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/bin_picking_success_rate.png" alt="bin picking success rate">
+        <div class="caption">Figure 8. bin picking success rate。正文报告 GR-2 平均 79.0%，GR-1 平均 33.3%。</div>
+      </div>
+    </div>
+    <div class="figure">
+      <img src="figures/bin_picking_rollout_p1.png" alt="bin picking rollout">
+      <div class="caption">Figure 9. bin picking rollout，包含透明、可变形、反光等对传统 model-based 方法较难的物体类型。</div>
+    </div>
+
+    <h3>5.4 CALVIN Benchmark</h3>
+    <p>CALVIN 评估长序列语言条件操作。作者在 ABCD-D split 上测试 1000 条 instruction chain，每条要求连续完成 5 个任务。GR-2 与 RT-1、MT-ACT、HULC、RoboFlamingo、GR-1 对比，论文报告其 1-task success 从 GR-1 的 94.9% 到 98.6%，5-task success 从 73.1% 到 85.9%，average length 从 4.21 到 4.64。</p>
+    <div class="figure">
+      <img src="figures/calvin_success_rate.png" alt="CALVIN benchmark">
+      <div class="caption">Figure 10. CALVIN benchmark，展示完成连续 1 到 5 个任务的 success rate 和 average length。</div>
+    </div>
+
+    <h3>5.5 Autoregressive Video Generation</h3>
+    <p>这一实验部分不是只展示“视频好看”，而是用于说明模型输出的 future video 与真实 rollout 对齐。作者给出的解释是：动作预测像是在“replay”模型自己预测的视频轨迹；因此持续改进 video generation 可能成为改进 action prediction 的路径。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/multi_task_rollout_video_prediction_p1.png" alt="multi-task video prediction 1">
+        <div class="caption">Figure 11. Multi-task video prediction 与 GT rollout 对比 I。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/multi_task_rollout_video_prediction_p2.png" alt="multi-task video prediction 2">
+        <div class="caption">Figure 12. Multi-task video prediction 与 GT rollout 对比 II。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/bin_picking_rollout_video_prediction_p1.png" alt="bin picking video prediction 1">
+        <div class="caption">Figure 13. Bin picking video prediction 与 GT rollout 对比 I。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/bin_picking_rollout_video_prediction_p2.png" alt="bin picking video prediction 2">
+        <div class="caption">Figure 14. Bin picking video prediction 与 GT rollout 对比 II。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/calvin_rollout_video_prediction_p1.png" alt="CALVIN video prediction 1">
+        <div class="caption">Figure 15. CALVIN video prediction 与 GT rollout 对比 I。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/calvin_rollout_video_prediction_p2.png" alt="CALVIN video prediction 2">
+        <div class="caption">Figure 16. CALVIN video prediction 与 GT rollout 对比 II。</div>
+      </div>
+    </div>
+
+    <h3>5.6 Scaling</h3>
+    <p>作者预训练了四种模型规模：GR-2-S、GR-2-B、GR-2-L、GR-2-XL，对应 trainable parameters 为 30M、95M、312M、719M。Figure 17 显示在 Ego4D、RT-1 和机器人数据验证集上 video prediction validation loss 随模型规模下降；fine-tuning 后真实机器人 success rate 也随规模提升。论文据此说明 GR-2 在 video generation 与 action prediction 两端都有 scaling trend。</p>
+    <div class="figure">
+      <img src="figures/scale_p1.png" alt="scaling results">
+      <div class="caption">Figure 17. Scaling 实验。前三个子图是 video prediction validation loss，第四个子图是真实机器人 success rate。</div>
+    </div>
+  </section>
+
+  <section id="discussion">
+    <h2>6. 论文内分析与讨论</h2>
+    <h3>6.1 作者给出的结果解释</h3>
+    <ul>
+      <li><strong>视频预训练帮助动作预测。</strong>作者把视频视为环境动态和文本条件下状态演化的来源；预训练后模型在 robot fine-tuning 中能把这种动态先验迁移到动作预测。</li>
+      <li><strong>多视角和轨迹输出对真实机器人重要。</strong>GR-2 处理 head/hand 两个视角，并输出 action trajectory；论文称轨迹输出相对于 single-step action 对平滑和实时性能更关键。</li>
+      <li><strong>数据增强改善 unseen generalization。</strong>在多任务实验中，GR-2 w/ DA 在 Unseen Environments 达到 87.0%，并在三个 generalization settings 上平均 74.7%。</li>
+      <li><strong>视频预测与动作预测相关。</strong>作者观察到 generated video 与真实 rollout 对齐，并认为动作像是在执行预测视频中的轨迹。</li>
+    </ul>
+
+    <h3>6.2 作者明确写出的失败与未来方向</h3>
+    <p>论文明确指出 Unseen Manipulation 仍然困难。典型失败包括无法抓取新形状的未见物体，以及在指令要求抓取未见物体时错误选择其他物体。Conclusion 中作者把未来方向聚焦在提升 action prediction 对 unseen manipulation 的泛化能力和鲁棒性。</p>
+  </section>
+
+  <section id="boundary">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>从论文自身证据看，最核心价值在于把 <strong>web-scale text-video generative pre-training</strong> 和 <strong>real-robot action trajectory learning</strong> 做成同一条训练链路，并且不是只在模拟或小规模任务中验证。作者用 38M 视频预训练、105 个真实桌面任务、94K bin-picking 轨迹、CALVIN 长序列 benchmark 和模型 scaling 共同支撑这一设计。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>论文结果的支撑来自四类互补评估：第一，多任务真实机器人实验覆盖 Simple、Distractor 和三类 OOD setting；第二，bin picking 对 seen/unseen/cluttered 物体做工业式评估；第三，CALVIN 提供公共 benchmark 对比；第四，scaling 曲线同时检查 video generation loss 与 robot success rate。关键数值不是单一指标：97.7%、79.0%、85.9%、4.64、74.7% 分别对应不同任务形态。</p>
+
+    <h3>7.3 作者自述局限</h3>
+    <ul>
+      <li><strong>Unseen Manipulation 仍弱于其他设置。</strong>正文报告 GR-2 在 Unseen Manipulation 为 55.8%，并列出抓取新形状物体失败和选错未见目标物体两类失败。</li>
+      <li><strong>未来仍需提升 action prediction 鲁棒性。</strong>Conclusion 明确将未来方向放在更强泛化和更稳健的动作预测，尤其是 unseen manipulation。</li>
+      <li><strong>论文没有提供附录。</strong><span class="appendix-ref">无附录</span> 因此完整超参、模型层数、loss 权重、cVAE 细节、WBC 优化目标和训练工程细节没有在源码文本中完整展开。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>GR-2 的实验边界主要是语言条件视觉操作、桌面真实机器人、bin picking、CALVIN 模拟长序列任务。论文没有证明该方法能直接迁移到不同机械臂形态、移动操作、大范围导航、强接触装配或需要精细力控的任务；WBC 部分说明了真实部署考虑 collision 和 manipulability，但没有给出完整控制算法推导。</p>
+  </section>
+
+  <section id="repro">
+    <h2>8. 可复现性审计</h2>
+    <table>
+      <tr><th>复现要素</th><th>论文给出的信息</th><th>审计状态</th></tr>
+      <tr><td>论文源码与图表</td><td>arXiv 提供 LaTeX 源码；本报告已从源码提取并转换所有独立图像。</td><td class="ok">可检查</td></tr>
+      <tr><td>数据</td><td>预训练数据来源和规模给出：HowTo100M、Ego4D、SSV2、EPIC-KITCHENS、Kinetics-700、RT-1、Bridge，总计 38M clips；真实机器人多任务 40K 轨迹，bin picking 94K 轨迹。</td><td class="warn">部分可复现；自采数据未公开</td></tr>
+      <tr><td>模型结构</td><td>GPT-style transformer、frozen text encoder、frozen VQGAN、state linear layers、cVAE action trajectory head；默认模型 230M 参数，95M trainable。</td><td class="warn">中等；缺少完整层级配置</td></tr>
+      <tr><td>训练目标</td><td>预训练预测未来图像 token；fine-tuning 同时预测未来图像和 action trajectory。</td><td class="warn">目标清楚；loss 权重和训练 schedule 缺失</td></tr>
+      <tr><td>部署</td><td>Kinova Gen3 + Robotiq 2F-85，head/hand cameras，WBC 以 200 Hz 执行 joint actions。</td><td class="warn">系统描述清楚；WBC 公式和工程细节不足</td></tr>
+      <tr><td>代码</td><td>论文和 arXiv 元数据只给 Project Page；本次检索未发现官方 GitHub 代码仓库。</td><td class="warn">代码不可直接复现</td></tr>
+    </table>
+    <div class="audit">
+      <strong>报告覆盖自检：</strong>Abstract、Introduction、Methods、Experiments、Related Work、Conclusions、Contributions/Acknowledgements 已全部覆盖；源码未提供 Appendix；所有源码中的独立图像已复制或从 PDF 渲染为 PNG 并嵌入/展示。
+    </div>
+  </section>
+</main>
+</body>
+</html>

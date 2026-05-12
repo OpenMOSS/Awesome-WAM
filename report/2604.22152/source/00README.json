@@ -1,0 +1,53 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "bytesans.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "bytesansmedium.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/compare_ood_action.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/consistency_b.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/overview.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/policy_corr.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/ByteSans-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fonts/ByteSans-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bbl"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

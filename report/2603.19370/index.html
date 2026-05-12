@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAMPO - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>VAMPO: Policy Optimization for Improving Visual Dynamics in Video Action Models</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Zirui Ge, Pengxiang Ding, Baohua Yin, Qishen Wang, Zhiyong Xie, Yemin Wang, Jinbo Wang, Hengtao Li, Runze Suo, Wenxuan Song, Han Zhao, Shangke Lyu, Zhaoxin Fan, Haoang Li, Ran Cheng, Cheng Chi, Huibin Ge, Yaozhi Luo, Donglin Wang</p>
+      <p><strong>机构：</strong>Zhejiang University; Westlake University; Xiamen University; University of Sussex; Tianjin University; Wuhan University; Hebei University of Technology; HKUST (GZ); Nanjing University; Fudan University; BAAI; OpenHelix Robotics; South China University of Technology</p>
+      <p><strong>版本：</strong>arXiv:2603.19370</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2603.19370">arXiv</a> | <a href="https://arxiv.org/pdf/2603.19370">PDF</a> | <a href="https://vampo-robot.github.io/VAMPO">Project</a> | <a href="https://github.com/OpenHelix-Team/VAMPO">Code</a> | <a href="https://huggingface.co/williammmgezju">Model</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 论文速览</a></li>
+      <li><a href="#sec2">2. 动机</a></li>
+      <li><a href="#sec3">3. 相关工作梳理</a></li>
+      <li><a href="#sec4">4. 方法详解</a></li>
+      <li><a href="#sec5">5. 实验</a></li>
+      <li><a href="#sec6">6. 结果分析与讨论</a></li>
+      <li><a href="#sec7">7. 分析、局限与边界</a></li>
+      <li><a href="#sec8">8. 复现审计</a></li>
+    </ul>
+  </nav>
+<section id="sec1">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>VAMPO 把 diffusion-based Video Prediction Model (VPM) 的多步 denoising 视为一个可优化策略，用 expert latent dynamics 上的可验证奖励和 GRPO 后训练 VPM，从而提升 video action model 的视觉动力学精度，并最终改善机器人动作生成。
+    </div>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 diffusion video model、EDM/Euler sampler、DDPO/GRPO、latent video-action model、CALVIN 长程评测和机器人 VLA 训练流程。</p>
+    <p><strong>关键词：</strong>Video Action Model, Visual Dynamics, Diffusion Policy Optimization, GRPO, Latent Reward。</p>
+    <table>
+      <tr><th>阅读定位</th><th>内容</th></tr>
+      <tr><td>论文要解决什么</td><td>现有 video action models 依赖 VPM 预测未来视觉表示来指导动作，但 diffusion VPM 常用 ELBO/likelihood surrogate 训练，只保证全局 plausible，不直接优化物体姿态、空间关系、接触时机等控制关键视觉动力学。</td></tr>
+      <tr><td>作者的方法抓手</td><td>把 VPM denoising 轨迹建模为 MDP；用 Euler Hybrid sampler 只在第一步注入 SDE 随机性，产生可计算概率比的候选轨迹；用 latent-space L1 + cosine reward 和 GRPO 直接优化预测 latent 与 expert future latent 的一致性。</td></tr>
+      <tr><td>最重要的结果</td><td>在 CALVIN ABC$\to$D 上，VAMPO 从 VPP base 的 Avg. Len 4.28 提升到 4.56，5 连任务完成率从 74.7 提升到 83.1；L-CALVIN 10 步任务 Avg. Len 从 VPP 5.53 提升到 6.73；真实 Agibot Genie 01 任务中也优于 base policy。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>VAMPO 不是换 VLA 架构，也不是额外加数据；它主要 post-train VPM 的 visual dynamics。实验中“post-training VPM + original AGM”增益有限，而“post-training VPM + post-training AGM”增益更大，说明视觉动力学改善需要被下游动作模型重新吸收。</td></tr>
+    </table>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>指出 objective mismatch。</strong>论文把 VPM 的 likelihood surrogate 与机器人控制所需的 precision-critical visual dynamics 区分开，指出全局视觉合理性并不等价于下游动作可靠性。</li>
+      <li><strong>提出 VAMPO post-training。</strong>VAMPO 将 multi-step denoising 形式化为 sequential decision process，并用 expert visual dynamics 的 latent reward 直接优化 VPM。</li>
+      <li><strong>提出 Euler Hybrid sampler + GRPO。</strong>只在第一步 denoising 使用 SDE stochasticity，其余步骤保持 ODE deterministic，以降低策略梯度方差并缓解 reward hacking。</li>
+      <li><strong>验证 visual dynamics 到 action 的传导。</strong>论文用 CALVIN、L-CALVIN、真实机器人和 effective-rank/Jacobian 分析说明更好的 visual dynamics 能带来更强 vision-action coupling 与 action execution。</li>
+    </ul>
+    <div class="figure">
+      <img src="figures/teaser_2.26.png" alt="VAMPO overview">
+      <div class="caption">Figure 1. VAMPO 总览：用 verified rewards 替代单纯 surrogate objective 来优化 VPM，让预测视觉表示更贴近任务相关动力学，并提升后续动作生成。</div>
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决什么问题</h3>
+    <p>Video Action Model (VAM) 的核心想法是：先由 Video Prediction Model 根据当前观测和语言指令预测未来视觉表示，再由 Action Generation Model 把该表示转成动作序列。这个范式比直接从当前 observation/language 映射到 action 多了一个显式“未来视觉动力学”中间层。</p>
+    <p>问题在于，VPM 常用 diffusion likelihood surrogate 训练，优化目标偏向数据分布上的全局 plausible generation。机器人 manipulation 对某些局部细节更敏感：物体位姿差一点、夹爪接触早一帧或晚一帧、空间关系有小缝隙，都可能让 AGM 产生不同动作。论文把这称为 generative training 与 action-centric deployment 之间的 objective mismatch。</p>
+
+    <h3>2.2 已有方法的局限</h3>
+    <p>Pixel-level VPM 可直观输出未来图像或视频，但需要合成纹理、光照等大量控制弱相关信息，计算开销也高。Latent-level VPM 更高效，能够压缩掉一部分 nuisance variability，并从 early denoising features 中获得任务相关 dynamics；因此本文也采用 latent-level paradigm。</p>
+    <p>不过 latent-level 并没有自动解决训练目标问题。论文在 Preliminary 中明确指出，VPM 输出可能在整体上 coherent，却在 pose、contact timing、fine-grained spatial relations 上存在微小错误；这些错误被 AGM 消费后，在决策边界附近会被放大，导致错误动作和 compounding failures。</p>
+
+    <h3>2.3 本文的解决思路</h3>
+    <p>VAMPO 的思路是直接优化 VPM 的预测视觉动力学，而不是只靠 likelihood surrogate。具体做法是把 denoising step 看成 policy action，把最终预测 latent 与 expert future latent 的一致性作为 terminal reward，用 policy-gradient-style post-training 改变 VPM 的采样分布。</p>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 相关工作梳理</h2>
+    <h3>3.1 论文自述的相关工作</h3>
+    <table>
+      <tr><th>方向</th><th>论文如何定位</th><th>与 VAMPO 的关系</th></tr>
+      <tr><td>Video-Action Models</td><td>VAM 通过预测未来 observation 或 latent 来指导 action generation，相比 VLM-based VLA 的直接 observation-language-to-action 映射，显式引入 dynamical prior。</td><td>VAMPO 继承 VAM/VPP 的 latent-level VPM + AGM pipeline，但重点优化 VPM 预测质量。</td></tr>
+      <tr><td>VLM-based VLAs</td><td>RT 系列、OpenVLA 等通常直接从 observation/language 到 action，不显式建模未来视觉演化。</td><td>论文在 CALVIN 表中把 VAMPO 与 OpenVLA、OpenVLA-OFT、$\pi_0$、$\pi_{0.5}$ 比较。</td></tr>
+      <tr><td>Diffusion Models for Robot Control</td><td>DDPO 将 denoising 视为 sequential decision process；GRPO 等扩展把 RL 的 long-term reward optimization 引入 generative model。</td><td>VAMPO 将相同思想迁移到机器人 VPM 的 latent dynamics optimization，而不是只优化图像 aesthetic 或通用生成质量。</td></tr>
+    </table>
+
+    <h3>3.2 直接前作对比</h3>
+    <table>
+      <tr><th>维度</th><th>VPP / latent VAM</th><th>DDPO-style diffusion optimization</th><th>VAMPO</th></tr>
+      <tr><td>目标</td><td>用 future latent 作为 action policy 条件，提高 VLA 控制。</td><td>把 diffusion denoising 当作 MDP，用奖励优化生成过程。</td><td>用 GRPO 后训练 VPM，使 future latent 更接近 expert visual dynamics。</td></tr>
+      <tr><td>优化信号</td><td>主要是 video/action supervised losses。</td><td>任务奖励或偏好奖励，依任务而定。</td><td>非对抗、可验证的 latent L1 + cosine reward。</td></tr>
+      <tr><td>采样随机性</td><td>VPM 原 pipeline 使用确定性 Euler Discrete solver。</td><td>通常需要随机 denoising 轨迹来估计 policy gradient。</td><td>只在第一步用 Euler Ancestral SDE，其余用 deterministic Euler ODE。</td></tr>
+      <tr><td>结构改动</td><td>已有 VPM/AGM 架构。</td><td>一般需要适配 diffusion policy update。</td><td>不改 VLA 架构，主要改 VPM post-training objective。</td></tr>
+    </table>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 方法概览</h3>
+    <p>论文采用 latent-level video action model。数据样本包含当前观测 $o$、语言指令 $l$、专家动作序列 $\mathbf{a}$ 和目标未来视频片段 $N$。VPM 以 $c_v=(o,l)$ 为条件预测未来 latent $\hat{x}_0$ 和中间视觉特征 $\hat{h}$；AGM 再以 $c_a=(\hat{h},l)$ 为条件生成动作 $\hat{a}_0$。</p>
+    <p>VAMPO 的 post-training 只针对 VPM：先从 noisy latent 开始 rollout 多个 candidate denoising trajectories，第一步用 SDE 产生 stochastic exploration，后续步骤用 deterministic ODE 保持视频轨迹一致性。每个候选最终得到 $x_{\sigma_0}^g$，与 expert latent $x_0=\mathcal{E}(N)$ 计算奖励；GRPO 用组内归一化 advantage 更新 VPM。</p>
+    <div class="figure">
+      <img src="figures/method.png" alt="VAMPO method">
+      <div class="caption">Figure 2. VAMPO training paradigm：第一步 SDE、后续 ODE 的 hybrid sampler 生成候选 future latent；L1 reward 与 cosine reward 共同构成 verifiable reward；GRPO 将 VPM 推向更精确的 visual dynamics。</div>
+    </div>
+
+    <h3>4.2 方法演变脉络</h3>
+    <p><strong>Pixel-level VAM → latent-level VAM：</strong>早期方法预测未来图像或 goal image，直观但冗余；latent-level 方法使用中间 denoising feature，计算更高效且更贴近动作相关的几何/关系线索。</p>
+    <p><strong>Latent VAM / VPP → VAMPO：</strong>VPP 已有 VPM + AGM pipeline；VAMPO 不改变架构，而是在 VPM post-training 时直接优化 latent future representation 的 dynamics accuracy。</p>
+    <p><strong>DDPO/GRPO → VAMPO：</strong>DDPO 把 diffusion denoising 写成 MDP；VAMPO 使用这个视角，但为机器人 VPM 设计了只在第一步随机的 Euler Hybrid sampler，并用 expert latent dynamics 定义奖励。</p>
+
+    <h3>4.3 核心设计与数学推导</h3>
+    <h4>Latent-level VAM 基础</h4>
+    <div class="formula-block">
+      <p class="intuition">这个公式描述 VAM 的两段式 pipeline：先预测未来视觉表示，再把预测表示转成动作。</p>
+      $$(\hat{x}_0,\hat{h})=\mathrm{VPM}_{\theta}(c_v),\qquad \hat{a}_0=\mathrm{AGM}_{\theta}(c_a),\quad c_v=(o,l),\quad c_a=(\hat{h},l)$$
+      <table class="symbol-table">
+        <tr><td>$o$</td><td>当前 observation，通常来自机器人摄像头或多视角观测。</td></tr>
+        <tr><td>$l$</td><td>语言指令。</td></tr>
+        <tr><td>$\hat{x}_0$</td><td>VPM 预测的未来 latent representation。</td></tr>
+        <tr><td>$\hat{h}$</td><td>从 VPM denoiser 隐层提取的 predictive visual feature，用于条件化 AGM。</td></tr>
+      </table>
+    </div>
+
+    <h4>VPM 的 EDM noising 和 supervised objective</h4>
+    <div class="formula-block">
+      <p class="intuition">训练 VPM 时，先把 expert future video 编码成 latent，再按连续噪声水平加噪，让 denoiser 恢复干净 latent。</p>
+      $$x_0=\mathcal{E}(N),\qquad x_\sigma=x_0+\sigma\epsilon,\quad \epsilon\sim\mathcal{N}(0,\mathbf{I})$$
+      $$\mathcal{L}_{Video}=\mathbb{E}_{x_0,\epsilon,\sigma_i}\left\|D_{\theta_v}(x_{\sigma_i},\sigma_i,c_v)-x_0\right\|^2$$
+      <table class="symbol-table">
+        <tr><td>$N$</td><td>目标未来视频片段，即 expert future sequence。</td></tr>
+        <tr><td>$\mathcal{E}$</td><td>预训练 VAE encoder。</td></tr>
+        <tr><td>$D_{\theta_v}$</td><td>VPM denoiser，输入 noisy latent、noise level 和条件 $c_v$。</td></tr>
+      </table>
+      <p>这一步对应原始 VPM 的 likelihood-surrogate 训练。VAMPO 不是删除它，而是在其基础上进行 reward-based post-training。</p>
+    </div>
+
+    <h4>确定性 Euler Discrete solver</h4>
+    <div class="formula-block">
+      <p class="intuition">推理时从大噪声逐步走到零噪声；原始 solver 是确定性的，因此不提供 policy gradient 所需的随机 transition density。</p>
+      $$x_{\sigma_{i-1}}=x_{\sigma_i}+(\sigma_{i-1}-\sigma_i)\frac{x_{\sigma_i}-D_{\theta_v}(x_{\sigma_i},\sigma_i,c_v)}{\sigma_i}$$
+      <table class="symbol-table">
+        <tr><td>$\sigma_I>\cdots>\sigma_0=0$</td><td>递减 noise schedule。</td></tr>
+        <tr><td>$x_{\sigma_i}$</td><td>第 $i$ 个噪声水平下的 latent state。</td></tr>
+      </table>
+    </div>
+
+    <h4>Denoising MDP formulation</h4>
+    <div class="formula-block">
+      <p class="intuition">把 denoising 过程看作一个 episode：状态是当前 noisy latent 与条件，动作是下一步 latent，最终奖励只在 denoising 结束后给出。</p>
+      $$\tau=(\mathbf{s}_I,\mathbf{a}_I,\mathbf{s}_{I-1},\mathbf{a}_{I-1},\ldots,\mathbf{s}_0,\mathbf{a}_0)$$
+      $$\mathbf{s}_i=(x_{\sigma_i},\sigma_i,c_v),\qquad \mathbf{a}_i=x_{\sigma_{i-1}},\qquad \mathbf{R}(\mathbf{s}_i,\mathbf{a}_i)=\mathbbm{1}_{[i=0]}r(x_{\sigma_0})$$
+      $$\mathcal{J}(\boldsymbol{\pi})=\mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[\sum_{i=0}^{I}\mathbf{R}(\mathbf{s}_i,\mathbf{a}_i)\right]$$
+      <table class="symbol-table">
+        <tr><td>$\boldsymbol{\rho}_0$</td><td>初始状态分布，由 condition distribution、起始 timestep $I$ 和 Gaussian white noise 决定。</td></tr>
+        <tr><td>$\boldsymbol{P}$</td><td>动作执行后的状态转移；确定下一 latent、下一 noise level 和同一条件。</td></tr>
+        <tr><td>$r(x_{\sigma_0})$</td><td>terminal reward，评估最终预测 latent 的质量。</td></tr>
+      </table>
+    </div>
+
+    <h4>Euler Ancestral transition 与 Hybrid sampler</h4>
+    <div class="formula-block">
+      <p class="intuition">为了有可计算的 log probability，VAMPO 把第一步 denoising 改成 Gaussian SDE transition。</p>
+      $$x_{\sigma_{i-1}}=x_{\sigma_{i-1}}^{\mathrm{det}}+\sigma_{\mathrm{up}}\epsilon,\quad \epsilon\sim\mathcal{N}(0,\mathbf{I})$$
+      $$x_{\sigma_{i-1}}^{\mathrm{det}}=x_{\sigma_i}+(\sigma_{\mathrm{down}}-\sigma_i)\frac{x_{\sigma_i}-D_{\theta_v}(x_{\sigma_i},\sigma_i,c_v)}{\sigma_i}$$
+      $$p_\theta(x_{\sigma_{i-1}}\mid x_{\sigma_i},c_v)=\mathcal{N}\left(x_{\sigma_{i-1}};x_{\sigma_{i-1}}^{\mathrm{det}},\sigma_{\mathrm{up}}^2\mathbf{I}\right)$$
+      <table class="symbol-table">
+        <tr><td>$\sigma_{\mathrm{up}}$</td><td>stochastic noise scale。</td></tr>
+        <tr><td>$\sigma_{\mathrm{down}}$</td><td>deterministic update 使用的有效 noise level。</td></tr>
+        <tr><td>$p_\theta$</td><td>GRPO/PPO ratio 所需的 transition density。</td></tr>
+      </table>
+    </div>
+    <div class="formula-block">
+      <p class="intuition">Hybrid sampler 的关键约束：只在第一步有随机性，其余 denoising step 退回 deterministic Euler ODE。</p>
+      $$p(\mathbf{s}_{0:I-1},\mathbf{a}_{1:I}\mid\mathbf{s}_I)=\boldsymbol{\pi}^{eas}(\mathbf{a}_I\mid\mathbf{s}_I)\prod_{i=1}^{I-1}\delta\left(\mathbf{a}_i-f_{\mathrm{eds}}(\mathbf{s}_i)\right)$$
+      <p>论文给出的原因是：如果所有 denoising step 都加 SDE，terminal reward 会被后续与 action modeling 无关的 denoising actions 利用，产生 credit assignment 问题和 reward hacking；而 AGM 使用的是早期 denoising feature，因此把随机性集中在第一步更贴近 action-relevant representation。</p>
+    </div>
+
+    <h4>Reward 与 GRPO objective</h4>
+    <div class="formula-block">
+      <p class="intuition">奖励直接比较预测 future latent 和 expert future latent：L1 约束绝对误差，cosine 约束方向一致性。</p>
+      $$r=-\lambda_{L1}\|x_{\sigma_0}-x_0\|_1+\lambda_{\mathrm{cos}}\frac{x_{\sigma_0}\cdot x_0}{\|x_{\sigma_0}\|\|x_0\|}$$
+      $$A_g=\frac{r_g-\mathrm{mean}(\{r_1,\ldots,r_G\})}{\mathrm{std}(\{r_1,\ldots,r_G\})}$$
+      <table class="symbol-table">
+        <tr><td>$G$</td><td>同一条件下 rollout 的 candidate 数；附录设置为 8。</td></tr>
+        <tr><td>$x_0$</td><td>expert future clip 经 VAE encoder 得到的 ground-truth latent。</td></tr>
+        <tr><td>$A_g$</td><td>组内标准化 advantage；GRPO 不需要单独 value model。</td></tr>
+      </table>
+    </div>
+    <div class="formula-block">
+      <p class="intuition">GRPO 使用 clipped probability ratio，让新 VPM 不要一次偏离旧 VPM 太远。</p>
+      $$J(\theta)=\mathbb{E}_{\mathbf{a}_{I,g}\sim\boldsymbol{\pi}_{\theta_{\mathrm{old}}}}\left[\frac{1}{G}\sum_{g=1}^{G}\min\left(\rho_{I,g}A_g,\mathrm{clip}(\rho_{I,g},1-\epsilon_c,1+\epsilon_c)A_g\right)\right]$$
+      $$\rho_{I,g}=\frac{\boldsymbol{\pi}_\theta(\mathbf{a}_{I,g}\mid\mathbf{s}_{I,g})}{\boldsymbol{\pi}_{\theta_{\mathrm{old}}}(\mathbf{a}_{I,g}\mid\mathbf{s}_{I,g})}$$
+    </div>
+
+    <details>
+      <summary>训练过程伪代码</summary>
+      <pre class="pseudocode">Input: old VPM policy pi_old, dataset D, group size G
+Initialize pi_theta = pi_old
+for iteration t = 1..T:
+  sample batch of conditions c_v=(o,l) and expert future latents x_0
+  sample shared initial noise x_sigma_I
+  for g = 1..G:
+    rollout hybrid sampler:
+      first denoising step: Euler Ancestral SDE
+      remaining steps: Euler Discrete ODE
+    obtain candidate latent x_sigma_0^g
+    compute reward r_g from latent L1 and cosine similarity
+  compute group-normalized advantages A_g
+  update theta with clipped GRPO objective
+  periodically set pi_old = pi_theta</pre>
+    </details>
+
+    <h3>4.4 实现要点</h3>
+    <table>
+      <tr><th>项目</th><th>设置</th><th>来源</th></tr>
+      <tr><td>VPM 初始化</td><td>使用 VPP released pretrained checkpoint。</td><td>正文实验 / <span class="appendix-ref">Appendix Training Details</span></td></tr>
+      <tr><td>VPM post-training 数据</td><td>CALVIN ABC videos；CALVIN ABC 含 18,033 trajectories；选取子集得到 129,454 video samples。</td><td>正文实验</td></tr>
+      <tr><td>VPM post-training</td><td>约 1.5k steps；64 NVIDIA H20 GPUs；distributed data parallel。</td><td>正文实验 / 附录</td></tr>
+      <tr><td>AGM training</td><td>在 whole CALVIN dataset 上约 10 epochs；8 NVIDIA H20 GPUs。</td><td>正文实验 / 附录</td></tr>
+      <tr><td>Evaluation hardware</td><td>NVIDIA RTX 5880 GPUs。</td><td>正文实验 / 附录</td></tr>
+      <tr><td>GRPO group size</td><td>$G=8$。</td><td><span class="appendix-ref">Appendix Table S2</span></td></tr>
+      <tr><td>PPO clipping</td><td>$\epsilon_{\mathrm{clip}}=0.2$。</td><td><span class="appendix-ref">Appendix Table S2</span></td></tr>
+      <tr><td>Batch size</td><td>8。</td><td><span class="appendix-ref">Appendix Table S2</span></td></tr>
+      <tr><td>Learning rate</td><td>Fine-tuning $1\times 10^{-4}$；post-training $1\times 10^{-6}$。</td><td><span class="appendix-ref">Appendix Table S2</span></td></tr>
+      <tr><td>Reward weights</td><td>$\lambda_{L1}=1.0$；$\lambda_{\mathrm{cos}}=1.0$。</td><td><span class="appendix-ref">Appendix Table S2</span></td></tr>
+    </table>
+
+    <h4>模型配置</h4>
+    <table>
+      <tr><th>模块</th><th>参数</th><th>值</th></tr>
+      <tr><td>Prediction</td><td>Video length / Action shape</td><td>16 / $10\times 7$</td></tr>
+      <tr><td>TVP</td><td>Language shape / Image shape</td><td>$20\times512$ / $256\times256$</td></tr>
+      <tr><td>Video Former</td><td>Token shape / input dim / latent dim / heads / layers</td><td>$16\times14\times384$ / 1280 / 512 / 8 / 6</td></tr>
+      <tr><td>Diffusion Transformer</td><td>Latent dim / condition shape / heads / encoder / decoder / sampling steps</td><td>384 / $225\times384$ / 8 / 4 / 4 / 10</td></tr>
+    </table>
+    <div class="impl-note">论文强调不改 VLA 架构；复现重点不是重新设计 AGM，而是复现 VPM 的 hybrid rollout、latent reward、GRPO 更新，以及 post-trained VPM 后是否重新训练/适配 AGM。</div>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 实验</h2>
+    <h3>5.1 实验设置</h3>
+    <p><strong>仿真环境。</strong>主要评测为 CALVIN ABC$\to$D：训练在环境 ABC，测试在未见过的 D，测试视觉外观和布局泛化，以及长程语言条件任务执行。论文还使用 L-CALVIN 将序列长度从 5 扩到 10 步，检验更长 horizon。</p>
+    <p><strong>Baselines。</strong>Base policy 是 VPP，因为它是强 VPM-based VLA。比较方法包括 VLM-based VLAs（OpenVLA、OpenVLA-OFT、$\pi_0$、$\pi_{0.5}$）和 VPM-based VLAs（UniPi、SuSIE、CLOVER、GR-1、VidMan、Seer、Seer-Large、VPP、Tri-VLA）。</p>
+    <p><strong>真实环境。</strong>真实系统为 Agibot Genie 01 双臂机器人，双臂共 14 DoF，每个末端 2-DoF gripper。感知由三台 RGB-D 相机提供：头部 Intel RealSense D455 提供第三人称全局视角，两个腕部 Intel RealSense D405 提供近距离接触和抓取几何细节。每个任务收集 200 条高质量 teleoperated demonstrations。</p>
+    <div class="figure">
+      <img src="figures/real_eg.png" alt="real-world execution examples">
+      <div class="caption">Figure S. 真实机器人任务示例：杂乱抓取、单臂精确放置、双臂协同抓取与放置。</div>
+    </div>
+
+    <h3>5.2 主要结果</h3>
+    <h4>Visual dynamics 与 action execution</h4>
+    <p>论文先验证 Q1/Q2：VAMPO 是否改善视觉动力学，以及这种改善是否进入动作执行。Figure 3 显示 predicted latents 与 ground-truth latents 的 L1 evaluation 随训练改善，并以定性图展示 hallucination suppression、planning correction 和 action rectification。</p>
+    <div class="figure">
+      <img src="figures/exp0.png" alt="visual dynamics evaluation">
+      <div class="caption">Figure 3. Visual dynamics evaluation：VAMPO 让 latent prediction 更接近 expert dynamics，并在定性例子中减少 hallucination、修正 planning 和动作。</div>
+    </div>
+    <table>
+      <tr><th>CALVIN ABC$\to$D</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Avg. Len</th><th>Avg. ER</th><th>Avg. ERR</th></tr>
+      <tr><td>Base Policy</td><td>96.0</td><td>91.3</td><td>86.4</td><td>80.4</td><td>74.7</td><td>4.28</td><td>29.28</td><td>0.0603</td></tr>
+      <tr><td>post-training VPM + original AGM</td><td>96.3</td><td>91.4</td><td>87.0</td><td>82.9</td><td>77.2</td><td>4.35</td><td>-</td><td>-</td></tr>
+      <tr><td>post-training VPM + post-training AGM</td><td><strong>98.0</strong></td><td><strong>94.8</strong></td><td><strong>91.3</strong></td><td><strong>88.3</strong></td><td><strong>83.1</strong></td><td><strong>4.56</strong></td><td><strong>43.88</strong></td><td><strong>0.0814</strong></td></tr>
+    </table>
+    <p>这个表的关键解读是：只换 post-trained VPM、保持 AGM 原样时有增益但有限；当 AGM 也在优化后的 visual dynamics 上训练后，5 连任务完成率从 74.7 提升到 83.1，Avg. Len 从 4.28 到 4.56。Avg. ER/ERR 增大表示 action 对更多独立 visual directions 有响应，论文用它解释 richer vision-action coupling。</p>
+
+    <h4>CALVIN ABC$\to$D 与 SOTA 对比</h4>
+    <table>
+      <tr><th>类别</th><th>方法</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Avg. Len</th></tr>
+      <tr><td>VLM-based</td><td>OpenVLA</td><td>91.3</td><td>77.8</td><td>62.0</td><td>52.1</td><td>43.5</td><td>3.27</td></tr>
+      <tr><td>VLM-based</td><td>$\pi_{0.5}$</td><td>92.7</td><td>84.3</td><td>76.7</td><td>68.8</td><td>61.3</td><td>3.84</td></tr>
+      <tr><td>VPM pixel-level</td><td>CLOVER</td><td>96.0</td><td>83.5</td><td>70.8</td><td>57.5</td><td>45.4</td><td>3.53</td></tr>
+      <tr><td>VPM latent-level</td><td>VPP</td><td>96.0</td><td>91.3</td><td>86.4</td><td>80.4</td><td>74.7</td><td>4.28</td></tr>
+      <tr><td>VPM latent-level</td><td>Tri-VLA</td><td>96.8</td><td>92.4</td><td>86.8</td><td>83.2</td><td>81.8</td><td>4.37</td></tr>
+      <tr><td>VPM latent-level</td><td><strong>VAMPO</strong></td><td><strong>98.0</strong></td><td><strong>94.8</strong></td><td><strong>91.3</strong></td><td><strong>88.3</strong></td><td><strong>83.1</strong></td><td><strong>4.56</strong></td></tr>
+    </table>
+
+    <h4>L-CALVIN 长程结果</h4>
+    <table>
+      <tr><th>方法</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>Avg. Len</th></tr>
+      <tr><td>OpenVLA</td><td>0.67</td><td>0.34</td><td>0.24</td><td>0.12</td><td>0.03</td><td>0.01</td><td>0.01</td><td>0.01</td><td>0.00</td><td>0.00</td><td>1.43</td></tr>
+      <tr><td>$\pi_0$</td><td>0.84</td><td>0.64</td><td>0.51</td><td>0.43</td><td>0.34</td><td>0.25</td><td>0.21</td><td>0.17</td><td>0.11</td><td>0.11</td><td>3.61</td></tr>
+      <tr><td>VPP</td><td>0.94</td><td>0.82</td><td>0.75</td><td>0.63</td><td>0.53</td><td>0.49</td><td>0.43</td><td>0.35</td><td>0.31</td><td>0.28</td><td>5.53</td></tr>
+      <tr><td><strong>VAMPO</strong></td><td><strong>0.97</strong></td><td><strong>0.89</strong></td><td><strong>0.81</strong></td><td><strong>0.75</strong></td><td><strong>0.71</strong></td><td><strong>0.64</strong></td><td><strong>0.61</strong></td><td><strong>0.51</strong></td><td><strong>0.45</strong></td><td><strong>0.39</strong></td><td><strong>6.73</strong></td></tr>
+    </table>
+    <div class="figure">
+      <img src="figures/calvin-l.png" alt="L-CALVIN results">
+      <div class="caption">Figure. L-CALVIN 长程曲线：任务长度增加时，VAMPO 相比 VPP 的优势更明显。</div>
+    </div>
+
+    <h4>真实世界结果</h4>
+    <p>真实世界评测覆盖三个任务：cluttered target grasping (<code>pick_apple</code>)、single-arm precise placement (<code>pick_bowl_in_box</code>)、dual-arm coordinated grasp and placement (<code>pick_two_bottles</code>)。评分规则见附录：前两个任务抓取 50 分、放置 50 分；双臂任务左右抓取和左右放置各 25 分。</p>
+    <div class="figure">
+      <img src="figures/exp1.png" alt="qualitative visualization">
+      <div class="caption">Figure. 多平台定性可视化：Agibot Genie 01、Flexiv dual-arm robot、VidowX 上的预测和动作质量改善。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/exp.png" alt="real-world evaluation">
+      <div class="caption">Figure. Agibot Genie 01 上三类真实任务评测：VAMPO 在 cluttered grasp、single-arm pick-and-place、bimanual grasp-and-place 上均优于 base policy。</div>
+    </div>
+
+    <h3>5.3 消融实验</h3>
+    <div class="figure">
+      <img src="figures/ablations.png" alt="ablation studies">
+      <div class="caption">Figure. 核心组件消融：post-training steps、DDPO vs GRPO、5-step vs 1-step SDE、pixel vs latent reward。</div>
+    </div>
+    <table>
+      <tr><th>消融</th><th>设置</th><th>5 连完成率</th><th>Avg. Len</th><th>论文结论</th></tr>
+      <tr><td>Reward type</td><td>Pixel reward</td><td>78.0</td><td>4.39</td><td>pixel consistency 有帮助但不如 latent dynamics。</td></tr>
+      <tr><td>Reward type</td><td>Latent reward (Ours)</td><td><strong>83.1</strong></td><td><strong>4.56</strong></td><td>latent representation 更贴近 dynamics 与 task semantics。</td></tr>
+      <tr><td>Hybrid denoising</td><td>5-step SDE</td><td>76.4</td><td>4.34</td><td>后续步骤加 SDE 可能诱发 reward hacking。</td></tr>
+      <tr><td>Hybrid denoising</td><td>1-step SDE (Ours)</td><td><strong>83.1</strong></td><td><strong>4.56</strong></td><td>只扰动第一步兼顾可优化性和 temporal coherence。</td></tr>
+      <tr><td>Optimization</td><td>DDPO</td><td>77.6</td><td>4.36</td><td>对 noisy rewards 更敏感，利用候选多样性不足。</td></tr>
+      <tr><td>Optimization</td><td>GRPO (Ours)</td><td><strong>83.1</strong></td><td><strong>4.56</strong></td><td>组内归一化和 clipping 更稳定。</td></tr>
+      <tr><td>Post-training steps</td><td>400 / 600 / 1000 / 1400</td><td>81.8 / 77.2 / 78.2 / <strong>83.1</strong></td><td>4.50 / 4.31 / 4.42 / <strong>4.56</strong></td><td>RL 训练中途有波动，但各 checkpoint 均高于 base；1400 最好。</td></tr>
+    </table>
+
+    <h3>5.4 补充实验与可视化</h3>
+    <p>附录 Visualization 给出 one-step direct prediction。作者说明模型能够捕捉机器人运动的底层 visual dynamics；虽然纹理和细粒度细节不完美，但轨迹和物理交互一致性支持该模型的有效性。</p>
+    <div class="figure">
+      <img src="figures/1step.png" alt="one-step direct prediction">
+      <div class="caption">Figure S. One-step Direct Prediction 可视化：展示预测轨迹、交互过程与真实 future observations 的一致性。</div>
+    </div>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 结果分析与讨论</h2>
+    <h3>6.1 论文已给出的结果分析</h3>
+    <p>论文对 Q1 的回答是，VAMPO 后训练后的 latent dynamics 与 ground-truth latent 的 L1 距离整体下降，定性上减少 hallucination、纠正 planning 和动作预测错误。对 Q2，表格显示 VPM 改善能转化为 action execution 增益，尤其当 AGM 也在 post-trained VPM 产生的 visual dynamics 上训练后，增益显著扩大。</p>
+    <p>对 Q3，论文使用 Jacobian $\mathbf{J}=\partial\mathbf{a}/\partial\mathbf{v}$ 的 effective rank 分析。更高 Avg. ER/ERR 表示 AGM 在生成动作时依赖更多相互独立的视觉方向；VAMPO 从 29.28 / 0.0603 提升到 43.88 / 0.0814，被作者解释为 richer vision-action coupling。</p>
+    <p>对 Q4，作者强调 VAMPO 虽然建立在 VPP 上，但不需要额外网络组件或额外数据，就能超过 VPP 和 Tri-VLA；在 L-CALVIN 长程 setting 中增益更明显，说明长程 manipulation 对 visual dynamics 的质量更敏感。</p>
+    <p>对 Q5，作者通过四组消融解释组件作用：GRPO 优于 DDPO，1-step SDE 优于 5-step SDE，latent reward 优于 pixel reward，post-training steps 存在 RL 波动但最终 1400 steps 最好。</p>
+
+    <h3>6.2 论文明确写出的未来方向</h3>
+    <p>Conclusion 中作者没有列出独立的未来工作清单，但给出一个方向性判断：video-based robot learning 和 VLA 系统可能需要从 likelihood-only training 走向 direct optimization of control-relevant predictive signals。</p>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>在论文自己的实验和方法框架内，最核心的价值是把“future visual representation 对控制有用”进一步推进为“future visual representation 应该按控制相关奖励直接优化”。VAMPO 没有停留在更大模型或更多数据，而是把 VPM 的 denoising 轨迹变成可做 GRPO 的对象，并用 expert latent dynamics 作为非对抗、可验证奖励。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>证据链比较完整：先用 L1 latent evaluation 和可视化证明 visual dynamics 本身改善；再用 frozen/original AGM 与 post-trained AGM 对照展示这种改善如何传到 action；随后用 ER/ERR 解释 vision-action coupling 变强；最后通过 CALVIN、L-CALVIN、真实 Agibot 任务和四类消融排除“只是 benchmark 表现偶然提升”的解释。</p>
+
+    <h3>7.3 作者明确承认或实验暴露的局限</h3>
+    <ul>
+      <li><strong>RL post-training 有波动。</strong>论文在 post-training steps 消融中明确说训练过程 somewhat unstable，中间会出现 performance drops；这来自 RL 的 stochasticity。</li>
+      <li><strong>SDE 位置敏感。</strong>作者指出在后续 denoising steps 施加 SDE 会导致 reward hacking，因为后续扰动可能优化 reward 却不真正改善 action-relevant early representation。</li>
+      <li><strong>VPM 改善需要 AGM 吸收。</strong>只 post-train VPM 但保持 original AGM 时提升较小；更大提升需要 post-training VPM + post-training AGM。</li>
+      <li><strong>纹理细节并非完美。</strong>附录 one-step prediction 可视化中作者说明 textures and fine-grained details are not perfectly precise，但轨迹和物理交互一致。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>VAMPO 的设定适用于 latent-level VPM-based VLA，尤其是未来视觉表示会被 AGM 用来生成动作的 pipeline。奖励需要 expert future clip 编码出的 latent $x_0$，因此它是基于 demonstration/video data 的 post-training，而不是无需专家未来轨迹的在线 RL。</p>
+    <p>实验主要覆盖 CALVIN ABC$\to$D、L-CALVIN 和 Agibot Genie 01 的 tabletop tasks。虽然论文也展示 Flexiv dual-arm robot、VidowX 的定性可视化，但主要数值评测集中在 CALVIN 和 Agibot 任务。</p>
+  </section>
+
+  <section id="sec8">
+    <h2>8. 复现审计</h2>
+    <div class="audit-card">
+      <p><span class="audit-pass">源码可解析：</span>主文件为 <code>paper.tex</code>，正文分布在 <code>sec/</code>，附录包含训练配置、真实任务细节、消融和可视化。</p>
+      <p><span class="audit-pass">图表已本地化：</span>源码 PDF 图已使用 PyMuPDF 从 <code>colab_en</code> 环境转换为 PNG，报告引用本地 <code>figures/</code>。</p>
+      <p><span class="audit-pass">复现链接：</span>论文元信息给出项目页、GitHub code 和 HuggingFace model 链接。</p>
+      <p><span class="audit-warn">arXiv HTML 不可用：</span>arXiv HTML 页面提示 “No HTML for '2603.19370'”，本报告完全基于 LaTeX source、PDF 和源码图像解析。</p>
+      <p><span class="audit-warn">高算力依赖：</span>VPM post-training 使用 64 张 NVIDIA H20，AGM training 使用 8 张 H20；评估使用 RTX 5880。完整复现成本较高。</p>
+      <p><span class="audit-warn">仍需代码确认细节：</span>论文给出主要超参，但实际复现还需要仓库中的数据采样、GRPO rollout、VPM/AGM checkpoint 组织和 CALVIN evaluation 脚本。</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

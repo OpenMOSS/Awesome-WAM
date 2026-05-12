@@ -1,0 +1,169 @@
+
+
+We now contrast action-space sampling with latent-space planning.
+Rather than comparing absolute volumes,
+we compare the probability mass assigned to feasible trajectories
+under different induced distributions.
+
+\begin{proposition}[Latent Reweighting of the Search Distribution]
+\label{prop:latent_reweighting}
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ denote the feasible trajectory set.
+Consider a latent generator
+$\mathcal{W}_\theta : \mathbb{R}^{d_z} \to \mathcal{X}$
+and a state-conditioned latent distribution $f_\theta(s_t)$.
+Assume that the learned model approximately parameterizes feasible trajectories
+in the sense that there exists $\delta \in (0,1)$ such that
+\begin{equation}
+P_{\mathrm{latent}}(\mathcal{M}_{\mathrm{traj}})
+=
+\Pr_{z \sim f_\theta(s_t)}
+\big[
+\mathcal{W}_\theta(z) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+\ge 1 - \delta .
+\end{equation}
+
+Let $\Phi : \mathcal{A}^H \to \mathcal{X}$ denote the trajectory rollout map
+induced by the system dynamics.
+Then the ratio of feasible-trajectory probabilities satisfies
+\begin{equation}
+\frac{
+\Pr_{z \sim f_\theta(s_t)}
+\big[
+\mathcal{W}_\theta(z) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+}{
+\Pr_{a_{t:t+H} \sim \mathrm{Unif}(\mathcal{A}^H)}
+\big[
+\Phi(a_{t:t+H}) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+}
+\ge
+\exp(cH)\,(1-\delta),
+\end{equation}
+where $c>0$ is the constant from Lemma~\ref{lem:vanishing_mass}.
+Consequently, latent planning assigns exponentially larger probability mass
+to feasible trajectories relative to direct action-space sampling
+as the horizon grows.
+\end{proposition}
+
+\begin{proof}
+Uniform sampling over $\mathcal{A}^H$ induces a trajectory distribution
+via the rollout map $\Phi$.
+By Lemma~\ref{lem:vanishing_mass},
+the probability of sampling an $\epsilon$-feasible trajectory satisfies
+\[
+\Pr_{a_{t:t+H} \sim \mathrm{Unif}(\mathcal{A}^H)}
+\big[
+\Phi(a_{t:t+H}) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+\le \exp(-cH).
+\]
+
+On the other hand, latent sampling induces the pushforward distribution
+$P_{\mathrm{latent}} = (\mathcal{W}_\theta)_\# f_\theta$.
+By assumption,
+\[
+\Pr_{z \sim f_\theta(s_t)}
+\big[
+\mathcal{W}_\theta(z) \in \mathcal{M}_{\mathrm{traj}}
+\big]
+\ge 1 - \delta .
+\]
+
+Taking the ratio of the two probabilities yields the stated result.
+\end{proof}
+
+\paragraph{Discussion.}
+Proposition~\ref{prop:latent_reweighting} is a conditional comparison:
+given a learned latent representation that approximately captures
+the feasible trajectory set,
+latent planning avoids the exponential decay of probability mass
+that plagues action-space search.
+This advantage arises from reweighting the search distribution
+toward dynamically and semantically valid regions,
+rather than from exhaustive exploration of a lower-dimensional space.
+
+Proposition~\ref{prop:latent_reweighting} establishes that latent planning
+reweights the search distribution toward the feasible trajectory manifold,
+thereby mitigating the exponential infeasibility of action-space exploration.
+Nevertheless, feasibility alone is insufficient for long-horizon planning,
+as the feasible set still contains trajectories with widely varying returns.
+The following corollary formalizes the necessity of iterative latent planning.
+\begin{corollary}[Necessity of Iterative Latent Planning]
+\label{cor:iterative_inference}
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ denote the feasible trajectory set,
+and let
+\[
+V(\tau)
+=
+\sum_{h=0}^{H-1} \gamma^h r(s_{t+h}, a_{t+h})
+\]
+denote the cumulative discounted return of a trajectory $\tau$,
+where $r$ is a bounded per-step reward and $\gamma \in (0,1]$.
+Let
+$\mathcal{W}_\theta : \mathbb{R}^{d_z} \to \mathcal{X}$
+be a learned latent trajectory generator inducing the distribution
+$P_{\mathrm{latent}} = (\mathcal{W}_\theta)_\# f_\theta$.
+
+Assume that
+\[
+P_{\mathrm{latent}}(\mathcal{M}_{\mathrm{traj}}) \ge 1 - \delta
+\quad \text{for some } \delta \in (0,1).
+\]
+
+Then, for any fixed sample budget $N$ that grows subexponentially with
+the planning horizon $H$, one-shot sampling from $P_{\mathrm{latent}}$
+does not, in general, guarantee with high probability
+the discovery of a near-optimal trajectory.
+Iterative inference procedures that adaptively reweight
+the latent distribution are therefore necessary
+to concentrate probability mass on high-value feasible trajectories.
+\end{corollary}
+\begin{proof}
+Define the optimal feasible trajectory value
+\[
+V^\star = \sup_{\tau \in \mathcal{M}_{\mathrm{traj}}} V(\tau).
+\]
+For any $\varepsilon > 0$, define the $\varepsilon$-optimal feasible set
+\[
+\mathcal{M}_\varepsilon
+=
+\{\tau \in \mathcal{M}_{\mathrm{traj}} \mid V(\tau) \ge V^\star - \varepsilon\}.
+\]
+
+By construction, $\mathcal{M}_\varepsilon$ is a measurable subset of
+$\mathcal{M}_{\mathrm{traj}}$.
+While the latent distribution assigns non-vanishing probability mass
+to the feasible set $\mathcal{M}_{\mathrm{traj}}$,
+this assumption alone does not imply any uniform lower bound on
+$P_{\mathrm{latent}}(\mathcal{M}_\varepsilon)$.
+In particular, the probability mass of $P_{\mathrm{latent}}$
+may be dispersed across trajectories with widely varying values.
+
+Let $\tau^{(1)}, \ldots, \tau^{(N)}$ be $N$ independent samples
+drawn from $P_{\mathrm{latent}}$.
+The probability of observing at least one $\varepsilon$-optimal trajectory is
+\[
+\Pr\Big[\exists i \le N : \tau^{(i)} \in \mathcal{M}_\varepsilon \Big]
+=
+1 - \big(1 - P_{\mathrm{latent}}(\mathcal{M}_\varepsilon)\big)^N.
+\]
+
+If $N$ grows subexponentially with $H$,
+then unless $P_{\mathrm{latent}}(\mathcal{M}_\varepsilon)$
+is bounded below by a constant independent of $H$,
+the above probability cannot be guaranteed to remain bounded away from zero
+as the planning horizon increases.
+Therefore, without additional mechanisms that adaptively reweight
+the latent distribution toward higher-value regions,
+one-shot latent sampling does not provide a reliable strategy
+for long-horizon optimization.
+Iterative inference methods, such as importance-weighted resampling,
+cross-entropy optimization, or gradient-based refinement in latent space, 
+explicitly modify the sampling distribution based on observed returns,
+thereby increasing the probability mass assigned to $\mathcal{M}_\varepsilon$
+over successive iterations.
+This establishes the necessity of iterative latent planning.
+\end{proof}
+

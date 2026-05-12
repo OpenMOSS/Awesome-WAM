@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FRAPPE - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+      <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment</h1>
+  <div class="meta">
+    <p><strong>作者：</strong>Han Zhao, Jingbo Wang, Wenxuan Song, Shuai Chen, Yang Liu, Yan Wang, Haoang Li, Donglin Wang</p>
+    <p><strong>机构：</strong>Zhejiang University, Westlake University, HKUST (GZ), South China University of Technology, ShanghaiTech University, Tsinghua University</p>
+    <p><strong>发表状态：</strong>arXiv v1 submitted on 2026-02-19</p>
+    <p><strong>链接：</strong><a href="https://arxiv.org/abs/2602.17259">arXiv:2602.17259</a> | <a href="https://arxiv.org/pdf/2602.17259">PDF</a> | <a href="https://h-zhao1997.github.io/frappe/">项目页</a> | <a href="https://github.com/Jbo-Wang/frappe">代码</a> | <a href="https://huggingface.co/collections/hhhJB/frappe">模型</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong>目录</strong>
+  <ul>
+    <li><a href="#overview">1. 论文速览</a></li>
+    <li><a href="#motivation">2. 动机</a></li>
+    <li><a href="#related">3. 相关工作脉络</a></li>
+    <li><a href="#method">4. 方法详解</a></li>
+    <li><a href="#experiments">5. 实验与结果</a></li>
+    <li><a href="#reproducibility">6. 复现审计</a></li>
+    <li><a href="#discussion">7. 分析、局限与边界</a></li>
+  </ul>
+</nav>
+<section id="overview">
+  <h2>1. 论文速览</h2>
+  <div class="tldr">
+    <strong>一句话总结：</strong>FRAPPE 在 RDT 这类 diffusion-based VLA 上加入可学习 future prefixes，并通过两阶段训练让它先适配未来表示对齐，再并行扩展成多个 Prefix+LoRA 专家，分别对齐 CLIP、DINOv2、ViT 等未来视觉表示，从而提升隐式 world modeling、泛化和数据效率。
+  </div>
+  <table class="compact">
+    <tr><th>阅读定位项</th><th>内容</th></tr>
+    <tr><td>论文要解决什么</td><td>显式 world model 需要预测未来像素，容易过度关注 pixel-level reconstruction，并且推理时依赖预测未来观测会累积误差；单一 latent alignment 又可能受单个视觉任务的归纳偏置限制。</td></tr>
+    <tr><td>作者的方法抓手</td><td>用 learnable future prefix 对齐未来 observation 的 VFM embedding；mid-training 用 Theia-style distilled encoder 单流全参适配，post-training 用 Mixture-of-Prefix-and-LoRA 并行对齐多个 VFM，再由 router 聚合动作。</td></tr>
+    <tr><td>最重要的结果</td><td>RoboTwin 2.0 八任务平均：Easy 57.5%、Hard 25.5%，均为最高；真实双臂 AgileX 任务中 unseen settings 表现强，长程三阶段任务 RDT 为 0%，FRAPPE 为 20%。</td></tr>
+    <tr><td>阅读时要注意的点</td><td>FRAPPE 与 FLARE 相近但更强调 multiple future representation alignment 与 parallel progressive expansion；它训练时使用多个 teacher VFM，推理时不再调用这些 VFMs，而保留并行专家计算图。</td></tr>
+  </table>
+
+  <h3>难度评级</h3>
+  <p><strong>4/5。</strong>需要理解 diffusion/DiT policy、RDT、LoRA、MoE/router、future representation alignment、visual foundation model teacher，以及 robot data 与 human egocentric data 的混合训练。</p>
+
+  <h3>关键词</h3>
+  <p>VLA；RDT；Implicit World Modeling；Future Representation Alignment；Prefix Tuning；LoRA；Mixture of Experts；Human Egocentric Videos；RoboTwin</p>
+
+  <h3>核心贡献清单</h3>
+  <ul>
+    <li><strong>Multiple future representation alignment。</strong>不只对齐一个未来视觉表示，而是在 post-training 中并行对齐 CLIP、DINOv2、ViT 三种 VFM 表示，降低单一表示归纳偏置。</li>
+    <li><strong>Parallel progressive expansion。</strong>先用 mid-training 让模型适配 world-modeling 目标，再用 Prefix+LoRA 多专家并行扩展，避免直接并行训练收敛慢和性能差。</li>
+    <li><strong>参数高效 post-training。</strong>共享冻结 RDT backbone，每个专家有自己的 future prefix 和 LoRA，动作由 router 聚合。</li>
+    <li><strong>可利用无动作人类视频。</strong>对 action-free samples 省略 action loss，只优化未来表示对齐 loss，使 human egocentric data 能参与训练。</li>
+    <li><strong>仿真与真实验证。</strong>覆盖 RoboTwin Easy/Hard、RDT-1B 与 RDT-130M、小数据训练、真实双臂移动机械臂和长程任务。</li>
+  </ul>
+
+  <div class="figure wide">
+    <img src="figures/x4.png" alt="FRAPPE teaser">
+    <div class="caption">Figure 1：FRAPPE 在仿真、真实复杂场景，以及不同层级 training data pyramid 上展示性能提升。</div>
+  </div>
+</section>
+
+<section id="motivation">
+  <h2>2. 动机</h2>
+  <h3>2.1 要解决什么问题</h3>
+  <p>VLA 和 diffusion policy 已经能学习多模态动作分布，但机器人执行复杂任务时仍需要理解环境动态，也就是 world modeling。已有方法常把 world modeling 具体化为“预测未来图像”，再把该预测用于动作生成或辅助训练。</p>
+  <p>论文指出这条路有两个问题：第一，未来像素预测把大量计算花在冗余纹理和背景细节上，而不是任务相关物体信息；第二，推理阶段依赖模型生成的未来观测，若预测错误会沿时间累积，影响动作。</p>
+
+  <h3>2.2 已有方法的局限</h3>
+  <p>显式未来图像方法，如联合生成 future frames/actions 的模型，在 OOD 场景中可能图像生成质量差。隐式 alignment 方法，如 FLARE/VPP/representation alignment，避免了显式生成，但如果只对齐单一视觉 representation，就可能继承该视觉任务的偏置，不一定适配所有机器人任务。</p>
+  <p>FRAPPE 的核心动机是：world modeling 不必预测图像本身，也不应被单一 representation 限死；模型可以同时向多个视觉基础模型的未来 representation 对齐，并在推理时通过多流并行计算获得 scaling benefit。</p>
+
+  <h3>2.3 本文的解决思路</h3>
+  <p>FRAPPE 使用两阶段 recipe：</p>
+  <ol>
+    <li><strong>Mid-training：</strong>单流、全参数 fine-tuning，加入 future prefix，对齐一个由多 VFM 蒸馏得到的 Theia-style tiny teacher encoder，使 RDT 适配 world-modeling 目标。</li>
+    <li><strong>Post-training：</strong>冻结共享 backbone，只训练多个 future prefix 和对应 LoRA；每个专家对齐一个独立 teacher encoder，最后由 router 聚合专家输出生成动作。</li>
+  </ol>
+</section>
+
+<section id="related">
+  <h2>3. 相关工作脉络</h2>
+  <h3>3.1 Diffusion-based Policies</h3>
+  <p>Diffusion Policy 通过条件去噪建模多模态动作分布；DP3/iDP3 引入 3D 表示提升空间泛化；RDT 扩展到 foundation model 级别，使用 diffusion transformer 和大规模异构数据；RDT2 进一步扩大参数并引入 action tokenizer 与 flow-matching loss。FRAPPE 直接构建在 RDT-1B/RDT-130M 上，目标是给这类模型追加隐式 world modeling 能力。</p>
+
+  <h3>3.2 Generative Models Unifying Vision and Action</h3>
+  <p>UVA、PAD、UD-VLA 等方法把视频生成和动作预测统一到 diffusion 框架中；VPP、Genie Envisioner、FLARE 等则更多利用视觉表示作为条件或对齐目标。FRAPPE 与 FLARE 接近，但它用 parallel scaling 将多个 implicit world-modeling 分支合在一个 MiPA 架构中。</p>
+
+  <h3>3.3 Robot Learning from Human Egocentric Videos</h3>
+  <p>已有路线会从人类视频提取 affordance、视觉轨迹、pose 或 latent action。FRAPPE 不需要显式 pose estimator，也不需要把 human motion 转成 robot action；它只把未来观测作为 grounding signal，对没有 action label 的数据优化 alignment loss。</p>
+</section>
+
+<section id="method">
+  <h2>4. 方法详解</h2>
+  <div class="figure wide">
+    <img src="figures/x5.png" alt="FRAPPE overview">
+    <div class="caption">Figure 2：训练和推理总览。训练时逐步对齐多个 VFM representation；推理时保留并行专家计算图，不使用 VFM teacher 监督。</div>
+  </div>
+
+  <h3>4.1 Preliminaries: RDT</h3>
+  <p>RDT 建模条件动作序列分布 $p_\theta(\mathbf{a}_t|\mathbf{o}_t,l)$。给定语言 $l$、观测 $\mathbf{o}_t$、带噪动作 $\tilde{\mathbf{a}}_t$ 和 diffusion timestep $k$，DiT 去噪网络 $f_\theta$ 预测 clean action chunk。</p>
+  <div class="formula-block">
+    <p class="intuition">RDT 原始目标：把 noisy action chunk 去噪成真实动作 chunk。</p>
+    $$\mathcal{L}_{action}=\mathrm{MSE}\left(\mathbf{a}_t,f_\theta(l,\mathbf{o}_t,\tilde{\mathbf{a}}_t,k)\right)$$
+    $$\tilde{\mathbf{a}}_t=\sqrt{\bar{\alpha}_k}\mathbf{a}_t+\sqrt{1-\bar{\alpha}_k}\epsilon,\quad \epsilon\sim\mathcal{N}(0,I)$$
+    <table class="symbol-table">
+      <tr><td>$\mathbf{o}_t$</td><td>当前视觉观测。</td></tr>
+      <tr><td>$l$</td><td>语言指令。</td></tr>
+      <tr><td>$\tilde{\mathbf{a}}_t$</td><td>diffusion timestep $k$ 下的 noisy action chunk。</td></tr>
+      <tr><td>$f_\theta$</td><td>RDT 的 DiT backbone，条件化 SigLIP 视觉 tokens 和 T5 语言 tokens。</td></tr>
+    </table>
+  </div>
+
+  <h3>4.2 Future Prefix Alignment</h3>
+  <p>FRAPPE 在 RDT 输入序列中加入 learnable future prefix $\mathbf{p}\in\mathbb{R}^{n\times d}$。模型不仅输出动作，还输出 prefix 对应的未来表示预测：</p>
+  <div class="formula-block">
+    <p class="intuition">future prefix 让原本只负责动作去噪的 RDT，同时在内部学习未来状态 representation。</p>
+    $$\mathbf{a}_t,\mathbf{p}_t=f_\theta(l,\mathbf{o}_t,\tilde{\mathbf{a}}_t,k)$$
+    $$\mathbf{e}_{t+h}=\Phi(o_{t+h}),\quad \mathcal{L}_\Phi=\cos(\mathbf{p}_t,\mathrm{sg}(\mathbf{e}_{t+h}))$$
+    <table class="symbol-table">
+      <tr><td>$\Phi$</td><td>pretrained VFM teacher encoder。</td></tr>
+      <tr><td>$h$</td><td>future horizon；附录消融最优为 $h=8$。</td></tr>
+      <tr><td>$\mathrm{sg}$</td><td>stop-gradient，不更新 teacher encoder。</td></tr>
+      <tr><td>$\mathbf{p}_t$</td><td>RDT 输出的 future-prefix representation，用于对齐未来 observation embedding。</td></tr>
+    </table>
+  </div>
+
+  <h3>4.3 Parallel Scaling: Mixture-of-Prefix-and-LoRA</h3>
+  <p>为了利用多个视觉基础模型的知识，FRAPPE 在共享 RDT backbone 上构建多个 future-prefix + LoRA 专家。每个专家对应一个 teacher encoder，论文设置 $M=3$，teacher 分别是 CLIP 400M、DINOv2 142M、ViT 300M。</p>
+  <div class="formula-block">
+    $$\mathcal{L}_{align}=\sum_{i=1}^{M}\mathcal{L}_{\Phi_i}$$
+    <p>其中 $\mathcal{L}_{\Phi_i}$ 是第 $i$ 个 VFM teacher 的 future representation alignment loss。</p>
+  </div>
+  <p>推理时，多个专家都会给出 latent action representation，router 产生 gating weights，再聚合输出。</p>
+  <div class="formula-block">
+    $$\mathbf{a}_t=\mathrm{MLP}\left(\sum_{i=1}^{M}w_i\cdot z_i\right),\quad \sum_i w_i=1$$
+    <table class="symbol-table">
+      <tr><td>$z_i$</td><td>第 $i$ 个专家输出的 latent action representation。</td></tr>
+      <tr><td>$w_i$</td><td>router 给第 $i$ 个专家的权重。</td></tr>
+      <tr><td>MLP</td><td>共享 action head，把加权 latent 表示映射成可执行 action chunk。</td></tr>
+    </table>
+  </div>
+
+  <h3>4.4 Load Balance 与 Label Smoothing</h3>
+  <p>作者观察到 mode collapse：某个 stream 可能主导学习，其他专家几乎不更新。为此加入 load-balancing loss 和 gating label smoothing。</p>
+  <div class="formula-block">
+    $$\mathcal{L}_{balance}=\frac{1}{B}\sum_{j=1}^{B}\left(\log\sum_{i=1}^{M}e^{\mathbf{g}_{i,j}}\right)^2$$
+    $$w'_i=w_i(1-\epsilon)+\frac{\epsilon}{M},\quad \epsilon=0.1$$
+    $$\mathcal{L}_{total}=\mathcal{L}_{action}+\lambda_1\mathcal{L}_{align}+\lambda_2\mathcal{L}_{balance}$$
+  </div>
+  <p><span class="tag">附录 A</span> 中 $\lambda_1$ 消融显示，$\lambda_1=0.05$ 最优；若过大，会干扰动作预测这个主任务。</p>
+
+  <h3>4.5 Mid-training 与 Post-training 为什么分开</h3>
+  <p>论文强调不能直接在 base RDT 上做并行 post-training，因为架构和目标都偏离原始 RDT 预训练分布太多。Mid-training 先用单流 future prefix 和 Theia-style 86M distilled encoder 做全参数 fine-tuning，让模型适配 world-modeling objective；之后 post-training 再冻结 backbone，用 LoRA/prefix 高效对齐多个 teacher。</p>
+  <div class="impl-note"><strong>实现要点：</strong>主实验从官方 RDT-1B pretrained weights 出发，总训练 20k steps：15k mid-training + 5k post-training；训练数据只有 Easy setting 中每个任务 50 条 task-specific trajectories。</div>
+</section>
+
+<section id="experiments">
+  <h2>5. 实验与结果</h2>
+  <h3>5.1 Simulation Setup</h3>
+  <p>仿真实验使用 RoboTwin 2.0，这是 real-to-sim bimanual benchmark。每个任务有 Easy 和 Hard 两种设置；Hard 包含场景杂物、背景纹理、光照、桌面高度等 domain randomization。所有仿真实验覆盖 8 个任务，每个模型用 100 evaluation trials 报告平均表现。</p>
+  <p>训练设置：从 RDT-1B official pretrained weights 开始；训练数据限制为 Easy setting 的每任务 50 条轨迹；两张 H100 训练 20,000 steps，batch size 32。</p>
+
+  <h3>5.2 RoboTwin 2.0 主结果</h3>
+  <table class="compact">
+    <tr><th>Method</th><th>Average Easy</th><th>Average Hard</th><th>备注</th></tr>
+    <tr><td>DP</td><td>31.3%</td><td>0.0%</td><td>train-from-scratch visuomotor baseline。</td></tr>
+    <tr><td>VPP</td><td>35.8%</td><td>4.0%</td><td>implicit world model baseline。</td></tr>
+    <tr><td>RDT</td><td>47.4%</td><td>15.1%</td><td>FRAPPE 的 base model。</td></tr>
+    <tr><td>$\pi_0$</td><td>57.1%</td><td>14.1%</td><td>RoboTwin SOTA baseline。</td></tr>
+    <tr><td>$\pi_{0.5}$</td><td>45.4%</td><td>13.3%</td><td>$\pi_0$ successor。</td></tr>
+    <tr><td><strong>FRAPPE</strong></td><td><strong>57.5%</strong></td><td><strong>25.5%</strong></td><td>Easy 平均最高，Hard 平均明显最高。</td></tr>
+  </table>
+  <p>Hard setting 的提升更关键：FRAPPE 从 RDT 的 15.1% 提升到 25.5%，也超过 $\pi_{0.5}$。作者解释为模型更好学习了多视觉观察背后的低层 dynamics，而不是依赖 spurious visual correlations。</p>
+
+  <h3>5.3 Training Paradigm 消融</h3>
+  <table class="compact">
+    <tr><th>No.</th><th>Method</th><th>Steps</th><th>Easy</th><th>Hard</th><th>Average</th></tr>
+    <tr><td>0</td><td>RDT</td><td>20k</td><td>59.0</td><td>20.5</td><td>39.8</td></tr>
+    <tr><td>1</td><td>mid-train full ft</td><td>20k</td><td>63.0</td><td>27.5</td><td>45.3</td></tr>
+    <tr><td>2</td><td>mid-train prefix & LoRA ft</td><td>20k</td><td>48.0</td><td>8.5</td><td>28.3</td></tr>
+    <tr><td>3</td><td>post-train prefix ft</td><td>20k</td><td>25.0</td><td>4.0</td><td>14.5</td></tr>
+    <tr><td>4</td><td>post-train prefix & LoRA ft</td><td>20k</td><td>46.0</td><td>9.0</td><td>27.5</td></tr>
+    <tr><td>5</td><td>mid full ft + post prefix ft</td><td>15k + 5k</td><td>68.0</td><td>21.5</td><td>44.8</td></tr>
+    <tr><td>6</td><td><strong>mid full ft + post prefix & LoRA ft</strong></td><td>15k + 5k</td><td><strong>73.5</strong></td><td><strong>32.0</strong></td><td><strong>52.3</strong></td></tr>
+  </table>
+  <p>结论很清楚：mid-training 必须先做，而且需要 full-parameter fine-tuning；post-training 单独做效果很差；最终最佳 recipe 是 15k 全参 mid-training + 5k prefix&LoRA post-training。</p>
+
+  <h3>5.4 Inference Efficiency</h3>
+  <table class="compact">
+    <tr><th>Metric</th><th>RDT 5 steps</th><th>mid-train 5 steps</th><th>post-train 5 steps</th><th>post-train 3 steps</th></tr>
+    <tr><td>Inference Memory</td><td>3.7 GB</td><td>3.7 GB</td><td>8.0 GB</td><td>8.0 GB</td></tr>
+    <tr><td>Latency</td><td>0.214 s</td><td>0.228 s</td><td>0.235 s</td><td>0.173 s</td></tr>
+    <tr><td>Success Rate</td><td>39.8%</td><td>45.3%</td><td>52.3%</td><td>48.5%</td></tr>
+  </table>
+  <p>post-training 并行专家把显存从 3.7GB 提到 8.0GB，但同样 5 steps 的延迟只增加约 20ms。减少到 3 denoising steps 后，延迟低于 RDT 5 steps，成功率仍高于 baseline。</p>
+
+  <h3>5.5 Smaller-scale Policy Model</h3>
+  <div class="figure wide">
+    <img src="figures/allTolora.png" alt="RDT-130M results">
+    <div class="caption">Figure 3：RDT-130M 上的验证。FRAPPE recipe 在小模型上也能提升性能，LoRA post-training 与全参 post-training 的差距只有约 2-3%。</div>
+  </div>
+  <p>作者用 RDT-130M 说明该训练范式不只依赖 1B 参数规模。RDT-130M 原始 hard-task 泛化弱，但 FRAPPE 对 hard tasks 提升明显，并能接近 naive RDT-1B fine-tuning 的水平。</p>
+
+  <h3>5.6 Real-world Experiments</h3>
+  <p>真实实验使用 bimanual AgileX mobile manipulator，每个机械臂 6-DoF 和 parallel gripper。视觉系统包括一个高位第三人称主相机，以及两个 wrist-mounted ego-centric cameras。训练数据：basic tasks 每个 variation 25 demonstrations，long-horizon tasks 100 demonstrations。评估：basic tasks 每个 40 trials，long-horizon tasks 每个 20 trials。</p>
+  <div class="figure wide">
+    <img src="figures/x6.png" alt="Real-world seen unseen">
+    <div class="caption">Figure 4：真实任务 seen/unseen 设置。FRAPPE 在 lighting、height、pose、object variations 上均表现强，尤其 unseen settings。</div>
+  </div>
+  <div class="figure">
+    <img src="figures/x7.png" alt="Long horizon">
+    <div class="caption">Figure 5：长程任务包含三个时间依赖子任务和四个交互物体。RDT 在 trial 中无法完成，FRAPPE 达到 20% 完整成功率。</div>
+  </div>
+
+  <h3>5.7 Human Egocentric Co-training</h3>
+  <p>FRAPPE 提出 data pyramid：底层是大规模 action-free human egocentric data，中层是 task-specific human egocentric data，顶层是 task-specific robot teleoperation data。作者强调 task-specific human data 不用 GoPro/VR，而使用与 robot data 一致的静态第三人称相机；这样新手人类操作者可以超过 360 trajectories/hour，而熟练 robot teleoperation 通常约 120 trajectories/hour。</p>
+  <p>co-training 实验使用每个物体 5 条 robot action trajectories、50 条 task-specific human egocentric trajectories、10k task-irrelevant human egocentric videos。对 action-free samples，省略 action loss，只优化 alignment loss。</p>
+  <div class="figure wide">
+    <img src="figures/x8.png" alt="Ego data results">
+    <div class="caption">Figure 6：human egocentric data without action labels。大规模 Ego(web) 对 novel objects 提供强 inductive prior，Ego(task) 改善 spatial generalization，两者合用效果最好。</div>
+  </div>
+</section>
+
+<section id="reproducibility">
+  <h2>6. 复现审计</h2>
+  <h3>6.1 关键训练配置</h3>
+  <table class="compact">
+    <tr><th>项目</th><th>配置</th></tr>
+    <tr><td>Base model</td><td>official RDT-1B pretrained weights；小模型验证为 RDT-130M。</td></tr>
+    <tr><td>Simulation data</td><td>RoboTwin Easy setting，每个任务 50 task-specific trajectories。</td></tr>
+    <tr><td>Training budget</td><td>2 NVIDIA H100 GPUs；20,000 steps；batch size 32。</td></tr>
+    <tr><td>FRAPPE schedule</td><td>15,000 mid-training steps + 5,000 post-training steps。</td></tr>
+    <tr><td>Post-training trainable params</td><td>future prefixes + LoRA + router/action aggregation 相关轻量模块；共享 RDT backbone frozen。</td></tr>
+    <tr><td>Teacher encoders</td><td>Mid-training: 86M Theia-style distilled encoder；Post-training: CLIP 400M, DINOv2 142M, ViT 300M。</td></tr>
+    <tr><td>Evaluation</td><td>RoboTwin 每项 100 trials；真实 basic tasks 每项 40 trials；真实 long-horizon 每项 20 trials。</td></tr>
+  </table>
+
+  <h3>6.2 附录超参消融</h3>
+  <table class="compact">
+    <tr><th>$\lambda_1$</th><th>0</th><th>0.001</th><th>0.02</th><th>0.05</th><th>0.1</th><th>0.5</th></tr>
+    <tr><td>SR</td><td>14.0%</td><td>18.5%</td><td>26.4%</td><td><strong>32.5%</strong></td><td>22.0%</td><td>23.5%</td></tr>
+  </table>
+  <table class="compact">
+    <tr><th>Alignment depth</th><th>7</th><th>14</th><th>21</th><th>28</th></tr>
+    <tr><td>SR</td><td>14.5%</td><td>18.0%</td><td><strong>23.5%</strong></td><td>16.0%</td></tr>
+  </table>
+  <table class="compact">
+    <tr><th>Future horizon $h$</th><th>8</th><th>16</th><th>32</th></tr>
+    <tr><td>SR</td><td><strong>35.3%</strong></td><td>35.0%</td><td>29.7%</td></tr>
+  </table>
+  <p><span class="tag">附录 A</span> 使用 RDT-1B 28 层 DiT 的第 21 层做 future prefix alignment，约为总深度的 3/4；这与 FLARE 中较深层 alignment 更有效的观察一致。</p>
+
+  <h3>6.3 Human Egocentric Co-training 细节</h3>
+  <p><span class="tag">附录 B</span> 使用 TASTE-Rob 作为 Ego(web)：100,856 video sequences，约 9M frames，并带高质量语言对齐。该阶段训练 1 epoch，在 8 张 H100 上约 96 小时。作者选择 TASTE-Rob 的理由是固定 egocentric viewpoint 与主流 VLA camera setting 更接近，有助于迁移到下游 robot action prediction。</p>
+
+  <h3>6.4 复现 checklist</h3>
+  <div class="audit-card">
+    <h4>论文与资源给得比较充分的信息</h4>
+    <p><span class="ok">充分：</span>代码和模型链接已公开；核心公式、teacher encoders、两阶段训练步数、batch size/GPU、RoboTwin 数据量、真实机器人数据量、超参消融、推理效率表都比较明确。</p>
+    <p><span class="warn">仍需实操确认：</span>具体 LoRA target modules/rank、future prefix token length $n$、router 架构细节、Theia variant 的具体 checkpoint、RoboTwin task 配置和真实 robot control stack 需要从代码仓库进一步确认。</p>
+  </div>
+  <div class="audit-card">
+    <h4>最小复现路径</h4>
+    <ol>
+      <li>加载 RDT-1B pretrained weights，保持原始 SigLIP/T5 条件化接口和 action decoder。</li>
+      <li>在 DiT 输入中加入 future prefix，并在第 21 层取 prefix representation。</li>
+      <li>用 Theia-style 86M distilled encoder 的未来 observation embedding 做单流全参数 mid-training，15k steps。</li>
+      <li>构建 3 个 Prefix+LoRA expert，分别对齐 CLIP、DINOv2、ViT，冻结 shared backbone，训练 5k steps。</li>
+      <li>实现 router 聚合 latent action representation，并加 load balance loss 与 $\epsilon=0.1$ gating smoothing。</li>
+      <li>按 $\lambda_1=0.05$、$h=8$、batch size 32、2 H100 训练，并在 RoboTwin Easy/Hard 8 tasks 上用 100 trials/task 评估。</li>
+    </ol>
+  </div>
+</section>
+
+<section id="discussion">
+  <h2>7. 分析、局限与边界</h2>
+  <h3>7.1 这篇论文最有价值的地方</h3>
+  <p>从论文自身主张看，FRAPPE 最有价值之处在于把“隐式 world modeling + parallel scaling + 参数高效 finetuning”组合成一个明确 recipe。它不是简单地加一个未来表示 loss，而是用 mid-training 先解决目标分布突变，再用 MiPA 并行吸收多个 VFM teacher 的 future representations。训练范式表说明，如果直接跳过 mid-training 或只用 prefix post-training，性能会明显下降。</p>
+
+  <h3>7.2 结果为什么站得住</h3>
+  <p>证据链较完整：RoboTwin 表格覆盖 8 个任务、Easy/Hard 两种设置和多个 SOTA baseline；训练范式消融直接比较 mid/post/full/LoRA/prefix 的组合；效率表显示并行扩展没有导致不可接受延迟；RDT-130M 实验说明方法不只适用于大模型；真实双臂任务和 human egocentric co-training 进一步支撑数据效率与泛化主张。</p>
+
+  <h3>7.3 作者显式或间接呈现的局限</h3>
+  <ul>
+    <li><strong>Hard setting 绝对成功率仍低。</strong>FRAPPE 在 Hard 平均最高，但 25.5% 仍说明强 domain randomization 下的视觉泛化没有完全解决。</li>
+    <li><strong>真实长程任务成功率有限。</strong>RDT 为 0%、FRAPPE 为 20%，体现提升，但长程任务仍远未稳定。</li>
+    <li><strong>工程复杂度增加。</strong>post-training 需要多个 teacher encoders、多个 prefix/LoRA expert、router、load balance 和 label smoothing；复现复杂度高于单一 alignment loss。</li>
+    <li><strong>显存增加。</strong>post-training 推理显存从 3.7GB 增至 8.0GB，虽然仍在常见推理 GPU 范围内，但部署资源要求上升。</li>
+    <li><strong>真实数据设置依赖固定视角。</strong>task-specific human egocentric data 实际使用静态第三人称相机而不是 GoPro/VR，说明该 pipeline 对相机设置一致性仍有依赖。</li>
+  </ul>
+
+  <h3>7.4 适用边界</h3>
+  <p>FRAPPE 适合已有 pretrained diffusion/VLA backbone、希望用少量机器人数据和大量无动作视频提升泛化的场景，尤其是双臂 manipulation、视觉扰动、物体变化和小数据 fine-tuning。它较不适合需要显式可视化未来轨迹供人审查的系统，因为它学习的是 latent future representation，而不是生成未来图像。</p>
+  <p>另一个边界是 teacher 表示选择。FRAPPE 的核心收益来自多 VFM 对齐；若任务领域与 CLIP/DINOv2/ViT 的视觉语义覆盖差异很大，teacher selection 和 mid-training teacher distillation 可能成为关键瓶颈。</p>
+</section>
+</main>
+</body>
+</html>

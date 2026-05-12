@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning to Act from Actionless Videos through Dense Correspondences - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Learning to Act from Actionless Videos through Dense Correspondences</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Po-Chen Ko, Jiayuan Mao, Yilun Du, Shao-Hua Sun, Joshua B. Tenenbaum</p>
+      <p><strong>机构：</strong>National Taiwan University; MIT CSAIL; MIT BCS; CBMM</p>
+      <p><strong>版本：</strong>arXiv:2310.08576v1, submitted on 2023-10-12</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2310.08576">arXiv</a> | <a href="https://arxiv.org/pdf/2310.08576">PDF</a> | <a href="https://flow-diffusion.github.io/">Project page</a> | <a href="https://github.com/flow-diffusion/AVDC">Code</a></p>
+      <p><strong>关键词：</strong>actionless videos; dense correspondence; video diffusion; optical flow; robot policy; learning from observation</p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作梳理</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验</a></li>
+      <li><a href="#repro">6. 复现信息汇总</a></li>
+      <li><a href="#discussion">7. 分析、局限与边界</a></li>
+    </ul>
+  </nav>
+<section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>这篇论文提出 AVDC：先用文本条件视频扩散模型“想象”机器人完成任务的未来视频，再用帧间 dense correspondences 和初始深度恢复物体或相机的 3D 刚体变换，最后把变换映射成机器人动作，因此训练主要依赖 RGB 视频而不需要动作标签。
+    </div>
+
+    <table class="tight">
+      <tr><th>阅读定位项</th><th>内容</th></tr>
+      <tr><td>论文要解决什么</td><td>从少量无动作标注的视频示范中学习可执行机器人策略，避免每个机器人、每个任务都重新收集 action-labeled trajectories。</td></tr>
+      <tr><td>作者的方法抓手</td><td>把“动作”拆成两个可复用中间量：文本条件未来视频和帧间 dense correspondence。视频表示未来状态变化，光流与深度把像素变化还原成 $SE(3)$ 变换。</td></tr>
+      <tr><td>最重要的结果</td><td>Meta-World 平均成功率 43.1%，高于 BC-Scratch 16.2%、BC-R3M 15.4%、UniPi 6.1%；iTHOR 平均成功率 31.3%，而两个 BC baseline 只有 2.1% 和 0.4%；Visual Pusher 上从人类推物视频到机器人执行的 zero-shot 成功率为 90% / 40 runs。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>方法并不是端到端从视频直接输出动作，而是强依赖光流、mask、depth、刚体运动假设和手工动作 primitive；真实 Panda 实验附录报告 10 次测试中失败 8 次，需要与主文定性展示一起读。</td></tr>
+    </table>
+
+    <p><strong>难度评级：</strong>★★★★☆。需要同时理解扩散视频生成、光流/dense correspondence、相机投影几何、机器人 motion primitive 和 learning from observation 的实验协议。</p>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>无动作标签动作推断：</strong>作者提出用视频帧间 dense correspondences 推断对象或相机的刚体变换，再转成动作，因此目标任务视频不需要动作标注。</li>
+      <li><strong>跨任务、跨环境展示：</strong>同一思路用于 Meta-World 桌面操作、iTHOR 导航、Visual Pusher 人类视频到机器人推物，以及 Bridge/Panda 真实机器人设置。</li>
+      <li><strong>高效视频策略建模实现：</strong>论文提供视频策略模型代码框架，并通过 U-Net、factorized spatial-temporal block、first-frame conditioning 等设计，在小型环境数据上用 4 张 V100 一天内训练。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/figs_teaser.png" alt="Diverse task execution without action labels">
+      <div class="caption"><strong>Figure 1:</strong> 论文 teaser。作者展示 AVDC 在 manipulation、navigation 和 real-world manipulation 中只依赖 synthesized video 与 dense correspondence 来落地动作。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+
+    <h3>2.1 要解决什么问题</h3>
+    <p>机器人学习的常见瓶颈是状态和动作空间高度依赖 embodiment。折布、倒水、pick-and-place、导航需要的状态表示和动作接口都不同；如果策略学习要求每个任务都有专家动作序列，那么数据采集成本会随机器人和场景数量迅速增加。</p>
+    <p>作者抓住了视频数据的通用性：RGB 视频可以记录“状态如何变化”，并且互联网上和实验室里都更容易收集。但是视频本身没有告诉机器人应该执行哪条关节轨迹或末端执行器动作。本文的问题就是：能否只从 RGB 视频学到一个可执行策略，在部署时再把视频变化翻译成当前机器人动作。</p>
+
+    <h3>2.2 已有方法的局限</h3>
+    <ul>
+      <li><strong>直接行为克隆需要动作标签：</strong>BC baseline 可以访问 Meta-World 的 15,216 个和 iTHOR 的 5,757 个 labeled frame-action pairs，但这些标签正是本文方法不使用的数据。</li>
+      <li><strong>视频规划仍缺动作落地：</strong>UniPi 类方法把 policy prediction 表述为 text-conditioned video generation，但需要 task-specific inverse dynamics model 从视频反推动作，仍然依赖动作标注。</li>
+      <li><strong>端到端 flow diffusion 不稳：</strong>作者尝试直接生成 optical flow，但认为光流场稀疏且缺乏普通图像那样的空间/时间平滑性，扩散模型直接拟合 flow distribution 不如“两阶段：先生成 RGB 视频，再用 GMFlow 估计光流”。</li>
+      <li><strong>计算成本与代码可得性：</strong>作者指出最接近的 UniPi 训练成本超过 256 TPU pods，且源代码可得性有限；本文把高保真视频策略训练压到小型数据集上 4 GPU 约一天。</li>
+    </ul>
+
+    <h3>2.3 本文的解决思路</h3>
+    <p>AVDC 的高层思路是“先想象未来，再几何化动作”。给定当前 RGBD observation 和文本目标，模型生成未来 8 帧视频；GMFlow 在相邻生成帧之间输出 dense correspondence；初始深度和相机内参把像素点提升到 3D；最后通过优化恢复对象或场景的刚体变换，并用现成 grasp、push、IK、navigation action mapping 把变换转成动作。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作梳理</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的定位</th><th>本文怎么接上</th></tr>
+      <tr><td>Robot learning from videos</td><td>已有工作用视频学视觉表征、抽取目标/子任务，或把视频作为 dynamics model 做规划；UniPi 最接近，把策略预测写成文本条件视频生成。</td><td>AVDC 延续“视频作为中间计划”的路线，但用 dense correspondence 避免学习 task-specific inverse dynamics。</td></tr>
+      <tr><td>Dense correspondences</td><td>Dense Object Nets、kPAM、Neural Descriptor Fields 等说明 dense correspondence 能隐式参数化物体 pose 和机器人动作。</td><td>本文不学习特定物体 descriptor，而是在生成视频的相邻帧之间用 off-the-shelf GMFlow 得到 dense correspondence，然后用几何优化恢复变换。</td></tr>
+      <tr><td>Learning from observation</td><td>Learning from observation 只用状态序列，不假设 expert actions；另有 action-free pretraining 需要与环境交互或 RL。</td><td>AVDC 不依赖目标任务动作标签，也不要求为目标任务做环境交互式 RL；它把部署时的动作恢复交给感知和几何模块。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+
+    <h3>4.1 整体 pipeline</h3>
+    <div class="figure">
+      <img src="figures/figs_framework.png" alt="AVDC framework">
+      <div class="caption"><strong>Figure 2:</strong> AVDC 的四步框架：输入 RGBD + 文本目标，生成 imagined execution video，估计相邻帧光流，把光流和初始深度转换为目标物体的 $SE(3)$ 变换，再映射为机器人命令。</div>
+    </div>
+
+    <ol>
+      <li><strong>视频生成：</strong>条件扩散模型学习 $p(\textit{img}_{1:T}\mid \textit{img}_0,\textit{txt})$，实验中 $T=8$。输入当前帧和文本描述，输出未来执行视频。</li>
+      <li><strong>光流估计：</strong>用 GMFlow 对每对相邻生成帧预测 optical flow。每个像素的 flow 是 dense correspondence，表示这个点在下一帧移动到哪里。</li>
+      <li><strong>几何恢复：</strong>用初始深度图和相机内参把初始像素点转成 3D 点；再找一个刚体变换 $T_t$，使变换后的 3D 点投影位置尽量匹配光流追踪到的 2D 点。</li>
+      <li><strong>动作执行：</strong>固定相机场景下，恢复目标物体变换并转成 grasp/push subgoals；导航场景下，把场景变换取逆得到相机/机器人运动，再映射为 MoveForward、RotateLeft、RotateRight 或 Done。</li>
+    </ol>
+
+    <h3>4.2 文本条件视频扩散模型</h3>
+    <p>扩散模型的目标是从初始图像和文本条件下生成未来帧。论文写出的训练损失为：</p>
+    <div class="formula-block">
+      <p class="intuition">直觉：模型学习把加噪后的未来视频去噪回来；条件是当前帧和任务文本。</p>
+      $$
+      \mathcal{L}_{\mathrm{MSE}} =
+      \left\|\epsilon -
+      \epsilon_\theta\left(\sqrt{1-\beta_t}\,\textit{img}_{1:T}
+      + \sqrt{\beta_t}\,\epsilon,\ t \mid \textit{txt}\right)
+      \right\|^2 .
+      $$
+      <table class="symbol-table">
+        <tr><td>$\textit{img}_0$</td><td>当前观察帧，作为初始条件。</td></tr>
+        <tr><td>$\textit{img}_{1:T}$</td><td>未来 $T$ 帧，实验中 $T=8$。</td></tr>
+        <tr><td>$\textit{txt}$</td><td>自然语言任务描述，经固定 CLIP-Text encoder 和 Perceiver pooling 编码。</td></tr>
+        <tr><td>$\epsilon_\theta$</td><td>视频 U-Net 去噪网络，用噪声预测训练目标。</td></tr>
+        <tr><td>$\beta_t$</td><td>扩散噪声调度；附录说明训练/推理 timesteps=100、beta schedule=cosine、objective=predict_v。</td></tr>
+      </table>
+    </div>
+    <p>架构上，作者从 Dhariwal & Nichol 的图像扩散 U-Net 出发扩展到视频。为增强与初始帧一致性，他们把条件帧 $\textit{img}_0$ 在 RGB 维度拼接到每个未来帧，而不是只在时间轴前面加一帧。ResNet block 内使用 factorized spatial-temporal convolution：先对每个时间步做空间卷积，再对每个空间位置做时间卷积，替代昂贵的完整 3D convolution。</p>
+
+    <div class="figure">
+      <img src="figures/figs_unet.png" alt="U-Net architecture">
+      <div class="caption"><strong>Figure 3:</strong> 视频扩散模型的 U-Net 架构。虚线是 residual connection。</div>
+    </div>
+
+    <h3>4.3 从光流和深度恢复动作</h3>
+    <p>在固定相机的物体操作任务中，令目标物体初始 3D 点集为 $\{x_i\}$，相机内参为 $K$，$T_t$ 是第 $t$ 帧相对于初始帧的物体刚体变换。投影关系为 $K T_t x_i = (u_t, v_t, d_t)$，对应 2D 点是 $(u_t/d_t, v_t/d_t)$。GMFlow 给出点 $x_i$ 在第 $t$ 帧的追踪像素 $(u_t^i, v_t^i)$，因此作者优化：</p>
+    <div class="formula-block">
+      $$
+      \mathcal{L}_{\text{Trans}} =
+      \sum_i
+      \left\|u_t^i - \frac{(K T_t x_i)_1}{(K T_t x_i)_3}\right\|_2^2
+      +
+      \left\|v_t^i - \frac{(K T_t x_i)_2}{(K T_t x_i)_3}\right\|_2^2 .
+      $$
+      <p>这一步只需要初始帧深度，不需要未来帧深度。因为 $T_t$ 被假设为刚体变换，未来 3D 深度通过投影几何隐式确定。</p>
+    </div>
+
+    <details>
+      <summary>推导补全：为什么这个 loss 足够恢复 $T_t$</summary>
+      <div>
+        <p>初始点 $x_i$ 已经由初始 RGBD 和相机内参确定。给定一个候选刚体变换 $T_t$，可以把 $x_i$ 放到第 $t$ 帧物体坐标下，再经 $K$ 投影到图像平面。光流提供的是同一物理点在生成视频第 $t$ 帧的 2D 位置，因此最小化投影误差就是在找最能解释所有 dense correspondence 的 6DoF 变换。实际实现中，Meta-World 附录先用 RANSAC 从 2D correspondence 中找 inliers，再用这些 inliers 估计 3D 变换 <span class="appendix-ref">附录: Meta-World setup</span>。</p>
+      </div>
+    </details>
+
+    <h3>4.4 不同环境中的动作映射</h3>
+    <table>
+      <tr><th>环境</th><th>恢复的几何量</th><th>动作映射</th><th>关键实现细节</th></tr>
+      <tr><td>Meta-World</td><td>目标物体刚体变换</td><td>根据垂直位移是否超过 10 cm 选择 grasp 或 push；grasp 模式闭合夹爪后跟随 subgoals，push 模式把机械臂放到可推动方向再跟随 subgoals。</td><td>采样 $N=500$ 个 mask 点，以物体 centroid 作为 contact point；用 RANSAC 过滤 correspondence outliers <span class="appendix-ref">附录: 4.1</span>。</td></tr>
+      <tr><td>iTHOR</td><td>静态场景变换，取逆得到相机运动</td><td>观察机器人前方 1m 的 imaginary point：位移小于 1 mm 则 Done，水平位移小于 25 cm 则 MoveForward，否则按方向 RotateLeft/RotateRight。</td><td>不跟踪单个物体；用整帧 flow，过滤移动出图像的关键点；当 inliers 少于初始采样点 10% 时重规划 <span class="appendix-ref">附录: iTHOR setup</span>。</td></tr>
+      <tr><td>Real Panda</td><td>目标物体初始 pose 和目标 pose</td><td>假设目标可 top-grasp 且无需重定向，使用 IK solver 生成机器人轨迹。</td><td>硬件为 Franka Emika Panda + Intel Realsense D435；附录说明手工指定目标分割，且小物体/低分辨率导致 3D rotation 不稳 <span class="appendix-ref">附录: real-world setup</span>。</td></tr>
+    </table>
+
+    <h3>4.5 训练和推理要点</h3>
+    <div class="impl-note"><strong>First-frame conditioning：</strong>作者把初始帧沿 RGB channel 拼接到 noisy future video，而不是沿时间维度拼接。附录 MSE 实验证明 cat_c 在 Bridge 训练早期优于 cat_t。</div>
+    <div class="impl-note"><strong>Text encoder：</strong>固定 CLIP-Text encoder，经 Perceiver pooling 聚合 token 后加入 diffusion time embedding；未使用 text cross-attention。CLIP 与 T5-base 的 MSE 差异不显著 <span class="appendix-ref">附录: Text Encoder</span>。</div>
+    <div class="impl-note"><strong>推理速度：</strong>Meta-World 每轮 action planning 约 18 秒，最多 replan 5 次，总规划成本约 18-108 秒。DDIM 10 步把视频生成加速约 10 倍，Meta-World overall success 从 43.1% 降到 37.5%，下降 5.6 个百分点 <span class="appendix-ref">附录: complexity/DDIM</span>。</div>
+
+    <div class="pseudocode">Algorithm: AVDC execution loop
+Input: current RGBD image, task text, camera intrinsics, optional object mask
+1. Generate future frames img_1:T with a text-conditioned video diffusion model.
+2. For each adjacent frame pair, estimate optical flow with GMFlow.
+3. Track dense correspondences through the generated video.
+4. Lift initial pixels to 3D using initial depth and K.
+5. Estimate object or scene rigid transforms by minimizing projection error.
+6. Convert transforms to task-specific robot commands using primitives or navigation rules.
+7. Execute; if progress stalls or correspondences are lost, replan from the new observation.</div>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+
+    <h3>5.1 Baselines 和 variants</h3>
+    <table>
+      <tr><th>方法</th><th>训练信号</th><th>作用</th></tr>
+      <tr><td>BC-Scratch</td><td>使用专家动作标签，从头训练 ResNet-18 + CLIP text + MLP。</td><td>衡量常规行为克隆在多任务设置下的难度。</td></tr>
+      <tr><td>BC-R3M</td><td>同样使用动作标签，但视觉 backbone 初始化为 R3M。</td><td>测试机器人预训练视觉表征是否帮助动作预测。</td></tr>
+      <tr><td>UniPi baseline</td><td>使用 AVDC 生成的视频，再训练 inverse dynamics model 输出动作。</td><td>代表“视频计划 + 学习式逆动力学”的路线，仍需要动作标签。</td></tr>
+      <tr><td>AVDC (Flow)</td><td>直接预测帧间 optical flow。</td><td>验证直接生成 flow 是否优于先 RGB 视频再 GMFlow。</td></tr>
+      <tr><td>AVDC (No Replan)</td><td>完整几何动作恢复，但 open-loop 执行。</td><td>验证闭环 replanning 的作用。</td></tr>
+      <tr><td>AVDC (Full)</td><td>RGB 视频生成 + GMFlow + 几何动作恢复 + replanning。</td><td>论文主方法。</td></tr>
+    </table>
+
+    <h3>5.2 Meta-World 桌面操作</h3>
+    <p>设置：11 个 Sawyer 机械臂操作任务，每个任务 3 个相机位，每个相机位 5 条 demonstrations，总共 165 个视频。方法和 variants 使用 ground-truth target object segmentation mask；BC baseline 使用动作标签。评估为每个任务、每个相机位 25 个 seeds 的平均成功率。</p>
+    <table class="tight">
+      <tr><th>方法</th><th>Overall</th><th>关键现象</th></tr>
+      <tr><td>BC-Scratch</td><td>16.2%</td><td>即使有 15,216 个动作标签，多任务泛化仍弱。</td></tr>
+      <tr><td>BC-R3M</td><td>15.4%</td><td>R3M 初始化未改善整体结果。</td></tr>
+      <tr><td>UniPi (With Replan)</td><td>6.1%</td><td>需要 inverse dynamics，整体低于 BC。</td></tr>
+      <tr><td>AVDC (Flow)</td><td>13.7%</td><td>在 button-press-topdown、faucet-close、handle-press 上有表现，但多数任务很差，支持作者“两阶段”设计。</td></tr>
+      <tr><td>AVDC (No Replan)</td><td>19.6%</td><td>已超过 BC，但明显低于闭环版本。</td></tr>
+      <tr><td><strong>AVDC (Full)</strong></td><td><strong>43.1%</strong></td><td>在 11 个任务中整体最好；door-open 72.0%、door-close 89.3%、handle-press 81.3%。</td></tr>
+    </table>
+    <div class="figure">
+      <img src="figures/figs_mw_qual.png" alt="Meta-World qualitative result">
+      <div class="caption"><strong>Figure 4:</strong> Meta-World qualitative result。作者展示生成视频、光流、当前/下一 subgoal 和执行轨迹。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/figs_replan_SR.png" alt="Number of replanning steps versus success rate">
+      <div class="caption"><strong>Figure 5:</strong> 最大 replanning 次数越多，多个视角下成功率越高。作者用它支持闭环重规划策略。</div>
+    </div>
+
+    <h3>5.3 iTHOR 目标导航</h3>
+    <p>设置：12 个目标物体，分布在 4 类房间；每个时间步可执行 MoveForward、RotateLeft、RotateRight、Done。成功标准是目标物体进入视野并在 1.5m 内，或在正确状态预测 Done。每个房间 3 种物体，每物体 20 episodes。</p>
+    <table class="tight">
+      <tr><th>Room</th><th>BC-Scratch</th><th>BC-R3M</th><th>AVDC</th></tr>
+      <tr><td>Kitchen</td><td>1.7%</td><td>0.0%</td><td><strong>26.7%</strong></td></tr>
+      <tr><td>Living Room</td><td>3.3%</td><td>0.0%</td><td><strong>23.3%</strong></td></tr>
+      <tr><td>Bedroom</td><td>1.7%</td><td>1.7%</td><td><strong>38.3%</strong></td></tr>
+      <tr><td>Bathroom</td><td>1.7%</td><td>0.0%</td><td><strong>36.7%</strong></td></tr>
+      <tr><td>Overall</td><td>2.1%</td><td>0.4%</td><td><strong>31.3%</strong></td></tr>
+    </table>
+    <p>作者解释：BC-R3M 比 BC-Scratch 更差，可能因为 R3M 预训练在机器人操作任务上，对视觉导航不适合。AVDC 的中间视频可以显示 agent 导航到目标，光流再容易映射为移动或旋转；无 flow 时表示已经找到目标并选择 Done。</p>
+    <div class="figure">
+      <img src="figures/figs_ithor_qual.png" alt="iTHOR qualitative result">
+      <div class="caption"><strong>Figure 6:</strong> iTHOR qualitative result。生成视频、flow 和动作推断对应到电视导航任务。</div>
+    </div>
+
+    <h3>5.4 跨 embodiment：人类视频到机器人推物</h3>
+    <p>Visual Pusher 实验只用 198 个 actionless human pushing videos 训练视频扩散模型，U-Net 架构与 Meta-World 相同，训练 10k steps；随后在模拟机器人 pushing 任务上 zero-shot 测试，不做 fine-tuning。结果是 40 次运行中 90% 成功率。</p>
+    <div class="figure">
+      <img src="figures/figs_cross_domain_qual.png" alt="Visual Pusher cross embodiment result">
+      <div class="caption"><strong>Figure 7:</strong> Visual Pusher。AVDC 从人类演示中生成 video plan，再把 dense correspondence 变成机器人动作。</div>
+    </div>
+
+    <h3>5.5 Bridge 到真实 Franka Panda</h3>
+    <p>Bridge 数据集含 33,078 条 WidowX 250 厨房任务 teleoperation videos，无深度。作者先用 Bridge 训练视频生成模型，再在自己的真实桌面环境中用 20 条人手示范视频 fine-tune。真实设置使用 Franka Emika Panda 和固定安装的 Intel Realsense D435 RGBD camera。</p>
+    <p>主文强调模型能生成视频、预测光流、识别目标并推断动作；附录给出更具体失败分析：真实实验 10 次测试中失败 8 次，失败原因 75% 来自 video diffusion model 生成错误 plan（选错物体或放错目标），25% 来自生成视频不连续，例如中间帧物体消失 <span class="appendix-ref">附录: real-world failure mode</span>。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/figs_bridge_qual.png" alt="Bridge qualitative result">
+        <div class="caption"><strong>Figure 8:</strong> Bridge 预测的当前和下一 subgoal。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/figs_franka_qual.png" alt="Franka Panda qualitative result">
+        <div class="caption"><strong>Figure 9:</strong> Franka Panda 执行示例，底部显示当前和下一 subgoal。</div>
+      </div>
+    </div>
+
+    <h3>5.6 附录补充实验</h3>
+    <table>
+      <tr><th>附录内容</th><th>结果</th><th>含义</th></tr>
+      <tr><td>Object mask with segmentation models</td><td>用 Language Segment-Anything 替代 GT mask，在 Meta-World 11 任务平均成功率 34.5%，比 GT mask 的 43.1% 低 8.6 个百分点。</td><td>方法对分割质量敏感；论文主结果在 Meta-World 使用 GT mask。</td></tr>
+      <tr><td>First-frame conditioning</td><td>cat_c 在 Bridge 训练早期的最后帧 MSE 低于时间维度拼接 cat_t；每个点为 4000 samples 平均值，误差条为 standard error。</td><td>RGB channel-wise conditioning 是效率设计的一部分。</td></tr>
+      <tr><td>Text encoder</td><td>CLIP-Text 63M 与 T5-base 110M 的视频生成 MSE 差异不显著。</td><td>文本编码器不是主要瓶颈；作者使用固定 CLIP-Text + Perceiver。</td></tr>
+      <tr><td>Bridge zero-shot real scenes</td><td>Bridge 模型在 toy kitchen 外的复杂真实厨房图像上能生成合理视频，但原分辨率 48x64，视频较模糊。</td><td>视频生成模型有一定场景迁移，但低分辨率会影响动作恢复。</td></tr>
+    </table>
+    <div class="figure">
+      <img src="figures/figs_mask_qualitative.png" alt="Segmentation mask qualitative result">
+      <div class="caption"><strong>Figure 10:</strong> Language Segment-Anything 的成功和失败 mask 示例。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/figs_mse_plot_no_title.png" alt="Ablation MSE plot">
+      <div class="caption"><strong>Figure 11:</strong> First-frame conditioning 与 text encoder ablation。论文用最后帧 MSE 评估生成质量。</div>
+    </div>
+  </section>
+
+  <section id="repro">
+    <h2>6. 复现信息汇总</h2>
+
+    <h3>6.1 数据与评估协议</h3>
+    <table>
+      <tr><th>场景</th><th>训练数据</th><th>评估</th></tr>
+      <tr><td>Meta-World</td><td>11 tasks x 3 cameras x 5 demonstrations = 165 videos；BC baseline 使用 15,216 frame-action pairs。</td><td>每任务、每相机位 25 seeds，报告平均成功率。</td></tr>
+      <tr><td>iTHOR</td><td>240 videos；BC baseline 使用 5,757 frame-action pairs。</td><td>12 object navigation tasks，4 room types，每物体 20 episodes。</td></tr>
+      <tr><td>Visual Pusher</td><td>198 human pushing videos，无动作标签；训练 10k steps。</td><td>模拟机器人 pushing，zero-shot，无 fine-tuning，40 runs。</td></tr>
+      <tr><td>Bridge/Panda</td><td>Bridge 33,078 WidowX videos；真实环境再 fine-tune 20 条人手示范。</td><td>真实 pick-and-place 桌面任务，附录提供 10 trials failure analysis。</td></tr>
+    </table>
+
+    <h3>6.2 模型超参</h3>
+    <p>所有模型公共设置：dropout=0，num_head_channels=32，train/inference timesteps=100，training objective=predict_v，beta_schedule=cosine，loss_function=l2，min_snr_gamma=5，learning_rate=1e-4，ema_update_steps=10，ema_decay=0.999 <span class="appendix-ref">附录: Video Diffusion Model</span>。</p>
+    <table class="tight">
+      <tr><th>参数</th><th>Meta-World</th><th>iTHOR</th><th>Bridge</th></tr>
+      <tr><td>num_parameters</td><td>201M</td><td>109M</td><td>166M</td></tr>
+      <tr><td>resolution</td><td>128 x 128</td><td>64 x 64</td><td>48 x 64</td></tr>
+      <tr><td>base_channels</td><td>128</td><td>128</td><td>160</td></tr>
+      <tr><td>num_res_block</td><td>2</td><td>3</td><td>3</td></tr>
+      <tr><td>attention_resolutions</td><td>8, 16</td><td>4, 8</td><td>4, 8</td></tr>
+      <tr><td>channel_mult</td><td>1, 2, 3, 4, 5</td><td>1, 2, 4</td><td>1, 2, 4</td></tr>
+      <tr><td>batch_size</td><td>16</td><td>32</td><td>32</td></tr>
+      <tr><td>training_timesteps</td><td>60k</td><td>80k</td><td>180k</td></tr>
+    </table>
+
+    <h3>6.3 Perceiver 文本聚合器</h3>
+    <table class="tight">
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>layers</td><td>2</td></tr>
+      <tr><td>num_attn_heads</td><td>8</td></tr>
+      <tr><td>num_head_channels</td><td>64</td></tr>
+      <tr><td>num_output_tokens</td><td>64</td></tr>
+      <tr><td>num_output_tokens_from_pooled</td><td>4</td></tr>
+      <tr><td>max_seq_len</td><td>512</td></tr>
+      <tr><td>ff_expansion_factor</td><td>4</td></tr>
+    </table>
+
+    <h3>6.4 硬件与时间</h3>
+    <ul>
+      <li>训练硬件：4 x V100 32GB。Meta-World 约 24 小时训练 165 videos；iTHOR 约 24 小时训练 240 videos；真实实验约 48 小时 Bridge pretraining + 4 小时 human-data fine-tuning。</li>
+      <li>推理硬件：RTX 3080Ti。Meta-World 单轮 planning 中，video generation 约 10.57s，flow prediction 每对帧约 0.28s，action regression 约 1.31s，action execution 约 1.53s。</li>
+      <li>代码：论文附录说 supplementary zip 中包含 <code>./codebase_AVDC</code>；项目页提供 GitHub 仓库 <a href="https://github.com/flow-diffusion/AVDC">flow-diffusion/AVDC</a>。</li>
+    </ul>
+
+    <div class="audit-card">
+      <strong>本地材料状态：</strong>arXiv 源码已解压在 <code>tmp/arxiv_source_2310.08576/</code>；PDF 在 <code>tmp/2310.08576.pdf</code>；源压缩包在 <code>tmp/arxiv_source_2310.08576.tar.gz</code>；报告图表在 <code>Report/2310.08576/figures/</code>。这些临时材料暂未删除，便于继续核对。
+    </div>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>按论文自己的实验与方法设计，最核心的价值是把“无动作标签视频”到“可执行动作”之间缺失的一环显式拆出来：视频模型只负责生成未来视觉状态，dense correspondence 和几何优化负责把状态变化转换为可执行变换。这个拆分让方法能使用 RGB-only demonstrations 训练，同时把动作恢复交给 depth、flow、mask、IK、motion primitive 等较成熟模块。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果的支撑主要来自三个层面。第一，Meta-World 表格包含多个动作标签 baseline 和多个 AVDC variants，Full 版本比 No Replan 和 Flow 版本都高，支持“replanning + 两阶段 RGB-to-flow”设计。第二，iTHOR 任务换成导航，动作空间和物体操作完全不同，但同一个 correspondence-to-transform 逻辑仍能超过两个 BC baseline。第三，附录 ablation 暴露了分割、first-frame conditioning、DDIM 步数等工程变量的影响，没有只报告主方法成功案例。</p>
+
+    <h3>7.3 作者自述局限</h3>
+    <ul>
+      <li><strong>遮挡：</strong>机器人手臂遮住物体大部分区域时，算法可能丢失物体 track。</li>
+      <li><strong>光流脆弱性：</strong>快速光照变化或大幅姿态变化会让 optical flow prediction 失效。</li>
+      <li><strong>接触信息缺失：</strong>真实 manipulation 需要 grasp 或 contact surface，而这些信息不能直接从不同人手和机器人手的视频中转移。</li>
+      <li><strong>力信息缺失：</strong>RGB 视频没有 force information，作者建议未来用真实交互学习或 fine-tuning 来补足。</li>
+      <li><strong>真实实验失败：</strong>附录报告真实 Panda 10 次测试失败 8 次，其中 75% 由于视频模型计划错误，25% 由于生成视频不连续。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <table>
+      <tr><th>适合使用的情况</th><th>不适合或需要额外模块的情况</th></tr>
+      <tr><td>任务的关键变化可近似为物体或相机的刚体变换。</td><td>柔性物体、复杂接触、强力控任务或必须推断接触 surface 的任务。</td></tr>
+      <tr><td>部署时能获得初始深度，或者可用单目深度估计替代。</td><td>没有可靠深度、相机标定或物体/场景 mask 的环境。</td></tr>
+      <tr><td>语言目标和视觉变化之间关系清晰，例如 pick up fruit、navigate to object、push object。</td><td>目标需要隐藏状态、长期多阶段符号规划或非视觉反馈。</td></tr>
+      <tr><td>可以接受十秒级 planning latency，或使用 DDIM 等采样加速。</td><td>实时强约束控制任务；即使用 DDIM 10 步仍会牺牲部分成功率。</td></tr>
+    </table>
+  </section>
+</main>
+</body>
+</html>

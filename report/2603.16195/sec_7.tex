@@ -1,0 +1,40 @@
+
+\label{sec:distill}
+\noindent \textbf{One-step Denoising Features.}
+To enable efficient inference, we extract predictive features via a single denoising forward pass following~\cite{huvideo}. Specifically, we leverage multi-layer intermediate features from the up-sampling blocks. While inherently noisy and entangled, these internal representations are highly informative, thereby providing essential cues to be distilled into coherent geometric and semantic foresight.
+
+Let $F_l \in \mathbb{R}^{T \times C_l \times h_l \times w_l}$ denote the feature map from the $l^{th}$ up-sampling layer of denoising network $\epsilon_\theta(Z_{S},S,P,I)$ at the first denoising step $S$. To effectively aggregate these features across different resolutions, we align each layer to a unified target spatial dimension $h \times w$ via linear interpolation $\operatorname{Interpolate}(\cdot)$:
+\begin{equation}
+    F'_l = \operatorname{Interpolate}(F_l), \quad F'_l \in \mathbb{R}^{T \times C_l \times h \times w}.
+\end{equation}
+The final comprehensive one-step feature $F$ is constructed by concatenating these aligned layers along the channel dimension:
+\begin{equation}
+    F = \operatorname{Concat}((F'_0, \dots, F'_L), \text{dim}=1), \quad F \in \mathbb{R}^{T \times C_{\Sigma} \times h \times w},
+\end{equation}
+where $C_{\Sigma} = \sum_{l=0}^{L} C_{l}$ denotes the total channel dimension of the aggregated features.
+
+\noindent \textbf{Geometric and Semantic Decouplers.}
+To exploit the rich but entangled dynamics within one-step features $F$, we introduce the geometric and the semantic decouplers that directly disentangle these noisy one-step features into coherent geometric and semantic VFM representations. Specifically, the geometric branch targets the representation space of DPAv3~\cite{lin2025depth}, and the semantic branch targets that of DINOv2~\cite{oquab2023dinov2}. This design choice is motivated by their complementary strengths: DPAv3 provides dynamic geometric structures, and DINOv2 offers patch-level semantic distinctiveness.
+
+In terms of architecture, we instantiate each decoupler as a spatio-temporal transformer. For each branch $i \in \{\textnormal{geo}, \textnormal{sem}\}$, instead of inferring future states solely from the noisy diffusion features, the module leverages the reference representation of the current observation, $Y_{i}^{\textnormal{ref}} = \Phi_{i}(\textnormal{Interpolate}(I_\textnormal{obs}))\in\mathbb{R}^{1\times{C_i}\times h \times w}$, as a strong conditioning anchor. This anchor eases the optimization burden, effectively guiding the network to map unstable diffusion features into coherent VFM representations.
+Formally, we temporally replicate the reference representation $Y_{\textnormal{ref}}^{i}$ to match the sequence length of the one-step feature volume $F$, and concatenate them along the channel dimension to obtain the fused input representation:
+\begin{equation}
+    \tilde{F}_i^0 = \text{Concat}((F, \text{Repeat}(Y_{i}^{\textnormal{ref}})), \text{dim}=1), \quad i \in \{\textnormal{geo}, \textnormal{sem}\}. 
+\end{equation}
+Then, this fused representation $\tilde{F}_i^0$ is first projected into a compact latent space via a linear embedding layer ($\mathbb{R}^{T\times (C_{i}+C_{\Sigma}) \times h \times w} \rightarrow \mathbb{R}^{T\times C_\textnormal{hidden} \times h \times w}$). The compressed features are then contextualized through a stack of $K$ factorized spatio-temporal blocks. Specifically, for each block $k$ ($1 \le k \le K$), the features are processed sequentially by spatial and temporal aggregation:
+\begin{equation}
+    \tilde{F}_i^k = \mathcal{T}_i^k \left( \mathcal{S}_i^k ( \tilde{F}_i^{k-1} ) \right), \quad i \in \{\textnormal{geo}, \textnormal{sem}\},
+\end{equation}
+where $\mathcal{S}(\cdot)$ and $\mathcal{T}(\cdot)$ denote the spatial and temporal transformer layers, respectively. Finally, the output from the $K^{th}$ block, $\tilde{F}_i^K$, is mapped back to the target VFM dimension via an output projection ($\mathbb{R}^{T\times C_\textnormal{hidden} \times h \times w} \rightarrow \mathbb{R}^{T\times C_i \times h \times w}$).
+
+\noindent \textbf{Self-Distillation Optimization Objectives.}
+As indicated by the dashed lines in \cref{fig:teaser}(b), we apply specific supervision to each branch by introducing a self-distillation mechanism, where VFM representations extracted from the diffusion model's own multi-step generated video $\hat{V}$ serve as teacher signals. The core advantage of this self-distillation is that the generated video originates from the same diffusion trajectory as the one-step features. In contrast, relying on targets extracted from ground-truth future frames would introduce an inherent trajectory misalignment that hinders optimization. Given that geometric and semantic branches target distinct representation spaces, we optimize them independently. Utilizing the extraction process in~\cref{eq:vfm} to obtain the teacher representations $Y_{i}$, we formulate the optimization objective for each branch $i \in \{\textnormal{geo}, \textnormal{sem}\}$:
+\begin{equation}
+    \mathcal{L}_{i} = \| \tilde{F}_{i}^K - Y_{i} \|_2^2, \quad i \in \{\textnormal{geo}, \textnormal{sem}\}. 
+    \label{eq:distill_loss}
+\end{equation}
+By minimizing $\mathcal{L}_\textnormal{geo}$ and $\mathcal{L}_\textnormal{sem}$, our S-VAM effectively condenses the multi-step generation capability into our single-step shortcut, yielding high-fidelity foresight without the latency of iterative denoising.
+
+
+
+

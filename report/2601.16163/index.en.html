@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cosmos Policy - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<div class="page">
+<article class="card">
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="eyebrow">Reading Report of the group paper / junior PhD version</div>
+<h1>Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning</h1>
+<div class="meta">
+<p><strong>Author</strong>: Moo Jin Kim, Yihuai Gao, Tsung-Yi Lin, Yen-Chen Lin, Yunhao Ge, Grace Lam, Percy Liang, Shuran Song, Ming-Yu Liu, Chelsea Finn, Jinwei Gu</p>
+<p><strong>institution</strong>: NVIDIA; Stanford University</p>
+<p><strong>arXiv</strong>: <a href="https://arxiv.org/abs/2601.16163">2601.16163</a>, Submission date 2026-01-22</p>
+<p><strong>Project page</strong>: <a href="https://research.nvidia.com/labs/dir/cosmos-policy/">research.nvidia.com/labs/dir/cosmos-policy/</a></p>
+</div>
+</header>
+<div class="toc">
+<h2 style="margin-top:0">Contents</h2>
+<div class="toc-grid">
+<div>
+<div><a href="#sec1">1. Quick overview of the paper</a></div>
+<div><a href="#sec2">2. Motivation</a></div>
+<div><a href="#sec3">3. Summary of related work</a></div>
+</div>
+<div>
+<div><a href="#sec5">4. Detailed explanation of method</a></div>
+<div><a href="#sec6">5. Experiment</a></div>
+<div><a href="#sec7">6. Analysis and Discussion</a></div>
+</div>
+</div>
+</div>
+<section id="sec1">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary</strong>: This paper combines a pre-trained video diffusion model with <code>Cosmos-Predict2-2B</code> Directly fine-tune the robot strategy without changing the model structure. It only relies on a unified interface that "encodes actions, future states and value functions into latent variable frames", and supports both direct control and model-based planning.
+ </div>
+<div class="grid-2">
+<div class="info-box">
+<p><strong>difficulty rating</strong>: ★★★★☆</p>
+<p class="small">You need to be familiar with diffusion models, latent video models, imitation learning, world model / value function, and robot strategy evaluation.</p>
+<p><strong>keywords</strong></p>
+<div class="chip-list">
+<span class="chip">Video Foundation Model</span>
+<span class="chip">Latent Diffusion</span>
+<span class="chip">Visuomotor Policy</span>
+<span class="chip">World Model</span>
+<span class="chip">Best-of-N Planning</span>
+</div>
+</div>
+<div class="audit-card">
+<p><strong>Core contribution list</strong></p>
+<ul>
+<li>propose <code>Cosmos Policy</code>: Single-stage post-training, which directly adapts the pre-trained video model to the robot control strategy without additional design of action head, inverse dynamics or separate action diffuser.</li>
+<li>propose <code>latent frame injection</code>: Represent actions, robot body states, future states and value functions as "frames" in the video latent space, allowing the same diffusion model to simultaneously assume the three roles of policy, world model and value function.</li>
+<li>A dual-model deployment is proposed: the basic checkpoint is responsible for taking actions, and the checkpoint fine-tuned using rollout is responsible for predicting future states and values, and doing best-of-N planning during testing.</li>
+<li>Achieve strong results on LIBERO, RoboCasa and real-arm ALOHA; where LIBERO averages 98.5%, RoboCasa averages 67.1%, and ALOHA four-task average score is 93.6.</li>
+</ul>
+</div>
+</div>
+<div class="figure">
+<img alt="Cosmos Policy overview" src="figures/cosmos_policy_figure1.jpeg"/>
+<div class="caption">Figure 1. Overview diagram: input multi-view images, robot status and text task description; output action blocks, future status and values. Later in the report, this picture will be split into two parts: "input organization method" and "training/inference responsibility allocation".</div>
+</div>
+</section>
+<section id="sec2">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper is concerned about: the basic video model has learned temporal causality, implicit physics and motion patterns. Can these priors be used directly for robot control, instead of just using VLA pre-trained with static images and text as the backbone. The author hopes to obtain a unified strategy model that can output actions, imagine future states, and evaluate whether the future is worth executing.</p>
+<p>The specific pain point here is not as general as "the robot control is not strong enough", but two things exist at the same time: first, the action distribution of many tasks is multi-modal, for example, when grabbing candy, you can start with the left hand and then the right hand, or vice versa; second, many tasks are extremely sensitive to accuracy, such as zipper bag sliders, and millimeter-level differences will lead to failure. The author believes that the video model has natural advantages in modeling complex, high-dimensional, multi-modal time series distribution, so it is worth directly migrating to control.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li>The video strategy route is usually multi-stage: first adapt the video model to the robot data, then train the action module separately, or add inverse dynamics / action diffuser. In this way, the training chain is longer, there are more modules, and there are more sources of errors.</li>
+<li>Although the unified video-action model avoids a multi-module structure, it is often not initialized from a large-scale pre-trained video model, but a custom structure is trained from scratch, and the spatio-temporal prior learned from Internet videos is not available.</li>
+<li>VLAs are powerful, but they are mainly built on static image and text pre-training. The author's judgment is that this type of backbone is more semantic than the dynamic physical process itself, so it may not be the most natural inductive bias for high multi-modality, long time series, and fine control.</li>
+<li>In terms of planning, if you only look at demonstration, world model and value function, you will see mostly successful trajectories; once the actual execution enters a state of failure or deviation from the distribution, their generalization will become worse. The author emphasizes both in the text and in the planning experiment: for planning to be useful, rollout experience must be introduced.<span class="appendix-ref">[Text §4.3]</span></li>
+</ul>
+<h3>2.3 Solution ideas of this article (high level)</h3>
+<p>The author's core idea is "Don't add a new head to the video model, but put everything needed for the robot's task back into its most familiar latent sequence." The specific method is: arrange the current observation $s$, action block $a$, future observation $s'$, and future value $V(s')$ into a latent variable frame sequence, and let the diffusion model continue to do what it is most familiar with: recovering these frames from noise.</p>
+<p>In this way, the same model can learn three conditional distributions through different condition masks during training: policy $p(a, s', V(s')\mid s)$, world model $p(s', V(s')\mid s, a)$, and value function $p(V(s')\mid s, a, s')$. You can use it only as a direct policy during testing, or you can connect it to a best-of-N planner after fine-tuning the rollout.</p>
+</section>
+<section id="sec3">
+<h2>3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3>
+<ul>
+<li><strong>Video-based robot policies</strong>: One type first fine-tunes the video model and then trains the independent action module; the other type directly trains the joint video-action model. The author positions himself as the third line: still retaining unified generation, but initializing directly from the large video model without structural modifications.</li>
+<li><strong>Vision-language-action models</strong>: RT-2, OpenVLA, π<sub>0.5</sub>, UniVLA, and CogVLA represent the large backbone + robot fine-tuning route. The difference in the paper is not that "there is also a large backbone", but that the backbone is a video generation model rather than a static graphic and text model.</li>
+<li><strong>World models and value functions</strong>: Traditional Dyna/MBPO/TD-MPC/Dreamer to recent FLARE, SAILOR, and Latent Policy Steering all show that planning is valuable, but policy/world model/value must usually be built separately. The distinguishing point of this article is that the same pre-trained video model assumes the three functions at the same time.</li>
+</ul>
+<h3>3.2 Direct comparison with previous works</h3>
+<table>
+<tr>
+<th>Dimensions</th>
+<th>Video Policy / UVA Class</th>
+<th>UWM-like unified video action model</th>
+<th>VLA(OpenVLA / π<sub>0.5</sub>)</th>
+<th>Cosmos Policy</th>
+</tr>
+<tr>
+<td>Pre-trained backbone</td>
+<td>Video models often require additional action modules</td>
+<td>Customize the unified model and usually do not directly inherit the large video model</td>
+<td>Static graphic model</td>
+<td>Cosmos-Predict2-2B video diffusion model</td>
+</tr>
+<tr>
+<td>Structural changes</td>
+<td>usually required</td>
+<td>The model itself is designed for action</td>
+<td>Action head/nudge strategies vary by method</td>
+<td>The structure is not changed, only the content organization of the latent sequence is changed.</td>
+</tr>
+<tr>
+<td>action expression</td>
+<td>Individual action modules or inverse dynamics</td>
+<td>United Video-Action Output</td>
+<td>Direct return or other action header</td>
+<td>Action blocks are encoded into latent frames</td>
+</tr>
+<tr>
+<td>Whether to uniformly model future state/value</td>
+<td>Usually not uniform</td>
+<td>Does not necessarily contain value</td>
+<td>Usually no explicit world model/value</td>
+<td>Unified modeling of actions, future states and values</td>
+</tr>
+<tr>
+<td>planning ability</td>
+<td>Often requires additional modules</td>
+<td>Not necessarily supported</td>
+<td>Usually model-free</td>
+<td>After rollout fine-tuning, best-of-N planning can be directly performed</td>
+</tr>
+<tr>
+<td>Representative results given in the paper</td>
+<td>Video Policy in RoboCasa 66.0, LIBERO Long 94.0</td>
+<td>UWM in RoboCasa 60.8</td>
+<td>OpenVLA-OFT in LIBERO 97.1; π<sub>0.5</sub> Average in ALOHA 88.6</td>
+<td>LIBERO 98.5, RoboCasa 67.1, ALOHA 93.6</td>
+</tr>
+</table>
+</section>
+<section id="sec4">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Method overview</h3>
+<p>The entire pipeline can be understood by "Input Organization -&gt; Unified Training -&gt; Two Deployment Methods": </p>
+<ul>
+<li>Input: multi-view images at the current moment, robot proprioception, text task description.</li>
+<li>Presentation side: The image will be transformed into a latent frame through VAE; the author then copies, normalizes and writes the action block, current/future robot state and value function into certain latent frame positions.</li>
+<li>Training end: Different batch samples use different condition masks, corresponding to three condition generation tasks: policy, world model, and value function.</li>
+<li>Deployment side: If you only do direct policy, generate $(a, s', V)$ in parallel and then only execute the action; if you do planning, take the action first, then the future state, then the value, and use best-of-N to select the action.</li>
+</ul>
+<div class="figure">
+<img alt="latent diffusion sequence" src="figures/cosmos_policy_diffusion_sequence_v2_main_version.001.jpeg"/>
+<div class="caption">Figure 2. Core diagram. The author does not add action heads to the network, but inserts different modes into the latent diffusion sequence. This decision directly brings about the possibility of "learning policy / world model / value at the same time on the same network".</div>
+</div>
+<div class="figure">
+<img alt="detailed latent diffusion sequence" src="figures/cosmos_policy_diffusion_sequence_v2_detailed_for_appendix.001.jpeg"/>
+<div class="caption">Appendix Figure. A more detailed implementation diagram. The blank placeholder image is first encoded into a latent frame by VAE, and then overwritten by the action/state/value; it also explains why there is a blank frame at the beginning of the sequence.<span class="appendix-ref">[Appendix A.1]</span></div>
+</div>
+<h3>4.2 Method evolution</h3>
+<div class="timeline">
+<div class="tl-item">
+<div class="tl-label">Stage A</div>
+<div>Video models are used for robot strategies, but a common approach is "video model + independent action module". The advantage is that it is easy to connect to existing video backbone; the cost is multi-stage training and stronger coupling between modules.</div>
+</div>
+<div class="tl-item">
+<div class="tl-label">Stage B</div>
+<div>Unified video-action models try to model actions and future observations together, but many methods do not directly initialize from large-scale pre-trained video models, so they cannot obtain strong enough spatiotemporal priors.</div>
+</div>
+<div class="tl-item current">
+<div class="tl-label">Stage C</div>
+<div>Cosmos Policy directly retains the pre-trained video model structure, integrates new modalities through latent injection, and then uses different masks to let the same model learn policy, world model, and value; finally, it uses rollout to fine-tune and supplement the out-of-distribution experience required for planning.</div>
+</div>
+</div>
+<h3>4.3 Core design and mathematical derivation</h3>
+<div class="formula-block">
+<p class="intuition">What Formula 1 is doing: retaining the original video diffusion training goal, the difference is that the "clean sample" is no longer just a video frame, but a joint latent sequence of actions, states, and values inserted.</p>
+<p>$$
+ \mathcal{L}(D_\theta, \sigma) =
+ \mathbb{E}_{\mathbf{x}_0, \mathbf{c}, \mathbf{n}}
+ \left[
+ \left\| D_\theta(\mathbf{x}_0 + \mathbf{n}; \sigma, \mathbf{c}) - \mathbf{x}_0 \right\|_2^2
+ \right]
+ $$</p>
+<table class="symbol-table">
+<tr><td>$\mathbf{x}_0$</td><td>Clean latent sequence. This can contain both image latent frames and injected action/state/value latent frames.</td></tr>
+<tr><td>$\mathbf{c}$</td><td>Text conditions, provided by T5-XXL embedding in the paper.</td></tr>
+<tr><td>$\mathbf{n}$</td><td>Gaussian noise, $\mathbf{n}\sim\mathcal{N}(0, \sigma^2 I)$.</td></tr>
+<tr><td>$D_\theta$</td><td>Diffusion transformer denoiser for Cosmos-Predict2.</td></tr>
+<tr><td>$\sigma$</td><td>Noise intensity; the author will specifically change its sampling distribution later.<span class="appendix-ref">[Appendix A.2.1]</span></td></tr>
+</table>
+<div>
+<strong>Intuition</strong>: This paper does not redefine the policy learning loss, but changes the robot control problem into the problem of "restoring the joint latent sequence", so the existing learning algorithm of the basic video model is reused to the maximum extent.
+ </div>
+</div>
+<div class="formula-block">
+<p class="intuition">What Equation 2 does: Define the value function under sparse reward and label each rollout transition with Monte Carlo return.</p>
+<p>$$
+ V^\pi(s)=
+ \mathbb{E}_{\tau\sim\pi}\left[\sum_{k=t}^{H}\gamma^{k-t}R(s_k, a_k)\mid s_t=s\right]
+ =
+ \mathbb{E}_{\tau\sim\pi}\left[\gamma^{H-t}R(s_H, a_H)\mid s_t=s\right]
+ $$
+ </p>
+<table class="symbol-table">
+<tr><td>$s_t, a_t$</td><td>The status and actions at time $t$.</td></tr>
+<tr><td>$H$</td><td>episode length of time domain.</td></tr>
+<tr><td>$\gamma$</td><td>The discount factor spreads the final rewards forward.</td></tr>
+<tr><td>$R(s_H, a_H)$</td><td>End point reward; use sparse reward for tasks in the text.</td></tr>
+</table>
+<div>
+<strong>Why is it easy to learn bad value functions here?</strong>: If the training set is all demonstrations, almost all of them are successful, then the model has no supervision in the failure area. Therefore, the author explicitly introduces rollout data and gives 90% of the batch to the world model and value function during planning fine-tuning.<span class="appendix-ref">[Text §4.3]</span>
+</div>
+</div>
+<div class="formula-block">
+<p class="intuition">Although the formula is not written as a total loss, the text actually defines three types of conditional distributions, which correspond to three working modes of the same network.</p>
+<table class="symbol-table">
+<tr><td>$p(a, s', V(s')\mid s)$</td><td>Strategy training: given the current state, jointly generate actions, future states and values.</td></tr>
+<tr><td>$p(s', V(s')\mid s, a)$</td><td>World model training: given the current state and actions, predict future states and values.</td></tr>
+<tr><td>$p(V(s')\mid s, a, s')$</td><td>Value function training: given the complete prefix, predict future values.</td></tr>
+</table>
+<div>
+<strong>Key points</strong>: The author emphasizes the importance of auxiliary targets. Policy is not just about learning $p(a\mid s)$, but also the future state and value; world model is not just about learning $p(s'\mid s, a)$. This is equivalent to forcing the intermediate representation to retain information about "what will happen after the action" and "is it worth it?"
+ </div>
+<details>
+<summary>Why this joint targeting might work</summary>
+<div>
+<p>If you only train $p(a\mid s)$, the model only needs to output an action block that can complete the task; but the joint objective requires it to generate future states and values at the same time, which is equivalent to using "behavior consequences" as auxiliary supervision, forcing the hidden representation to be more sensitive to environmental dynamics. This is supported by both LIBERO and RoboCasa ablations in the paper.</p>
+</div>
+</details>
+</div>
+<div class="formula-block">
+<p class="intuition">Latent frame injection has not been written into a formal formula, but the implementation logic is very clear: first normalize, then copy, and then reshape to the single-frame latent variable volume.</p>
+<table class="symbol-table">
+<tr><td>input</td><td>For example, if the action block size is $K\times d_{act}$, first flatten it into a vector of length $K d_{act}$.</td></tr>
+<tr><td>normalization</td><td>Non-image modes are uniformly scaled to $[-1, +1]$.</td></tr>
+<tr><td>Copy</td><td>Repeat $\frac{H'W'C'}{K d_{act}}$ times until the length matches the volume of a latent frame.<span class="appendix-ref">[Appendix A.1]</span></td></tr>
+<tr><td>Decode</td><td>After generation, these copied blocks are averaged and then denormalized to obtain action/state/value predictions; non-image modalities do not require VAE decoding.</td></tr>
+</table>
+<div>
+<strong>realize intuition</strong>: The author did not create a tokenization module specifically for low-dimensional vectors, but simply spread it over the entire latent variable volume. Although there is redundancy in the representation, this results in "not changing the original model structure at all".
+ </div>
+</div>
+<div class="figure">
+<img alt="balanced batches" src="figures/balanced_batches_figure.001.jpeg"/>
+<div class="caption">Figure 12. Training distribution map of batch 50/25/25. It shows that policy, world model, and value function are not three networks, but three training instances of the same latent diffusion sequence under different condition masks.<span class="appendix-ref">[Appendix A.4.1]</span></div>
+</div>
+<h3>4.4 Implementation points</h3>
+<div class="impl-note">
+<strong>blank first latent frame</strong>: A blank placeholder frame is specially placed at the beginning of the sequence. It is not visually meaningful, but to adapt to the video tokenizer's "the first frame is not time-compressed, and the rest are compressed by 4 frames" mechanism, so that the structure of current and future observations can be more aligned.<span class="appendix-ref">[Appendix A.1]</span>
+</div>
+<div class="impl-note">
+<strong>Action blocks are not executed step by step in a rolling manner</strong>: LIBERO uses chunk 16 and executes a full 16 steps; RoboCasa predicts 32 steps but rechecks after 16 steps; ALOHA predicts and executes a full 50 steps. This design is directly tied to actual inference latency.<span class="appendix-ref">[Appendix A.2.2-A.2.4]</span>
+</div>
+<div class="impl-note">
+<strong>The noise distribution has been specially modified</strong>: No longer only the original log-normal is used during training, but 70% is sampled from the original distribution and 30% is sampled from the uniform distribution of $[1, 85]$ to enhance the training signal in high noise areas; during inference, $\sigma_{\min}$ is increased from 0.002 to 4. The authors reasoned that robot action generation is more sensitive to high noise initial stages.<span class="appendix-ref">[Appendix A.2.1]</span>
+</div>
+<div class="figure">
+<img alt="noise schedules" src="figures/noise_schedules_figure.001.jpeg"/>
+<div class="caption">Figure 9. The author changed the noise distribution of the base model to a more noisy hybrid distribution to improve the test-time generation accuracy.<span class="appendix-ref">[Appendix A.2.1]</span></div>
+</div>
+<div class="impl-note">
+<strong>Inference mode switch</strong>: direct policy uses parallel decoding, which is fast; planning uses autoregressive decoding, which has higher quality. ALOHA planning has 10 denoise steps for actions, 5 steps for future state, and 5 steps for value; and each candidate action is equipped with 3 future state predictions and 5 value predictions, for a total of 15 value results.<span class="appendix-ref">[Appendix A.3.1]</span>
+</div>
+<div class="impl-note">
+<strong>Dual model deployment</strong>: The policy model uses basic checkpoint, and the planning model uses rollout fine-tuned checkpoint. The reason given by the author is: the on-policy experience of the planning model is derived from the original policy model, so the separation of duties is more stable.<span class="appendix-ref">[Text §4.3]</span>
+</div>
+</section>
+<section id="sec5">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<h4>Datasets and tasks</h4>
+<table>
+<tr>
+<th>platform</th>
+<th>tasks/data</th>
+<th>training data</th>
+<th>Observation and action</th>
+<th>Additional details</th>
+</tr>
+<tr>
+<td>LIBERO</td>
+<td>Spatial / Object / Goal / Long Four sets of tasks, one-arm Franka Panda</td>
+<td>500 demonstrations per set (10 tasks × 50)</td>
+<td>action chunk 16, test execution complete chunk</td>
+<td>Policy training filtering fails demonstrations; world model/value uses unfiltered data</td>
+</tr>
+<tr>
+<td>RoboCasa</td>
+<td>24 kitchen tasks with one arm Franka Panda</td>
+<td>Use only 50 human teleoperation demonstrations per mission</td>
+<td>action chunk 32, check again after executing 16 steps</td>
+<td>The evaluation uses 5 scenes, 50 trials × 3 seeds per task, a total of 3600 times; only unseen objects are tested, and some styles have never appeared in training.</td>
+</tr>
+<tr>
+<td>ALOHA</td>
+<td>Four real-arm tasks: put X on plate / fold shirt / put candies in bowl / put candy in ziploc bag</td>
+<td>Total 185 demonstrations</td>
+<td>14-dimensional joint angle + 3-way camera + text; chunk 50 (2 seconds), recheck after complete execution</td>
+<td>101 fixed initial condition evaluations, including IID and OOD</td>
+</tr>
+</table>
+<h4>baseline method</h4>
+<p>The paper compares the diffusion policy (Diffusion Policy, Dita) trained from scratch, the video model route (UVA, UWM, Video Policy), and the VLA route (π<sub>0</sub>, π<sub>0.5</sub>, OpenVLA-OFT, CogVLA, UniVLA, DP-VLA, GR00T-N1.5). Focus on comparing Diffusion Policy, OpenVLA-OFT+, and π in real ALOHA<sub>0</sub> and π<sub>0.5</sub>. </p>
+<h4>Evaluation index</h4>
+<ul>
+<li>LIBERO / RoboCasa: success rate. </li>
+<li>ALOHA: Staged completion scores on a scale of 0-100, rather than binary success. The scoring details are given in detail in the appendix. For example, "put candy in ziploc bag" is divided into five 20-point stages: grabbing the zipper, grabbing the corner of the bag, opening the mouth of the bag, grabbing the candy, and putting it in the bag.<span class="appendix-ref">[Appendix A.3.2]</span></li>
+</ul>
+<h4>Training configuration and hardware</h4>
+<table>
+<tr>
+<th>platform</th>
+<th>Number of training steps</th>
+<th>GPU</th>
+<th>global batch</th>
+<th>Time consuming</th>
+<th>Main loss after training</th>
+</tr>
+<tr>
+<td>LIBERO</td>
+<td>40K</td>
+<td>64 × H100</td>
+<td>1920</td>
+<td>48 hours</td>
+<td>action 0.012; future proprio 0.007; future wrist latent 0.068; future third-person latent 0.036; value 0.007</td>
+</tr>
+<tr>
+<td>RoboCasa</td>
+<td>45K</td>
+<td>32 × H100</td>
+<td>800</td>
+<td>48 hours</td>
+<td>action 0.016; future proprio 0.007; future wrist latent 0.084; future third-person latent 0.048; value 0.007</td>
+</tr>
+<tr>
+<td>ALOHA</td>
+<td>50K</td>
+<td>8 × H100</td>
+<td>200</td>
+<td>48 hours</td>
+<td>action 0.010; future proprio 0.008; future wrist latent 0.097; future third-person latent 0.085; value 0.007</td>
+</tr>
+</table>
+<p class="footnote">All non-image modalities are normalized to $[-1, +1]$. The basic models are all fully parameter fine-tuned.<span class="appendix-ref">[Appendix A.2.2-A.2.4]</span></p>
+<h4>Code repository and reproducibility</h4>
+<p>The paper clearly states that model checkpoints, training data and code will be released; the public entrance is the project page <a href="https://research.nvidia.com/labs/dir/cosmos-policy/">research.nvidia.com/labs/dir/cosmos-policy/</a>. The Reproducibility Statement also states that training and evaluation scripts will be provided with the release.</p>
+<h3>5.2 Main results</h3>
+<h4>LIBERO main results</h4>
+<table>
+<tr>
+<th>method</th>
+<th>Spatial</th>
+<th>Object</th>
+<th>Goal</th>
+<th>Long</th>
+<th>Average</th>
+</tr>
+<tr><td>Diffusion Policy</td><td>78.3</td><td>92.5</td><td>68.3</td><td>50.5</td><td>72.4</td></tr>
+<tr><td>Dita</td><td>97.4</td><td>94.8</td><td>93.2</td><td>83.6</td><td>92.3</td></tr>
+<tr><td>π<sub>0</sub></td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+<tr><td>UniVLA</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+<tr><td>π<sub>0.5</sub></td><td><strong>98.8</strong></td><td>98.2</td><td>98.0</td><td>92.4</td><td>96.9</td></tr>
+<tr><td>OpenVLA-OFT</td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+<tr><td>CogVLA</td><td>98.6</td><td>98.8</td><td>96.6</td><td>95.4</td><td>97.4</td></tr>
+<tr class="highlight-row"><td>Cosmos Policy</td><td>98.1</td><td><strong>100.0</strong></td><td><strong>98.2</strong></td><td><strong>97.6</strong></td><td><strong>98.5</strong></td></tr>
+</table>
+<p>Interpretation: Cosmos Policy is not the first in all items, Spatial is π<sub>0.5</sub> Higher, but it gets the best values in the Object, Goal, and Long columns, so the final average is the highest. In particular, Long mentioned OpenVLA-OFT from 94.5 to 97.6, indicating that the advantages of timing modeling emphasized by the author are mainly reflected in long-term tasks.</p>
+<h4>RoboCasa main results</h4>
+<table>
+<tr>
+<th>method</th>
+<th>Number of training demonstrations per task</th>
+<th>Average SR</th>
+</tr>
+<tr><td>GR00T-N1</td><td>300</td><td>49.6</td></tr>
+<tr><td>UVA</td><td>50</td><td>50.0</td></tr>
+<tr><td>DP-VLA</td><td>3000</td><td>57.3</td></tr>
+<tr><td>GR00T-N1 + DreamGen</td><td>300 (+10000 synthetic)</td><td>57.6</td></tr>
+<tr><td>GR00T-N1 + DUST</td><td>300</td><td>58.5</td></tr>
+<tr><td>UWM</td><td>1000</td><td>60.8</td></tr>
+<tr><td>π<sub>0</sub></td><td>300</td><td>62.5</td></tr>
+<tr><td>GR00T-N1.5</td><td>300</td><td>64.1</td></tr>
+<tr><td>Video Policy</td><td>300</td><td>66.0</td></tr>
+<tr><td>FLARE</td><td>300</td><td>66.4</td></tr>
+<tr><td>GR00T-N1.5 + HAMLET</td><td>300</td><td>66.4</td></tr>
+<tr class="highlight-row"><td>Cosmos Policy</td><td>50</td><td><strong>67.1</strong></td></tr>
+</table>
+<p>Interpretation: RoboCasa The most important information in this table is not that 67.1 is only 0.7 higher than 66.4, but that it only uses 50 real-person demonstrations per task. The paper uses this table to emphasize data efficiency, not just absolute accuracy.</p>
+<h4>REAL ALOHA MAIN RESULTS</h4>
+<table>
+<tr>
+<th>method</th>
+<th>put X on plate</th>
+<th>fold shirt</th>
+<th>put candies in bowl</th>
+<th>put candy in ziploc bag</th>
+<th>Average</th>
+</tr>
+<tr><td>Diffusion Policy</td><td>63.3</td><td>23.5</td><td>32.8</td><td>14.6</td><td>33.6</td></tr>
+<tr><td>OpenVLA-OFT+</td><td>68.3</td><td>99.5</td><td>21.6</td><td>58.5</td><td>62.0</td></tr>
+<tr><td>π<sub>0</sub></td><td>85.0</td><td>98.5</td><td>71.2</td><td>56.9</td><td>77.9</td></tr>
+<tr><td>π<sub>0.5</sub></td><td>98.3</td><td>99.5</td><td>95.2</td><td>61.5</td><td>88.6</td></tr>
+<tr class="highlight-row"><td>Cosmos Policy</td><td>100.0</td><td>99.5</td><td>89.6</td><td>85.4</td><td><strong>93.6</strong></td></tr>
+</table>
+<p>Interpretation: The average score advantage of Cosmos Policy mainly comes from the last and most difficult ziploc bag task: 85.4 compared to π<sub>0.5</sub> of 61.5, a huge advantage. candies in bowl on π<sub>0.5</sub> It is higher, but ziploc bag has higher requirements for fine control. The paper uses it as a representative case of "the video model is better at high-precision control a priori".</p>
+<div class="figure">
+<img alt="ALOHA task performance" src="figures/aloha_task_performance_results_v2.001.jpeg"/>
+<div class="caption">Figure 4. The histogram of ALOHA's four tasks visualizes that Cosmos Policy is not always far ahead in the first three tasks, but its lead is more obvious in the average score and the most difficult task.</div>
+</div>
+<div class="figure">
+<img alt="ALOHA rollouts" src="figures/cosmos_policy_aloha_rollouts.001.jpeg"/>
+<div class="caption">Figure 3. Qualitative results of real dual-arm tasks are shown, indicating that the four tasks selected by the author all contain long-term, multi-modal grasping or high-precision contact operations.</div>
+</div>
+<div class="figure">
+<img alt="competitor failure modes" src="figures/pi05_openvlaoft_aloha_rollouts.001.jpeg"/>
+<div class="caption">Figure 5. Two types of failure modes summarized by the Authors: π<sub>0.5</sub> High-precision grasping on the ziploc bag is unstable; OpenVLA-OFT+ will reach between two candies in the candies task, reflecting inaccurate action distribution modeling.</div>
+</div>
+<h4>IID / OOD Segmentation Results for ALOHA</h4>
+<table>
+<tr>
+<th>method</th>
+<th>IID average</th>
+<th>OOD average</th>
+<th>observe</th>
+</tr>
+<tr><td>OpenVLA-OFT+</td><td>67.1</td><td>51.7</td><td>The shirt has almost full marks, but the OOD of candies and put-on-plate has dropped significantly.</td></tr>
+<tr><td>π<sub>0</sub></td><td>81.3</td><td>71.7</td><td>Overall stable, but no significant advantages at mission level</td></tr>
+<tr><td>π<sub>0.5</sub></td><td>87.8</td><td><strong>92.5</strong></td><td>OOD average highest</td></tr>
+<tr class="highlight-row"><td>Cosmos Policy</td><td><strong>96.3</strong></td><td>89.3</td><td>The overall average is the highest, but the paper also gives it honestly: when looking at the OOD average alone, π<sub>0.5</sub> slightly higher</td></tr>
+</table>
+<p>This is important: 93.6 in the main results table does not mean that Cosmos Policy is the strongest in every generalization subscenario. The appendix clearly states that when broken down to the average OOD score, π<sub>0.5</sub> Slightly higher.<span class="appendix-ref">[Appendix A.3.2]</span></p>
+<div class="figure">
+<img alt="IID positions" src="figures/iid_initial_positions.jpeg"/>
+<div class="caption">Appendix Figure. ALOHA's IID initial state representation.<span class="appendix-ref">[Appendix A.3.2]</span></div>
+</div>
+<div class="figure">
+<img alt="OOD positions" src="figures/ood_initial_positions.jpeg"/>
+<div class="caption">Appendix Figure. ALOHA's OOD initial state representation. The author adds unseen T-shirts, unseen bowls, unseen ziploc bags with higher loading levels, etc. into OOD.<span class="appendix-ref">[Appendix A.3.2]</span></div>
+</div>
+<h3>5.3 Ablation experiment</h3>
+<h4>LIBERO ablation</h4>
+<table>
+<tr>
+<th>version</th>
+<th>Spatial</th>
+<th>Object</th>
+<th>Goal</th>
+<th>Long</th>
+<th>Average</th>
+</tr>
+<tr class="highlight-row"><td>Complete Cosmos Policy</td><td>98.1</td><td>100.0</td><td>98.2</td><td>97.6</td><td>98.5</td></tr>
+<tr><td>Remove auxiliary losses</td><td>97.6</td><td>99.8</td><td>96.7</td><td>94.0</td><td>97.0</td></tr>
+<tr><td>No need to pre-train the video model, train it from scratch</td><td>94.7</td><td>98.9</td><td>96.3</td><td>88.6</td><td>94.6</td></tr>
+</table>
+<p>Interpretation: auxiliary supervision brings 1.5 points; video prior brings 3.9 points. The biggest drop is still in the Long column, which once again shows that the timing prior mainly helps long-time tasks.</p>
+<h4>RoboCasa ablation and additional experiments</h4>
+<table>
+<tr>
+<th>version</th>
+<th>Average SR</th>
+</tr>
+<tr class="highlight-row"><td>Complete Cosmos Policy (5 denoising steps)</td><td>67.1</td></tr>
+<tr><td>Remove value function training samples</td><td>66.6</td></tr>
+<tr><td>Remove world model + value function training samples</td><td>64.0</td></tr>
+<tr><td>Then remove the auxiliary value supervision during policy training</td><td>62.5</td></tr>
+<tr><td>Then remove the auxiliary future state + value supervision during policy training, leaving only the pure action strategy</td><td>44.4</td></tr>
+<tr><td>Only use 1 denoising step</td><td>66.4</td></tr>
+</table>
+<p>There are two conclusions from this table. First, the pure action strategy dropped from 67.1 to 44.4, indicating that "letting the policy predict the future state at the same time" is not the icing on the cake, but a key component. Second, using only one denoising step can still maintain 66.4, which is almost unchanged, indicating that the number of diffusion inference steps has obvious room for compression in this task.<span class="appendix-ref">[Appendix A.4.1]</span></p>
+<h3>5.4 Supplementary experiments (from appendix)</h3>
+<h4>Plan an experiment</h4>
+<p>The authors only conduct planning evaluations on two more difficult ALOHA tasks: put candies in bowl and put candy in ziploc bag. The rollout data pool consists of two parts: 505 rollouts accumulated during the previous direct policy evaluation, plus an additional 143 rollouts collected for the ziploc bag, for a total of 648 rollouts. The author believes that additional ziploc data is critical because this task has severe self-occlusion, high environmental randomness, and millimeter-level motion differences that will affect the results.</p>
+<div class="figure">
+<img alt="planning rollouts" src="figures/cosmos_policy_planning_rollouts.001.jpeg"/>
+<div class="caption">Figure 6. The world model of base policy can only imagine "a successful future"; after fine-tuning rollout, the planning model can more easily imagine the real consequences of failure, so it can avoid wrong actions.</div>
+</div>
+<div class="figure">
+<img alt="planning results" src="figures/planning_results.001.jpeg"/>
+<div class="caption">Figure 7. Compare model-based planning without planning, based on $V(s')$, and model-free planning based on $Q(s, a)$. The authors report that the model-based version achieves an average score improvement of 12.5 points on two difficult tasks.</div>
+</div>
+<p>The author compares two forms of value training: </p>
+<ul>
+<li>$V(s')$: The world model first predicts the future state, and then scores the future state. This is the model-based version.</li>
+<li>$Q(s, a)$: Score the current state and actions directly, without the need for an explicit world model. This is the model-free version.</li>
+</ul>
+<p>The result is that $V(s')$ is better. The author's own explanation is: when the rollout data is very limited, explicitly using future states and environmental dynamics is more sample efficient than directly learning high-dimensional Q functions, and is less likely to overfit.</p>
+<h4>Reasoning delay</h4>
+<table>
+<tr>
+<th>settings</th>
+<th>delay</th>
+<th>Description</th>
+</tr>
+<tr><td>direct policy, 5 denoising steps</td><td>0.61 s / action chunk</td><td>LIBERO / RoboCasa</td></tr>
+<tr><td>direct policy, 10 denoising steps</td><td>0.95 s / action chunk</td><td>ALOHA</td></tr>
+<tr><td>direct policy, 1 denoising step</td><td>0.16 s / action chunk</td><td>RoboCasa still has 66.4% SR</td></tr>
+<tr><td>ALOHA model-based planning</td><td>4.9 s</td><td>8 H100s in parallel, N=8, each candidate action is performed 3 times for future state and 5 times for value ensemble</td></tr>
+</table>
+<p>This is also the most realistic cost of the paper: planning is useful, but very slow. The author lists this as the primary limitation in the Discussion.</p>
+</section>
+<section id="sec6">
+<h2>6. Analysis and Discussion</h2>
+<h3>6.1 Analysis and explanation of the results given in the paper</h3>
+<ul>
+<li>The authors argue that the video model prior is an efficient initialization and thus can outperform partially strong VLA on real robots even without additional large-scale action labels. The text directly attributes this to the video model learning spatiotemporal dynamics and implicit physics, not just static semantics.</li>
+<li>The author uses the failure case in Figure 5 to explain why high multi-modality and high-precision tasks are a watershed: a deviation will pull the action between the two targets, or miss in millimeter-level grasping.</li>
+<li>The author uses Figure 6 to illustrate that the planning model after rollout fine-tuning can better predict the consequences of failure, so the planning stage can avoid mistakes that are easy to make with basic strategies, such as the slipper of a zipper bag.</li>
+<li>The value of auxiliary supervision and joint objective is clearly verified in ablation: not all modules are equally important, but "letting policy predict future states together" is very critical.</li>
+</ul>
+<h3>6.2 Limitations of the author's statement</h3>
+<div class="obstacle-box">
+<p><strong>Limitation 1: Planning reasoning is slow.</strong> The paper clearly states that model-based planning takes about 5 seconds to produce an action chunk, which is not friendly to dynamic tasks.</p>
+<p><strong>Limitation 2: Planning relies on rollout data.</strong> A sufficiently accurate world model/value function cannot be learned by demonstration alone; if there are few rollouts, the planning quality will be significantly limited.</p>
+<p><strong>Limitation 3: The current search tree has only one level.</strong> The paper only performs best-of-N single-layer search and does not extend the prediction horizon of the world model to deeper planning.</p>
+</div>
+<h3>6.3 Applicable boundaries and discussions clearly stated in the paper</h3>
+<ul>
+<li>The "state" in this article is actually closer to observation, because the real environment is not completely observable; the author specifically states this in Preliminaries for the sake of simplicity. In other words, the world model predicts future observations, not the complete state in the strict sense.</li>
+<li>The benefits of planning are mainly shown in difficult tasks where the basic direct policy still has obvious room for error; for the first two easier tasks of LIBERO or ALOHA, the paper does not emphasize further planning gains.</li>
+<li>Both RoboCasa and ALOHA embody methods that can do multi-perspective input, but do not build in the input history; the state only takes the current moment, and only predicts $t+K$ in the future, so the model is not a long horizon autoregressive world model.</li>
+<li>The future work given at the end of the paper also strictly focuses on the original method: accelerating search, reducing rollout requirements, and extending deeper planning depth.</li>
+</ul>
+</section>
+</article>
+</div>
+</main>
+</body>
+</html>

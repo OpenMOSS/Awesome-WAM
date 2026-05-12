@@ -1,0 +1,110 @@
+{
+  "figs": [
+    {
+      "label": "fig:model",
+      "caption": "     \\textbf{Overview of dWorldEval.",
+      "incs": [
+        "figures/model.pdf"
+      ]
+    },
+    {
+      "label": "fig:real_setup",
+      "caption": "\\textbf{Real-world setup and rollout visualization.",
+      "incs": [
+        "figures/setup.pdf"
+      ]
+    },
+    {
+      "label": "fig:fail_success_robotwin",
+      "caption": "\\textbf{Visualization of ground-truth vs.\\ generated multi-view rollouts on RoboTwin",
+      "incs": [
+        "figures/fail_success_robotwin.pdf"
+      ]
+    },
+    {
+      "label": "fig:consistency",
+      "caption": "\\textbf{(a) Action-controllability under suboptimal inputs.",
+      "incs": [
+        "figures/consistency.pdf"
+      ]
+    },
+    {
+      "label": "fig:score_curve",
+      "caption": "\\textbf{Joint generation enables automatic policy scoring.",
+      "incs": [
+        "figures/score_curve.pdf"
+      ]
+    },
+    {
+      "label": "fig:policy_corr",
+      "caption": "\\textbf{Correlation between real-execution and world-model success rates.",
+      "incs": [
+        "figures/corr.pdf"
+      ]
+    },
+    {
+      "label": "fig:real_tasks",
+      "caption": "       \\textbf{Real-World Evaluation Tasks.",
+      "incs": [
+        "figures/real_task_demo.pdf"
+      ]
+    },
+    {
+      "label": "fig:ablate_action_corruption",
+      "caption": "\\textbf{Action corruption tests.",
+      "incs": [
+        "figures/ablate_action_corruption.pdf"
+      ]
+    },
+    {
+      "label": "fig:label_score",
+      "caption": "\\textbf{Ground-truth Progress Labels.",
+      "incs": [
+        "figures/label_score.pdf"
+      ]
+    },
+    {
+      "label": "fig:gen_score",
+      "caption": "\\textbf{Generated Progress Scores.",
+      "incs": [
+        "figures/gen_score.pdf"
+      ]
+    },
+    {
+      "label": "fig:baseline_consistency_vis",
+      "caption": "\\textbf{Qualitative comparison of round-trip consistency with baselines.",
+      "incs": [
+        "figures/baseline_consistency_vis.pdf"
+      ]
+    },
+    {
+      "label": "fig:more_robotwin",
+      "caption": "\\textbf{Visualization on the RoboTwin benchmark.",
+      "incs": [
+        "figures/more_robotwin.pdf"
+      ]
+    },
+    {
+      "label": "fig:more_real",
+      "caption": "\\textbf{Visualization in real-world scenarios.",
+      "incs": [
+        "figures/more_real.pdf"
+      ]
+    }
+  ],
+  "converted": {
+    "figures\\model.pdf": "figures\\model.png",
+    "figures\\setup.pdf": "figures\\setup.png",
+    "figures\\fail_success_robotwin.pdf": "figures\\fail_success_robotwin.png",
+    "figures\\consistency.pdf": "figures\\consistency.png",
+    "figures\\score_curve.pdf": "figures\\score_curve.png",
+    "figures\\corr.pdf": "figures\\corr.png",
+    "figures\\real_task_demo.pdf": "figures\\real_task_demo.png",
+    "figures\\ablate_action_corruption.pdf": "figures\\ablate_action_corruption.png",
+    "figures\\label_score.pdf": "figures\\label_score.png",
+    "figures\\gen_score.pdf": "figures\\gen_score.png",
+    "figures\\baseline_consistency_vis.pdf": "figures\\baseline_consistency_vis.png",
+    "figures\\more_robotwin.pdf": "figures\\more_robotwin.png",
+    "figures\\more_real.pdf": "figures\\more_real.png"
+  }
+}

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLARE - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+      <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>FLARE: Robot Learning with Implicit World Modeling</h1>
+  <div class="meta">
+    <p><strong>作者：</strong>Ruijie Zheng, Jing Wang, Scott Reed, Johan Bjorck, Yu Fang, Fengyuan Hu, Joel Jang, Kaushil Kundalia, Zongyu Lin, Loic Magne, Avnish Narayan, You Liang Tan, Guanzhi Wang, Qi Wang, Jiannan Xiang, Yinzhen Xu, Seonghyeon Ye, Jan Kautz, Furong Huang, Yuke Zhu, Linxi Fan</p>
+    <p><strong>机构：</strong>NVIDIA, University of Maryland, College Park, Nanyang Technological University, University of Texas at Austin</p>
+    <p><strong>发表状态：</strong>arXiv v1 submitted on 2025-05-21；论文模板为 CoRL 2025 preprint</p>
+    <p><strong>链接：</strong><a href="https://arxiv.org/abs/2505.15659">arXiv:2505.15659</a> | <a href="https://arxiv.org/pdf/2505.15659">PDF</a> | <a href="https://research.nvidia.com/labs/gear/flare/">项目页</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong>目录</strong>
+  <ul>
+    <li><a href="#overview">1. 论文速览</a></li>
+    <li><a href="#motivation">2. 动机</a></li>
+    <li><a href="#related">3. 相关工作脉络</a></li>
+    <li><a href="#method">4. 方法详解</a></li>
+    <li><a href="#experiments">5. 实验与结果</a></li>
+    <li><a href="#reproducibility">6. 复现审计</a></li>
+    <li><a href="#discussion">7. 分析、局限与边界</a></li>
+  </ul>
+</nav>
+<section id="overview">
+  <h2>1. 论文速览</h2>
+  <div class="tldr">
+    <strong>一句话总结：</strong>FLARE 给 flow-matching / diffusion VLA policy 加入少量可学习 future tokens，让 DiT 中间层的 future-token 表征对齐未来观测的视觉-语言 latent embedding，从而在不生成未来图像的情况下，把“预测未来”作为辅助监督注入动作生成网络。
+  </div>
+  <table class="compact">
+    <tr><th>阅读定位项</th><th>内容</th></tr>
+    <tr><td>论文要解决什么</td><td>显式生成未来图像/视频的 world model 计算昂贵，而且 pixel-level reconstruction 与动作控制所需的紧凑任务表征存在目标冲突；作者希望把未来建模变成轻量、可与高频控制兼容的 latent 对齐目标。</td></tr>
+    <tr><td>作者的方法抓手</td><td>在 DiT policy 输入序列中加入 $M$ 个 learnable future tokens，在内部第 $L$ 层取出这些 token 的激活，经 MLP 后与未来观测 embedding 对齐；总损失为 action flow-matching loss 加上 $\lambda$ 倍 future latent alignment loss。</td></tr>
+    <tr><td>最重要的结果</td><td>RoboCasa 24 任务平均 70.1%，GR1 仿真 24 任务平均 55.0%，均高于 policy-only、UWM、GR00T N1 scratch 和 Diffusion Policy；真实 GR1 在 100 trajectories/task 设置下最高 95.1%，比 baseline 平均高 14%。</td></tr>
+    <tr><td>阅读时要注意的点</td><td>FLARE 不是 CoT-VLA 那类“生成未来图像再行动”的方法；它预测的是未来观测的 control-centric latent representation，推理时不需要生成未来 embedding，训练时也能利用无动作标签的人类第一视角视频。</td></tr>
+  </table>
+
+  <h3>难度评级</h3>
+  <p><strong>4/5。</strong>需要熟悉 flow matching / diffusion policy、DiT、VLA、representation alignment、Q-former 和 imitation learning benchmark。公式不多，但要真正复现，需要理解 embedding target、future token stream、EMA target update 和多数据源训练。</p>
+
+  <h3>关键词</h3>
+  <p>Implicit World Modeling；Future Latent Representation Alignment；Flow Matching Policy；Diffusion Transformer；Vision-Language-Action；Q-former；Human Egocentric Videos</p>
+
+  <h3>核心贡献清单</h3>
+  <ul>
+    <li><strong>未来 latent 对齐目标。</strong>FLARE 不预测未来像素，而是让 policy 的内部 future-token 表征对齐未来观测 embedding。</li>
+    <li><strong>轻量架构改动。</strong>只需给标准 VLA / flow-matching policy 加入少量 future tokens 和 alignment head，不需要完整未来图像生成器。</li>
+    <li><strong>action-aware embedding target。</strong>作者构建 Q-former based vision-language embedding module，用 action flow-matching 预训练，使未来 target 更贴近控制。</li>
+    <li><strong>可利用无动作视频。</strong>有人类第一视角视频但没有 robot action 时，仍可用 future alignment loss 学习 latent dynamics。</li>
+    <li><strong>覆盖仿真和真实机器人。</strong>实验包括 RoboCasa、GR1 simulation、真实 GR1 humanoid，以及 novel object few-shot + human video co-training。</li>
+  </ul>
+
+  <div class="figure">
+    <img src="figures/x1.png" alt="FLARE concept">
+    <div class="caption">Figure 1：FLARE 与常规 flow-matching/diffusion policy 的对比。常规 policy 只做 action flow matching；FLARE 额外引入 future latent alignment，因此可以从 action-labeled robot data 和 video-only human ego-view demonstrations 中共同学习。</div>
+  </div>
+</section>
+
+<section id="motivation">
+  <h2>2. 动机</h2>
+  <h3>2.1 要解决什么问题</h3>
+  <p>论文从一个直觉出发：人类行动时会隐式预测未来状态，例如伸手拿桌上的杯子时，会预判手的路径、障碍物、抓取后的触感。机器人 policy 也需要类似的 predictive capability，尤其是在多步操控、遮挡、物体几何复杂或双臂 humanoid 任务中。</p>
+  <p>但已有把 world model 接入 policy 的方式经常要求预测未来图像或视频帧。作者认为这种做法有两个问题：第一，高保真视觉生成需要大模型，带来训练和推理开销；第二，像素重建关心纹理和空间细节，而动作控制关心任务相关的抽象信息，两者对模型容量的需求并不完全一致。</p>
+
+  <h3>2.2 已有方法的局限</h3>
+  <p>GR1、GR2、UWM、UVA 等路线显式预测未来图像 token 或 VAE latent，同时学习动作。它们直观，但仍要处理未来视觉重建问题。论文指出，控制任务并不一定需要“预测每个像素”，例如抓水瓶放进容器时，关键是水瓶和目标容器的位置、朝向和几何关系，而不是背景中无关细节。</p>
+  <p>此外，若未来预测目标是通用视觉 embedding，它不一定包含动作相关信息；若直接使用 pixel / VAE latent，又可能过于昂贵。因此 FLARE 的核心折中是：学习一个 compact 且 action-aware 的未来观测 embedding，并把 policy 内部表征往这个 embedding 对齐。</p>
+
+  <h3>2.3 本文的解决思路</h3>
+  <p>FLARE 把 world modeling 放在 policy 的 latent space 中。训练时，当前观测和动作 chunk 仍通过 flow matching 学动作；同时，在 DiT 输入序列中加入 learnable future tokens，让这些 token 在中间层形成对未来观测 embedding 的预测。这个预测不要求生成图像，只需要 cosine alignment。</p>
+  <p>这带来一个重要结果：对于没有 action labels 的人类第一视角视频，虽然不能计算 action flow-matching loss，但仍可以计算 future alignment loss，因此它们可以参与训练 latent dynamics。</p>
+</section>
+
+<section id="related">
+  <h2>3. 相关工作脉络</h2>
+  <h3>3.1 Generative World Models for Robotics</h3>
+  <p>相关工作从 model-based RL 和 world model 延伸到图像/视频生成式 policy learning。UniPi、GR1/GR2、UWM、UVA 等方法使用未来帧或未来 latent 与动作联合建模；DINO-WM 等方法用视觉特征训练 latent dynamics model。FLARE 与它们的差别是：它不重建未来帧或 VAE latent，而是给 flow-matching policy 添加一个面向未来 observation embedding 的辅助对齐目标。</p>
+
+  <h3>3.2 Vision-Language-Action Models</h3>
+  <p>VLA 方向包括离散 action token 的 autoregressive 方法，也包括 $\pi_0$、GR00T N1 这类用 diffusion / flow-matching head 产生连续动作的方法。FLARE 采用 GR00T N1 风格的 flow-matching policy head，用 DiT blocks 和 alternating cross-attention / self-attention 条件化视觉语言 embedding。</p>
+
+  <h3>3.3 Learning from Egocentric Videos</h3>
+  <p>已有工作利用人类第一视角视频学习 affordance、轨迹、pose 或 latent action。FLARE 避开显式 pose estimator、point tracking 或 latent action discretization，转而用 future latent alignment：只要视频能提供当前帧和未来帧，就能训练模型预测未来 observation embedding。</p>
+</section>
+
+<section id="method">
+  <h2>4. 方法详解</h2>
+  <h3>4.1 Background: Flow Matching Policy</h3>
+  <p>论文沿用 $\pi_0$ 和 GR00T N1 的 flow-matching 动作学习。令 $o_t$ 是当前观测，包含图像和语言；$q_t$ 是 proprioceptive state；$A_t=(a_t,\dots,a_{t+H})$ 是专家动作 chunk；$\phi_t=VL(o_t)$ 是视觉语言 embedding。</p>
+  <div class="formula-block">
+    <p class="intuition">训练时先把真实动作 chunk 与高斯噪声混合，得到一个带噪动作；模型学习从带噪动作指向真实动作的速度场。</p>
+    $$A_t^\tau = \tau A_t + (1-\tau)\epsilon,\quad \epsilon\sim\mathcal{N}(0,I)$$
+    $$\mathcal{L}_{fm}(\theta)=\mathbb{E}_{\tau}\left[\left\|V_\theta(\phi_t,A_t^\tau,q_t)-(\epsilon-A_t)\right\|^2\right]$$
+    <table class="symbol-table">
+      <tr><td>$A_t$</td><td>专家 demonstration 中的动作 chunk。</td></tr>
+      <tr><td>$A_t^\tau$</td><td>flow-matching timestep $\tau$ 下的 noisy action chunk。</td></tr>
+      <tr><td>$V_\theta$</td><td>DiT policy 预测的 denoising direction。</td></tr>
+      <tr><td>$\tau$</td><td>从 Beta 分布采样，论文沿用 GR00T N1 的 $s=0.999$ 设置。</td></tr>
+    </table>
+  </div>
+  <p>推理时，从 $A_t^0\sim\mathcal{N}(0,I)$ 开始，用 $K$ 步 Euler integration 得到动作 chunk；所有实验中 $K=4$。</p>
+
+  <h3>4.2 FLARE 架构</h3>
+  <div class="figure">
+    <img src="figures/x2.png" alt="FLARE architecture">
+    <div class="caption">Figure 2：FLARE 架构。state token、noisy action tokens 和 future tokens 被拼接送入 DiT；当前视觉语言 embedding 通过 cross-attention 条件化 DiT；中间层 future-token activations 用于对齐未来 observation embedding。</div>
+  </div>
+  <p>FLARE 的输入序列包含三部分：</p>
+  <ol>
+    <li>当前 proprioceptive state $q_t$ 经 state encoder 得到的 state token。</li>
+    <li>noised action chunk $A_t^\tau=\{\tau a_t+(1-\tau)\epsilon\}_{t}^{t+H}$ 经 action encoder 得到的 action tokens。</li>
+    <li>$M$ 个 learnable future token embeddings。</li>
+  </ol>
+  <p>在 DiT 的内部第 $L$ 层，模型取出 future tokens 对应的 hidden states，经 MLP 投影后，与未来观测 $\phi_{t+H}$ 的 embedding 对齐。</p>
+
+  <h3>4.3 Future Latent Representation Alignment</h3>
+  <div class="formula-block">
+    <p class="intuition">FLARE loss 的意思是：让 action denoising network 内部的 future-token 表征，接近未来观测的视觉语言 embedding。</p>
+    $$\mathcal{L}_{align}(\theta)=-\mathbb{E}_{\tau}\left[\cos\left(f_\theta(\phi_t,A_t^\tau,q_t),g(\phi_{t+H})\right)\right]$$
+    $$\mathcal{L}=\mathcal{L}_{fm}+\lambda\mathcal{L}_{align}$$
+    <table class="symbol-table">
+      <tr><td>$f_\theta$</td><td>从 DiT 第 $L$ 层取出的 future-token activations，经 projection 后输出 $B\times M\times D$ 表征。</td></tr>
+      <tr><td>$g$</td><td>未来观测 embedding encoder，输出同样形状的 $B\times M\times D$ target。</td></tr>
+      <tr><td>$M$</td><td>future / embedding token 数；主设计中 Q-former 压缩为 $M=32$ tokens。</td></tr>
+      <tr><td>$\lambda$</td><td>alignment loss 系数；主实验中 $\lambda=0.2$，消融显示该值效果最好。</td></tr>
+    </table>
+  </div>
+  <p>它与 REPA 的关系是：REPA 对齐图像 diffusion transformer 与视觉表征以加速图像生成；FLARE 则对齐 <em>policy</em> DiT 与 <em>future</em> observation embedding，用于机器人动作学习。</p>
+
+  <h3>4.4 Action-aware Future Embedding Model</h3>
+  <p>作者发现，target embedding 的选择很重要。直接使用通用视觉 encoder 的 tokens 可行，但更好的做法是训练一个 action-aware vision-language embedding model，使它既紧凑又含有控制相关信息。</p>
+  <div class="figure">
+    <img src="figures/x11.png" alt="Q-former embedding module">
+    <div class="caption">Appendix Figure：Q-former based vision-language embedding module。SigLIP2 编码视觉和语言，4 层 self-attention 融合，再用 32 个 query tokens 经 Q-former 压缩。</div>
+  </div>
+  <p><span class="tag">附录 A</span> 具体结构如下：采用 <code>siglip2-large-patch16-256</code> 作为 vision 和 language encoder；每张 $256\times256$ 图像产生 256 个 patch tokens；语言指令 padded 后产生 32 个 language tokens；两者拼接为 288 个 tokens，经 4 层 self-attention transformer 融合；最后用 Q-former 的 32 个 learnable query tokens 压缩成 32 个 vision-language tokens。</p>
+  <div class="impl-note"><strong>实现要点：</strong>embedding model 不是冻结的通用视觉模型。作者给它接 8 个 DiT blocks，用常规 action flow-matching objective 端到端训练，使 embedding 中保留对动作预测有用的信息。</div>
+
+  <h3>4.5 EMA Target Update</h3>
+  <p>在下游 post-training 中，target embedding model 与 policy encoder 存在 distribution shift。论文不是完全冻结 target embedding，而是用 EMA 让 target 慢速跟随 policy 的视觉语言 encoder。</p>
+  <div class="formula-block">
+    $$\theta_{\text{target\_vl\_embedding}}\leftarrow \rho\theta_{\text{target\_embedding}}+(1-\rho)\theta_{\text{policy\_vl\_embedding}}$$
+    <p>作者测试 $\rho\in\{0.99,0.995,0.999,1.0\}$，最终使用 $\rho=0.995$；即便 $\rho=1.0$ 不做 EMA，FLARE 仍超过 policy-only baseline，但 $\rho=0.995$ 最好。</p>
+  </div>
+
+  <h3>4.6 训练伪代码</h3>
+  <p><span class="tag">附录 D</span> 给出 Python-style pseudocode。核心流程可浓缩为：</p>
+  <div class="pseudo">future_tokens = nn.Embedding(M, hidden_dim)
+target_vl_embedding.requires_grad = False
+
+for each gradient step:
+    obs, proprio, actions, future_obs = dataset.next()
+
+    noise = gaussian.sample()
+    timestep = beta.sample()
+    noisy_action = timestep * actions + (1 - timestep) * noise
+    velocity = actions - noise
+
+    action_tokens = action_embed(noisy_action, timestep)
+    state_token = state_embed(proprio)
+    vl_tokens = vl_embedding(obs)
+
+    sa_tokens = concat([state_token, action_tokens, future_tokens])
+    policy_outputs = dit(sa_tokens, vl_tokens)
+
+    action_outputs = action_decoder(policy_outputs[:, action_token_slice])
+    action_loss = MSE(action_outputs, velocity)
+
+    embedding_to_align = target_vl_embedding(future_obs)  # no grad
+    predict_embedding = decode_embedding(policy_outputs[:, -M:])
+    flare_loss = 1 - cosine_similarity(predict_embedding, embedding_to_align)
+
+    loss = action_loss + lambda * flare_loss
+    optimize(loss)</div>
+</section>
+
+<section id="experiments">
+  <h2>5. 实验与结果</h2>
+  <h3>5.1 Multitask Simulation Benchmarks</h3>
+  <div class="figure">
+    <img src="figures/x4.png" alt="Multitask simulation tasks">
+    <div class="caption">Figure 4：两个 multitask simulation benchmarks：24 个 RoboCasa 单臂厨房任务，以及 24 个 GR-1 humanoid tabletop manipulation 任务。</div>
+  </div>
+  <p>RoboCasa 包含 pick-and-place、door manipulation、faucet operation 等厨房任务，观测为 left/right/wrist 三路 RGB。GR-1 仿真包含 18 个 object rearrangement 任务和 6 个 articulated object 任务，观测为头部第一视角 RGB。</p>
+  <p>为公平比较，主 benchmark 不使用跨 embodiment 预训练 embedding model，而是在同一 in-domain multitask dataset 上预训练 embedding model 80,000 gradient steps。除 UWM 外，所有方法训练 80k steps；UWM 因 80k 结束仍在提升，延长到 400k steps。</p>
+
+  <h3>5.2 主结果表</h3>
+  <table class="compact">
+    <tr><th>Methods</th><th>FLARE</th><th>Policy Only</th><th>UWM</th><th>GR00T N1 Scratch</th><th>Diffusion Policy</th></tr>
+    <tr><td>Pick and Place</td><td><strong>53.2%</strong></td><td>43.8%</td><td>35.6%</td><td>44.1%</td><td>29.2%</td></tr>
+    <tr><td>Open & Close Doors / Drawers</td><td><strong>88.8%</strong></td><td>78.7%</td><td>82.0%</td><td>80.0%</td><td>78.7%</td></tr>
+    <tr><td>Others</td><td><strong>80.0%</strong></td><td>75.2%</td><td>74.2%</td><td>69.6%</td><td>61.3%</td></tr>
+    <tr><td><strong>24 RoboCasa Tasks Average</strong></td><td><strong>70.1%</strong></td><td>61.9%</td><td>60.8%</td><td>60.6%</td><td>51.7%</td></tr>
+    <tr><td>Pick and Place Tasks</td><td><strong>58.2%</strong></td><td>46.6%</td><td>30.1%</td><td>51.8%</td><td>40.4%</td></tr>
+    <tr><td>Articulated Tasks</td><td><strong>51.3%</strong></td><td>47.4%</td><td>38.4%</td><td>42.8%</td><td>50.1%</td></tr>
+    <tr><td><strong>24 GR1 Tasks Average</strong></td><td><strong>55.0%</strong></td><td>44.0%</td><td>29.5%</td><td>45.1%</td><td>40.9%</td></tr>
+  </table>
+  <p>结果表显示 FLARE 在两个 benchmark 的所有汇总类别上均最高。与 policy-only 相比，RoboCasa 平均从 61.9% 提升到 70.1%，GR1 平均从 44.0% 提升到 55.0%。与 UWM 相比，FLARE 避开显式未来 VAE latent 生成，在 RoboCasa 和 GR1 上均显著更高。</p>
+
+  <h3>5.3 Data-efficient Post-training</h3>
+  <div class="figure">
+    <img src="figures/x5.png" alt="Real GR1 task setup">
+    <div class="caption">Figure 5：真实 GR1 humanoid 的四个 tabletop manipulation tasks。</div>
+  </div>
+  <div class="figure">
+    <img src="figures/x6.png" alt="Posttraining results">
+    <div class="caption">Figure 6：RoboCasa 和真实 GR1 的 post-training 结果。论文称在 RoboCasa 100 trajectories/task 时 FLARE 有 10% gain；真实 GR1 最高达到 95.1%，平均高于 baseline 14%。</div>
+  </div>
+  <p>这一节评估跨 embodiment 预训练 embedding model 在未见过的 embodiment / task 上的作用。policy-only baseline 同时初始化 Q-former embedding 和 DiT weights；FLARE 只 warm start vision-language embedding，并用 pretrained embedding model 作为 future prediction target。</p>
+  <p>论文报告：在 RoboCasa 100 trajectories/task 的数据受限设置下，FLARE 比 policy-only 高 10%；在真实 GR1 上，FLARE 最高成功率 95.1%，平均比 baseline 高 14%。定性观察中，baseline 常在水瓶或易拉罐靠近手时碰倒物体，而 FLARE 学到绕过或越过物体再抓取。</p>
+
+  <h3>5.4 Human Egocentric Videos without Action Labels</h3>
+  <div class="figure">
+    <img src="figures/x7.png" alt="Novel object setup">
+    <div class="caption">Figure 7a：五个 novel objects，具有训练集中未出现的几何形状，需要新的抓取策略。</div>
+  </div>
+  <div class="figure">
+    <img src="figures/x8.png" alt="Novel object results">
+    <div class="caption">Figure 7b：human egocentric videos + few-shot real robot demos 的 novel object 泛化结果。</div>
+  </div>
+  <p>作者选取 5 个 novel objects，每个物体收集 150 条人类第一视角 demonstrations，方式是示范者头戴 GoPro 执行类似任务；机器人侧每个物体只收集最多 10 条 teleoperated demonstrations。对于 robot demos，训练时同时使用 action flow-matching loss 和 future alignment objective；对于 human egocentric videos，因为没有 action labels，只使用 future alignment loss。</p>
+  <p>论文报告：每个物体只有 1 条 teleoperated trajectory 时，FLARE 已可达到最高 60% 成功率；每个物体 10 条机器人轨迹并联合 human videos 时，成功率提升到 80%，约为仅用 action-labeled data baseline 的两倍。项目页进一步给出一个具体数值：1-shot 不加 human video 为 37.5%，加 human egocentric videos 后为 60%。</p>
+
+  <h3>5.5 Ablations</h3>
+  <table class="compact">
+    <tr><th>Target embedding model</th><th>Success Rate</th></tr>
+    <tr><td>No FLARE loss</td><td>43.9%</td></tr>
+    <tr><td>SigLIP2</td><td>49.6%</td></tr>
+    <tr><td>SigLIP2 average pooled</td><td>50.9%</td></tr>
+    <tr><td><strong>Action-aware Embedding</strong></td><td><strong>55.0%</strong></td></tr>
+  </table>
+  <p>这个表说明 FLARE 兼容通用视觉 encoder target：即使用 SigLIP2 也比 no-FLARE 高约 7%；但 action-aware embedding 最好，说明 target embedding 与控制任务对齐很重要。</p>
+  <div class="figure">
+    <img src="figures/x9.png" alt="FLARE ablations">
+    <div class="caption">Figure 8：alignment layer index 和 loss coefficient $\lambda$ 的消融。主实验在 8-layer DiT 的 layer 6 施加 FLARE loss，并使用 $\lambda=0.2$。</div>
+  </div>
+  <p>作者指出：施加 FLARE loss 的层过早，例如 layer 4，会明显下降；原因可能是 early layer 还在处理低层 action denoising 表征，过早对齐未来 embedding 会与动作预测冲突。较深层能让更多模型权重从未来监督中受益，但也要避免过强冲突。</p>
+  <div class="figure">
+    <img src="figures/x10.png" alt="EMA coefficient">
+    <div class="caption">Figure 9：EMA coefficient $\rho$ 消融。所有 EMA variants 都超过 no-FLARE baseline，$\rho=0.995$ 最好。</div>
+  </div>
+</section>
+
+<section id="reproducibility">
+  <h2>6. 复现审计</h2>
+  <h3>6.1 预训练数据 mixture</h3>
+  <p><span class="tag">附录 B</span> 给出了 action-aware vision-language embedding pretraining 的数据统计，总计 169.5M frames、2,989.5 小时。</p>
+  <table class="compact">
+    <tr><th>Dataset</th><th>Frames</th><th>Duration</th><th>FPS</th><th>Camera View</th><th>Category</th></tr>
+    <tr><td>GR-1 In-house</td><td>6.4M</td><td>88.4 hr</td><td>20</td><td>Egocentric</td><td>Real robot</td></tr>
+    <tr><td>DROID (OXE)</td><td>23.1M</td><td>428.3 hr</td><td>15</td><td>Left, Right, Wrist</td><td>Real robot</td></tr>
+    <tr><td>RT-1 (OXE)</td><td>3.7M</td><td>338.4 hr</td><td>3</td><td>Egocentric</td><td>Real robot</td></tr>
+    <tr><td>Language Table (OXE)</td><td>7.0M</td><td>195.7 hr</td><td>10</td><td>Front-facing</td><td>Real robot</td></tr>
+    <tr><td>Bridge-v2 (OXE)</td><td>2.0M</td><td>111.1 hr</td><td>5</td><td>Shoulder, left, right, wrist</td><td>Real robot</td></tr>
+    <tr><td>MUTEX (OXE)</td><td>362K</td><td>5.0 hr</td><td>20</td><td>Wrist</td><td>Real robot</td></tr>
+    <tr><td>Plex (OXE)</td><td>77K</td><td>1.1 hr</td><td>20</td><td>Wrist</td><td>Real robot</td></tr>
+    <tr><td>RoboSet (OXE)</td><td>1.4M</td><td>78.9 hr</td><td>5</td><td>Left, Right, Wrist</td><td>Real robot</td></tr>
+    <tr><td>GR-1 Simulation</td><td>125.5M</td><td>1,742.6 hr</td><td>20</td><td>Egocentric</td><td>Simulation</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>169.5M</strong></td><td><strong>2,989.5 hr</strong></td><td>--</td><td>--</td><td>--</td></tr>
+  </table>
+  <div class="figure">
+    <img src="figures/x3.png" alt="Pretraining data mixture">
+    <div class="caption">Figure 3：action-aware vision-language embedding model 的预训练数据混合。</div>
+  </div>
+
+  <h3>6.2 训练超参</h3>
+  <table class="compact">
+    <tr><th>阶段</th><th>设置</th></tr>
+    <tr><td>Embedding model pretraining</td><td>256 NVIDIA H100 GPUs；batch size 8192；150,000 gradient steps。</td></tr>
+    <tr><td>Optimizer</td><td>AdamW；$\beta_1=0.95,\beta_2=0.999,\epsilon=1e-8$；weight decay 1e-5。</td></tr>
+    <tr><td>Learning rate schedule</td><td>Cosine schedule；warmup ratio 0.05。</td></tr>
+    <tr><td>Flow-matching timestep</td><td>$p(\tau)=\text{Beta}((s-\tau)/s;1.5,1)$，$s=0.999$。</td></tr>
+    <tr><td>Multitask experiments</td><td>32 NVIDIA H100 GPUs；batch size 1024；80,000 gradient steps；其余超参与预训练一致。</td></tr>
+    <tr><td>Inference denoising</td><td>$K=4$ Euler integration steps。</td></tr>
+    <tr><td>FLARE loss</td><td>$M=32$ future/embedding tokens；主实验 layer 6 / 8；$\lambda=0.2$；EMA $\rho=0.995$。</td></tr>
+  </table>
+
+  <h3>6.3 复现 checklist</h3>
+  <div class="audit-card">
+    <h4>论文给得比较充分的信息</h4>
+    <p><span class="ok">充分：</span>核心公式、DiT token 结构、Q-former embedding 结构、主要 loss、主实验 benchmark、baseline、训练步数、GPU 规模、batch size、optimizer、数据表、伪代码、关键超参消融。</p>
+    <p><span class="warn">仍需补充：</span>GitHub 在项目页显示 coming soon；完整数据预处理脚本、真实 GR1 控制接口、每个 benchmark 的任务配置文件、精确 model config、checkpoint、human video 对齐/采样细节没有在源码中完整开放。</p>
+  </div>
+  <div class="audit-card">
+    <h4>最小复现路径</h4>
+    <ol>
+      <li>实现 SigLIP2 + 4-layer fusion transformer + Q-former 的 action-aware VL embedding module，输出 32 tokens。</li>
+      <li>用 GR-1/OXE/RoboSet 等 mixture 做 embedding model 预训练，并用 action flow-matching objective 保证 action-awareness。</li>
+      <li>实现 GR00T N1 风格 DiT flow-matching policy，输入 state token、noisy action tokens 和 future tokens。</li>
+      <li>在第 6 层取 future-token activations，与 target future observation embedding 做 cosine alignment。</li>
+      <li>训练总损失 $\mathcal{L}_{fm}+0.2\mathcal{L}_{align}$，post-training 时用 $\rho=0.995$ 的 EMA target embedding。</li>
+      <li>在 RoboCasa / GR1 上按 50 episodes/task 评估，每 1000 steps 评估 checkpoint，并报告最后五个 checkpoints 的最大成功率。</li>
+    </ol>
+  </div>
+</section>
+
+<section id="discussion">
+  <h2>7. 分析、局限与边界</h2>
+  <h3>7.1 这篇论文最有价值的地方</h3>
+  <p>从论文自己的问题设定和实验看，最有价值的地方是把 world modeling 的监督从“预测可视未来”降维成“对齐控制相关未来 latent”。这样既保留了未来预测作为 auxiliary signal 的好处，又避免 pixel/frame generation 的计算负担。它还自然解释了为什么 video-only human demonstrations 可用：无动作数据无法训练 action flow matching，但可以提供当前/未来观测对来训练 latent dynamics。</p>
+
+  <h3>7.2 结果为什么站得住</h3>
+  <p>结果的支撑来自四类证据：第一，两个 multitask simulation benchmark 覆盖单臂和 humanoid tabletop manipulation，且 FLARE 在所有主汇总指标上最高；第二，UWM 被训练到 400k steps 后仍低于 FLARE，降低了“只是训练更久”的解释；第三，target embedding、loss layer、$\lambda$、EMA 都做了消融；第四，真实 GR1 和 novel objects + human egocentric videos 说明方法不是只在仿真中有效。</p>
+
+  <h3>7.3 作者自述局限</h3>
+  <ul>
+    <li><strong>任务范围：</strong>论文主要聚焦 imitation learning 和真实 humanoid pick-and-place，尚未覆盖更复杂的精细灵巧操作。</li>
+    <li><strong>训练范式：</strong>作者把 incorporating reinforcement learning 作为未来方向，当前方法主要是 imitation learning。</li>
+    <li><strong>专家数据依赖：</strong>虽然能泛化到 novel objects，但仍依赖少量 expert demonstrations；在专家演示难获取时会限制可扩展性。</li>
+    <li><strong>人类视频来源：</strong>论文中的 egocentric human videos 来自受控设置下的 head-mounted GoPro；扩展到更大规模、更自然环境的数据仍是未来工作。</li>
+  </ul>
+
+  <h3>7.4 适用边界</h3>
+  <p>FLARE 适合当前观测到未来观测存在可学习 latent dynamics、且未来视觉语言 embedding 能表达任务进展的 manipulation 任务。它不直接提供显式 planning rollout，也不生成可检查的未来图像；因此若用户需要可解释的视觉预测轨迹，FLARE 的 latent world model 不如显式图像生成方法直观。</p>
+  <p>另外，FLARE 的收益依赖 target embedding 质量。通用 SigLIP2 target 可以带来提升，但 action-aware embedding 明显更好；这意味着在新领域复现时，embedding model 的数据覆盖和 action-awareness 可能成为主要瓶颈。</p>
+
+  <h3>7.5 附录 rollout 信息</h3>
+  <div class="figure">
+    <img src="figures/x12.png" alt="Real GR1 rollouts">
+    <div class="caption">Appendix Figure：真实 GR1 四个 pick-and-place tasks 的 rollout。作者定性指出 FLARE policy 学会绕过或越过易倒物体再抓取。</div>
+  </div>
+  <div class="figure">
+    <img src="figures/x13.png" alt="Novel object rollouts">
+    <div class="caption">Appendix Figure：五个 novel objects 的 rollout，用于补充说明 human egocentric co-training 后的抓取泛化。</div>
+  </div>
+</section>
+</main>
+</body>
+</html>

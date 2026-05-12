@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction with Action: Visual Policy Learning via Joint Denoising Process - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<div class="page">
+    <div class="card">
+      <header>
+            <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div class="eyebrow">ArXiv 2411.18179 · 论文精读报告</div>
+        <h1>Prediction with Action: Visual Policy Learning via Joint Denoising Process</h1>
+        <div class="meta">
+          <p><strong>作者：</strong>Yanjiang Guo, Yucheng Hu, Jianke Zhang, Yen-Jen Wang, Xiaoyu Chen, Chaochao Lu, Jianyu Chen</p>
+          <p><strong>机构：</strong>Tsinghua / Shanghai Qizhi / Shanghai AI Lab / UC Berkeley</p>
+          <p><strong>论文链接：</strong><a href="https://arxiv.org/abs/2411.18179">arXiv:2411.18179</a></p>
+          <p><strong>项目页：</strong><a href="https://sites.google.com/view/pad-paper">PAD Project Page</a></p>
+        </div>
+      </header>
+
+      <div class="toc">
+        <div class="toc-grid">
+          <a href="#sec1">1. 论文速览</a>
+          <a href="#sec2">2. 动机</a>
+          <a href="#sec3">3. 相关工作梳理</a>
+          <a href="#sec4">4. 方法详解</a>
+          <a href="#sec5">5. 实验</a>
+          <a href="#sec6">6. 分析与讨论</a>
+        </div>
+      </div>
+<section id="sec1">
+          <h2>1. 论文速览</h2>
+          <div class="tldr">
+            <p><strong>一句话概括：</strong>这篇论文提出 PAD，把“未来图像预测”和“机器人动作生成”放进同一个扩散去噪过程里联合学习，不再走“先生成目标图，再训练低层策略”的两阶段路线。</p>
+            <p><strong>核心结论：</strong>联合去噪让动作头直接共享视觉预测模型里的物理表征；再配合 BridgeData-v2 这类大规模视频数据共训练，PAD 在 MetaWorld 和真实 Panda 操作任务上都明显优于 Diffusion Policy、SuSIE、RT-1、RT-2*、GR-1。</p>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>论文要解决什么</h3>
+              <p>视觉模仿学习数据昂贵、规模小，而互联网视频包含大量“物体如何运动”的物理先验。问题在于，以往方法通常只把视频生成模型当作一个外部工具，先合成目标图，再交给单独的策略去学动作，预测与控制之间耦合太弱。</p>
+            </div>
+            <div class="panel">
+              <h3>作者的方法抓手</h3>
+              <p>用 Diffusion Transformer 把当前 RGB、机器人状态、文本指令，以及可选深度一起编码成 token；模型同时预测未来图像、未来动作、未来深度，在同一个 latent diffusion objective 下训练。</p>
+            </div>
+            <div class="panel">
+              <h3>最重要的结果</h3>
+              <p>MetaWorld 50-task 平均成功率达到 <strong>72.5%</strong>，相对最强基线 GR-1 的 <strong>57.4%</strong> 有明显提升；真实任务 seen-task 平均成功率 PAD 为 <strong>0.72</strong>，加入深度后到 <strong>0.78</strong>。</p>
+            </div>
+            <div class="panel warn-card">
+              <h3>阅读时要注意的点</h3>
+              <p>摘要写“single policy solve 41 tasks”，但正文与表格一直按 MetaWorld <strong>50 tasks</strong> 统计；附录又说明 <code>handle-pull-side-v2</code> 和 <code>handle-pull-v2</code> 未列细项，因为原始专家本身成功率低。这是论文内部一个口径不完全一致的地方。</p>
+            </div>
+          </div>
+
+          <div class="chip-list">
+            <span class="chip">联合去噪</span>
+            <span class="chip">DiT 多模态建模</span>
+            <span class="chip">视频共训练</span>
+            <span class="chip">未来图像辅助控制</span>
+            <span class="chip">RGBD 可扩展</span>
+          </div>
+
+          <div class="figure">
+            <img src="figure/overview_domains.png" alt="Multi-task comparisons in two domains">
+            <div class="caption">图 1：摘要图。PAD 同时在 MetaWorld 和真实 Panda 操作任务上做单策略多任务学习，作者强调它不是单纯提动作头，而是把未来视觉预测一并纳入训练。</div>
+          </div>
+        </section>
+
+        <section id="sec2">
+          <h2>2. 动机</h2>
+          <p>作者的出发点很直接：预测与行动本质上共享同一套物理规律。一个能够从图像里预测“接下来会发生什么”的模型，理应也更适合决定“现在该怎么动”。问题是，已有机器人工作大多把这两件事拆开做，预测模型最多给策略提供目标图像，而不会把自己学到的物理表征直接暴露给动作生成过程。</p>
+
+          <div class="figure">
+            <img src="figure/motivation_joint_denoising.png" alt="Motivation and joint denoising">
+            <div class="caption">图 2：论文的核心动机图。作者把视觉生成模型和 diffusion policy 统一解释成“不同模态上的去噪”，然后提出在统一 token 序列上联合预测未来图像和机器人动作。</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>为什么两阶段不够</h3>
+              <p>SuSIE、UniPi 一类方法先生成未来图像，再学逆动力学或低层策略。这种接口太窄，动作头只能看到一张中间结果，拿不到扩散模型在中间层里编码的物理先验。</p>
+            </div>
+            <div class="panel">
+              <h3>为什么选 DiT</h3>
+              <p>作者认为 U-Net 更偏纯图像生成，而 DiT 用 token 拼接更适合把图像、动作、深度、文本放在一个自注意力序列里做联合建模，也更方便处理模态缺失。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="sec3">
+          <h2>3. 相关工作梳理</h2>
+          <p>论文把相关工作放在实验后面，但逻辑上可以提前整理成三条主线。</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>方向</th>
+                <th>代表方法</th>
+                <th>核心思想</th>
+                <th>PAD 的区别</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>预训练模型直接做机器人</td>
+                <td>RT-1, RT-2*</td>
+                <td>把视觉语言 backbone 直接适配成动作预测器</td>
+                <td>PAD 不直接依赖超大 VLM，而是把“未来预测”当作动作学习的结构化辅助信号。</td>
+              </tr>
+              <tr>
+                <td>扩散式动作策略</td>
+                <td>Diffusion Policy</td>
+                <td>在动作空间上去噪生成控制序列</td>
+                <td>PAD 不只去噪动作，还同步去噪未来图像和可选深度，监督更强。</td>
+              </tr>
+              <tr>
+                <td>未来图像辅助控制</td>
+                <td>SuSIE, UniPi, GR-1</td>
+                <td>用生成或自回归预测未来，再间接帮助动作</td>
+                <td>PAD 不是串行两阶段，而是单个 DiT 内的联合去噪；与 GR-1 相比，作者强调 diffusion 生成图更精细。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="panel note-card">
+            <h3>作者想占据的技术位置</h3>
+            <p>PAD 试图站在“扩散动作策略”和“未来视觉预测”之间：既保留 diffusion policy 的多模态动作建模能力，又把互联网视频学到的物理变化模式通过联合损失注入策略。</p>
+          </div>
+        </section>
+
+        <section id="sec4">
+          <h2>4. 方法详解</h2>
+
+          <div class="figure">
+            <img src="figure/pad_framework.png" alt="PAD framework">
+            <div class="caption">图 3：PAD 总体框架。当前观测先被编码成 latent，与未来目标的高斯噪声在通道维拼接，再 token 化后进入 DiT。输出同时对应未来图像、未来动作，以及可选深度。</div>
+          </div>
+
+          <h3>4.1 问题定义</h3>
+          <p>机器人数据记为 <code>D_robot</code>，每条样本含当前图像序列、语言指令和轨迹；视频数据记为 <code>D_video</code>，只有图像，没有机器人动作。PAD 的目标是在机器人数据稀缺时，通过和视频数据共训练，提升视觉策略学习效果。</p>
+
+          <h3>4.2 输入、输出与 token 化</h3>
+          <table class="symbol-table">
+            <thead>
+              <tr>
+                <th>符号</th>
+                <th>含义</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$c_I, c_A, c_E, l$</td>
+                <td>当前 RGB、当前机器人状态、当前深度、文本指令</td>
+              </tr>
+              <tr>
+                <td>$x_I^{1:k}, x_A^{1:k}, x_E^{1:k}$</td>
+                <td>未来 $k$ 步的 RGB、动作、深度目标</td>
+              </tr>
+              <tr>
+                <td>$\varepsilon_I, \varepsilon_A, \varepsilon_E$</td>
+                <td>不同模态编码器；图像是冻结 VAE，动作是 MLP，深度是下采样+tokenize</td>
+              </tr>
+              <tr>
+                <td>$t_I, t_A, t_E$</td>
+                <td>不同模态映射后的 token 序列</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>实现层面，PAD-XL/2 对 <code>256×256</code> 图像先用冻结 VAE 编到 <code>32×32×4</code> latent，再按 <code>2×2</code> patchify 成 <strong>256 个图像 token</strong>；动作未来序列被编码成 <strong>1 个 action token</strong>。如果有深度，则把 <code>32×32×1</code> 深度图按 <code>8×8</code> 切成 <strong>16 个深度 token</strong>。文本由冻结 CLIP 编码。</p>
+
+          <h3>4.3 联合条件去噪</h3>
+          <p>PAD 不是先预测一张未来图再去求动作，而是对每种未来模态都构造“条件 latent + 噪声 latent”的拼接输入。例如图像模态里，当前观测 latent <code>εI(cI)</code> 和未来 <code>k</code> 帧噪声 <code>zI_t</code> 在通道维拼接，动作与深度也是同理。</p>
+
+          <div class="formula-block">
+            <p class="intuition">关键数学对象</p>
+            <p>扩散逆过程按条件分布</p>
+            <p>$$
+              p(z_{t-1}\mid z_t, c)=\mathcal{N}\left(z_{t-1}; \sqrt{\bar{\alpha}_{t-1}}\mu_\theta(z_t,t,c),(1-\bar{\alpha}_{t-1})\mathbb{I}\right)
+            $$</p>
+            <p>其中</p>
+            <p>$$
+              \mu_\theta(z_t,t,c)=\frac{z_t-\sqrt{1-\bar{\alpha}_t}\,\epsilon_\theta(z_t,t,c)}{\sqrt{\bar{\alpha}_t}}.
+            $$</p>
+            <p>训练时同时最小化图像、动作、深度三项扩散损失：</p>
+            <p>$$
+              \mathcal{L}(\theta)=\lambda_I\mathcal{L}_{diff}^{I}+\lambda_A\mathcal{L}_{diff}^{A}+\lambda_E\mathcal{L}_{diff}^{E}.
+            $$</p>
+            <p class="small">直觉上，PAD 逼着同一个 DiT 同时解释“场景接下来长什么样”和“机器人接下来怎么动”，这就是论文的结构性偏置来源。</p>
+          </div>
+
+          <h3>4.4 DiT 为什么能兼容缺失模态</h3>
+          <p>视频数据没有动作，真实机器人数据可能有深度，MetaWorld 又没有深度。PAD 的做法是把所有模态 token 长度统一到总长度，再用 self-attention mask 把 padding 位置屏蔽掉，只保留有效输出。这样同一套参数就能同时吃 <code>D_video</code> 和 <code>D_robot</code>。</p>
+
+          <h3>4.5 训练与执行细节</h3>
+          <div class="timeline">
+            <div class="tl-item">
+              <strong>初始化</strong>
+              <div>从 ImageNet 上预训练的 class-conditional DiT 初始化；丢掉类别嵌入，新加文本层，动作相关编码器和解码器零初始化。</div>
+            </div>
+            <div class="tl-item">
+              <strong>预训练</strong>
+              <div>先在 BridgeData-v2 上预训练 200k steps，数据规模约 60,000 trajectories，用来建立未来图像预测先验。</div>
+            </div>
+            <div class="tl-item">
+              <strong>适配</strong>
+              <div>再在具体机器人域上继续训练 100k steps。作者给出的资源消耗是 4 张 A100，预训练约 2 天，适配约 1 天。</div>
+            </div>
+            <div class="tl-item">
+              <strong>损失权重</strong>
+              <div><code>λI</code> 全程维持 1.0；<code>λA</code> 和 <code>λE</code> 在 100k 步内从 0 线性拉到 2.0，避免刚开始动作头抢跑破坏已有图像先验。</div>
+            </div>
+            <div class="tl-item">
+              <strong>部署</strong>
+              <div>预测 horizon 设为 <code>k=3</code>，相邻未来帧间隔 4；每轮用 75 步 DDIM 采样，同时得到 3 步未来图像和动作，只执行第一步动作，再进入下一轮闭环。</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="sec5">
+          <h2>5. 实验</h2>
+
+          <div class="figure">
+            <img src="figure/task_setup.png" alt="Task setup">
+            <div class="caption">图 4：实验域。左边是 MetaWorld 单策略 50 任务，右边是真实 Panda 多任务操作，并额外设计 unseen-object / unseen-background 的泛化测试。</div>
+          </div>
+
+          <h3>5.1 实验设置</h3>
+          <div class="grid-2">
+            <div class="panel">
+              <h4>MetaWorld</h4>
+              <p>每个任务收集 50 条轨迹，只用 <code>corner2</code> 视角，状态为 4 维末端位置+夹爪状态；不使用深度。作者强调与此前“每任务一个策略”的设定不同，这里训练的是单个文本条件策略。</p>
+            </div>
+            <div class="panel">
+              <h4>真实 Panda</h4>
+              <p>任务涵盖按按钮、理线、抓取、放置、开关抽屉等；每个任务收集 200 条轨迹，使用手腕相机，机器人状态为 7 维。作者还做了 OOD 测试，加入陌生水果蔬菜玩具和新背景。</p>
+            </div>
+          </div>
+
+          <p>比较方法包括 Diffusion Policy、SuSIE、RT-1、RT-2*（作者按 InstructBLIP-7B 复现）和 GR-1。所有方法都按“单个文本条件视觉策略覆盖整个任务域”的口径训练。</p>
+
+          <h3>5.2 主结果</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>场景</th>
+                <th>指标</th>
+                <th>最强基线</th>
+                <th>PAD</th>
+                <th>增益解读</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight-row">
+                <td>MetaWorld</td>
+                <td>50-task 平均成功率</td>
+                <td>GR-1: 57.4%</td>
+                <td>72.5%</td>
+                <td>比最强基线高 15.1 个点；相对提升约 26.3%</td>
+              </tr>
+              <tr>
+                <td>真实 Panda seen tasks</td>
+                <td>平均成功率</td>
+                <td>RT-2*: 0.69</td>
+                <td>0.72</td>
+                <td>纯 RGB 版本略高于 RT-2*；若加入深度，PAD-Depth 达到 0.78</td>
+              </tr>
+              <tr>
+                <td>真实 Panda generalization</td>
+                <td>未见任务/物体泛化</td>
+                <td>图示比较</td>
+                <td>PAD 最强</td>
+                <td>摘要声称相对最强基线有 28.0% 成功率提升</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table>
+            <thead>
+              <tr>
+                <th>MetaWorld 代表性难任务</th>
+                <th>GR-1</th>
+                <th>RT-2*</th>
+                <th>PAD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>assembly-v2</td>
+                <td>0.64</td>
+                <td>0.24</td>
+                <td><strong>0.88</strong></td>
+              </tr>
+              <tr>
+                <td>basketball-v2</td>
+                <td>0.08</td>
+                <td>0.08</td>
+                <td><strong>0.84</strong></td>
+              </tr>
+              <tr>
+                <td>coffee-pull-v2</td>
+                <td>0.52</td>
+                <td>0.68</td>
+                <td><strong>0.80</strong></td>
+              </tr>
+              <tr>
+                <td>stick-push-v2</td>
+                <td>0.60</td>
+                <td>0.12</td>
+                <td><strong>0.96</strong></td>
+              </tr>
+              <tr>
+                <td>door-lock-v2</td>
+                <td>0.60</td>
+                <td>0.40</td>
+                <td><strong>0.88</strong></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>5.3 泛化、共训练和多模态扩展</h3>
+          <div class="figure">
+            <img src="figure/generalization_grid.png" alt="Generalization test grid">
+            <div class="caption">图 5：真实机器人泛化测试样例。作者把 unseen tasks 按 easy / middle / hard 三档设计，包含更多干扰物、陌生物体和新背景。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figure/generalization_bars.png" alt="Generalization bar chart">
+            <div class="caption">图 6：泛化柱状图。PAD 在三档难度上都优于基线，难例尤其明显，说明从视频数据学到的物理先验确实迁移到了控制上。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figure/cotrain_ablation.png" alt="Co-training ablation">
+            <div class="caption">图 7：去掉视频共训练后，预测图像质量明显下降，某些关键物体甚至会消失。作者据此把性能提升归因为更好的未来图像预测，而非仅仅更大的模型容量。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figure/depth_extension.png" alt="Depth modality extension">
+            <div class="caption">图 8：PAD 可直接扩展到深度模态。真实任务里 PAD-Depth 平均成功率从 0.72 提到 0.78，说明“多模态联合去噪”的设计并不是 RGB 专用技巧。</div>
+          </div>
+
+          <h3>5.4 Scaling 分析</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>模型</th>
+                <th>参数量</th>
+                <th>Gflops</th>
+                <th>MetaWorld 平均成功率</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PAD-B/2</td>
+                <td>128M</td>
+                <td>22.5</td>
+                <td>62.4%</td>
+              </tr>
+              <tr>
+                <td>PAD-L/2</td>
+                <td>449M</td>
+                <td>79.1</td>
+                <td>68.4%</td>
+              </tr>
+              <tr>
+                <td>PAD-XL/4</td>
+                <td>661M</td>
+                <td>29.5</td>
+                <td>64.5%</td>
+              </tr>
+              <tr>
+                <td>PAD-XL/8</td>
+                <td>661M</td>
+                <td>7.7</td>
+                <td>48.2%</td>
+              </tr>
+              <tr class="highlight-row">
+                <td>PAD-XL/2</td>
+                <td>661M</td>
+                <td>119.1</td>
+                <td>72.5%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="figure">
+            <img src="figure/scaling_curve.png" alt="Scaling curve">
+            <div class="caption">图 9：Transformer Gflops 与策略成功率基本正相关。这里的提升既来自模型更大，也来自更细 patchify 带来的更长 token 序列。</div>
+          </div>
+        </section>
+
+        <section id="sec6">
+          <h2>6. 分析与讨论</h2>
+
+          <h3>6.1 这篇论文最有价值的地方</h3>
+          <div class="grid-2">
+            <div class="panel">
+              <h4>把“预测”从外部工具变成内部监督</h4>
+              <p>过去很多方法只是把未来图像当作中间产物；PAD 的价值是让动作头在同一个去噪网络里共享视觉未来建模的隐变量。这比“先生成、后控制”更像真正的多任务表征学习。</p>
+            </div>
+            <div class="panel">
+              <h4>视频数据终于有了清晰接入口</h4>
+              <p>机器人数据缺动作标签之外的大规模视频，一直很难直接喂给控制模型。PAD 用 attention mask 解决了模态缺失问题，让纯视频也能对策略产生训练价值。</p>
+            </div>
+          </div>
+
+          <h3>6.2 结果为什么站得住</h3>
+          <p>这篇论文的说服力主要来自三组互相咬合的证据：</p>
+          <table>
+            <thead>
+              <tr>
+                <th>证据</th>
+                <th>观察</th>
+                <th>支撑的论点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PAD vs 基线</td>
+                <td>MetaWorld、真实任务都领先</td>
+                <td>联合去噪结构本身有效</td>
+              </tr>
+              <tr>
+                <td>PAD w/o img</td>
+                <td>MetaWorld 平均从 72.5% 掉到 43.6%</td>
+                <td>未来图像预测不是装饰，而是关键监督源</td>
+              </tr>
+              <tr>
+                <td>PAD w/o co-train</td>
+                <td>MetaWorld 平均掉到 59.2%</td>
+                <td>互联网视频共训练确实提供了额外帮助</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="figure">
+            <img src="figure/pad_vs_gr1_predictions.png" alt="PAD vs GR-1 predicted images">
+            <div class="caption">图 10：PAD 与 GR-1 的未来图像预测比较。作者借此解释为什么 PAD 在精细操作任务上更强：扩散生成的图像细节更准，动作预测也更稳。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figure/bridge_predictions.png" alt="Bridge predictions">
+            <div class="caption">图 11：在 BridgeData-v2 上，PAD 的预测既能跟住语言，也会显式暴露不确定性。作者认为这说明模型确实学到了跨域物理动态，而不是死记目标图。</div>
+          </div>
+
+          <h3>6.3 局限与可疑点</h3>
+          <div class="grid-2">
+            <div class="panel warn-card">
+              <h4>推理开销不低</h4>
+              <p>每次控制要做 75 步 DDIM，同时还要生成未来图像和动作。作者自己也在结论里承认控制频率不高，这对高速闭环控制会是硬约束。</p>
+            </div>
+            <div class="panel warn-card">
+              <h4>因果链条还不是完全闭合</h4>
+              <p>论文把收益归因于“更好的未来图像预测带来更好的动作”，这个解释合理，但目前证据还是相关性为主。若能进一步做中间表征或 teacher forcing 实验，因果关系会更扎实。</p>
+            </div>
+            <div class="panel warn-card">
+              <h4>任务口径有轻微不一致</h4>
+              <p>摘要写 41 tasks，主体写 50 tasks，附录又说明有两个 handle-pull 任务没给出详细项。这不影响主要趋势，但会影响读者对“到底统计了多少任务”的第一印象。</p>
+            </div>
+            <div class="panel warn-card">
+              <h4>真实世界规模仍有限</h4>
+              <p>真实实验是单个 Panda 平台、多类桌面操作。虽然效果不错，但距离开放场景的泛化机器人还差很远，尤其没有测试复杂接触和高频动力学任务。</p>
+            </div>
+          </div>
+
+          <h3>6.4 附录里值得保留的信息</h3>
+          <p><span class="appendix-ref">Appendix</span> 附录没有额外理论推导，但提供了几个对复现实验判断很关键的细节：图像 latent 形状、depth token 数、各种模型大小、完整的 MetaWorld baseline 明细，以及真实任务中 expert / unseen task 的样例图。这些信息已经吸收到上面的“方法细节”和“实验分析”里。</p>
+
+          <div class="figure">
+            <img src="figure/expert_tasks_1.png" alt="Expert tasks part 1">
+            <div class="caption">图 12：附录中的真实任务专家样例 1。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figure/expert_tasks_2.png" alt="Expert tasks part 2">
+            <div class="caption">图 13：附录中的真实任务专家样例 2。</div>
+          </div>
+
+          <div class="figure">
+            <img src="figure/unseen_tasks.png" alt="Unseen tasks">
+            <div class="caption">图 14：附录中的 unseen-task 样例。测试集里的物体和背景比训练演示更复杂，说明泛化实验不是简单同分布复测。</div>
+          </div>
+
+          <div class="panel note-card">
+            <h3>我的总体判断</h3>
+            <p>PAD 的关键贡献不是“又做了一个更大的 diffusion policy”，而是把未来视觉预测和动作生成绑定进同一个训练目标里，并给视频共训练提供了一个非常自然的接口。对“如何把互联网视频先验注入机器人控制”这个问题，这篇论文给出的结构答案是清晰且有说服力的。它的主要短板则在于推理成本和真实世界验证规模。</p>
+          </div>
+        </section>
+</div>
+  </div>
+</main>
+</body>
+</html>

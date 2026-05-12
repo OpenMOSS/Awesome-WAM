@@ -1,0 +1,19 @@
+\begin{table}[t]
+\small\setlength{\tabcolsep}{5.5pt}
+\centering
+\begin{tabular}{lccc}
+      & {\bf Place} & {\bf Pack} & {\bf Pack} \\
+      {\bf Model} & {\bf Bowl} & {\bf Object} & {\bf Pair} \\
+      \midrule
+      State + Transformer BC  & 9.8 $\pm$ 2.6 & 21.7 $\pm$ 3.5 & 1.3 $\pm$ 0.9 \\
+      Image + Transformer BC  & 5.3 $\pm$ 1.9 & 5.7 $\pm$ 2.1 & 7.8 $\pm$ 2.6 \\
+      Image + TT  & 4.9 $\pm$ 2.1 & 19.8 $\pm$ 0.4 & 2.3 $\pm$ 1.6\\
+      Diffuser & 14.8 $\pm$ 2.9 & 15.9 $\pm$ 2.7 & 10.5 $\pm$ 2.4 \\
+      \model (Ours) & \textbf{51.6} $\pm$ 3.6 & \textbf{75.5} $\pm$ 3.1 & \textbf{45.7} $\pm$ 3.7 \\
+    \bottomrule
+\end{tabular}
+\vspace{5pt}
+\caption{\small \textbf{Task Completion Accuracy on Multitask Environment.} \model generalizes well to new environments when trained on a set of different multi-task environments.}
+\label{tbl:multitask}
+\vspace{-20pt}
+\end{table}

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World-Value-Action Model - 精读报告</title>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+      <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems</h1>
+  <div class="meta">
+    <p><b>作者：</b>Runze Li, Hongyin Zhang, Junxi Jin, Qixin Zeng, Zifeng Zhuang, Yiqi Tang, Shangke Lyu, Donglin Wang</p>
+    <p><b>机构：</b>Westlake University; Nanjing University Suzhou Campus</p>
+    <p><b>发表：</b>arXiv preprint, 2026</p>
+    <p><b>arXiv：</b><a href="https://arxiv.org/abs/2604.14732">2604.14732</a> | <b>PDF：</b><a href="https://arxiv.org/pdf/2604.14732">下载</a> | <b>Project Page：</b><a href="https://win-commit.github.io/wavpage/">win-commit.github.io/wavpage</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <b>目录</b>
+  <ul>
+    <li><a href="#overview">1. 论文速览</a></li>
+    <li><a href="#motivation">2. 动机</a></li>
+    <li><a href="#related">3. 相关工作梳理</a></li>
+    <li><a href="#method">4. 方法详解</a></li>
+    <li><a href="#exp">5. 实验</a></li>
+    <li><a href="#discussion">6. 分析与讨论</a></li>
+  </ul>
+</nav>
+<section id="overview">
+<h2>1. 论文速览</h2>
+<div class="tldr"><b>一句话总结：</b>WAV 把 VLA 的动作生成从“直接预测动作”改写为“在未来轨迹 latent space 中做隐式规划”：先生成候选未来视觉轨迹，再用 trajectory value 评估长期收益，最后将高价值且动态可行的 latent trajectory 解码为动作。</div>
+<p><b>难度评级：</b>★★★★☆。需要熟悉 VLA、world model、flow matching、MPC/MPPI、trajectory value，以及基本的 high-dimensional probability/covering argument。</p>
+<p><b>关键词：</b>Vision-Language-Action, World Model, Trajectory Value, Latent Planning, Flow Matching, MPPI-style Inference。</p>
+<table>
+<tr><th>阅读定位问题</th><th>答案</th></tr>
+<tr><td>论文要解决什么</td><td>现有 VLA 多数直接从当前观察和指令预测动作，缺少对长时域未来轨迹的推理与评估，因此在 compositional / long-horizon manipulation 中容易累积错误。</td></tr>
+<tr><td>作者的方法抓手</td><td>构造 World-Value-Action 三模块：world/video generator 预测未来视觉特征，value module 评估轨迹长期效用，action decoder 根据优化后的 latent video/value features 生成动作。</td></tr>
+<tr><td>最重要的结果</td><td>LIBERO 平均成功率 98.1；去掉 latent trajectory planning 后降到 96.4，Long suite 从 94.4 降到 91.8。真实机器人任务平均成功率从 GE-ACT 的 35.6% 提升到 WAV 的 75.6%。</td></tr>
+<tr><td>阅读时要注意的点</td><td>核心不是单纯“多一个 world model”，而是把 action search 移到 learned latent trajectory distribution 中，并用 value/SNR/elite selection 反复重加权。</td></tr>
+</table>
+<h3>核心贡献清单</h3>
+<ul>
+  <li><b>提出 WAV 框架。</b>把 future visual trajectory generation、trajectory value estimation 和 action decoding 放在一个统一的 VLA 决策框架中。</li>
+  <li><b>提出 latent trajectory planning。</b>不是显式 rollout 大量动作序列，而是在 video/value latent noise distributions 上做迭代推断。</li>
+  <li><b>给出理论解释。</b>作者用 feasible trajectory manifold 的概率质量分析说明，直接 action-space search 的可行轨迹采样概率会随 horizon 指数衰减，而 latent generator 可重分配概率质量。</li>
+  <li><b>给出仿真和真实机器人验证。</b>在 LIBERO 和 Piper 真实双臂机器人任务上与 GE-ACT 等 baseline 比较，并做了 K、M、N、平滑参数、elite count、速度/显存等消融。</li>
+</ul>
+</section>
+
+<section id="motivation">
+<h2>2. 动机</h2>
+<h3>2.1 要解决什么问题</h3>
+<p>论文关注 language-conditioned robotic manipulation。每个时刻模型接收视觉观察 $o_t$、语言指令 $g$，以及可选本体状态 $p_t$，输出动作 $a_t$。已有 VLA 通过预训练 VLM 获得语义泛化能力，但多数方法仍把决策看作直接动作预测：给当前上下文，输出当前或短窗口动作。</p>
+<p>这个设置在短任务中可行，但在长时域任务中会出现两个问题：第一，模型没有显式机制评估“当前动作会把未来带向什么状态”；第二，多步任务中的早期小误差会累积成后续失败。真实机器人例子中，drawer task 需要开抽屉、放入物体、再关抽屉；若第一步未对准抽屉把手，后续步骤即使动作形式正确也会失效。</p>
+<h3>2.2 已有方法的局限</h3>
+<ul>
+  <li><b>直接动作预测：</b>通常把每一步或短动作 chunk 当作 supervised target，缺少长期 trajectory-level evaluation。</li>
+  <li><b>world model-only 路线：</b>能预测未来观察，但不一定提供“哪条未来轨迹更值得执行”的价值判断，也不自动完成动作选择。</li>
+  <li><b>world model 作为 RL simulator：</b>可以生成 synthetic rollouts 或 reward，但论文指出这类方法受 world model generalization 限制，复杂或 OOD 场景中容易出现 compounding errors。</li>
+  <li><b>显式 action-space planning：</b>随着 horizon $H$ 增长，动作序列空间维度线性增长，而满足物理、接触和语义约束的 feasible trajectories 只占极小概率质量。这个理论动机在正文和附录中被形式化 <span class="appendix-ref">[附录 A.1]</span>。</li>
+</ul>
+<h3>2.3 本文的解决思路</h3>
+<p>WAV 的高层 insight 是：规划可以不作为一个外置 optimizer，而可以作为 structured generative model 内部的 inference process。模型学习一个能产生 plausible future trajectories 的 latent generator，再学习一个 trajectory value function 评估这些未来，推断阶段反复把 latent noise distribution 向高价值、低不确定性的区域移动。</p>
+</section>
+
+<section id="related">
+<h2>3. 相关工作梳理</h2>
+<h3>3.1 论文自述的相关工作</h3>
+<table>
+<tr><th>技术线</th><th>论文如何组织</th><th>与本文关系</th></tr>
+<tr><td>World Models for VLA</td><td>包括 unified VLA-world-model architectures，以及用 world model 生成 virtual environments、synthetic rewards 或 post-training signals 的路线，如 DreamVLA、GEVRM、WorldVLA、GENIE/GE-ACT 等。</td><td>本文不只提高世界模型预测能力，而是把 world prediction 与 trajectory value、action decoding 组合成 latent planning。</td></tr>
+<tr><td>RL post-training for VLA</td><td>相关工作关注通过 RL、偏好优化、奖励设计来提升 VLA 的任务执行能力。</td><td>WAV 使用 rule-based dense reward 来训练 trajectory value，但重点是 inference-time latent planning，而不是只做 policy post-training。</td></tr>
+<tr><td>Model-Based RL</td><td>从 Dyna、probabilistic dynamics、MPC、latent world models 到 MPPI/Dreamer/MuZero 等，强调通过预测模型和价值评估进行长时域决策。</td><td>WAV 借鉴 MPC/MPPI 的“采样-评估-重加权”思想，但把优化变量从 action sequence 换成 learned latent noise distributions。</td></tr>
+</table>
+<h3>3.2 直接前作对比</h3>
+<table>
+<tr><th>维度</th><th>GE-ACT / GENIE 类方法</th><th>WorldVLA / DreamVLA 类方法</th><th><b>WAV</b></th></tr>
+<tr><td>核心思路</td><td>利用 video pretraining / generative action modeling 改善动作生成。</td><td>联合建模策略执行与未来状态预测。</td><td>同时生成未来视觉轨迹、估计轨迹价值、解码动作，并在 latent space 中迭代规划。</td></tr>
+<tr><td>关键假设</td><td>给定当前上下文可直接生成较好动作。</td><td>未来预测能增强策略学习或数据增强。</td><td>learned latent generator 能覆盖 feasible trajectory manifold，value module 可区分高价值轨迹。</td></tr>
+<tr><td>适用场景</td><td>可处理多种 manipulation，但长链条误差会累积。</td><td>适合需要预测未来动态的 VLA 设置。</td><td>特别针对 long-horizon、compositional、需要多步协调的任务。</td></tr>
+<tr><td>实验性能</td><td>GE-ACT 在 LIBERO 平均 96.5；真实任务平均 35.6%。</td><td>WorldVLA 79.1，DreamVLA 92.6，UniVLA 95.5，按论文表格报告。</td><td>LIBERO 平均 98.1；真实任务平均 75.6%。</td></tr>
+</table>
+</section>
+
+<section id="method">
+<h2>4. 方法详解</h2>
+<h3>4.1 方法概览</h3>
+<p>WAV 的数据流可以写成：输入多视角观察、语言指令和机器人状态；video generation module 生成候选未来视觉特征；trajectory value module 对每条候选未来估计长期回报和稳定性；latent planning 在 video/value latent distributions 中选择 elite samples 并更新均值方差；action decoder 融合优化后的 video/value features 输出动作。</p>
+<div class="figure"><img src="figures/vla_mpc_overview_1.png" alt="WAV pipeline"><div class="caption">Figure: WAV pipeline。图中对应 video/world module、trajectory value module 和 action decoding module。源码中该图为独立 PNG 文件。</div></div>
+<div class="pseudocode">Input: observation o_t, proprioception p_t, language g
+Encode g with frozen T5-XXL -> T(g)
+Initialize video latent Gaussian f_vid^(0), value latent Gaussian f_val^(0)
+for k = 1..K:
+  sample M video noises z_vid ~ f_vid^(k-1)
+  generate future visual features x = W(z_vid, observations, T(g))
+  for each x:
+    sample N value noises z_val ~ f_val^(k-1)
+    estimate trajectory values v = V(x, z_val)
+    score by SNR(v)
+  update f_vid^(k) from top-K1 video samples
+  update f_val^(k) from top-K2 value samples
+  smooth mean/std with alpha, beta
+sample optimized z_vid*, z_val*
+decode action a_t = A(video features, value features)</div>
+<h3>4.2 方法演变脉络</h3>
+<p>论文的演变逻辑可以概括为：</p>
+<table>
+<tr><th>阶段</th><th>方法形式</th><th>改进动机</th></tr>
+<tr><td>直接 VLA</td><td>$\pi_\theta(a_{t:t+H}\mid o_t,p_t,g)$ 直接预测短动作序列。</td><td>能利用语言和视觉预训练，但缺少 trajectory-level future evaluation。</td></tr>
+<tr><td>MPC/MPPI</td><td>采样候选未来动作序列，rollout 后按 reward/value 选优。</td><td>具备长时域推理，但 action-space search 在高维长 horizon 中可行轨迹概率很低。</td></tr>
+<tr><td><b>WAV</b></td><td>在 learned latent trajectory space 中采样和重加权，最后解码动作。</td><td>利用生成模型把概率质量集中在物理和语义上更可行的未来轨迹附近。</td></tr>
+</table>
+<h3>4.3 核心设计与数学推导</h3>
+<h4>4.3.1 VLA 与 MPC 基础定义</h4>
+<div class="formula-block"><div class="intuition">VLA 直接动作预测：给定历史观察、状态、动作和语言，逐步预测动作。</div>
+$$\pi_\theta(a_{1:T}\mid o_{1:T},p_{1:T},g)=\prod_{t=1}^{T}\pi_\theta(a_t\mid o_{1:t},p_{1:t},a_{1:t-1},g).$$
+<p class="small">其中 $o_t$ 是视觉观察，$p_t$ 是 proprioceptive state，$g$ 是语言指令，$a_t$ 是动作。实际实现常预测短窗口 $a_{t:t+H}$。</p></div>
+<div class="formula-block"><div class="intuition">MPC 目标：在有限 horizon 内选择能最大化累计折扣奖励的动作序列。</div>
+$$a_{t:t+H}^\star=\arg\max_{a_{t:t+H}}\mathbb{E}\left[\sum_{i=0}^{H}\gamma^iR(s_{t+i},a_{t+i})\right].$$
+<p class="small">这解释了本文为什么需要 future prediction 和 trajectory value；但直接在 $\mathcal{A}^H$ 中搜索会遇到 feasibility bottleneck。</p></div>
+<h4>4.3.2 为什么 action-space search 难</h4>
+<div class="formula-block"><div class="intuition">核心说法：长 horizon 轨迹空间很大，但满足物理、接触、语义约束的可行轨迹只是一条“薄流形”。</div>
+$$\mathcal{X}=\mathcal{S}^{H}\times\mathcal{A}^{H},\qquad D=H(\dim\mathcal{S}+\dim\mathcal{A}).$$
+$$\frac{\mu(\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}}))}{\mu(\mathcal{X})}\le \exp(-cH).$$
+<p class="small">$\mathcal{M}_{\mathrm{traj}}$ 是 feasible trajectory set；$\mathcal{N}_\epsilon$ 是其 $\epsilon$-neighborhood。结论是：如果随机在整个 trajectory/action space 中找候选，碰到近似可行轨迹的概率会随 $H$ 指数下降。</p></div>
+<details><summary>附录证明整合：covering number 证明思路 <span class="appendix-ref">[附录 A.1]</span></summary><div>
+<p>作者在附录中把 $\mathcal{M}_{\mathrm{traj}}$ 视为 intrinsic dimension 为 $d$ 的 compact subset。用半径 $\epsilon$ 的球覆盖该集合，覆盖数满足 $N_\epsilon\le C_1\epsilon^{-d}$。每个球在 $D$ 维空间中的体积与 $\epsilon^D$ 成比例，因此邻域体积至多与 $\epsilon^{D-d}$ 同阶。由于 $D=H(\dim\mathcal{S}+\dim\mathcal{A})$，并假设 $d\le\lambda H$ 且 $\lambda<\dim\mathcal{S}+\dim\mathcal{A}$，可得 $D-d\ge\kappa H$，进而 $\epsilon^{D-d}=\exp((D-d)\log\epsilon)\le\exp(-cH)$。</p>
+</div></details>
+<h4>4.3.3 Latent planning 如何重分配概率质量</h4>
+<div class="formula-block"><div class="intuition">如果 learned generator 已经倾向于生成可行轨迹，那么在 latent space 中采样比在 action space 中盲采样更容易得到 feasible trajectories。</div>
+$$\tau_{t:t+H}=\mathcal{W}_\theta(z),\qquad z\sim f_\theta(s_t),\qquad P_{\mathrm{latent}}=(\mathcal{W}_\theta)_\# f_\theta.$$
+$$P_{\mathrm{latent}}(\mathcal{M}_{\mathrm{traj}})=\Pr_{z\sim f_\theta(s_t)}[\mathcal{W}_\theta(z)\in\mathcal{M}_{\mathrm{traj}}]\ge 1-\delta.$$
+$$\frac{\Pr_{z\sim f_\theta(s_t)}[\mathcal{W}_\theta(z)\in\mathcal{M}_{\mathrm{traj}}]}{\Pr_{a_{t:t+H}\sim\mathrm{Unif}(\mathcal{A}^{H})}[\Phi(a_{t:t+H})\in\mathcal{M}_{\mathrm{traj}}]}\ge \exp(cH)(1-\delta).$$
+<p class="small">$\Phi$ 是由系统动力学诱导的 rollout map。该命题不是说 latent planning 保证最优，而是说在“学到的 latent generator 近似覆盖 feasible manifold”的条件下，feasible probability 相对 action-space uniform sampling 指数级更高。</p></div>
+<details><summary>附录证明整合：为什么还需要迭代推断 <span class="appendix-ref">[附录 A.2]</span></summary><div>
+<p>附录进一步指出，feasible 不等于 high-value。定义轨迹回报 $V(\tau)=\sum_{h=0}^{H-1}\gamma^h r(s_{t+h},a_{t+h})$，以及 $\varepsilon$-optimal set $\mathcal{M}_\varepsilon=\{\tau\in\mathcal{M}_{\mathrm{traj}}\mid V(\tau)\ge V^\star-\varepsilon\}$。即使 $P_{\mathrm{latent}}(\mathcal{M}_{\mathrm{traj}})$ 很大，也不推出 $P_{\mathrm{latent}}(\mathcal{M}_\varepsilon)$ 有常数下界。因此固定 sample budget 的 one-shot latent sampling 不保证找到 near-optimal trajectory。WAV 采用 iterative inference，通过 value/SNR 反馈不断把 latent distribution 推向高价值区域。</p>
+</div></details>
+<h4>4.3.4 三个模块与训练目标</h4>
+<div class="formula-block"><div class="intuition">Video generation module：给语言和多视角历史，生成未来视觉特征 chunk。</div>
+$$\hat{x}_{t:t+N}=\mathcal{W}(\{v_0^{(i)},v_{\hat{t}}^{(i)},z^{(i)}\}_{i},\mathcal{T}(g)).$$
+<p class="small">$\mathcal{T}(g)\in\mathbb{R}^{L_g\times d_t}$ 来自 frozen T5-XXL；$i\in\{h,l,r\}$ 表示不同相机视角；$z^{(i)}\sim\mathcal{N}(0,I)$ 是 view-specific latent noise。</p></div>
+<div class="formula-block"><div class="intuition">Action decoder：动作 token 先 attend 到 video features，再 attend 到 value embedding。</div>
+$$\mathbf{z}_{\mathrm{act}}^{(i)}=\mathcal{B}_{i}^{\mathrm{act}}(\mathbf{z}_{\mathrm{act}}^{(i-1)},\operatorname{CrossAttn}(\mathbf{z}_{\mathrm{act}}^{(i-1)},\mathbf{x}_i)),$$
+$$\mathbf{a}_i=\mathcal{B}_{i}^{\mathrm{act}}(\mathbf{z}_{\mathrm{act}}^{(i)},\operatorname{CrossAttn}(\mathbf{z}_{\mathrm{act}}^{(i)},\mathbf{u}_i)).$$
+<p class="small">$\mathbf{x}_i$ 是第 $i$ 个视觉 transformer block 的 video tokens；$\mathbf{u}_i$ 是 trajectory value embedding。</p></div>
+<p>训练采用三阶段 flow matching：</p>
+<ul>
+  <li>Video flow loss：$\mathcal{L}_{\mathrm{vid}}=\mathbb{E}[\|v_\theta(t,l,o,x^t)-(x^1-x^0)\|_2^2]$。</li>
+  <li>Value flow loss：$\mathcal{L}_{\mathrm{val}}=\mathbb{E}[\|v_\theta(t,l,o,z_{\mathrm{vid}},v^t)-(v^1-v^0)\|_2^2]$，其中 $v^1=\sum_{i=0}^{H}\gamma^iR(s_{t+i},a_{t+i})$。</li>
+  <li>Action flow loss：$\mathcal{L}_{\mathrm{act}}=\mathbb{E}[\|v_\theta(t,l,o,z_{\mathrm{vid}},z_{\mathrm{val}},a^t)-(a^1-a^0)\|_2^2]$。</li>
+</ul>
+<h4>4.3.5 Iterative latent inference</h4>
+<div class="formula-block"><div class="intuition">WAV 维护两个 Gaussian：video latent noise distribution 和 value latent noise distribution。</div>
+$$f_{\mathrm{vid}}^{(k)}=\mathcal{N}(\boldsymbol{\mu}_{\mathrm{vid}}^{(k)},\operatorname{diag}((\boldsymbol{\sigma}_{\mathrm{vid}}^{(k)})^2)),$$
+$$f_{\mathrm{val}}^{(k)}=\mathcal{N}(\boldsymbol{\mu}_{\mathrm{val}}^{(k)},\operatorname{diag}((\boldsymbol{\sigma}_{\mathrm{val}}^{(k)})^2)).$$
+<p class="small">$k$ 是迭代编号。每轮采样 $M$ 个 video noises，每个 video hypothesis 再采样 $N$ 个 value noises。</p></div>
+<div class="formula-block"><div class="intuition">评分函数：用 value prediction 的 signal-to-noise ratio 衡量“高回报且稳定”。</div>
+$$\operatorname{SNR}^{(m,n)}=\frac{\mathbb{E}[\mathbf{v}^{(m,n)}]}{\operatorname{Std}[\mathbf{v}^{(m,n)}]+\epsilon},\qquad \phi^{(m)}=\max_{n\in\{1,\dots,N\}}\operatorname{SNR}^{(m,n)}.$$
+<p class="small">$\epsilon$ 是数值稳定常数。每个 video candidate 的分数取其 $N$ 次 value estimates 中最可靠的一个。</p></div>
+<div class="formula-block"><div class="intuition">Elite update：用 top-$K_1$ / top-$K_2$ 的 latent samples 更新均值和方差。</div>
+$$\boldsymbol{\mu}_{\mathrm{vid}}^{(k)}=\frac{1}{K_1}\sum_{m\in\mathcal{E}_{\mathrm{vid}}}\mathbf{z}_{\mathrm{vid}}^{(m)},\quad
+\boldsymbol{\sigma}_{\mathrm{vid}}^{(k)}=\sqrt{\frac{1}{K_1}\sum_{m\in\mathcal{E}_{\mathrm{vid}}}(\mathbf{z}_{\mathrm{vid}}^{(m)}-\boldsymbol{\mu}_{\mathrm{vid}}^{(k)})^2}.$$
+$$\boldsymbol{\mu}^{(k)}\leftarrow\alpha\boldsymbol{\mu}^{(k)}+(1-\alpha)\boldsymbol{\mu}^{(k-1)},\quad
+\boldsymbol{\sigma}^{(k)}\leftarrow\beta\boldsymbol{\sigma}^{(k)}+(1-\beta)\boldsymbol{\sigma}^{(k-1)}.$$
+<p class="small">value distribution 的更新同理，只是 elite set 是 $\mathcal{E}_{\mathrm{val}}$，从 $M\times N$ 个 value samples 中选 top-$K_2$。</p></div>
+<h3>4.4 实现要点</h3>
+<div class="impl-note"><b>真实机器人数据：</b>附录说明 drawer-opening 和 bowl-organization 各收集约 300 条成功轨迹，towel-flattening 收集 2,000 条成功轨迹；每条轨迹包含两个 wrist cameras（$240\times320\times3$）、一个 third-person top camera（$240\times424\times3$）和 14 维 robot joint states <span class="appendix-ref">[附录 B]</span>。</div>
+<div class="impl-note"><b>奖励设计：</b>沿用 ReinboT 的 dense reward 思路，但省略 sub-goal achievement term，保留 task progress、behavior smoothness、task completion 相关项；双臂设置中共有 9 类 reward terms、16 个 scalar components <span class="appendix-ref">[附录 B]</span>。</div>
+<div class="impl-note"><b>数值稳定性：</b>SNR 分母加 $\epsilon$；latent distribution update 后使用 $\alpha,\beta$ 平滑均值和方差，避免 distribution collapse。</div>
+<div class="impl-note"><b>训练资源：</b>论文报告使用 8 NVIDIA A100-SXM4-80GB GPU，CPU 为 Intel Xeon Platinum 8358 @ 2.60GHz。LIBERO full-parameter fine-tuning 约 5 天；真实 Piper 每任务约 3 天 <span class="appendix-ref">[附录 B]</span>。</div>
+</section>
+
+<section id="exp">
+<h2>5. 实验</h2>
+<h3>5.1 实验设置</h3>
+<table>
+<tr><th>项目</th><th>设置</th></tr>
+<tr><td>仿真数据集</td><td>LIBERO benchmark，包含 Spatial、Object、Goal、Long 四个 suites；分别测试空间泛化、物体泛化、goal-conditioned behavior 和长时域组合任务。</td></tr>
+<tr><td>真实机器人</td><td>Piper 双臂平台；任务包括 bowl organization、towel flattening、long-horizon drawer task。</td></tr>
+<tr><td>Baseline</td><td>LIBERO 中对比 Diffusion Policy、Octo、OpenVLA、SpatialVLA、$\pi_0$ 系列、OpenVLA-OFT、VLA-Adapter、WorldVLA、CoT-VLA、FlowVLA、DreamVLA、UniVLA、GE-ACT 等；真实机器人主要对比 GE-ACT。</td></tr>
+<tr><td>评价指标</td><td>成功率。真实机器人采用 strict binary success metric：任务完全完成才算成功，无 partial credit。</td></tr>
+<tr><td>代码/项目页</td><td>论文源码中给出 project page: <a href="https://win-commit.github.io/wavpage/">https://win-commit.github.io/wavpage/</a>。源码未在正文中给出明确 GitHub URL。</td></tr>
+</table>
+<h4>训练超参数 <span class="appendix-ref">[附录 B]</span></h4>
+<table>
+<tr><th>模块</th><th>Gradient clip</th><th>Steps</th><th>Warm-up</th><th>Batch</th><th>Learning rate</th><th>Weight decay</th><th>Caption Dropout</th><th>Optimizer</th></tr>
+<tr><td>Video Training</td><td>1.0</td><td>40000</td><td>1000</td><td>128</td><td>$3e-4$</td><td>$1e-5$</td><td>0.06</td><td>Adam ($\beta_1=0.9,\beta_2=0.95,\beta_3=0.999$)</td></tr>
+<tr><td>Value & Action Training</td><td>1.0</td><td>30000</td><td>1000</td><td>128</td><td>$5e-5$</td><td>$1e-5$</td><td>0</td><td>Adam ($\beta_1=0.9,\beta_2=0.95,\beta_3=0.999$)</td></tr>
+</table>
+<h4>Dense reward terms <span class="appendix-ref">[附录 B]</span></h4>
+<table class="small">
+<tr><th>Reward term</th><th>Definition</th><th>Weight</th></tr>
+<tr><td>Wrist-view MSE</td><td>$c_{1,t}^b=\exp(-0.01\cdot\mathrm{MSE}(I_t^b,I_T^b))$</td><td>$+1/16$ each</td></tr>
+<tr><td>Wrist-view SSIM</td><td>$c_{2,t}^b=\exp(\mathrm{SSIM}(I_t^b,I_T^b)-1)$</td><td>$+1/16$ each</td></tr>
+<tr><td>Top-view MSE / SSIM</td><td>对应 top camera 的 MSE 和 SSIM 目标相似度</td><td>$+1/16$ each</td></tr>
+<tr><td>Joint-state proximity</td><td>$c_{5,t}^b=\exp(-\|s_t^b-s_T^b\|_2)$</td><td>$+1/16$ each</td></tr>
+<tr><td>Joint/action velocity & acceleration penalties</td><td>$\sum_j|\Delta s_{t,j}^b|$, $\sum_j|\Delta^2s_{t,j}^b|$, $\sum_j|\Delta a_{t,j}^b|$, $\sum_j|\Delta^2a_{t,j}^b|$</td><td>joint penalties $-1/16$ each；action penalties $-0.1/16$ each</td></tr>
+</table>
+<h3>5.2 主要结果</h3>
+<h4>LIBERO</h4>
+<table>
+<tr><th>Model</th><th>Params</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr>
+<tr><td>GE-ACT</td><td>2b</td><td>98.2</td><td>97.6</td><td>95.8</td><td>94.4</td><td>96.5</td></tr>
+<tr><td>VLA-Adapter</td><td>0.5b</td><td>97.8</td><td>99.2</td><td>97.2</td><td><b>95.0</b></td><td>97.3</td></tr>
+<tr><td><b>WAV (Ours)</b></td><td>2.2b</td><td><b>99.6</b></td><td><b>100.0</b></td><td><b>98.6</b></td><td>94.4</td><td><b>98.1</b></td></tr>
+<tr><td>WAV w/o Latent Trajectory Planning</td><td>-</td><td>99.0</td><td>99.6</td><td>95.0</td><td>91.8</td><td>96.4</td></tr>
+</table>
+<p>论文的关键解读是：平均提升来自多项 suite，而 latent planning 的贡献在 Long suite 上最明显。移除 latent trajectory planning 后，平均分下降 1.7 点，Long 从 94.4 降到 91.8。</p>
+<h4>真实机器人</h4>
+<div class="figure"><img src="figures/real_world_bar.png" alt="real world bar"><div class="caption">真实机器人定量结果：WAV 与 GE-ACT 对比，每项结果平均 15 次 trials。论文正文报告平均成功率从 35.6% 提升到 75.6%。</div></div>
+<div class="figure"><img src="figures/real_world_tasks.png" alt="real world tasks"><div class="caption">真实任务定性对比：论文指出 GE-ACT 常见失败包括 drawer handle 对齐不准、抓取不稳定、空间 grounding 弱；WAV 的多步行为更连贯。</div></div>
+<h3>5.3 消融实验</h3>
+<div class="figure"><img src="figures/stage1_main.png" alt="stage1"><div class="caption">K、M、N 消融：K 从 1 到 5 提升明显，继续到 10 收益边际减小；M 对性能影响更强，N 较早饱和。</div></div>
+<ul>
+  <li><b>迭代次数 $K$：</b>增加 $K$ 会让 latent distribution 有更多轮重加权，成功率先明显上升，之后收益递减。</li>
+  <li><b>Video samples $M$：</b>论文认为性能对 $M$ 敏感，说明探索多种未来视觉轨迹假设很重要。</li>
+  <li><b>Value samples $N$：</b>影响相对温和，达到合理估计密度后继续增加收益有限。</li>
+</ul>
+<div class="figure"><img src="figures/stage2_stage3_vis.png" alt="smoothing elite"><div class="caption">左：$\alpha,\beta$ 平滑参数；右：elite counts $K_1,K_2$。过小平滑会导致不稳定，极小 elite count 会降低稳定性。</div></div>
+<div class="figure"><img src="figures/speed_memory.png" alt="speed memory"><div class="caption">Performance-efficiency trade-off：$K$ 增加会提高成功率但增加推理时间和显存；论文认为 $K=3$ 是较好的折中。</div></div>
+<h3>5.4 补充实验与附录图</h3>
+<div class="figure"><img src="figures/stage1_appendix.png" alt="stage1 appendix"><div class="caption">附录补充：不同 $K,M,N$ 下的更多趋势图 <span class="appendix-ref">[附录 B]</span>。</div></div>
+<div class="figure"><img src="figures/value.png" alt="value trajectory"><div class="caption">附录补充：真实机器人和 LIBERO 中 inferred state-value trajectories 与 ground truth 的比较 <span class="appendix-ref">[附录 B]</span>。</div></div>
+<div class="figure"><img src="figures/gt_pred_libero.png" alt="pred vs gt"><div class="caption">附录补充：LIBERO 两个任务中 predicted videos 与 ground truth 的定性比较 <span class="appendix-ref">[附录 B]</span>。</div></div>
+</section>
+
+<section id="discussion">
+<h2>6. 分析与讨论</h2>
+<h3>6.1 论文已给出的结果分析与解释</h3>
+<ul>
+  <li>作者把 LIBERO Long suite 上的优势归因于 trajectory-level planning 对 compounding errors 的缓解。</li>
+  <li>真实机器人结果中，作者认为 baseline 的失误来自 inaccurate action execution 和 weak spatial grounding，这些错误在多步任务中会级联放大。</li>
+  <li>消融中，作者解释 $M$ 的敏感性来自未来轨迹假设探索不足；$N$ 较早饱和则说明 value evaluation 达到合理密度后新增样本收益有限。</li>
+  <li>速度/显存实验中，作者认为 $K=3$ 已捕捉大部分 iterative refinement 的收益，继续增大 $K$ 主要增加计算成本。</li>
+</ul>
+<h3>6.2 作者自述的局限性</h3>
+<p>Conclusion 中明确写出的主要局限是 deployment time 和 storage overhead。论文没有在正文中展开更多 failure taxonomy 或安全边界，因此本报告不额外补充主观局限。</p>
+<h3>6.3 适用边界与未来工作</h3>
+<ul>
+  <li><b>适用边界：</b>WAV 依赖 learned latent generator 能近似覆盖 feasible trajectory set；理论命题本身也是 conditional comparison。</li>
+  <li><b>数据与奖励：</b>真实任务中使用 task-specific successful trajectories 和 rule-based dense rewards，数据集作者称将在发表后公开。</li>
+  <li><b>未来工作：</b>作者提出扩展到 richer multi-modal instructions，以及实现 real-time closed-loop deployment on physical robotic systems。</li>
+</ul>
+<h3>6.4 可复现性审计</h3>
+<table>
+<tr><th>项目</th><th>状态</th><th>说明</th></tr>
+<tr><td>源码结构</td><td class="audit-pass">已获取</td><td>arXiv e-print 包含主 tex、bib、style 和 figures。</td></tr>
+<tr><td>图表</td><td class="audit-pass">已提取</td><td>PNG 已复制，PDF 图已转换为 PNG 放入本报告 figures/。</td></tr>
+<tr><td>训练超参数</td><td class="audit-pass">较完整</td><td>附录给出 video 与 value/action training 的主要超参数。</td></tr>
+<tr><td>硬件/训练时长</td><td class="audit-pass">明确</td><td>8x A100-SXM4-80GB；LIBERO 约 5 天，真实 Piper 每任务约 3 天。</td></tr>
+<tr><td>数据</td><td class="audit-warn">部分待公开</td><td>真实机器人数据规模和传感器配置明确，但论文称 dataset 将在发表后公开。</td></tr>
+<tr><td>官方代码</td><td class="audit-warn">未在源码正文明确给出</td><td>源码给出 project page，但没有在 LaTeX 正文中直接提供 GitHub 仓库 URL。</td></tr>
+</table>
+</section>
+</main>
+</body>
+</html>

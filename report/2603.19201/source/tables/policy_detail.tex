@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Inference time of each component on RTX 4090D.}
+\label{tab:policy_time}
+\small
+\setlength{\tabcolsep}{8pt} % 增加列间距，避免表头太挤
+\renewcommand{\arraystretch}{1.3}
+\resizebox{0.9\linewidth}{!}{
+\begin{tabular}{c c c} % 使用siunitx对齐数字
+\toprule
+ Slow Policy & Slow Policy w/ Visual Gen. & Fast Policy \\
+\midrule
+ 230 ms & 480 ms & 3.5 ms \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

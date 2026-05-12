@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified World Models - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Chuning Zhu, Raymond Yu, Siyuan Feng, Benjamin Burchfiel, Paarth Shah, Abhishek Gupta</p>
+      <p><strong>机构：</strong>University of Washington, Toyota Research Institute</p>
+      <p><strong>版本：</strong>arXiv v3, updated 2025-05-23</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2504.02792">arXiv:2504.02792</a> | <a href="https://arxiv.org/pdf/2504.02792">PDF</a> | <a href="https://weirdlabuw.github.io/uwm/">Project Page</a> | <a href="https://github.com/WEIRDLabUW/unified-world-model">Code</a></p>
+      <p><strong>源码说明：</strong>arXiv 源码包含完整 Appendix：实现细节、真实机器人实验细节、模拟实验细节、额外消融和 Internet video cotraining。</p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#quick">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验与结果</a></li>
+      <li><a href="#discussion">6. 论文内分析与讨论</a></li>
+      <li><a href="#boundary">7. 分析、局限与边界</a></li>
+      <li><a href="#repro">8. 可复现性审计</a></li>
+    </ul>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>Unified World Models (UWM) 用一个带独立 action timestep 和 future-observation timestep 的扩散 transformer 同时建模动作与视频，让同一模型可通过设置 timestep 在 policy、forward dynamics、inverse dynamics、video prediction 四种模式之间切换，并能从 action-free 视频中共同训练。
+    </div>
+    <table>
+      <tr><th>阅读定位项</th><th>紧凑结论</th></tr>
+      <tr><td>论文要解决什么</td><td>大规模 imitation learning 依赖高质量带动作演示，而大量视频数据没有 action annotation；传统 policy 也没有显式学习环境动态。</td></tr>
+      <tr><td>作者的方法抓手</td><td>把 action diffusion 和 video diffusion 耦合进同一个 transformer，但让 $t_a$ 和 $t_{o'}$ 独立采样/控制；$t=T$ 近似“mask/marginalize”，$t=0$ 近似“condition”。</td></tr>
+      <tr><td>最重要的结果</td><td>真实机器人五任务中 UWM 在 ID/OOD 均优于 DP、PAD、GR1，并且 action-free DROID video cotraining 进一步提升；LIBERO 平均成功率 0.79，高于 DP 0.71、PAD 0.57、GR1 0.58。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>UWM 不是离散 token 扩散，而是连续 latent image/action diffusion；核心创新是独立 modality timestep 带来的条件/边缘化控制和 action-free video training。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 DDPM、conditional diffusion、Diffusion Policy、world model、inverse dynamics、latent diffusion 和机器人预训练/微调实验协议。</p>
+    <p><strong>关键词：</strong><span class="tag">Unified World Model</span><span class="tag">Action Diffusion</span><span class="tag">Video Diffusion</span><span class="tag">Independent Timesteps</span><span class="tag">Action-Free Videos</span></p>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>统一 policy 与 world modeling。</strong>UWM 用一个模型覆盖 $p(a|o)$、$p(o'|o,a)$、$p(a|o,o')$、$p(o'|o)$，把 imitation learning 和 world model 的范式连接起来。</li>
+      <li><strong>独立 diffusion timesteps。</strong>和 PAD 的 shared timestep 不同，UWM 独立采样/设置 $t_a$ 和 $t_{o'}$，从而实现变量的 conditioning 或 marginalization。</li>
+      <li><strong>利用 action-free video。</strong>对无动作视频把 $t_a=T$，用高斯噪声补动作，仍使用同一个训练 objective，使视频数据能进入 policy pretraining。</li>
+      <li><strong>真实与模拟验证。</strong>作者在 DROID setup 的五个真实任务、LIBERO OOD 任务、forward/inverse dynamics、OOD 分类评估、from-scratch vs pretraining 和 Internet video cotraining 上验证设计。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/teaser_p1.png" alt="UWM teaser">
+      <div class="caption">Figure 1. UWM 可以通过控制 action/video diffusion timesteps 在 policy、forward dynamics、inverse dynamics 和 video prediction 之间切换。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决的问题</h3>
+    <p>行为克隆和 Diffusion Policy 已经证明，只要有高质量专家演示，就能学到可靠的 manipulation policy。但机器人数据收集昂贵，且 policy 通常只学习从 observation 到 action 的映射，不显式建模“动作会如何改变未来观测”。另一方面，世界模型和视频模型能学习动态，但视频常没有动作标签，难以直接用来训练 policy。</p>
+
+    <h3>2.2 已有方法的局限</h3>
+    <ul>
+      <li><strong>普通 imitation learning：</strong>依赖 action-labeled expert demonstrations，难以利用 action-free videos；OOD 条件下容易脆弱。</li>
+      <li><strong>单独 world model：</strong>可以预测未来图像，但如何转化为更好的 action policy 并不直接。</li>
+      <li><strong>PAD 类 joint video-action diffusion：</strong>共享同一个 timestep 生成 action 和 video，只能从 joint distribution 采样，缺少灵活的 marginal/conditional inference。</li>
+    </ul>
+
+    <h3>2.3 本文解决思路</h3>
+    <p>作者的关键 insight 是把 diffusion timestep 看作连续版 masking：$t$ 越接近 $T$，变量越像被完全 mask；$t$ 越接近 $0$，变量越接近干净输入。于是只要给 action 和 future observation 各自独立 timestep，就能在推理时把某个变量“遮掉”做 marginalization，或固定为干净值做 conditioning。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>方向</th><th>论文中的定位</th><th>UWM 的差异</th></tr>
+      <tr><td>Imitation Learning</td><td>BC、BET/VQ-BET、ACT、Diffusion Policy 等方法拟合专家动作分布。</td><td>UWM 不只拟合 $p(a|o)$，还用未来图像预测提供动态监督。</td></tr>
+      <tr><td>Learning from Videos</td><td>从 human videos 或 robot videos 中提取 keypoints、tracks、hand/contact 或做 video pretraining。</td><td>UWM 通过 $t_a=T$ 直接把 action-free video 纳入同一个扩散 objective。</td></tr>
+      <tr><td>Joint video-action models</td><td>GR1 回归未来图像与动作，PAD 使用 joint video-action diffusion。</td><td>UWM 的核心区别是 action/video timesteps 独立，支持 policy、forward、inverse、video 四种 inference。</td></tr>
+      <tr><td>Unified Inference</td><td>UniMask、UniDiffuser 等展示通过 mask/条件控制一个模型的多种边缘/条件分布。</td><td>UWM 把这种思想落到机器人 action + future observation 的连续扩散建模中。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 问题设定</h3>
+    <p>有两类数据：带动作专家数据 $\mathcal{D}_e=\{(o_i,a_i,o'_i)\}_{i=1}^N$，以及无动作视频数据 $\mathcal{D}_{af}=\{(o_i,o_{i+1})\}_{i=1}^M$。模型希望从同一套机制中得到四种分布：</p>
+    <table>
+      <tr><th>模式</th><th>分布</th><th>用途</th></tr>
+      <tr><td>Policy</td><td>$p(a|o)$</td><td>给定当前观测，采样要执行的动作。</td></tr>
+      <tr><td>Forward dynamics</td><td>$p(o'|o,a)$</td><td>给定动作，预测下一观测。</td></tr>
+      <tr><td>Inverse dynamics</td><td>$p(a|o,o')$</td><td>给定目标下一观测，推断如何到达。</td></tr>
+      <tr><td>Video prediction</td><td>$p(o'|o)$</td><td>不指定动作，预测未来观测。</td></tr>
+    </table>
+
+    <h3>4.2 Coupled Video-Action Diffusion</h3>
+    <p>UWM 的 score/noise prediction network 输入当前观测 $o$、带噪动作 $a_{t_a}$、带噪下一观测 $o'_{t_{o'}}$、动作 timestep $t_a$ 和下一观测 timestep $t_{o'}$，输出两个噪声预测 $\epsilon_a^\theta,\epsilon_{o'}^\theta$。</p>
+    <div class="formula-block">
+      <p class="intuition">训练时让模型见到 action 和 future observation 的所有噪声组合，因此它既会“看图预测动作”，也会“看动作预测未来图像”，还能在两者都带噪时共享信息。</p>
+      $$\ell(\theta)=
+      \mathbb{E}\left[
+      w_a\|\epsilon_a^\theta-\epsilon_a\|_2^2+
+      w_{o'}\|\epsilon_{o'}^\theta-\epsilon_{o'}\|_2^2
+      \right]$$
+      $$\epsilon_a^\theta,\epsilon_{o'}^\theta=s_\theta(o,a_{t_a},o'_{t_{o'}},t_a,t_{o'})$$
+      <table class="symbol-table">
+        <tr><td>$a_{t_a}$</td><td>动作 chunk 加噪后的版本，$a_{t_a}=\sqrt{\bar\alpha_{t_a}}a+\sqrt{1-\bar\alpha_{t_a}}\epsilon_a$。</td></tr>
+        <tr><td>$o'_{t_{o'}}$</td><td>下一观测 latent 加噪后的版本，$o'_{t_{o'}}=\sqrt{\bar\alpha_{t_{o'}}}o'+\sqrt{1-\bar\alpha_{t_{o'}}}\epsilon_{o'}$。</td></tr>
+        <tr><td>$w_a,w_{o'}$</td><td>动作 loss 和图像 loss 的权重；附录超参表中二者都为 1.0。</td></tr>
+      </table>
+    </div>
+
+    <div class="figure">
+      <img src="figures/method_p1.png" alt="UWM method">
+      <div class="caption">Figure 2. UWM 训练和推理流程：robot data 随机采样 $t_a,t_{o'}$；video data 固定 $t_a=T$；推理时用 timestep 控制 marginal/conditional inference。</div>
+    </div>
+
+    <h3>4.3 四种推理模式</h3>
+    <table>
+      <tr><th>推理模式</th><th>timestep 设置</th><th>含义</th></tr>
+      <tr><td>Policy $p(a|o)$</td><td>$t_{o'}=T$，$o'_T\sim\mathcal{N}(0,I)$；对 $a$ 反向扩散。</td><td>把未来观测边缘化，只生成动作。</td></tr>
+      <tr><td>Video prediction $p(o'|o)$</td><td>$t_a=T$，$a_T\sim\mathcal{N}(0,I)$；对 $o'$ 反向扩散。</td><td>把动作边缘化，只预测未来视频。</td></tr>
+      <tr><td>Forward dynamics $p(o'|o,a)$</td><td>$t_a=0$，$a_0=a$；对 $o'$ 反向扩散。</td><td>把动作作为干净条件，预测下一观测。</td></tr>
+      <tr><td>Inverse dynamics $p(a|o,o')$</td><td>$t_{o'}=0$，$o'_0=o'$；对 $a$ 反向扩散。</td><td>把目标下一观测作为干净条件，生成动作。</td></tr>
+    </table>
+
+    <h3>4.4 Architecture</h3>
+    <p>UWM 使用 diffusion transformer + AdaLN conditioning。当前观测由 ResNet-18 编码；$t_a,t_{o'}$ 用 sinusoidal timestep encoder 编码；图像 diffusion 采用 latent diffusion，原始 $224\times224\times3$ 图像经 frozen SDXL VAE 编成 $28\times28\times4$ latent，再用 $(4,4,2)$ spatiotemporal patchifier 切成 patch embeddings。动作 chunk 每步用浅 MLP 编码，和 image patch embeddings、learnable register tokens 拼接后输入 transformer。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/transformer_p1.png" alt="UWM transformer">
+        <div class="caption">Figure 3. UWM block：AdaLN 注入当前观测和两个 timestep；register tokens 用于跨模态信息交换。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/vis_forward_p1.png" alt="forward dynamics visualization">
+        <div class="caption">Figure 4. Forward dynamics 可视化：给定当前观测和动作，预测下一观测与真实下一观测接近。</div>
+      </div>
+    </div>
+
+    <h3>4.5 训练与实现细节</h3>
+    <p><span class="appendix-ref">附录 Implementation</span> 给出关键超参：observation length $h_o=2$，action length $h_a=16$，rollout length $h'_a=8$，embed dim 768，12 层 transformer，12 heads，8 个 registers；训练 diffusion steps 100，推理 steps 10，DDIM sampler；batch size 为 36×4 pretraining、36×2 finetuning；AdamW，learning rate $10^{-4}$，weight decay $10^{-6}$。</p>
+    <p>训练 100K steps DROID pretraining 使用 4 张 NVIDIA A100，约 24 小时。部署时执行前 $h'_a=8$ 个动作预测后 replan。</p>
+
+    <div class="pseudocode">
+Algorithm: UWM training step
+Input:
+  robot tuple (o, a, o') or action-free video tuple (o, o')
+
+if robot tuple:
+  sample t_a ~ U(0,T), t_o' ~ U(0,T)
+  noise action a -> a[t_a]
+  noise future obs o' -> o'[t_o']
+  optimize action noise loss + image noise loss
+
+if action-free video tuple:
+  set t_a = T
+  impute missing action with Gaussian noise
+  sample t_o' ~ U(0,T)
+  optimize same UWM objective
+    </div>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 实验设置</h3>
+    <p>真实机器人实验使用 Franka Panda 和 DROID manipulation platform。观测包括两个 scene cameras 和一个 wrist camera，另加 overhead evaluation camera 用于对齐初始化；控制频率 10 Hz；动作空间是 delta end-effector pose 加连续 gripper 状态。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/env_droid_p1.png" alt="DROID dataset">
+        <div class="caption">Figure 5. 真实机器人预训练/微调数据：DROID 中 2000 条带动作轨迹用于 pretraining，另 2000 条去掉动作作为 cotraining videos。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/robot_setup_p1.png" alt="robot setup">
+        <div class="caption">Figure 6. 真实机器人相机设置：两个 scene cameras、一个 wrist camera、一个 evaluation camera。</div>
+      </div>
+    </div>
+    <p>五个真实任务分别是 Stack-Bowls、Block-Cabinet、Paper-Towel、Hang-Towel、Rice-Cooker。前四个任务评估 50 个初始化，Rice-Cooker 因难度高只评估 20 个接近数据分布的初始化；每个初始化给每个方法 3 次尝试。</p>
+    <div class="figure">
+      <img src="figures/real_tasks_p1.png" alt="real tasks">
+      <div class="caption">Figure 7. 五个真实任务的 start/end/OOD 设置。OOD 主要加入未见干扰物、打开抽屉/柜门等视觉扰动。</div>
+    </div>
+
+    <h3>5.2 Real Robot Results</h3>
+    <table>
+      <tr><th>任务</th><th>UWM Pretrain / Cotrain</th><th>最佳基线表现概览</th></tr>
+      <tr><td>Stack-Bowls ID / OOD</td><td>0.86 / 0.92；0.76 / 0.84</td><td>GR1 pretrain 0.66/0.48；DP 0.48/0.36；PAD 很低。</td></tr>
+      <tr><td>Block-Cabinet ID / OOD</td><td>0.76 / 0.84；0.60 / 0.72</td><td>GR1 cotrain 0.74/0.64 最接近；DP OOD 0.26。</td></tr>
+      <tr><td>Paper-Towel ID / OOD</td><td>0.78 / 0.86；0.78 / 0.84</td><td>GR1 pretrain 0.60/0.60；DP 0.52/0.48。</td></tr>
+      <tr><td>Hang-Towel ID / OOD</td><td>0.82 / 0.86；0.64 / 0.76</td><td>GR1 0.66/0.48；DP 0.64/0.28。</td></tr>
+      <tr><td>Rice-Cooker ID</td><td>0.60 / 0.65</td><td>GR1 pretrain 0.40，cotrain 0.25；DP 0.35；PAD 0。</td></tr>
+    </table>
+    <div class="figure">
+      <img src="figures/results_bar_p1.png" alt="average real robot results">
+      <div class="caption">Figure 8. 真实机器人平均成功率。UWM pretraining 已优于基线，action-free video cotraining 进一步提升。</div>
+    </div>
+    <p>论文对真实结果的解释是：UWM 通过 action/video feature sharing 和对不同 conditional/marginal distributions 的训练，学习了动作与图像观测之间的因果关系。GR1 是较强回归式 baseline，但视频 cotraining 有时稀释 action learning signal；PAD 性能差被作者归因于 raw-pixel concatenation conditioning 在同等模型容量下较难。</p>
+
+    <h3>5.3 LIBERO Simulation</h3>
+    <p>模拟实验使用 LIBERO-100：LIBERO-90 的 4500 条轨迹做预训练，随机选 LIBERO-10 中 5 个任务做评估，每个任务用 50 个 expert demos 微调。作者扩大物体初始化范围 0.03 并移除背景物体制造 OOD。</p>
+    <div class="figure">
+      <img src="figures/env_libero_p1.png" alt="LIBERO datasets">
+      <div class="caption">Figure 9. LIBERO 预训练与微调任务：Book-Caddy、Soup-Cheese、Bowl-Drawer、Moka-Moka、Mug-Mug。</div>
+    </div>
+    <table>
+      <tr><th>方法</th><th>Book-Caddy</th><th>Soup-Cheese</th><th>Bowl-Drawer</th><th>Moka-Moka</th><th>Mug-Mug</th><th>Average</th></tr>
+      <tr><td>UWM</td><td>0.91 ± 0.07</td><td>0.93 ± 0.01</td><td>0.80 ± 0.02</td><td>0.68 ± 0.02</td><td>0.65 ± 0.01</td><td>0.79 ± 0.11</td></tr>
+      <tr><td>DP</td><td>0.73 ± 0.10</td><td>0.88 ± 0.02</td><td>0.77 ± 0.02</td><td>0.65 ± 0.03</td><td>0.53 ± 0.05</td><td>0.71 ± 0.12</td></tr>
+      <tr><td>PAD</td><td>0.78 ± 0.04</td><td>0.47 ± 0.04</td><td>0.74 ± 0.05</td><td>0.59 ± 0.08</td><td>0.25 ± 0.04</td><td>0.57 ± 0.19</td></tr>
+      <tr><td>GR1</td><td>0.77 ± 0.03</td><td>0.65 ± 0.05</td><td>0.62 ± 0.03</td><td>0.46 ± 0.04</td><td>0.38 ± 0.05</td><td>0.58 ± 0.14</td></tr>
+    </table>
+
+    <h3>5.4 Analysis and Ablations</h3>
+    <table>
+      <tr><th>实验</th><th>设置</th><th>结果/结论</th></tr>
+      <tr><td>Forward dynamics</td><td>固定 $t_a=0$，使用 ground-truth actions，diffuse future observations。</td><td>可视化显示 predicted next obs 接近 true next obs，说明条件动态建模有效。</td></tr>
+      <tr><td>Inverse dynamics tracking</td><td>给定专家未来观测，使用 inverse dynamics 生成动作跟踪轨迹。</td><td>trajectory length 限制下，Book-Caddy policy 0.47 vs inverse 0.65；Soup-Cheese policy 0.26 vs inverse 0.55。</td></tr>
+      <tr><td>Categorized OOD</td><td>Stack-Bowls / Block-Cabinet 的 lighting、background、clutter。</td><td>Stack-Bowls：UWM cotrain 21/30，pre 15/30，DP 12/30；Block-Cabinet：15/30，8/30，6/30。</td></tr>
+      <tr><td>Registers</td><td>8 registers / 4 registers / no registers / cross-attention UWM。</td><td>Book-Caddy 0.88 / 0.83 / 0.81 / 0.78；Soup-Cheese 0.90 / 0.86 / 0.85 / 0.86。</td></tr>
+      <tr><td>Learning objective</td><td>future obs reconstruction vs current obs reconstruction vs no reconstruction。</td><td>Stack-Bowls 0.86 / 0.70 / 0.48；Block-Cabinet 0.76 / 0.66 / 0.60，证明动态预测比纯当前图像重建更有用。</td></tr>
+      <tr><td>Internet videos</td><td>robot data + robot videos / robot data + Internet videos / robot data only。</td><td>Stack-Bowls 0.92 / 0.88 / 0.86；Block-Cabinet 0.84 / 0.80 / 0.76。互联网视频有提升，但不如 in-domain robot videos。</td></tr>
+    </table>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/vis_ood_p1.png" alt="OOD settings">
+        <div class="caption">Figure 10. 分类 OOD：lighting、background、clutter。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/scratch_vs_pretraining_p1.png" alt="scratch vs pretraining">
+        <div class="caption">Figure 11. From scratch vs pretrained：UWM 和 DP 从零训练相近，但 UWM 从预训练中获益更多。</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/robot_cameras_p1.png" alt="robot camera views">
+        <div class="caption">Figure 12. 机器人视角：ID、standard OOD 和 categorized OOD 条件下的相机观测。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/data_webvideo_p1.png" alt="internet videos">
+        <div class="caption">Figure 13. Internet video dataset 来自 Kinetics-400 和 Something-Something-v2。</div>
+      </div>
+    </div>
+    <div class="figure">
+      <img src="figures/eval_tracker_p1.png" alt="evaluation tracker">
+      <div class="caption">Figure 14. 真实机器人评估 tracker：叠加参考初始帧和当前帧以系统化对齐随机初始化。</div>
+    </div>
+  </section>
+
+  <section id="discussion">
+    <h2>6. 论文内分析与讨论</h2>
+    <h3>6.1 作者给出的核心解释</h3>
+    <ul>
+      <li><strong>额外监督来自同一数据。</strong>UWM 不只是从 demonstration 中学动作，还要预测 future observations，因此从同一条轨迹中获得更多动态监督。</li>
+      <li><strong>独立 timestep 让模型学习因果关系。</strong>训练时随机组合 $t_a,t_{o'}$，模型要在不同噪声/遮挡条件下恢复 action 和 future observation，因此接触到不同 marginal/conditional distributions。</li>
+      <li><strong>视频 cotraining 的自然入口。</strong>无动作视频只需把动作 timestep 固定为 $T$，不需要额外架构或专门伪动作标注。</li>
+      <li><strong>真实世界优于模拟的提升更明显。</strong>作者认为当前模拟动态较简单，因此 OOD 改善幅度小于真实世界。</li>
+    </ul>
+
+    <h3>6.2 失败模式</h3>
+    <p><span class="appendix-ref">附录 Real-World Failure Modes</span> 指出：多相机仍可能存在某些物体只被一个相机看到的困难视角；物体行为本身也会造成失败，例如 Paper-Towel 放到木平台后角度不好会倒，Stack-Bowls 中基线会在拿起粉色碗后混淆蓝色碗和干扰物。</p>
+  </section>
+
+  <section id="boundary">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的是把“用视频学动态”和“用演示学动作”合并成一个可控的连续扩散概率模型，而不是再加一个独立 video predictor。通过独立 $t_a,t_{o'}$，UWM 让 policy、forward dynamics、inverse dynamics、video prediction 都是同一个训练目标的不同推理切片。这直接解释了为什么 action-free video 可以进入训练：缺失动作在扩散意义上就是 $t_a=T$ 的完全噪声变量。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>证据链比较完整：真实机器人任务覆盖刚体、可变形物体和长时序任务；每个任务都有 ID/OOD；DROID robot video cotraining 和 Internet video cotraining 都单独验证；LIBERO 提供标准模拟 benchmark；forward/inverse dynamics 展示 UWM 不是只改善 policy 分数，而确实能在不同 inference mode 下工作。消融进一步表明 future obs reconstruction、registers 和 AdaLN conditioning 都有定量贡献。</p>
+
+    <h3>7.3 作者自述局限</h3>
+    <ul>
+      <li><strong>还没有真正利用大规模人类视频。</strong>作者明确说尚未解决 embodiment gap；Internet videos 实验只是 Kinetics-400/SSV2 混合的初步验证。</li>
+      <li><strong>Forward dynamics reconstruction 有伪影。</strong>作者认为这些 artifacts 可能降低用模型做 planning 的效果，需要吸收生成模型领域的新进展。</li>
+      <li><strong>需要更密集的视频预测。</strong>论文预计更 dense 的 video prediction 可能进一步提升性能。</li>
+      <li><strong>真实任务仍是受控平台。</strong>DROID setup、Franka Panda、5 个任务和有限 demo 数支持结论，但不等于已证明跨 embodiment 大规模泛化。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>UWM 适合有 action-labeled robot trajectories，并希望同时利用额外 action-free robot/video data 的场景。它假设 observation/action/future observation 能被连续扩散建模，并且未来图像可作为有用动态监督。对于需要长时间规划、多机器人形态迁移、高精度接触力控制或人类视频到机器人动作的大跨度迁移，论文还没有给出充分证据。</p>
+  </section>
+
+  <section id="repro">
+    <h2>8. 可复现性审计</h2>
+    <table>
+      <tr><th>复现要素</th><th>论文/项目给出的信息</th><th>审计状态</th></tr>
+      <tr><td>代码</td><td>Project page 提供官方 GitHub：<a href="https://github.com/WEIRDLabUW/unified-world-model">WEIRDLabUW/unified-world-model</a>。</td><td class="ok">已找到</td></tr>
+      <tr><td>源码和图表</td><td>arXiv 提供 LaTeX 源码和 14 张独立 PDF 图；本报告已全部转换为 PNG。</td><td class="ok">可检查</td></tr>
+      <tr><td>数据</td><td>DROID、LIBERO、Kinetics-400、Something-Something-v2 为公开数据；真实任务 finetuning demos 为作者自采。</td><td class="warn">部分可复现</td></tr>
+      <tr><td>模型结构</td><td>ResNet-18、SDXL VAE、DiT/AdaLN、12 层 12 heads、8 registers、action/image latent shapes 均给出。</td><td class="ok">较完整</td></tr>
+      <tr><td>训练配置</td><td>100K pretraining、10K/20K/50K finetuning、DDIM 10 inference steps、AdamW、batch/lr/weight decay 给出。</td><td class="ok">较完整</td></tr>
+      <tr><td>真实评估</td><td>任务定义、demo 数、评估条件数、3 attempts per initialization、OOD 设置和失败模式给出。</td><td class="ok">较完整</td></tr>
+    </table>
+    <div class="audit">
+      <strong>报告覆盖自检：</strong>Abstract、Introduction、Preliminaries、Method、Experiments、Related Work、Discussion、Limitations、Acknowledgements 和四个 Appendix 文件均已覆盖；附录实现细节、真实/模拟设置、额外消融和 Internet video 实验已整合到对应章节。
+    </div>
+  </section>
+</main>
+</body>
+</html>

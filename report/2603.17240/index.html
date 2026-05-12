@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GigaWorld-Policy 精读报告</title>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+  <header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div class="kicker">Junior PhD 组会精读报告</div>
+    <h1>GigaWorld-Policy: An Efficient Action-Centered World--Action Model</h1>
+    <div class="subtitle">
+      Angen Ye 等，GigaAI。arXiv:2603.17240v2，2026-03-21 更新。本文提出一种以动作为中心的 World--Action Model：训练时让动作预测受到未来视频动态监督，推理时可以关闭视频分支，只做低延迟动作解码。
+    </div>
+    <div class="meta">
+      <span class="pill">主题：World--Action Model</span>
+      <span class="pill">骨干：Wan 2.2 5B diffusion Transformer</span>
+      <span class="pill">关键指标：0.36 s / step</span>
+      <span class="pill">官方代码：open-gigaai/giga-world-policy</span>
+    </div>
+  </header>
+
+  
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#orientation">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 问题背景与动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#training">5. 数据、训练与复现要点</a></li>
+      <li><a href="#experiments">6. 实验结果解析</a></li>
+      <li><a href="#discussion">7. 讨论：价值、可信度与局限</a></li>
+      <li><a href="#questions">8. 组会可追问问题</a></li>
+      <li><a href="#repro">9. 复现清单</a></li>
+    </ul>
+  </nav>
+<section id="orientation">
+    <h2>1. 论文速览</h2>
+    <table class="orientation">
+      <tr><th>论文要解决什么</th><td>现有 VLA 只靠稀疏动作标签学习，监督密度不足；现有 WAM 又常把“未来视频生成”和“动作预测”强耦合，推理时必须采样大量视频 token，导致高延迟，并且动作质量容易受未来视频预测误差拖累。</td></tr>
+      <tr><th>作者的方法抓手</th><td>把 WAM 改成 action-centered：模型先预测动作 chunk 和动作 latent，再用这些动作条件去预测未来视频。通过 causal attention mask 保证动作 token 不能看未来视频 token，因此推理时可以只采样动作分支，视频分支只是训练时的动态约束和可选诊断输出。</td></tr>
+      <tr><th>最重要的结果</th><td>在 RoboTwin 2.0 上，GigaWorld-Policy 平均成功率 Clean/Rand 为 0.87/0.85，接近 Motus 的 0.89/0.87，但推理从 Motus 的 3231 ms 降到 360 ms；真实四任务平均成功率 0.83，高于 Motus 0.76、$\pi_{0.5}$ 0.69 和 GigaBrain-0 0.68。</td></tr>
+      <tr><th>阅读时要注意的点</th><td>这篇的主张不是“视频预测在推理时一定要做”，而是“训练时用未来视频作为高密度物理监督，推理时动作路径独立可用”。因此 causal mask 的信息流设计是全文最关键的可复现细节。</td></tr>
+    </table>
+    <div class="grid">
+      <div class="note">
+        <strong>一句话版贡献。</strong> 它把“世界模型提供 dense visual dynamics supervision”和“部署时低延迟闭环控制”拆开了：视频生成帮助训练，但不绑架推理。
+      </div>
+      <div class="warn">
+        <strong>版本/表述差异。</strong> arXiv 摘要强调相对 Motus $9\times$ 加速、真实任务成功率 +7%；项目页有“10x/35%”的营销化表述。报告中以论文表格和正文数值为主。
+      </div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 问题背景与动机</h2>
+    <h3>2.1 为什么只做 VLA 不够</h3>
+    <p>
+      VLA 模型通常学习 $a_{t:t+p-1}\sim q_{\Theta}(\cdot\mid o_t,s_t,l)$，输入是当前图像、机器人状态和语言，输出未来一段动作。作者认为这类范式的弱点是动作监督稀疏：动作是低维且模式重复的，而观测和语言很高维。模型可能学到浅层上下文到动作模板的映射，却没有被强迫理解“动作执行后世界会怎样变化”。
+    </p>
+    <h3>2.2 为什么普通 WAM 也不够</h3>
+    <p>
+      近期 WAM 用视频生成模型引入时序密集监督，理论上能让策略学到物理动态。但很多方法把动作和未来视频强耦合：joint action-video prediction 要在推理时生成未来视觉轨迹，两阶段方法则先生成未来视频再用 IDM 解码动作。这带来两个风险：第一，扩散式视频 token 采样很慢；第二，视频预测误差会传递到动作，长时序中小误差会累积。
+    </p>
+    <figure>
+      <img src="figures/intro3_p1.png" alt="Comparison of VLA, joint WAM, two-stage WAM, and GigaWorld-Policy">
+      <figcaption>Figure 1：作者把前作分成 VLA 辅助未来监督、joint action-video WAM、两阶段 video-to-action，以及本文 action-centered WAM 四类。</figcaption>
+    </figure>
+    <h3>2.3 本文的核心转向</h3>
+    <p>
+      本文不否认未来视频监督的价值，而是改变它在系统中的角色：未来视频是训练时正则化动作合理性的辅助任务，不是推理时必须完成的中间产物。动作 token 被设计成只依赖当前观测、状态和语言，未来视频 token 只能在动作之后生成，因此视频预测可以被关掉。
+    </p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <h3>3.1 机器人视频世界模型</h3>
+    <p>
+      Pandora、FreeAction、GigaWorld-0-video、Aether 等工作关注如何提升动作条件视频生成的保真度、一致性和可控性。它们解决的是“给定动作或规划，能否生成可信未来视觉”。本文借用这条线的 spatiotemporal prior，但问题转向“如何把视频生成骨干改造成能低延迟输出动作的策略”。
+    </p>
+    <h3>3.2 World--Action Models for control</h3>
+    <p>
+      VideoVLA、Motus、Cosmos-Policy、LingBot-VA 等 WAM 将视频生成与动作建模统一起来。Motus 用 Mixture-of-Transformer 和 UniDiffuser-style scheduler 做多模式切换，Mimic-video 与 LingBot-VA 则更接近“先预测未来状态，再解码动作”。作者的批评点是：这些方法通常仍要在推理时进行显式未来视频采样，因此很难满足高频闭环控制。
+    </p>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <figure>
+      <img src="figures/pipeline15_p1.png" alt="GigaWorld-Policy pipeline">
+      <figcaption>Figure 2：整体训练流程。先把通用视频生成模型转成机器人相关的视频动态模型，再在目标机器人轨迹上联合训练动作预测和未来视频预测。</figcaption>
+    </figure>
+
+    <h3>4.1 任务形式化</h3>
+    <p>
+      每个时刻 $t$，机器人接收多视角 RGB 观测 $o_t=\{o_t^v\}_{v\in S}$，其中 $S=\{left,front,right\}$，还有语言指令 $l$ 和本体状态 $s_t$。策略输出长度为 $p$ 的动作 chunk：
+    </p>
+    <p>$$a_{t:t+p-1}=(a_t,a_{t+1},\ldots,a_{t+p-1}).$$</p>
+    <p>
+      传统 VLA 学的是：
+    </p>
+    <p>$$a_{t:t+p-1}\sim q_\Theta(\cdot\mid o_t,s_t,l).$$</p>
+    <p>
+      GigaWorld-Policy 则让统一模型 $g_\Theta$ 同时参数化两个条件分布。动作侧：
+    </p>
+    <p>$$\big(a_{t:t+p-1},c_t\big)\sim g_\Theta(\cdot\mid o_t,s_t,l),$$</p>
+    <p>
+      其中 $c_t$ 是用于视觉预测的动作 latent conditioning signal。视觉动态侧：
+    </p>
+    <p>$$
+      (o_{t+\Delta},o_{t+2\Delta},\ldots,o_{t+K\Delta})
+      \sim g_\Theta(\cdot\mid o_t,s_t,l,c_t),
+      \quad K=\lfloor p/\Delta\rfloor.
+    $$</p>
+    <p>
+      这个分解很关键：动作先被建模，未来视频是被动作条件化的后续预测，而不是动作必须依赖的前置预测。
+    </p>
+
+    <h3>4.2 输入 token 与多视角拼接</h3>
+    <p>
+      为了在不改动视频生成 backbone 的前提下处理三路相机，作者把 left/front/right 三个视角拼成一张 composite image：
+    </p>
+    <p>$$o_t^{comp}=\mathrm{Compose}(o_t^{left},o_t^{front},o_t^{right}).$$</p>
+    <p>
+      当前观测和未来观测都通过同一个预训练 VAE 编码成视觉 latent，再切成 spatiotemporal visual tokens：当前观测 token 记为 $T_o$，未来视频 token 记为 $T_f$。本体状态和动作通过线性层映射到 hidden dimension，分别得到 $T_s$ 和 $T_a$。语言指令由预训练语言编码器得到 $T_l$，以 cross-attention 方式注入。
+    </p>
+
+    <h3>4.3 共享 Transformer 与 causal mask</h3>
+    <p>
+      与 MoE 或多分支专家不同，本文把所有 token 放进同一组 Transformer blocks，共享 Q/K/V 投影。统一序列写成：
+    </p>
+    <p>$$T_t=[\,T_o;\,T_s;\,T_a;\,T_f\,].$$</p>
+    <figure>
+      <img src="figures/attention2_p1.png" alt="Causal attention mask">
+      <figcaption>Figure 3：Causal attention mask。动作 token 不允许看未来视频 token，未来视频 token 可以看动作 token。</figcaption>
+    </figure>
+    <p>
+      这个 mask 施加三条依赖关系：$T_s$ 与 $T_o$ 可互相注意，但不能看动作或未来；$T_a$ 可看 $T_s,T_o$，不能看 $T_f$；$T_f$ 可看 $T_s,T_o,T_a$。它的含义是：动作预测只由当前上下文决定，未来视频预测则由当前上下文和动作决定。这样训练时的视觉动态监督不会通过信息泄漏“作弊”进入动作 token，也为推理时关闭未来视频分支提供结构保证。
+    </p>
+
+    <h3>4.4 训练目标：两个 flow-matching loss</h3>
+    <p>
+      对动作 token 或未来视频 latent 任一模态 $x$，采样 flow time $s\sim U(0,1)$ 和噪声 $\epsilon\sim\mathcal N(0,I)$，构造：
+    </p>
+    <p>$$x^{(s)}=(1-s)\epsilon+s x,\qquad \dot{x}^{(s)}=x-\epsilon.$$</p>
+    <p>
+      未来视频 loss 在 VAE latent $z_f$ 上定义：
+    </p>
+    <p>$$
+      \mathcal L_{video}=
+      \mathbb E_{s,\epsilon}\left[
+      \left\|
+      g_\Theta(z_f^{(s)},s\mid T_s,T_o,T_a,T_l)-\dot z_f^{(s)}
+      \right\|^2
+      \right].
+    $$</p>
+    <p>
+      动作 loss 只条件于历史上下文和语言，不条件于未来视频：
+    </p>
+    <p>$$
+      \mathcal L_{action}=
+      \mathbb E_{s,\epsilon}\left[
+      \left\|
+      g_\Theta(a^{(s)},s\mid T_s,T_o,T_l)-\dot a^{(s)}
+      \right\|^2
+      \right].
+    $$</p>
+    <p>
+      预训练阶段只优化 video flow matching；post-training 阶段联合优化：
+    </p>
+    <p>$$\mathcal L_{all}=\lambda_{video}\mathcal L_{video}+\lambda_{action}\mathcal L_{action}.$$</p>
+
+    <h3>4.5 推理：action-only decoding</h3>
+    <p>
+      推理时上下文为 $w_t=(T_l,T_s,T_o)$。模型只初始化和采样动作 token：
+    </p>
+    <p>$$a^{(0)}\sim\mathcal N(0,I),\qquad
+      \frac{d a^{(s)}}{ds}=g_\Theta(a^{(s)},s\mid w_t),\ s\in[0,1].$$</p>
+    <p>
+      积分得到 $a^{(1)}$ 后解码为连续动作 chunk $\hat a_{t:t+p-1}$，执行后再用新观测闭环。若需要可视化或诊断，也能打开视频分支：要么联合 denoise 未来视频 token，要么复用动作 denoising 时的 KV cache 再生成视频。但控制本身不依赖这一步。
+    </p>
+  </section>
+
+  <section id="training">
+    <h2>5. 数据、训练与复现要点</h2>
+    <h3>5.1 预训练数据</h3>
+    <p>
+      作者用约 10,000 小时 embodied data 进行预训练，来源覆盖真实机器人视频、egocentric human videos 和通用交互视频。表格中的估计小时数如下：
+    </p>
+    <table>
+      <tr><th>数据源</th><th>小时数</th><th>作用</th></tr>
+      <tr><td>EgoDex</td><td>800</td><td>手部/物体交互、日常操作 primitive</td></tr>
+      <tr><td>Agibot</td><td>2,500</td><td>机器人真实操作与 workspace 视觉分布</td></tr>
+      <tr><td>EGO4D</td><td>3,500</td><td>长时序人类第一视角活动结构</td></tr>
+      <tr><td>RoboMind</td><td>300</td><td>机器人操作视频</td></tr>
+      <tr><td>RDT</td><td>25</td><td>机器人操作视频</td></tr>
+      <tr><td>Open X-Embodiment</td><td>3,500</td><td>跨机器人/跨任务视觉覆盖</td></tr>
+      <tr><td>DROID</td><td>350</td><td>真实机器人 manipulation</td></tr>
+      <tr><td>ATARA</td><td>10</td><td>机器人任务视频</td></tr>
+      <tr><td>Something-Something V2</td><td>200</td><td>物体交互动态先验</td></tr>
+    </table>
+    <h3>5.2 训练配方</h3>
+    <ul>
+      <li>Backbone：Wan 2.2 5B diffusion Transformer。</li>
+      <li>动作 chunk 长度：$p=48$。</li>
+      <li>默认未来观测 stride：$\Delta=12$，所以 $K=\lfloor 48/12\rfloor=4$ 个未来帧。</li>
+      <li>Post-training loss 权重：$\lambda_{action}=5$，$\lambda_{video}=1$。</li>
+      <li>预训练超参来自附录：约 6000 GPU hours，global batch size 256，AdamW，$\beta_1=0.85,\beta_2=0.9$，learning rate 从 $1\times10^{-4}$ cosine decay 到 $1\times10^{-6}$。</li>
+      <li>真实任务每个任务收集 50 条 demonstration trajectory 用于 post-training；每个方法每任务测试 20 trials，每个 trial 最多 5 次尝试。</li>
+      <li>仿真每个任务 100 个 test episodes；训练数据为 clean scenes 每任务 50 demos、randomized scenes 每任务 500 demos，总计 2,500 clean + 25,000 randomized demonstrations。</li>
+    </ul>
+    <div class="warn">
+      <strong>复现成本判断。</strong> 论文给出了关键超参和数据规模，但没有把完整训练代码、数据清洗细节、multi-view compose 具体布局、动作归一化、采样步数等全部写清。官方项目页提供代码链接，但实际复现还需要检查仓库发布内容与权重/数据可用性。
+    </div>
+  </section>
+
+  <section id="experiments">
+    <h2>6. 实验结果解析</h2>
+    <h3>6.1 推理速度与成功率</h3>
+    <figure>
+      <img src="figures/latency_vs_success1_p1.png" alt="Latency versus success comparison">
+      <figcaption>Figure 4：真实任务和 A100 上的推理频率/成功率对比。GigaWorld-Policy 的卖点是位于较高成功率且低延迟的区域。</figcaption>
+    </figure>
+    <table>
+      <tr><th>方法</th><th>Time (ms)</th><th>Simulation SR</th><th>Real-world SR</th></tr>
+      <tr><td>$\pi_{0.5}$</td><td>225</td><td>0.48</td><td>0.69</td></tr>
+      <tr><td>GigaBrain-0</td><td>452</td><td>--</td><td>0.68</td></tr>
+      <tr><td>Motus</td><td>3231</td><td>0.88</td><td>0.76</td></tr>
+      <tr><td>Cosmos-Policy</td><td>1413</td><td>--</td><td>0.58</td></tr>
+      <tr><td>GigaWorld-Policy</td><td>360</td><td>0.86</td><td>0.83</td></tr>
+    </table>
+    <p>
+      相比 Motus，GigaWorld-Policy 的仿真成功率略低 0.02，但延迟从 3231 ms 降至 360 ms，并且真实成功率更高。这个结果支撑了作者的核心论点：世界模型训练信号有用，但推理时不必完整生成未来视频。
+    </p>
+
+    <h3>6.2 RoboTwin 2.0 仿真</h3>
+    <p>
+      RoboTwin 2.0 包含 50 个代表性 manipulation tasks，评估 clean 与 randomized scenes。主表的平均值为：$\pi_{0.5}$ 0.43/0.44，X-VLA 0.73/0.73，Motus 0.89/0.87，GigaWorld-Policy 0.87/0.85。也就是说，本文方法与最强 WAM baseline 接近，但在实时性上大幅领先。
+    </p>
+    <h3>6.3 真实机器人任务</h3>
+    <p>
+      真实平台为 AgileX PiPER 6-DoF robotic arm。四个任务来自附录的定义：
+    </p>
+    <ul>
+      <li>Clean the Desk：把多种碗盘移动到目标篮子，且要求盘子在碗下方。</li>
+      <li>Stack Bowls：任意初始位姿的两个碗嵌套堆叠。</li>
+      <li>Scan a QR Code：拿扫描器、抓目标物、对准 QR code 并读码，再放回目标物。</li>
+      <li>Sweep up Trash：拿刷子和簸箕，把散落小物体扫入簸箕。</li>
+    </ul>
+    <table>
+      <tr><th>方法</th><th>Clean Desk</th><th>Scan QR</th><th>Sweep Trash</th><th>Stack Bowls</th><th>Avg.</th></tr>
+      <tr><td>$\pi_{0.5}$</td><td>0.75</td><td>0.55</td><td>0.65</td><td>0.80</td><td>0.69</td></tr>
+      <tr><td>GigaBrain-0</td><td>0.70</td><td>0.65</td><td>0.60</td><td>0.75</td><td>0.68</td></tr>
+      <tr><td>Motus</td><td>0.80</td><td>0.75</td><td>0.70</td><td>0.80</td><td>0.76</td></tr>
+      <tr><td>Cosmos-Policy</td><td>0.65</td><td>0.50</td><td>0.45</td><td>0.70</td><td>0.58</td></tr>
+      <tr><td>GigaWorld-Policy</td><td>0.90</td><td>0.75</td><td>0.75</td><td>0.90</td><td>0.83</td></tr>
+    </table>
+    <div class="grid">
+      <figure>
+        <img src="figures/task1_p1.png" alt="QR scanning task">
+        <figcaption>真实任务：QR code scanning。</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/task2_p1.png" alt="Trash sweeping task">
+        <figcaption>真实任务：sweeping trash。</figcaption>
+      </figure>
+    </div>
+    <figure>
+      <img src="figures/task31_p1.png" alt="Stacking bowls and cleaning desk tasks">
+      <figcaption>附录补充图：stack bowls 与 clean desk 的真实部署场景。</figcaption>
+    </figure>
+
+    <h3>6.4 数据效率与消融</h3>
+    <figure>
+      <img src="figures/now113_p1.png" alt="Data efficiency curve">
+      <figcaption>Figure 5：训练数据比例变化下的真实任务成功率。作者声称 GigaWorld-Policy 用 10% 数据即可达到 VLA 的最大成功率。</figcaption>
+    </figure>
+    <figure>
+      <img src="figures/now2_p1.png" alt="Embodied pretraining data fraction">
+      <figcaption>Figure 6：embodied pre-training 数据比例越高，真实任务成功率越高。</figcaption>
+    </figure>
+    <table>
+      <tr><th>消融项</th><th>设置</th><th>结果</th><th>解释</th></tr>
+      <tr><td>预训练组合</td><td>scratch / video init / embodied pretraining / both</td><td>SR: 0.45 / 0.57 / 0.73 / 0.83</td><td>通用视频先验和 embodied data pretraining 互补。</td></tr>
+      <tr><td>未来帧数量</td><td>$\Delta=0,4,8,12,24,48$</td><td>SR: 0.60 / 0.76 / 0.78 / 0.83 / 0.80 / 0.76</td><td>适量未来建模有帮助，过密预测收益递减。</td></tr>
+      <tr><td>Causal mask</td><td>Self-Attn vs Ours</td><td>SR 0.81 vs 0.83；PSNR 27.87 vs 28.41；SSIM 0.892 vs 0.901</td><td>避免未来 token 泄漏，同时改善动作条件视频预测质量。</td></tr>
+    </table>
+    <figure>
+      <img src="figures/vis1_p1.png" alt="Qualitative video prediction comparison">
+      <figcaption>Figure 7：causal mask 相比 self-attention 更准确预测物体状态变化，红框为作者强调区域。</figcaption>
+    </figure>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 讨论：价值、可信度与局限</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>
+      最大价值是给 WAM 的部署瓶颈提出了一个干净的结构性解法。过去很多“用世界模型做策略”的方法把推理链路做重了：既要想象未来，又要从想象里提取动作。本文把未来动态作为训练信号保留，把动作推理路径从视频推理路径中解耦出来。这一点对真实机器人很重要，因为 3 秒级推理即使成功率不错，也会破坏闭环控制频率；360 ms 虽然还不是高频伺服，但已经进入可部署策略层的范围。
+    </p>
+    <p>
+      另一个价值是它没有把 future video prediction 简化成“无用的可视化”。消融显示 $K=0$ 时成功率显著下降，说明未来动态监督确实提供了动作学习信号；但 $\Delta=12$ 最优也说明 dense video prediction 不是越多越好。这个结果比“世界模型一定要 rollout”更细腻。
+    </p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>
+      证据链有三层。第一，速度表直接比较 action-only path 与需要视频推理的 WAM baseline，数值差距很大。第二，RoboTwin 2.0 与真实平台都做了对比，说明不是只在仿真有效。第三，消融把预训练、未来帧数量和 causal mask 分别拆开，能对应到方法的三个主要 claim：大规模 embodied pretraining 有用、未来动态监督有用、mask 让视频分支可选且减少泄漏。
+    </p>
+    <p>
+      特别是 causal mask 消融，虽然 SR 只从 0.81 到 0.83，但 PSNR/SSIM 和可视化一起说明 mask 改善了 action-conditioned dynamics 的建模质量。这和方法假设一致：动作不应从未来帧偷信息，未来帧应该由动作解释。
+    </p>
+
+    <h3>7.3 主要局限</h3>
+    <ul>
+      <li><strong>复现资源重。</strong> 5B diffusion Transformer、约 10,000 小时数据、6000 GPU hours 预训练，这不是普通实验室能完整复刻的量级。</li>
+      <li><strong>部分关键工程细节仍需代码确认。</strong> 例如多视角拼图布局、动作表示/归一化、flow sampling steps、后训练数据清洗、真实机器人控制接口等，在正文中描述不够细。</li>
+      <li><strong>真实任务数量有限。</strong> 四个 PiPER 任务能说明部署潜力，但还不足以覆盖更多接触丰富、动态物体、人机协作或长时序任务。</li>
+      <li><strong>速度仍是策略层速度。</strong> 360 ms 相比 WAM 快很多，但如果任务要求更高频的精细力控，仍需底层控制器或更轻量蒸馏策略配合。</li>
+      <li><strong>官方表述存在轻微不一致。</strong> 论文表中是 9x 与 +7%，项目页出现 10x 与 +35% 表述；组会汇报时应明确引用哪一处数值。</li>
+    </ul>
+  </section>
+
+  <section id="questions">
+    <h2>8. 组会可追问问题</h2>
+    <ol>
+      <li>如果推理时完全不生成未来视频，训练时的 $\mathcal L_{video}$ 究竟通过哪些参数路径影响动作预测？共享 Transformer blocks 是否足够解释这种迁移？</li>
+      <li>Causal mask 让动作 token 不能看未来视频 token，但 action loss 和 video loss 仍共享 backbone。是否可能存在梯度层面的冲突，$\lambda_{action}=5,\lambda_{video}=1$ 是否对不同任务敏感？</li>
+      <li>$\Delta=12$ 最优是否与动作 chunk 长度 $p=48$、机器人控制频率和任务时长有关？换机器人或更快任务时该如何设定？</li>
+      <li>Composite multi-view image 会牺牲相机间几何结构显式性。相比独立 view token + view embedding，它的优势是否主要来自兼容视频 backbone？</li>
+      <li>未来视频预测质量指标 PSNR/SSIM 与真实控制成功率的相关性有多强？是否存在视频看起来差但动作仍对，或视频好但动作失败的案例？</li>
+      <li>真实任务每任务 50 demos，模型又有大规模预训练。若只允许少量下游 demos，性能瓶颈更多来自 action head 适配还是视觉动态 prior 不够贴近？</li>
+    </ol>
+  </section>
+
+  <section id="repro">
+    <h2>9. 复现清单</h2>
+    <table>
+      <tr><th>模块</th><th>必须确认的内容</th><th>论文给出的信息</th></tr>
+      <tr><td>代码/权重</td><td>官方仓库、模型权重、推理脚本、训练配置</td><td><a href="https://github.com/open-gigaai/giga-world-policy">github.com/open-gigaai/giga-world-policy</a></td></tr>
+      <tr><td>输入处理</td><td>三视角 compose 规则、图像分辨率、VAE latent shape</td><td>三视角拼成同分辨率 composite image；视觉 token 用 VAE 编码。</td></tr>
+      <tr><td>模型</td><td>Wan 2.2 5B 接入方式、state/action projection、language cross-attention</td><td>共享 Transformer blocks，视觉 2D PE，状态/动作 1D temporal PE。</td></tr>
+      <tr><td>训练</td><td>flow steps、batching、loss 权重、optimizer、数据采样比例</td><td>AdamW，batch 256，lr 1e-4 到 1e-6；post-training $\lambda_a=5,\lambda_v=1$。</td></tr>
+      <tr><td>评估</td><td>RoboTwin 2.0 任务列表、随机化设置、真实机器人 trial protocol</td><td>50 tasks；clean/randomized；真实任务 20 trials，每 trial 最多 5 attempts。</td></tr>
+      <tr><td>推理</td><td>action-only sampling steps、是否使用 KV cache、控制频率</td><td>默认关闭未来视频，只 denoise action tokens；可选开启视频分支或复用 KV cache。</td></tr>
+    </table>
+    <p>
+      论文页：<a href="https://arxiv.org/abs/2603.17240">arXiv:2603.17240</a>；
+      PDF：<a href="https://arxiv.org/pdf/2603.17240">arxiv.org/pdf/2603.17240</a>；
+      项目页：<a href="https://gigaai-research.github.io/GigaWorld-Policy/">GigaWorld-Policy Project</a>。
+    </p>
+  </section>
+</main>
+</body>
+</html>

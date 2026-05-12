@@ -1,0 +1,92 @@
+% 需要的宏包（如果你还没引入）：
+% \usepackage{graphicx}   % for \resizebox
+% \usepackage{multirow}   % 可选
+% \usepackage{amsmath}    % 可选（数学下标更舒服）
+
+% =========================
+% Row 1: wipe / peel / cut
+% =========================
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\caption{Prediction performance. We report the $L_2$ distance and cosine similarity at the 2nd, 4th, and 6th latent prediction steps (denoted as $L2_1, L2_2, L2_3$ and $C_1, C_2, C_3$), corresponding to the 8th, 16th, and 24th decoded tactile frames, respectively. We also report the average performance over all 24 predicted frames ($L2_{\text{avg}}$, $C_{\text{avg}}$). Top: Wipe/Peel/Cut. Bottom: Adjustment/Assembly/Grasp. ``--" denotes not applicable.}
+\label{tab:wm_exp}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|cccccccc|cccccccc|cccccccc}
+\hline
+\multicolumn{1}{c|}{} &
+\multicolumn{8}{c|}{\textbf{Wipe}} &
+\multicolumn{8}{c|}{\textbf{Peel}} &
+\multicolumn{8}{c}{\textbf{Cut}} \\
+\hline
+\textbf{Method} &
+$L2_1$ & $L2_2$ & $L2_3$ & $L2_{\text{avg}}$ & $C_1$ & $C_2$ & $C_3$ & $C_{\text{avg}}$ &
+$L2_1$ & $L2_2$ & $L2_3$ & $L2_{\text{avg}}$ & $C_1$ & $C_2$ & $C_3$ & $C_{\text{avg}}$ &
+$L2_1$ & $L2_2$ & $L2_3$ & $L2_{\text{avg}}$ & $C_1$ & $C_2$ & $C_3$ & $C_{\text{avg}}$ \\
+\hline
+\textbf{UVA} &
+0.084 & 0.091 & 0.088 & 0.088 & 0.68 & 0.65 & 0.64 & 0.66 &
+0.090 & 0.097 & 0.102 & 0.097 & 0.62 & 0.60 & 0.60 & 0.61 &
+0.075 & 0.076 & 0.078 & 0.077 & 0.72 & 0.71 & 0.71 & 0.71 \\
+
+\textbf{exUMI} &
+0.097 & 0.098 & 0.103 & 0.101 & 0.59 & 0.58 & 0.58 & 0.58 &
+0.093 & 0.099 & 0.102 & 0.097 & 0.63 & 0.62 & 0.62 & 0.62 &
+0.083 & 0.086 & 0.088 & 0.086 & 0.73 & 0.72 & 0.71 & 0.72 \\
+
+\textbf{Kinedex} &
+0.081 & 0.084 & 0.085 & 0.082 & 0.82 & 0.80 & 0.81 & 0.81 &
+0.064 & 0.066 & 0.068 & 0.066 & 0.77 & 0.79 & 0.80 & 0.79 &
+0.091 & 0.100 & 0.104 & 0.096 & 0.74 & 0.73 & 0.72 & 0.73 \\
+
+\textbf{Forcemimic} &
+0.089 & 0.091 & 0.094 & 0.091 & 0.70 & 0.68 & 0.68 & 0.68 &
+0.077 & 0.077 & 0.078 & 0.077 & 0.76 & 0.76 & 0.73 & 0.76 &
+0.089 & 0.091 & 0.091 & 0.090 & 0.71 & 0.71 & 0.72 & 0.71 \\
+
+\textbf{Ours} &
+\textbf{0.052} & \textbf{0.062} & \textbf{0.072} & \textbf{0.059} & \textbf{0.93} & \textbf{0.92} & \textbf{0.91} & \textbf{0.93} &
+\textbf{0.033} & \textbf{0.037} & \textbf{0.041} & \textbf{0.036} & \textbf{0.88} & \textbf{0.88} & \textbf{0.87} & \textbf{0.87} &
+\textbf{0.048} & \textbf{0.052} & \textbf{0.057} & \textbf{0.050} & \textbf{0.89} & \textbf{0.89} & \textbf{0.88} & \textbf{0.88} \\
+\hline
+% \multicolumn{25}{c}{} \\
+\hline
+\multicolumn{1}{c|}{} &
+\multicolumn{8}{c|}{\textbf{Adjustment}} &
+\multicolumn{8}{c|}{\textbf{Assembly}} &
+\multicolumn{8}{c}{\textbf{Grasp}} \\
+\hline
+\textbf{Method} &
+$L2_1$ & $L2_2$ & $L2_3$ & $L2_{\text{avg}}$ & $C_1$ & $C_2$ & $C_3$ & $C_{\text{avg}}$ &
+$L2_1$ & $L2_2$ & $L2_3$ & $L2_{\text{avg}}$ & $C_1$ & $C_2$ & $C_3$ & $C_{\text{avg}}$ &
+$L2_1$ & $L2_2$ & $L2_3$ & $L2_{\text{avg}}$ & $C_1$ & $C_2$ & $C_3$ & $C_{\text{avg}}$ \\
+\hline
+\textbf{UVA} &
+0.080 & 0.085 & 0.084 & 0.083 & 0.73 & 0.68 & 0.67 & 0.69 &
+0.072 & 0.074 & 0.078 & 0.074 & 0.74 & 0.69 & 0.68 & 0.68 &
+0.079 & 0.080 & 0.085 & 0.080 & 0.67 & 0.64 & 0.64 & 0.65 \\
+
+\textbf{exUMI} &
+0.080 & 0.087 & 0.083 & 0.083 & 0.64 & 0.60 & 0.60 & 0.61 &
+0.096 & 0.096 & 0.103 & 0.096 & 0.59 & 0.53 & 0.52 & 0.53 &
+0.076 & 0.081 & 0.085 & 0.081 & 0.66 & 0.65 & 0.63 & 0.65 \\
+
+\textbf{Kinedex} &
+0.052 & 0.053 & 0.055 & 0.053 & 0.70 & 0.70 & 0.69 & 0.70 &
+0.045 & 0.048 & 0.052 & 0.047 & 0.80 & 0.77 & 0.75 & 0.78 &
+0.017 & 0.017 & 0.017 & 0.017 & 0.60 & 0.60 & 0.58 & 0.59 \\
+
+\textbf{Forcemimic} &
+0.082 & 0.081 & 0.082 & 0.082 & 0.66 & 0.65 & 0.65 & 0.65 &
+0.071 & 0.071 & 0.071 & 0.071 & 0.69 & 0.68 & 0.67 & 0.68 &
+-- & -- & -- & -- & -- & -- & -- & -- \\
+
+\textbf{Ours} &
+\textbf{0.022} & \textbf{0.025} & \textbf{0.028} & \textbf{0.025} & \textbf{0.85} & \textbf{0.84} & \textbf{0.84} & \textbf{0.85} &
+\textbf{0.028} & \textbf{0.032} & \textbf{0.036} & \textbf{0.030} & \textbf{0.90} & \textbf{0.89} & \textbf{0.88} & \textbf{0.89} &
+\textbf{0.010} & \textbf{0.010} & \textbf{0.010} & \textbf{0.010} & \textbf{0.70} & \textbf{0.67} & \textbf{0.67} & \textbf{0.68} \\
+\hline
+\end{tabular}}%
+\end{table*}

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MotuBrain - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+    <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>MotuBrain: An Advanced World Action Model for Robot Control</h1>
+
+  <div class="meta">
+    <p><strong>arXiv ID：</strong>2604.27792v2</p>
+    <p><strong>作者：</strong>MotuBrain Team; Chendong Xiang; Fan Bao; Haitian Liu; Hengkai Tan; Hongzhe Bi; James Li; Jiabao Liu; Jingrui Pang; Kiro Jing; Louis Liu; Mengchen Cai; Rongxu Cui; Ruowen Zhao; Runqing Wang; Shuhe Huang; Yao Feng; Yinze Rong; Zeyuan Wang; Jun Zhu</p>
+    <p><strong>官方页面：</strong><a href="https://www.shengshu.com/en/motubrain">ShengShu MotuBrain</a></p>
+    <p><strong>提交/修订：</strong>2026-04-30 v1；2026-05-01 v2</p>
+    <p><strong>来源：</strong><a href="https://arxiv.org/abs/2604.27792">arXiv abs</a> · <a href="https://arxiv.org/pdf/2604.27792">PDF</a> · 本地 LaTeX 源码解析 · 官方页面核对</p>
+    <p><strong>代码：</strong>arXiv、源码和有限 web 检索中未发现官方 GitHub 或模型下载链接。</p>
+  </div>
+
+</header>
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 阅读定位与组会导读</a></li>
+      <li><a href="#sec2">2. 背景：为什么 VLA 还不够，为什么 WAM 有意义</a></li>
+      <li><a href="#sec3">3. 方法详解：UniDiffuser、三流 MoT、预训练与部署栈</a></li>
+      <li><a href="#sec4">4. 实验结果：RoboTwin、WorldArena、真实长程控制</a></li>
+      <li><a href="#sec5">5. 图表精读</a></li>
+      <li><a href="#sec6">6. 复现清单与工程细节</a></li>
+      <li><a href="#sec7">7. 批判性讨论与组会问题</a></li>
+    </ul>
+  </nav>
+<div class="tldr">
+    <strong>一句话总结：</strong>MotuBrain 是 Motus 路线的升级版统一 World Action Model：用 UniDiffuser 同时建模视频和动作，用三流 Mixture-of-Transformers 融合 text/video/action，通过多视角表示、跨 embodiment action 表示和 50x+ 推理加速，把 WAM 从“能预测世界”推进到“能实时控制机器人”。
+  </div>
+
+  
+
+  <section id="sec1">
+    <h2>1. 阅读定位与组会导读</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>导读项</th>
+          <th>这篇论文回答什么</th>
+          <th>读的时候重点盯哪里</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>研究对象</strong></td>
+          <td>一个统一模型同时做 policy、world modeling、video generation、inverse dynamics、joint video-action prediction。</td>
+          <td>它不是单一 policy head，而是一个可按条件切换分布的 multimodal generative model。</td>
+        </tr>
+        <tr>
+          <td><strong>核心动机</strong></td>
+          <td>VLA 语义泛化强，但缺少细粒度世界动态；WAM 将未来视觉预测和动作生成一起学。</td>
+          <td>看 action learning 如何从孤立 imitation 变成和 predictive world modeling 联合训练。</td>
+        </tr>
+        <tr>
+          <td><strong>主要贡献</strong></td>
+          <td>三流 MoT、H-bridge attention、多视角 3D RoPE、统一相对 EEF 动作、后训练与实时部署加速栈。</td>
+          <td>最值得细读的是 Method 的 inference optimization 和 real-time chunk fusion。</td>
+        </tr>
+        <tr>
+          <td><strong>实验定位</strong></td>
+          <td>RoboTwin 2.0 到 95.8/96.1；WorldArena EWMScore 63.77；真实长程家务任务少样本适配。</td>
+          <td>注意区分公开 benchmark、官方页面榜单和论文自设真实机器人评分。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="bluebox">
+      <strong>组会推荐读法：</strong>先把 Table 1 的五种分布写在白板上，再读 Fig. 1 的三流架构。然后重点讨论：MotuBrain 的“强”到底来自 world-action 统一建模、预训练数据金字塔，还是系统级推理加速让它能闭环部署。
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 背景：为什么 VLA 还不够，为什么 WAM 有意义</h2>
+
+    <h3>2.1 VLA 的短板</h3>
+    <p>
+      VLA 模型把视觉观测和语言指令映射到机器人动作，继承 VLM 的语义先验，因此在物体和指令泛化上很强。但作者认为，VLA 的预训练主要来自静态 image-text 数据，缺少对细粒度世界动态的预测：接触、惯性、时序变化、失败后的状态更新等都不是静态语义能直接覆盖的。
+    </p>
+
+    <h3>2.2 从 video generation 到 world model</h3>
+    <p>
+      视频生成模型在大规模 web video 上学习时空先验，天然适合预测未来视觉状态。将它用于机器人 world modeling 的直觉很强：如果模型能根据当前观测和动作预测未来画面，就可能学到物体持久性、手物交互和物理转移。
+    </p>
+
+    <h3>2.3 VGM + IDM 与 WAM</h3>
+    <p>
+      早期路线是先用 video generation model 预测未来视觉，再用 inverse dynamics model 推动作。这个两阶段方法能利用视频先验，但会累积误差。WAM 则把视觉动态和动作预测放在同一个生成目标下，让 future visual state 和 action 在训练中对齐。
+    </p>
+
+    <h3>2.4 MotuBrain 相对 Motus 的升级</h3>
+    <p>
+      Motus 已经提出统一 world-action formulation，让同一模型支持五种推理模式。MotuBrain 继续沿用 UniDiffuser 和 Mixture-of-Transformers，但加入更面向部署的设计：多视角输入、独立 text stream、跨 embodiment 动作表示、AR/Non-AR post-training、V2A-style action-only inference 和实时 chunked closed-loop execution。
+    </p>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 方法详解：UniDiffuser、三流 MoT、预训练与部署栈</h2>
+
+    <div class="figure">
+      <img src="figures/framework.png" alt="MotuBrain architecture">
+      <div class="caption">图 1：MotuBrain 架构。模型包含 text/video/action 三个 Transformer stream，并用 H-bridge attention 控制跨模态交互层数；多视角输入通过 view-dependent 3D RoPE offsets 统一编码。</div>
+    </div>
+
+    <h3>3.1 五种预测分布</h3>
+    <p>
+      MotuBrain 用 UniDiffuser 同时调度 video 和 action 两个连续模态，让同一个模型支持多种条件分布。论文 Table 1 中给出非自回归模式下的五个目标：
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>模式</th>
+          <th>预测目标</th>
+          <th>直觉</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>VLA</td><td>$p(\bm{a}_{t+1:t+k}\mid \bm{o}_t,\ell)$</td><td>给当前观测和语言，预测未来动作。</td></tr>
+        <tr><td>WM</td><td>$p(\bm{o}_{t+1:t+k}\mid \bm{o}_t,\bm{a}_{t+1:t+k})$</td><td>给当前观测和动作，预测未来视觉。</td></tr>
+        <tr><td>IDM</td><td>$p(\bm{a}_{t+1:t+k}\mid \bm{o}_{t:t+k})$</td><td>给视觉轨迹，反推动作。</td></tr>
+        <tr><td>VGM</td><td>$p(\bm{o}_{t+1:t+k}\mid \bm{o}_t,\ell)$</td><td>给当前观测和语言，生成未来视频。</td></tr>
+        <tr><td>Joint</td><td>$p(\bm{o}_{t+1:t+k},\bm{a}_{t+1:t+k}\mid \bm{o}_t,\ell)$</td><td>同时生成未来视频和动作。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 三流 Mixture-of-Transformers</h3>
+    <p>
+      模型包含 text stream、video stream、action stream。Text stream 是条件分支，其 hidden states 参与 attention，但没有 text output head；video/action streams 都用 flow matching 训练，分别预测 video latents 和 action tokens 的 velocity fields。
+    </p>
+    <p>
+      输入包括 text tokens、由 Vidu VAE 编码的 condition-image latents、noisy future video latents 和 noisy action tokens。condition image 被表示为第一个 video latent frame，并在 video stream 中 teacher-forced；剩余 future video latents 和 action tokens 由各自 stream 去噪。
+    </p>
+
+    <h3>3.3 H-bridge attention</h3>
+    <p>
+      全层 full video-action joint attention 成本高，也可能在浅层/深层注入过多无关模态信息。因此 MotuBrain 采用 H-bridge：中间 50% Transformer layers 使用完整 V-A joint attention，底部 25% 和顶部 25% 使用 decoupled attention，让 video tokens 和 action tokens 独立处理。直觉上，浅层保留模态特征，中层做语义/动作对齐，深层回到模态特定输出。
+    </p>
+
+    <h3>3.4 多视角 3D RoPE</h3>
+    <p>
+      对 multiview inputs，每个 camera view 独立经 Vidu VAE 编码，然后在 token level 拼接。由于视频模型使用 3D RoPE，论文只在空间维度加 view-dependent offsets，时间维保持不变。这相当于把不同视角映射到共享空间位置编码中的不同区域，使任意数量 camera views 可以共用同一个 backbone。
+    </p>
+
+    <h3>3.5 预训练数据金字塔</h3>
+    <p>
+      MotuBrain 的数据组织沿用 Motus 的四层金字塔，从宽泛视觉到目标 embodiment 控制逐步收窄：
+    </p>
+    <ol>
+      <li><strong>Internet videos：</strong>训练 Vidu 视频生成基础模型。</li>
+      <li><strong>Egocentric videos：</strong>提供第一视角 hand-object interaction dynamics。</li>
+      <li><strong>Heterogeneous-embodiment data：</strong>不同机器人平台、任务和场景；本文设置里只用 dual-arm robot data。</li>
+      <li><strong>Specific-embodiment data：</strong>目标机器人动作空间、相机配置和部署分布。</li>
+    </ol>
+
+    <h3>3.6 两阶段预训练</h3>
+    <p>
+      从 Vidu 预训练权重开始，stage 1 只训练 video branch，action branch 随机初始化但不更新，目标是把 Internet video prior 适配到 embodied manipulation。为了增强对 imperfect conditioning 的鲁棒性，论文使用 noisy-conditioning 策略：以概率 0.5 扰动 condition-frame latent：
+    </p>
+
+    <div class="formula-block">
+      $$\tilde{z}_0=s_{\mathrm{aug}}z_0+(1-s_{\mathrm{aug}})\epsilon,\quad s_{\mathrm{aug}}\sim\mathcal{U}[0.3,0.7],\quad \epsilon\sim\mathcal{N}(0,I).$$
+      <p class="intuition">含义：</p>
+      <p>condition frame 不总是干净输入，模型被迫学习从不完美视觉条件中恢复未来动态。</p>
+    </div>
+
+    <p>
+      Stage 2 从 stage 1 checkpoint 初始化，只训练 action branch，冻结 video branch，在 heterogeneous-embodiment data 上学习统一动作表示。虽然只更新 action branch，目标仍然包含 video/action 两项：
+    </p>
+
+    <div class="formula-block">
+      $$\mathcal{L}=\lambda_v\mathcal{L}_v+\lambda_a\mathcal{L}_a,$$
+      $$\mathcal{L}_v=\mathrm{MSE}(v_{\mathrm{out}},v_{\mathrm{target}}),\quad \mathcal{L}_a=\mathrm{MSE}(a_{\mathrm{out}},a_{\mathrm{target}}).$$
+    </div>
+
+    <h3>3.7 跨 embodiment 相对 EEF 动作</h3>
+    <p>
+      令绝对 end-effector chunk 为 $E^{abs}=\{e^{abs}_1,\ldots,e^{abs}_n\}$，conditioned frame 的 end-effector state 为 $s$。相对动作定义为：
+    </p>
+
+    <div class="formula-block">
+      $$e_i^{rel}=e_i^{abs}\ominus s.$$
+      <p>若 $e=(p,R,g)$，其中 $p$ 是位置、$R$ 是旋转、$g$ 是 gripper state，则：</p>
+      $$e_i^{rel}=(p_i-p_s,\;R_s^{-1}R_i,\;g_i).$$
+    </div>
+
+    <p>
+      原始 pose 以 quaternion 输入，训练 target 使用 6D rotation representation。每个 end-effector action 维度为 10：位置、旋转和 gripper state。作者只把 gripper 归一化到 $[-1,1]$，其余维度保持物理尺度。这使不同 robot embodiments 和初始位姿之间更容易共享动作规律。
+    </p>
+
+    <div class="figure">
+      <img src="figures/map.png" alt="Attention masks">
+      <div class="caption">图 2：训练和 post-training 的 attention masks。Stage 1 只更新 video branch；stage 2 full joint attention；Non-AR 禁用 video-to-action attention；AR 使用 chunk-level causal mask。</div>
+    </div>
+
+    <h3>3.8 后训练：Non-AR 与 AR</h3>
+    <p>
+      Post-training 适配目标 embodiment，包含 Non-AR 和 AR 两种设置。Non-AR 一次 forward denoise 整个观察窗口中的 video/action tokens，适合较短 horizon 高效执行。AR 则按 chunk-level factorization 处理长程任务：训练时并行处理 chunks，但用 block-causal mask；部署时顺序 rollout，用新观测帧作为下一个 chunk 的 clean context。
+    </p>
+
+    <p>
+      关键部署技巧是 V2A-style attention：action tokens 可以 attend 到 video/language tokens，但 video tokens 不 attend action tokens。这样推理时可以先进行短 joint denoising prefix，再冻结 video stream，只继续更新 action stream。
+    </p>
+
+    <h3>3.9 推理加速栈</h3>
+    <table class="compact">
+      <thead>
+        <tr>
+          <th>技术</th>
+          <th>Steps</th>
+          <th>Latency</th>
+          <th>Frequency</th>
+          <th>Speedup</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Baseline</td><td>50</td><td>4.90s</td><td>0.20 Hz</td><td>1.00x</td></tr>
+        <tr><td>+ Noise sampling</td><td>30</td><td>2.90s</td><td>0.34 Hz</td><td>1.69x</td></tr>
+        <tr><td>+ torch.compile</td><td>30</td><td>0.98s</td><td>1.02 Hz</td><td>5.00x</td></tr>
+        <tr><td>+ FP8 quantization</td><td>30</td><td>0.88s</td><td>1.14 Hz</td><td>5.57x</td></tr>
+        <tr><td>+ DiT cache</td><td>30</td><td>0.20s</td><td>5.00 Hz</td><td>24.5x</td></tr>
+        <tr><td>+ V2A-style</td><td>30 action-only</td><td>0.09s</td><td>11.11 Hz</td><td>54.4x</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3.10 实时 chunk 融合</h3>
+    <p>
+      为了闭环控制，MotuBrain 将模型推理 loop 和 robot action execution loop 解耦：控制器执行当前 action chunk，模型异步根据最新观测生成下一 chunk。问题是 chunk 切换会产生跳变。论文用当前 chunk 未执行部分约束下一 chunk：推理延迟 $\delta$ 和控制周期 $\Delta t$ 定义冻结步数：
+    </p>
+
+    <div class="formula-block">
+      $$d=\left\lceil\frac{\delta}{\Delta t}\right\rceil.$$
+      <p>前 $d$ 步完全由上一 chunk 剩余动作约束；之后使用指数衰减权重：</p>
+      $$g(\rho_i)=\frac{\rho_i(e^{\rho_i}-1)}{e-1},$$
+      $$w_i=\begin{cases}1,&0\le i<d\\1-g(\rho_i),&d\le i<L\\0,&i\ge L\end{cases}$$
+      $$\tilde{a}_i^{new}=w_i a_i^{remain}+(1-w_i)a_i^{new}.$$
+    </div>
+
+    <p>
+      系统维护 delay queue $Q$，用 $\hat{d}_{t+1}=\max(Q)$ 作为保守估计，适应网络和模型 latency 波动。这一段很工程，但对真实机器人非常关键。
+    </p>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 实验结果：RoboTwin、WorldArena、真实长程控制</h2>
+
+    <h3>4.1 RoboTwin 2.0</h3>
+    <p>
+      按 RoboTwin 2.0 协议，模型使用 2,500 条 clean demonstrations（50 tasks，每 task 50 条）和 25,000 条 randomized demonstrations（每 task 500 条）。视频下采样到 5 Hz，动作到 10 Hz。MotuBrain fine-tuned from pretrained weights，在 clean 和 randomized 两个设置分别达到 95.8 和 96.1。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr><th>模型</th><th>Clean</th><th>Randomized</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>$\pi_0$</td><td>65.9</td><td>58.4</td></tr>
+        <tr><td>X-VLA</td><td>72.9</td><td>72.8</td></tr>
+        <tr><td>$\pi_{0.5}$</td><td>82.7</td><td>76.8</td></tr>
+        <tr><td>starVLA</td><td>88.2</td><td>88.3</td></tr>
+        <tr><td>LingBot-VLA</td><td>86.5</td><td>85.3</td></tr>
+        <tr><td>Motus</td><td>88.7</td><td>87.0</td></tr>
+        <tr><td>LingBot-VA</td><td>92.9</td><td>91.5</td></tr>
+        <tr><td>Fast-WAM</td><td>91.9</td><td>91.8</td></tr>
+        <tr><td>MotuBrain w/o Pretrain</td><td>91.5</td><td>91.3</td></tr>
+        <tr><td>MotuBrain-Non-AR</td><td>91.9</td><td>92.3</td></tr>
+        <tr><td><strong>MotuBrain</strong></td><td><strong>95.8</strong></td><td><strong>96.1</strong></td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      论文进一步报告：MotuBrain 在 clean 设置有 24 个任务满分，在 randomized 设置有 25 个任务满分，19 个任务两种设置都 100%。超过 90% 成功率的任务数分别为 42 个 clean tasks 和 44 个 randomized tasks。提升集中在多阶段协调、接触丰富、空间排列、随机视觉扰动下的任务。
+    </p>
+
+    <div class="grid-2">
+      <div class="figure">
+        <img src="figures/scaling_curve_task.png" alt="Task scaling">
+        <div class="caption">图 3：任务数量 scaling。训练任务越多，MotuBrain 平均成功率持续上升，说明任务多样性带来可复用 world knowledge。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/scaling_curve_data.png" alt="Data scaling">
+        <div class="caption">图 4：数据量 scaling。每个数据预算下均匀 subsample demonstrations，MotuBrain 仍能从更多数据中获益。</div>
+      </div>
+    </div>
+
+    <h3>4.2 WorldArena</h3>
+    <p>
+      WorldArena 从 visual quality、motion quality、content consistency、physics adherence、3D accuracy、controllability 六个子维度的 16 个指标评估 embodied world models。MotuBrain 在 forward-dynamics mode 下参评，使用 5 Hz video 和 10 Hz actions，EWMScore 为 63.77，论文称在比较表中最高。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr><th>模型</th><th>EWMScore ↑</th><th>备注</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>MotuBrain</strong></td><td><strong>63.77</strong></td><td>motion quality 指标尤其强。</td></tr>
+        <tr><td>Veo3.1</td><td>57.77</td><td>instruction following 高，但 motion metrics 较低。</td></tr>
+        <tr><td>Wan2.6</td><td>59.80</td><td>visual quality 强。</td></tr>
+        <tr><td>Ctrl-World</td><td>59.98</td><td>subject/background consistency 竞争力强。</td></tr>
+        <tr><td>ABot-PW</td><td>62.63</td><td>interaction quality 高。</td></tr>
+        <tr><td>GigaWorld-1</td><td>62.34</td><td>JEPA similarity/depth/trajectory 竞争力强。</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      MotuBrain 在 Dynamic Degree、Flow Score、Motion Smoothness 三个 motion quality 指标上领先。论文强调这说明模型没有生成接近静止的漂亮视频，而是在 embodied-relevant regions 上产生持续、平滑、局部集中的运动。
+    </p>
+
+    <div class="figure">
+      <img src="figures/worldarena_leaderboard.png" alt="WorldArena leaderboard">
+      <div class="caption">图 5：WorldArena public leaderboard。官方页面也列出 MotuBrain 63.77 EWMScore 与 RoboTwin 95.8/96.1。</div>
+    </div>
+
+    <h3>4.3 真实机器人：少样本适配</h3>
+    <p>
+      真实实验从 pretrained model 出发，用 50 到 100 条 same-embodiment trajectories 适配新 humanoid platforms。论文强调不依赖 VLM planner、dual-system decomposition、external memory 或 retry-specific data。
+    </p>
+
+    <table class="compact">
+      <thead>
+        <tr><th>任务</th><th>评测规模</th><th>原子动作数</th><th>平均执行时间</th><th>总分</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Making Oden</td><td>5 trials</td><td>7</td><td>33 s</td><td>98.54</td></tr>
+        <tr><td>Mixing Cocktails</td><td>7 trials</td><td>15</td><td>124 s</td><td>97.34</td></tr>
+        <tr><td>Flower Arrangement</td><td>10 trials</td><td>10</td><td>138 s</td><td>83.30</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      评分满分 100，每个 sub-task step 等权。如果第一次完成给满分，一次 retry 给 80%，两次 retry 给 50%，三次及以上为 0。Flower Arrangement 中作者特别强调模型在没有显式 recovery supervision 的情况下表现出一定在线自我修正能力。
+    </p>
+
+    <h3>4.4 真实任务定性结果</h3>
+    <div class="grid-2">
+      <div class="figure">
+        <img src="figures/b_Bathroom_1.jpg" alt="Bathroom demo">
+        <div class="caption">浴室整理：把牙刷放入杯子，把肥皂放回原位。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/b_Cocktail_vstack.jpg" alt="Cocktail demo">
+        <div class="caption">调制鸡尾酒：取瓶、倒液体、放托盘并递给顾客。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/b_Oden_1.jpg" alt="Oden demo">
+        <div class="caption">关东煮/饮料双臂任务：右手倒果汁，左手舀食物。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/b_flower_vstack.jpg" alt="Flower demo">
+        <div class="caption">插花并喷水：长程细粒度操控。</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 图表精读</h2>
+
+    <h3>5.1 Fig. 1：架构图里的三件事</h3>
+    <p>
+      这张图要看三层：第一，text/video/action 是独立 streams，而不是简单拼接 token；第二，H-bridge 只在中间层做 full cross-modal attention；第三，multiview 通过 position offsets 进入统一 RoPE 空间。这三件事分别对应语义控制、跨模态对齐和真实机器人多相机输入。
+    </p>
+
+    <h3>5.2 Table 1：五种分布是统一建模的核心</h3>
+    <p>
+      MotuBrain 的统一性不是“一个模型输出很多东西”这么简单，而是把条件分布写成同一个 multimodal diffusion/flow family 下的不同条件化问题。报告组会时建议把 Table 1 作为主线，后面的 architecture、training masks 和 V2A inference 都是为了高效支持这些分布。
+    </p>
+
+    <h3>5.3 Speedup 表：部署贡献很重</h3>
+    <p>
+      如果只看模型结构，MotuBrain 可能像 Motus 的自然延伸；但 54.4x speedup 是这篇论文的关键工程贡献。没有 V2A-style action-only inference、DiT cache 和 chunk fusion，这类 WAM 很难在真实机器人上接近实时闭环。
+    </p>
+
+    <h3>5.4 Real-world 表：强但要看口径</h3>
+    <p>
+      真实任务分数很高，但它不是和外部 baseline 做同协议对比，而是论文自定义 step scoring。它有价值，因为展示了少样本长程控制的可行性；但严格比较不同方法时，还需要公开任务定义、评测脚本、完整失败样例和多环境统计。
+    </p>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 复现清单与工程细节</h2>
+
+    <h3>6.1 可抽取的关键配置</h3>
+    <table>
+      <thead>
+        <tr><th>项目</th><th>论文信息</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>基础模型</td><td>Vidu video generation model 作为 foundation。</td></tr>
+        <tr><td>建模框架</td><td>UniDiffuser，连续 video/action modalities。</td></tr>
+        <tr><td>结构</td><td>Text/video/action 三流 Mixture-of-Transformers。</td></tr>
+        <tr><td>跨模态注意力</td><td>H-bridge：中间 50% layers full V-A attention；底/顶各 25% decoupled。</td></tr>
+        <tr><td>多视角</td><td>每个 view 独立 Vidu VAE 编码，空间维 3D RoPE offsets。</td></tr>
+        <tr><td>动作表示</td><td>relative EEF action；position direct subtraction，rotation $R_s^{-1}R_i$，gripper unchanged。</td></tr>
+        <tr><td>动作维度</td><td>每个 end-effector action 10 维：position + 6D rotation + gripper。</td></tr>
+        <tr><td>RoboTwin 数据</td><td>2,500 clean demos + 25,000 randomized demos；50 tasks。</td></tr>
+        <tr><td>频率</td><td>RoboTwin videos 5 Hz，actions 10 Hz。</td></tr>
+        <tr><td>推理优化</td><td>step reduction, torch.compile, FP8, DiT cache, V2A action-only, action smoothing, frequency-aware interpolation。</td></tr>
+      </tbody>
+    </table>
+
+    <h3>6.2 复现缺口</h3>
+    <ul>
+      <li><strong>无公开代码：</strong>当前未发现官方 GitHub，真实复现推理栈细节很难。</li>
+      <li><strong>预训练数据规模不完整：</strong>Internet/ego-centric/heterogeneous data 的规模、清洗和混合比例未完整列出。</li>
+      <li><strong>模型规模缺失：</strong>论文强调架构和部署，但没有像常见模型卡那样给出参数量/层数/hidden size 完整表。</li>
+      <li><strong>H-bridge 细节：</strong>哪些具体层 joint、哪些 decoupled、text stream 是否全层参与，需要代码确认。</li>
+      <li><strong>真实机器人控制栈：</strong>low-level controller、通信延迟、限幅、安全停止、失败判定和 retry 统计口径未完全公开。</li>
+      <li><strong>WorldArena 可重复性：</strong>论文报告 leaderboard 分数，但需要 benchmark submission 配置和生成参数才能完全复核。</li>
+    </ul>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 批判性讨论与组会问题</h2>
+
+    <h3>7.1 论文强点</h3>
+    <ul>
+      <li><strong>统一性完整：</strong>五种推理模式和 attention masks 让 WAM 的统一目标很明确。</li>
+      <li><strong>部署意识强：</strong>不只报告模型分数，还给出从 4.90s 到 0.09s 的推理优化路径。</li>
+      <li><strong>多视角与 embodiment 迁移：</strong>解决真实机器人常见的多相机和动作空间不统一问题。</li>
+      <li><strong>实验覆盖广：</strong>仿真、world model benchmark、真实家务任务都有结果。</li>
+    </ul>
+
+    <h3>7.2 需要谨慎的点</h3>
+    <ul>
+      <li><strong>系统工程贡献和模型贡献交织：</strong>RoboTwin/真实部署提升到底来自 WAM 表征、数据、post-training，还是工程栈，需要更多 ablation。</li>
+      <li><strong>官方自评成分较重：</strong>真实任务没有外部 baseline 同协议对比，评分方式也需要更多透明度。</li>
+      <li><strong>复现门槛高：</strong>没有代码、没有模型卡、没有完整数据配方，junior PhD 很难端到端复现。</li>
+      <li><strong>Action Following 指标并不总强：</strong>WorldArena 表中 MotuBrain 的 Action Following 低于 Wan2.6/Veo3.1 等，需要理解该指标与控制成功率的关系。</li>
+    </ul>
+
+    <h3>7.3 组会讨论题 1：WAM 的能力来自“预测世界”还是“部署优化”？</h3>
+    <div class="card">
+      <p>
+        MotuBrain 同时提出了模型结构、预训练金字塔、post-training、action-only inference 和实时控制融合。要判断科学贡献，需要拆开：固定推理栈比较不同 architecture，固定 architecture 比较有无 world modeling，固定数据比较 VLA vs WAM。否则很难知道 95.8/96.1 的核心来源。
+      </p>
+    </div>
+
+    <h3>7.4 组会讨论题 2：统一五种分布会不会互相牵制？</h3>
+    <div class="card">
+      <p>
+        一个模型同时做 VLA、WM、IDM、VGM、joint prediction 很优雅，但不同任务对 attention mask、timestep sampling、loss weight 和数据分布的需求可能冲突。MotuBrain 用 stage-wise training 和 V2A mask 缓解这个问题，但未来是否需要 routing、task-specific adapters 或动态 loss balancing，值得深入讨论。
+      </p>
+    </div>
+
+    <h3>7.5 后续研究方向</h3>
+    <ol>
+      <li><strong>公开可复现套件：</strong>发布模型卡、推理栈代码、benchmark configs 和失败案例。</li>
+      <li><strong>精细 ablation：</strong>分离 H-bridge、text stream、多视角 RoPE、relative EEF、V2A inference 的独立贡献。</li>
+      <li><strong>不确定性与安全：</strong>在 WAM 生成动作时估计风险，并接入安全约束/在线纠错。</li>
+      <li><strong>更强开放世界测试：</strong>移动操作、动态人类环境、触觉丰富任务、长时间任务中验证 world prior。</li>
+      <li><strong>跨 embodiment 更极端迁移：</strong>从双臂 humanoid 到单臂、移动底盘、夹爪形态差异大的平台。</li>
+    </ol>
+
+    <div class="good">
+      <strong>最终判断：</strong>MotuBrain 是一篇更像“系统型技术报告”的 WAM 论文。它最有价值的地方不是单个公式，而是把统一 world-action 建模、跨 embodiment 数据、实时推理优化和真实长程控制放在同一条工程链路里。组会里可以把它当作当前 WAM 路线走向可部署机器人的一个清晰样本来读。
+    </div>
+  </section>
+</main>
+</body>
+</html>

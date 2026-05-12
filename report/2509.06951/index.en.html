@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>F1 - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>F1: A Vision-Language-Action Model Bridging Understanding and Generation to Actions</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Qi Lv, Weijie Kong, Hao Li, Jia Zeng, Zherui Qiu, Delin Qu, Haoming Song, Qizhi Chen, Xiang Deng, Jiangmiao Pang</p>
+<p><strong>Organization: </strong>Shanghai AI Laboratory; Harbin Institute of Technology (Shenzhen)</p>
+<p><strong>Version: </strong>arXiv: 2509.06951 v2, submitted on 2025-09-08, revised on 2025-09-09; ICLR 2026 conference style source code</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2509.06951">arXiv</a> | <a href="https://arxiv.org/pdf/2509.06951">PDF</a> | <a href="https://aopolin-lv.github.io/F1-VLA/">Project home page</a> | <a href="https://github.com/InternRobotics/F1-VLA">official code</a> | <a href="https://huggingface.co/InternRobotics/F1-VLA">HuggingFace</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Summary of related work</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiment</a></li>
+<li><a href="#repro">6. Repeat audit</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>F1 changes VLA's action prediction from "react directly based on the current state" to "first generate the next visual foresight, and then use the predicted future image to guide inverse dynamics action generation", and connects understanding, imagination and execution through three Transformer experts: understanding, generation and action.
+ </div>
+<p><strong>Difficulty rating: </strong>★★★★☆. Reading requires familiarity with VLA, predictive inverse dynamics, Mixture-of-Transformer, VAR/RQ-VAE next-scale image generation, flow matching action prediction, and LIBERO / SimplerEnv / real robot evaluation.</p>
+<p><strong>Keywords: </strong><span class="tag">Vision-Language-Action</span><span class="tag">Visual Foresight</span><span class="tag">Predictive Inverse Dynamics</span><span class="tag">Mixture-of-Transformer</span><span class="tag">Flow Matching</span><span class="tag">Long-horizon Robotics</span></p>
+<table>
+<tr><th>Reading targeting item</th><th>Short answer</th></tr>
+<tr><td>What should the paper solve?</td><td>Most of the existing VLA is reactive state-to-action mapping, which is short-sighted and fragile in dynamic scenes and long-range tasks; visual prediction strategies often lack VLM semantic grounding. F1 should combine semantic understanding, future visual prediction and action execution into a reasoning chain.</td></tr>
+<tr><td>The author's approach</td><td>Mixture-of-Transformer three experts: understanding expert processes language and current observation; generation expert uses next-scale prediction to generate goal-conditioned foresight image; action expert uses foresight as an explicit target and uses flow matching to generate action chunks.</td></tr>
+<tr><td>most important results</td><td>The real Genie-1 nine-task average success rate is 82.2%, higher than $\pi_0$'s 65.2%; LIBERO pre-training version averages 95.7%, ranking first; the SimplerEnv Bridge pre-training version has an overall average of 72.9%; the dynamic conveyor belt task is 66.7%, $\pi_0$ is 33.3%.</td></tr>
+<tr><td>Things to note when reading</td><td>The generation module of F1 is not just a training auxiliary item; the paper explicitly allows the model to first predict future observations during inference, and then rewrite the action generation into foresight-guided inverse dynamics. The image does not have to be pixel perfect, but it must provide task-progress cues.</td></tr>
+</table>
+<h3>Core contribution list</h3>
+<ul>
+<li>A new paradigm is proposed that explicitly puts visual foresight generation into the VLA decision pipeline, turning action prediction from reactive imitation to planning-based control.</li>
+<li>Design UGA progressive attention to make information flow in one direction from Understanding → Generation → Action to avoid reverse leakage of action to foresight.</li>
+<li>Three stages of training are proposed: Stage I aligns generation and understanding; Stage II pre-trains the full model on large-scale robot data; Stage III post-trains on the target embodiment/task.</li>
+<li>System evaluation on real robots, LIBERO, SimplerEnv Bridge, dynamic scenes, fast adaptation, long-range tasks and generation quality correlation.</li>
+</ul>
+<div class="figure">
+<img alt="VLA paradigm comparison" src="figures/fig1_VLA_paradiagm.png"/>
+<div class="caption">Fig. 1 / VLA paradigm evolution: from pure action expert, to VLM+action expert, to visual prediction, to F1's understanding-generation-action integration.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>Real robotic environments are not a static picture classification problem: objects move, scenes change, and instructions often require multiple steps to unfold. Traditional VLA maps directly from the current image and language to actions, which is prone to short-sighted behavior when dynamic targets, long-term sequences, and distribution changes. F1 believes that the robot needs to explicitly predict "what the next visual state should be if the task continues to advance" before acting.</p>
+<p>This problem is formulated as predictive inverse dynamics: first predict the future observation $\hat{o}_{t+1}$, and then infer the action chunk required to get from the current state to this future visual target. Action is not just a reaction to the current frame, but towards a generated visual target.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<p>The paper divides manipulation policy into three categories. End-to-end action experts such as ACT and Diffusion Policy lack semantic grounding and cross-task generalization; VLM-integrated policies such as $\pi_0$ and gr00t-N1 have stronger understanding capabilities, but are still reactive and lack scene evolution modeling; visual prediction policies such as VPP and Genie Envisioner can predict future vision, but do not fully integrate VLM semantic understanding and have limited control robustness.</p>
+<p>Therefore, the core issue of F1 is not "adding a video prediction loss", but to find an architecture and training principle to connect semantic understanding, future visual prediction, and action execution in a controllable information flow.</p>
+<h3>2.3 Solution ideas of this article</h3>
+<p>F1 uses three MoT experts: understanding expert inherits VLM capabilities; generation expert generates foresight through RQ-VAE / next-scale prediction; action expert uses current observation, language, proprioception and predicted future images as conditions to generate continuous action chunks through flow matching. For training, first let the generation learn to align with the understanding, then jointly pre-train on large-scale robot data, and finally post-train for the specific platform.</p>
+</section>
+<section id="related">
+<h2>3. Summary of related work</h2>
+<table>
+<tr><th>Technical line</th><th>context in the paper</th><th>Positioning of F1</th></tr>
+<tr><td>Vision-Language-Action Model</td><td>OpenVLA, $\pi_0$, SpatialVLA, GR00T, Gemini Robotics, EmbodiedOneVision, etc. migrate MLLM/VLM capabilities to robot action prediction.</td><td>F1 is not satisfied with reactive action prediction, but adds explicit foresight generation inside VLA so that actions are guided by predicted future states.</td></tr>
+<tr><td>Inverse Dynamics Model</td><td>VPP, Genie Envisioner, WorldVLA, DreamVLA, FlowVLA, CoT-VLA, etc. try to reduce the difficulty of image-to-action mapping through future image/video or intermediate representation.</td><td>F1 actually generates the visual foresight during the inference phase and feeds it into the action expert, rather than just using future predictions as a training regularizer.</td></tr>
+<tr><td>Unified Vision Language Model</td><td>Chameleon, Transfusion, Show-o, Emu3, Janus, MoT, etc. unify visual understanding and generation, but usually do not include actions into a complete cognitive closed loop.</td><td>F1 advances the unified paradigm to understanding-generation-action: not only perception and generation, but also action on the physical world.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<div class="figure">
+<img alt="F1 architecture" src="figures/fig2_F1_architecture.png"/>
+<div class="caption">Fig. 2 / F1 framework: three experts MoT, UGA progressive attention, foresight generation and action expert.</div>
+</div>
+<h3>4.1 Overall pipeline</h3>
+<p>Given the language instruction $l$, the current observation $o_t$ and the historical observation $\{o_{t-m}, \ldots, o_{t-1}\}$, the calculation chain of F1 is as follows: </p>
+<pre class="pseudocode">Input: instruction l, current observation o_t, history o_{t-m:t-1}, proprioception q_t
+1. Understanding expert:
+   encode language + current visual observation into semantic multimodal representation
+
+2. Generation expert:
+   use history + language + understanding representation
+   generate visual foresight image: o_hat_{t+1}
+
+3. Action expert:
+   condition on l, o_t, q_t, o_hat_{t+1}
+   generate action chunk a_hat_{t:t+k} using flow matching</pre>
+<p>The paper emphasizes that $\hat{o}_{t+1}$ is an explicit planning target. Action expert does not only rely on the current state, but moves closer to predicting the future visual state.</p>
+<h3>4.2 Understanding Expert</h3>
+<p>Understanding expert is initialized from the pretrained vision-language model. The current observation $o_t$ is first encoded into high-level perceptual features by the SigLIP vision encoder, and then input into the decoder-only Transformer together with the language prompt. The implementation details state that the understanding expert architecture is the same as PaliGemma and inherits weights from $\pi_0$.</p>
+<h3>4.3 Generation Expert: Next-Scale Visual Foresight</h3>
+<p>The Generation expert is responsible for generating $\hat{o}_{t+1}$. It does not directly do high-cost diffusion video generation, but uses VAR style next-scale prediction. The recent historical observation $\{o_{t-m}, \ldots, o_t\}$ is encoded by multi-scale residual vector quantization, and each frame is decomposed into the multi-scale token $\{z_i^0, \ldots, z_i^k\}$ on the $16\times16$ patch. In order to avoid the multi-frame token string being too long, the model uses temporal convolutional network to aggregate motion-relevant features.</p>
+<div class="figure">
+<img alt="Residual VQ-VAE" src="figures/fig3_rq-vae.png"/>
+<div class="caption">Fig. 3 / Residual VQ-VAE: reconstruction from low to high scale for next-scale foresight token prediction.</div>
+</div>
+<div class="impl-note">
+<strong>Reasoning trade-offs: </strong>In training Stage I, the generation expert uses VAR to predict 10 resolution scales; Stage II/III and inference stages are limited to 4 scales for efficiency. The appendix training sheet also labels "# Num Predicted Scales" as Stage I=10 and the remaining stages=4.
+ </div>
+<h3>4.4 Action Expert: Foresight-Guided Flow Matching</h3>
+<p>Action expert is conditioned on language, current observation, foresight image and proprioception, and outputs short-range action chunk $\hat{a}_{t: t+k}$. The paper uses ACT-style chunked action prediction and uses flow matching to learn the vector field from Gaussian noise to expert action in the continuous action space.</p>
+<div class="formula-block">
+<p class="intuition">This loss is learned in the training policy: given the current context and the noisy action $a_t^\tau$, predict the direction in which the movement should be towards the true action.</p>
+ $$a_t^\tau = (1-\tau)\epsilon + \tau a_t, \quad \tau\sim\mathcal{U}(0, 1), \quad \epsilon\sim\mathcal{N}(0, I)$$
+ $$\mathcal{L}_{\mathrm{action}} =
+ \mathbb{E}\left[\left\|\pi_\theta(l, \{o_i\}_{i=t-m}^{t}, q_t, a_t^\tau)-(a_t-\epsilon)\right\|^2\right]$$
+ <table class="symbol-table compact">
+<tr><td>$q_t$</td><td>proprioception information at time $t$.</td></tr>
+<tr><td>$a_t^\tau$</td><td>Interpolation points of real action $a_t$ and noise $\epsilon$.</td></tr>
+<tr><td>$a_t-\epsilon$</td><td>flow matching target vector, pointing in the direction from noise to real action.</td></tr>
+</table>
+</div>
+<h3>4.5 UGA Progressive Attention</h3>
+<p>UGA stands for Understanding-Generation-Action. Rich token interactions can be carried out within each expert, and the foresight tokens in the generation expert maintain causal/scale-conditioned patterns. The information flow across experts is a one-way hierarchy: generation attends to understanding, action attends to both, but action cannot affect generation in the reverse direction, and understanding does not receive information from subsequent modules.</p>
+<p>This design has two functions: first, to prevent reverse leakage of action tokens during training, making foresight truly an intermediate representation; second, to make the model structure interpretable as "first understand, then imagine, then execute."</p>
+<h3>4.6 Three-stage training</h3>
+<table class="compact">
+<tr><th>stage</th><th>target</th><th>Training method</th><th>Key hyperparameters <span class="appendix-ref">Appendix Training Details</span></th></tr>
+<tr><td>Pretrain Stage I</td><td>Inject the foresight capability into the generation expert and align it with the frozen understanding expert.</td><td>The understanding expert inherits $\pi_0$ and freezes it; the generation expert is randomly initialized and uses teacher forcing to predict ground-truth future visual tokens.</td><td>batch 1280, lr 3e-4, cosine, 512K steps, understanding resolution 224, generation resolution 256, 10 predicted scales. </td></tr>
+<tr><td>Pretrain Stage II</td><td>Jointly optimize three experts on large-scale robot data to learn general visuomotor knowledge.</td><td>Joint training using autoregressive predicted foresight tokens + flow matching action prediction.</td><td>batch 2880, lr 5e-5 constant, 100K steps, Gen: Act loss weight 0.1: 1, action chunk size 30, 4 predicted scales. </td></tr>
+<tr><td>Post-train Stage III</td><td>Adapt to downstream platforms and tasks.</td><td>Finetune on LIBERO, Simpler, Genie-1, Franka, Dynamic, Long-horizon and other mission data.</td><td>batch 128, lr 5e-5 cosine; Simpler 10 epochs, Genie/Franka/Dynamic 40 epochs, Long-horizon 60 epochs; action chunk size is 4/8/50, etc. respectively.</td></tr>
+</table>
+<div class="formula-block">
+<p class="intuition">The overall goal of Stage II/III is to combine predicting future images and generating actions.</p>
+ $$\mathcal{L}_{\mathrm{total}}=\mathcal{L}_{\mathrm{gen}}^{\mathrm{pred}}+\lambda\cdot\mathcal{L}_{\mathrm{action}}$$
+ <p>Among them, $\mathcal{L}_{\mathrm{gen}}^{\mathrm{pred}}$ is the autoregressive next-scale visual token NLL, and $\lambda$ controls the action loss weight.</p>
+</div>
+<h3>4.7 Data scale</h3>
+<p><span class="appendix-ref">Appendix Dataset Details</span> Complete statistics are given: a total of 330.9K trajectories, 73.8M frames, covering Genie-G1, Franka, WidowX, Google Robot, ARX LIFT II, ​​multi-view including third-person, wrist/head, frame rate 3-30 FPS.</p>
+<table class="compact">
+<tr><th>data source</th><th>Stage</th><th>Embodiment</th><th># Trajs</th><th># Frames</th></tr>
+<tr><td>Agibot-World</td><td>I + II</td><td>Genie-G1</td><td>187K</td><td>66.4M</td></tr>
+<tr><td>LIBERO</td><td>I + II + III</td><td>Franka</td><td>1.7K</td><td>0.3M</td></tr>
+<tr><td>OXE-Bridge-v2</td><td>I + II + III</td><td>WidowX</td><td>53.2K</td><td>1.9M</td></tr>
+<tr><td>OXE-Fractal</td><td>I + II</td><td>Google Robot</td><td>87.2K</td><td>3.8M</td></tr>
+<tr><td>In-house tasks</td><td>III</td><td>Genie-G1 / Franka / ARX LIFT II</td><td>About 1.8K</td><td>About 1.4M</td></tr>
+</table>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<div class="figure">
+<img alt="Real-world tasks" src="figures/fig4_realworld.png"/>
+<div class="caption">Fig. 4 / Real-world robot experiments: A total of 12 types of experiments on Genie-1, Franka, and ARX LIFT II.</div>
+</div>
+<h3>5.1 Real Genie-1 Nine Missions</h3>
+<p>15 tests per task, comparing $\pi_0$, gr00t-N1, gr00t-N1.5 and F1. The average success rate of F1 is 82.2%, which is higher than $\pi_0$'s 65.2%, gr00t-N1.5's 53.3%, and gr00t-N1's 30.4%.</p>
+<table class="compact">
+<tr><th>method</th><th>Pen</th><th>Flower</th><th>Chip</th><th>Tea Table</th><th>Tea Shelf</th><th>Bread</th><th>Handover</th><th>Handover R2H</th><th>Mixture</th><th>Avg</th></tr>
+<tr><td>$\pi_0$</td><td>66.7</td><td>66.7</td><td>86.7</td><td>86.7</td><td>73.3</td><td>66.7</td><td>33.3</td><td>40.0</td><td>66.7</td><td>65.2</td></tr>
+<tr><td>gr00t-N1</td><td>46.7</td><td>33.3</td><td>33.3</td><td>40.0</td><td>13.3</td><td>33.3</td><td>26.7</td><td>13.3</td><td>33.3</td><td>30.4</td></tr>
+<tr><td>gr00t-N1.5</td><td>73.3</td><td>40.0</td><td>46.6</td><td>73.5</td><td>26.6</td><td>53.3</td><td>60.0</td><td>40.0</td><td>66.7</td><td>53.3</td></tr>
+<tr><td><strong>F1</strong></td><td><strong>93.3</strong></td><td><strong>80.0</strong></td><td><strong>100.0</strong></td><td><strong>93.3</strong></td><td><strong>86.7</strong></td><td><strong>66.7</strong></td><td><strong>80.0</strong></td><td><strong>73.3</strong></td><td><strong>66.7</strong></td><td><strong>82.2</strong></td></tr>
+</table>
+<p>The paper emphasizes that Handover (R2H) requires dynamic adjustment and human-computer interaction, with F1 73.3%, significantly higher than $\pi_0$'s 40.0% and gr00t-N1's 13.3%.</p>
+<h3>5.2 LIBERO</h3>
+<table class="compact">
+<tr><th>method</th><th>Pretrained</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Average</th><th>Avg Rank</th></tr>
+<tr><td>$\pi_0$</td><td>Yes</td><td>98.0</td><td>96.8</td><td>94.4</td><td>88.4</td><td>94.4</td><td>2</td></tr>
+<tr><td>gr00t-N1</td><td>Yes</td><td>94.4</td><td>97.6</td><td>93.0</td><td>90.6</td><td>93.9</td><td>4</td></tr>
+<tr><td>CoT-VLA</td><td>Yes</td><td>87.5</td><td>91.6</td><td>87.6</td><td>69.0</td><td>83.9</td><td>6</td></tr>
+<tr><td>F1</td><td>No</td><td>97.4</td><td>97.6</td><td>94.2</td><td>88.0</td><td>94.3</td><td>3</td></tr>
+<tr><td><strong>F1</strong></td><td>Yes</td><td><strong>98.2</strong></td><td><strong>97.8</strong></td><td><strong>95.4</strong></td><td><strong>91.3</strong></td><td><strong>95.7</strong></td><td><strong>1</strong></td></tr>
+</table>
+<p>LIBERO-Long is the suite with the greatest long-range planning pressure. The F1 pre-training version reaches 91.3%, exceeding $\pi_0$'s 88.4% and gr00t-N1's 90.6%. This supports the authors' contention that foresight is effective for long-range missions.</p>
+<h3>5.3 SimplerEnv Bridge</h3>
+<table class="compact">
+<tr><th>method</th><th>Pretrained</th><th>Carrot Success</th><th>Eggplant Success</th><th>Spoon Success</th><th>Stack Success</th><th>Overall Avg</th></tr>
+<tr><td>SpatialVLA</td><td>Yes</td><td>25.0</td><td><strong>100.0</strong></td><td>16.7</td><td>29.2</td><td>47.9</td></tr>
+<tr><td>$\pi_0$</td><td>Yes</td><td>0.0</td><td>16.6</td><td><strong>62.5</strong></td><td>29.1</td><td>40.1</td></tr>
+<tr><td>$\pi_0$-Fast</td><td>Yes</td><td>21.9</td><td>10.8</td><td>66.6</td><td>29.1</td><td>48.3</td></tr>
+<tr><td>F1</td><td>No</td><td>33.3</td><td>75.0</td><td>45.8</td><td><strong>62.5</strong></td><td>66.1</td></tr>
+<tr><td><strong>F1</strong></td><td>Yes</td><td><strong>70.8</strong></td><td>66.7</td><td>50.0</td><td>50.0</td><td><strong>72.9</strong></td></tr>
+</table>
+<p>SimplerEnv Bridge mission emphasizes fine-grained placement. The overall average of F1 is significantly higher than the next strongest baseline, which the paper attributes to foresight's ability to adapt to changes in source object configuration and target location.</p>
+<h3>5.4 Simulated ablation</h3>
+<table class="compact">
+<tr><th>Variant</th><th>meaning</th><th>Avg</th><th>Main conclusions</th></tr>
+<tr><td>F1</td><td>complete model</td><td>77.5</td><td>baseline.</td></tr>
+<tr><td>Frozen-Gen</td><td>Freeze generation expert after Stage I</td><td>73.8</td><td>Fixed generation is still useful, but subsequent end-to-end adaptation can improve task alignment.</td></tr>
+<tr><td>Cotrain-Scratch</td><td>Remove Stage II large-scale robot pre-training</td><td>74.2</td><td>Stage II provides manipulation prior, stable optimization.</td></tr>
+<tr><td>No-Gen</td><td>Remove generation expert</td><td>60.3</td><td>visual foresight is the most critical module. SimplerEnv will obviously collapse after being removed.</td></tr>
+<tr><td>2-Scales</td><td>Inference only predicts 2 planning scales</td><td>73.4</td><td>foresight is rough and lacks planning information.</td></tr>
+<tr><td>6-Scales</td><td>Inference prediction 6 planning scales</td><td>75.8</td><td>More scales are not necessarily better, are more computationally intensive and may introduce instability; the paper ultimately uses 4 scales.</td></tr>
+</table>
+<h3>5.5 Real task ablation and dynamic generalization</h3>
+<p>Real task ablation shows that No-Gen achieves only 40.0% and 60.0% in Handover (R2H) and Mixture respectively, while F1 reaches 93.3% and 73.3%. Cotrain-Scratch is also significantly lower than the full model, indicating that Stage II's large-scale robot pre-training is helpful for real downstream generalization.</p>
+<div class="figure">
+<img alt="Real-world ablation" src="figures/fig5_exp_abl_real_world.png"/>
+<div class="caption">Fig. 5 / Real-world ablation: The complete three-stage training is significantly improved compared to the variant without Stage II.</div>
+</div>
+<p>The dynamic conveyor belt experiment uses ARX LIFT II, a robot embodiment not found in the pre-training data. Using only 47 post-train demonstrations, the success rate of F1 in continuous double-arm dynamic grasping is 66.7%, and that of $\pi_0$ is 33.3%; in the Lettuce and Bread subtasks, the success rate of F1 is 80.0%, and that of $\pi_0$ is 53.3% and 46.7%.</p>
+<div class="figure">
+<img alt="Dynamic manipulation" src="figures/fig6_env_dynamics.png"/>
+<div class="caption">Fig. 6 / Dynamic manipulation: Specified food grabbing on a moving conveyor belt.</div>
+</div>
+<h3>5.6 Rapid adaptation and long-range tasks</h3>
+<table class="compact">
+<tr><th>experiment</th><th>$\pi_0$</th><th>F1</th><th>Description</th></tr>
+<tr><td>Franka sweep: number of successful objects</td><td>4.9 / 8.0</td><td><strong>7.1 / 8.0</strong></td><td>F1 sweeps more.</td></tr>
+<tr><td>Franka sweep: maximum number of attempts</td><td>4.8 / 5.0</td><td><strong>3.5 / 5.0</strong></td><td>F1 has fewer attempts.</td></tr>
+<tr><td>Franka sweep: number of empty sweeps</td><td>2.4 / 5.0</td><td><strong>0.8 / 5.0</strong></td><td>The paper explains that reduced air scans reflect more accurate spatial grounding.</td></tr>
+<tr><td>Sort 1/2/3 consecutive grabs</td><td>100 / 86.7 / 53.3</td><td><strong>100 / 100 / 66.7</strong></td><td>F1 retains better across repeated interactions.</td></tr>
+</table>
+<p>The long-range ARX LIFT II mission consists of 10 steps and approximately 2 minutes. $\pi_0$ is 93.3% in the first two pickplace steps, and basically 0% after that; F1 is 100% in the first three steps, 93.3% in steps 4/5, and there are still 73.3%, 60.0%, 40.0%, 40.0%, and 40.0% in subsequent complex steps. The paper acknowledges that the decline in subsequent steps is consistent with long-range error accumulation expectations.</p>
+<h3>5.7 Generation quality and action reliability</h3>
+<p>The paper does not use traditional FID/PSNR as the main generation indicator, but uses Qwen2.5-VL-32B-Instruct for task-relevant evaluation. The input includes task instruction, four frame history, predicting the next frame and ground-truth frame; the output includes three binary scores: scene consistency, object consistency, and task progress following. prompt template in <span class="appendix-ref">Appendix Prompt Template</span> given in.</p>
+<div class="figure">
+<img alt="Generation quality metrics" src="figures/fig8_metrics_all_final.png"/>
+<div class="caption">Fig. 7 / Generation quality: scene consistency is improved first, object consistency is the most difficult, and task progress follows to improve steadily.</div>
+</div>
+<p>The authors observed that the object consistency curve is lower because F1 is not pre-trained on large-scale generative datasets; but task progress following often exceeds object consistency, indicating that foresight can provide action-related clues even if the pixels are not perfect.</p>
+<div class="figure">
+<img alt="Correlation between image and action accuracy" src="figures/fig10_correlation_by_dataset.png"/>
+<div class="caption">Fig. 8 / Image-action correlation: Among the four LIBERO suites, image token accuracy and action token accuracy have a stable positive correlation.</div>
+</div>
+</section>
+<section id="repro">
+<h2>6. Repeat audit</h2>
+<h3>6.1 Code and resources</h3>
+<div class="audit-card">
+<p><span class="audit-pass">Already published: </span>The official GitHub is <a href="https://github.com/InternRobotics/F1-VLA">InternRobotics/F1-VLA</a>, including <code>f1_vla/</code>, <code>train_hf.py</code> and README training entrance. The project homepage is <a href="https://aopolin-lv.github.io/F1-VLA/">F1-VLA</a>, HuggingFace organization provides model/data entry.</p>
+<p><span class="audit-pass">Dependencies given in README: </span>Python ≥ 3.10, torch ≥ 2.6.0, CUDA ≥ 12.4; FFmpeg + TorchCodec is recommended to speed up video data loading.</p>
+<p><span class="audit-warn">Downloads: </span>README points to LIBERO no-op filtered data, F1_pretrain checkpoint, lerobot/pi0_base, google/paligemma-3b-pt-224, VAR VAE weights.</p>
+</div>
+<h3>6.2 reproducibility path</h3>
+<ol>
+<li>Clone the repository and create an environment: <code>git clone https://github.com/InternRobotics/F1-VLA.git</code>, <code>conda create -n f1_vla python==3.10</code>. </li>
+<li>Install PyTorch CUDA 12.4 version and repository: <code>pip install torch==2.6.0 ...</code>, enter <code>F1-VLA/f1_vla</code> after <code>pip install -e .</code>. </li>
+<li>Download the README specifying checkpoint/tokenizer/VAE/LIBERO data and fill in the path in the configuration.</li>
+<li>Edit configuration: <code>f1_vla/config/debug_test.yaml</code> Or corresponding task configuration.</li>
+<li>Run training: <code>python train_hf.py --config-file f1_vla/config/debug_test.yaml</code>. </li>
+</ol>
+<h3>6.3 Deployment delays</h3>
+<p><span class="appendix-ref">Appendix Deploy Platform and Latency Analysis</span>: All experiments were run on an Intel i9 CPU + NVIDIA RTX 4090 workstation, and the robot was connected via wired Ethernet. When three channels of synchronous camera input are used, the total inference time is about 235ms.</p>
+<table class="compact">
+<tr><th>module</th><th>delay</th></tr>
+<tr><td>image process / resize</td><td>18ms</td></tr>
+<tr><td>temporal downsampling</td><td>28ms</td></tr>
+<tr><td>image encoder</td><td>18ms</td></tr>
+<tr><td>foresight generation</td><td>76ms</td></tr>
+<tr><td>x10 action forward pass (flow)</td><td>95ms</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>235ms</strong></td></tr>
+</table>
+<h3>6.4 Recurrence risk</h3>
+<ul>
+<li>Large-scale training costs are high: Stage I 512K steps, Stage II 100K steps, batch size 1280 / 2880 respectively. Real and complete pre-training is not a single-card lightweight replication experiment.</li>
+<li>Real robot tasks rely on in-house demonstrations and Genie-G1/Franka/ARX LIFT II platforms, and public code does not mean reproducible physical forms.</li>
+<li>The generation quality evaluation relies on Qwen2.5-VL-32B-Instruct as the evaluator, and the prompt is disclosed in the appendix, but the evaluation stability still depends on the model version and calling settings.</li>
+<li>The paper claims that F1 is a 4.2B parameter model, and the project also requires initialization resources such as PaliGemma / $\pi_0$ / VAR VAE and multi-view video processing links.</li>
+</ul>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own evidence, the most valuable thing is to upgrade "future image prediction" from an auxiliary training goal to an explicit planning intermediate variable during inference. F1 lets the generation expert first produce visual foresight, and then lets the action expert target it to do inverse dynamics. This is closer to the structure of "imagine first and then execute" than simply adding an action head to the backbone. No-Gen dropped from 77.5% to 60.3% in ablation, Real Handover (R2H) and Dynamic Conveyor tasks also showed that foresight is particularly important for complex dynamics.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The evidence chain of the paper is relatively complete: nine real tasks show that F1 improves the average success rate relative to $\pi_0$; LIBERO and SimplerEnv provide simulation benchmarks; Frozen-Gen, Cotrain-Scratch, No-Gen, and 2/6 scales ablation respectively verify generation trainability, Stage II pre-training, generation expert itself, and the number of inference scales; dynamic conveyor belt, Franka fast adaptation, and 10-step The long-range task shows scenarios beyond short-range static crawling; the generation quality chapter also shows that foresight quality is positively related to action accuracy.</p>
+<h3>7.3 Limitations and future directions described by the author</h3>
+<ul>
+<li>The pixel-level details of Foresight images are still limited, especially for fine-grained or deformable objects such as grid shopping carts, plastic bags, and clothing. The author attributes the reason to the lack of pre-training generation experts on large-scale generative datasets.</li>
+<li>The success rate of long-range tasks dropped significantly in the second half, which the paper explained was due to the accumulation of long-range errors and the increased difficulty of complex reasoning.</li>
+<li>Future directions include expansion to more embodiments and task families, such as locomotion, dexterous manipulation, and multi-agent collaboration.</li>
+<li>The author also proposed that foresight can be enhanced with structured world models or physics-informed priors, and combined with reinforcement learning / online adaptation / human feedback for continuous improvement.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>F1 is suitable for manipulation tasks where the future visual state can provide clear planning goals for actions, especially dynamic goals, long-range steps, hand-eye coordination and cross-platform adaptation. It relies heavily on multi-view historical images, proprioception, generative visual tokenization and heavier reasoning chains. There is insufficient evidence in the paper for tasks such as invisible contact forces, pure tactile feedback, extremely high-speed closed-loop control, or tasks where the target state cannot be expressed through images.</p>
+</section>
+</main>
+</body>
+</html>

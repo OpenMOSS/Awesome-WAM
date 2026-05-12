@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vidar: Embodied Video Diffusion Model for Generalist Manipulation</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="hero">
+<h1>Vidar: Embodied Video Diffusion Model for Generalist Manipulation</h1>
+<div>
+<span class="tag">arXiv: 2507.12898</span>
+<span class="tag">Dual-arm robot operation</span>
+<span class="tag">Video diffusion world model</span>
+<span class="tag">Low sample migration</span>
+<span class="tag">Masked Inverse Dynamics</span>
+</div>
+<div class="meta">
+<div><strong>Method name: </strong>Vidar, Video Diffusion for Action Reasoning</div>
+<div><strong>Authors: </strong>Yao Feng, Hengkai Tan, Xinyi Mao, Chendong Xiang, Guodong Liu, Shuhe Huang, Hang Su, Jun Zhu</div>
+<div><strong>Organization: </strong>Tsinghua University; Shengshu Tech</div>
+<div><strong>Meeting format: </strong>NeurIPS 2025 preprint style</div>
+</div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+<li><a href="#overview">Paper quick overview</a></li>
+<li><a href="#motivation">Motivation and problem definition</a></li>
+<li><a href="#related">Related work context</a></li>
+<li><a href="#method">Detailed explanation of method</a></li>
+<li><a href="#experiments">Experiments and results</a></li>
+<li><a href="#repro">Key points to reproduce</a></li>
+<li><a href="#analysis">Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">Preparation for group meeting Q&amp;A</a></li>
+</ol>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>On the new robot platform, dual-arm operation requires a large amount of demonstration data bound to the hardware; the differences in action spaces, perspectives, and shapes of different robots make cross-platform migration difficult. The paper wants to answer: Can the video dynamic knowledge on the Internet and robot data be turned into a transferable prior, so that an unseen two-arm platform can perform multi-task operations in only about 20 minutes of demonstration?</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Break down the strategy into two steps: first use the video diffusion model to generate a multi-view video rollout of "what should happen next", and then use the Masked Inverse Dynamics Model, MIDM, to convert the video frames into target robot actions. The key points are the unified observation space, embodied pre-training of 750K multi-view dual-arm video, a small amount of full-parameter fine-tuning of the target platform, multi-sampling rearrangement during testing, and action-related area masks without pixel annotation.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>In the RoboTwin 2.0 multi-tasking setting, Vidar achieved an average success rate of 60.0% in the low data clean scenario, compared to 25.0% for Pi0.5; 65.8% for standard clean and 44.8% for Pi0.5. On a real platform, with only about 20 minutes and 232 episodes of human demonstration, Vidar achieved 68.2%, 66.7%, and 55.6% on seen tasks/backgrounds, unseen tasks, and unseen backgrounds respectively, significantly higher than UniPi and VPP.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The focus of this paper is not just "making videos look good", but whether the videos are action-aware enough. We should pay special attention to three aspects: whether the unified observation space really alleviates the embodiment gap; whether MIDM's mask is only effective on real platform distribution; TTS relies on GPT-4o rearrangement and cloud video model, which brings delay, cost and lack of closed-loop control. Another boundary is that the author relies heavily on multiple perspectives to see the arms and contact areas.</td>
+</tr>
+</tbody>
+</table>
+<div class="note">
+<strong>One sentence version: </strong>Vidar treats the large video model as a transferable world prior for robot operation, uses unified multi-viewpoints to observe spatial "operation dynamics in video", and then uses an inverse dynamics model with an implicit mask to predict the video into the action space of the new dual-arm robot.
+ </div>
+<figure>
+<img alt="Vidar method overview" src="figures/figures_Figure2.png"/>
+<figcaption>Figure 2. The overall process of Vidar: external video and robot video training video diffusion prior, a small number of demonstration fine-tuning on the target platform, selecting better videos through TTS during inference, and then outputting actions by MIDM.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation and problem definition</h2>
+<h3>2.1 Why not directly train the VLA policy?</h3>
+<p>The author believes that the difficulty of dual-arm operation comes from three coupled factors: the expansion of the action space with the number of joints, the need for precise time coordination between the arms, and contact dynamics and long-term planning that are sensitive to data quality. Although the VLA model can connect vision, language and action end-to-end, the action space is highly dependent on the robot form, and it is difficult to directly migrate the action labels of one platform to another platform when cross-platform.</p>
+<p>Therefore, Vidar chooses to bypass the heterogeneity of the action space: the video diffusion model only learns how the world evolves, and does not directly learn actions; actions are only decoded by a lightweight inverse dynamics model on the target platform. This is the basic position of the paper: video is an intermediate modality between Internet data, robot data, and target platform demonstrations.</p>
+<h3>2.2 Formalization issues</h3>
+<p>The original goal is to learn conditional action strategies: </p>
+<div class="formula">$$\pi: \mathcal{L} \times \mathcal{O} \rightarrow \mathbb{P}(\mathcal{A}), $$</div>
+<p>Among them, $\mathcal{L}$ is the language instruction space, $\mathcal{O}$ is the observation space, and $\mathcal{A}$ is the action space. The author decomposes it into a video generation model $G$ and an inverse dynamics model $I$: </p>
+<div class="formula">$$\pi = I \circ G, \qquad G: \mathcal{L}\times\mathcal{O}\rightarrow\mathbb{P}(\mathcal{V}), \quad I: \mathcal{V}\rightarrow\mathcal{A}.$$</div>
+<p>This means that most of the cross-task and cross-scenario knowledge is undertaken by $G$; the action mapping related to the target robot is undertaken by $I$. When reading this paper, keep asking: does the video space really retain enough motion information? If certain joints or contact points are out of view, the $I$ cannot reliably resume motion.</p>
+<h3>2.3 Contribution positioning</h3>
+<ul>
+<li>It is proposed to use a large-scale video diffusion model as a transferable prior for dual-arm operation, and adapt the Internet video prior to the robot video domain through embodied pre-training.</li>
+<li>A unified observation space is proposed to splice robot type, camera layout, task language and multi-view frames into a unified input format to reduce the differences in perspective and form of multi-platform data.</li>
+<li>MIDM is proposed to use a mask without pixel-level supervision to allow the inverse dynamics model to focus on the arm, tool and contact area, thereby improving the generalization of action decoding under background changes.</li>
+<li>Low-sample adaptation is demonstrated on RoboTwin and a real Aloha dual-arm platform, with particular emphasis on the real platform, which only takes about 20 minutes to demonstrate.</li>
+</ul>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<div class="grid-2">
+<div class="mini">
+<h3>3.1 VLA model</h3>
+<p>Methods such as RT-1, RT-2, OpenVLA, Octo, Pi0, and RDT-1B integrate vision, language, and motion into a unified model, but usually require large-scale robot trajectories. The authors point out that these routes have high data requirements, and the actions are strongly coupled with the model, making them inflexible when migrating to heterogeneous embodiments.</p>
+</div>
+<div class="mini">
+<h3>3.2 Video generation plus action synthesis</h3>
+<p>VPP, UVA, VidMan and other work couple video prediction and action synthesis, which can improve physical consistency or interactivity. However, if you want to replace a stronger video model, you often need to retrain the entire video-action system. Vidar's choice is decoupling: the video model is responsible for generation, and MIDM is responsible for target platform actions.</p>
+</div>
+<div class="mini">
+<h3>3.3 embodied video generation</h3>
+<p>UniPi, RoboDreamer, Gen2Act, CLOVER, SuSIE, GR-1, and others leverage video generation or frame prediction to aid robot planning. The author believes that most of the work focuses on single-arm, single-view, or does not make full use of heterogeneous robot video pre-training; Vidar mainly fills this gap.</p>
+</div>
+<div class="mini">
+<h3>3.4 Relationship with world model</h3>
+<p>Vidar can be thought of as a video world model, but it does not explicitly model states and rewards, nor does it plan closed-loop control online. It is closer to the paradigm of "generate future videos offline, choose a good rollout, and then perform the corresponding actions in an open loop".</p>
+</div>
+</div>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Three-stage training pipeline</h3>
+<p>Vidar's training is divided into three layers of data from large to small: </p>
+<ol>
+<li><strong>Internet-scale video pre-training: </strong>Directly adopt existing video model checkpoints, such as Wan2.2, Vidu 2.0, and HunyuanVideo, to obtain semantic, motion, and physical interaction priors.</li>
+<li><strong>embodied domain pre-training: </strong>Continue pre-training with about 750K multi-view dual-arm robot episodes to adapt the video model to the robot, camera and operating dynamics.</li>
+<li><strong>Target platform fine-tuning: </strong>Perform full-parameter SFT with a small number of demonstrations on the target robot, while training MIDM to map video frames to actions.</li>
+</ol>
+<h3>4.2 Video generation model: rectified flow</h3>
+<p>The authors adopt a video diffusion model in the form of rectified flow. The model learns the velocity field $v(x_t, t, c)$, flowing from Gaussian noise $x_0$ to the target video $x_1$: </p>
+<div class="formula">$$\frac{d x_t}{d t}=v(x_t, t, c), \quad t\in[0, 1].$$</div>
+<p>During training, let the velocity field approximate the constant flow from $x_0$ to $x_1$: </p>
+<div class="formula">$$L_G=\mathbb{E}_{c, t, x_0, x_1}\left[\left\|(x_1-x_0)-v(tx_1+(1-t)x_0, t, c)\right\|^2\right].$$</div>
+<p>The $c$ here is not just the task text, but the robot, camera, task and multi-view image context in the unified observation space. This choice is what sets Vidar apart from ordinary text-to-video control methods.</p>
+<h3>4.3 Unified observation space</h3>
+<p>The unified observation space is defined as: </p>
+<div class="formula">$$\mathcal{U}=\{\langle\mathbf{o}, \mathbf{l}\rangle\mid \mathbf{o}=\mathrm{aggregate}(\mathbf{I}^{(1)}, \ldots, \mathbf{I}^{(V)}), \; \mathbf{l}=\mathrm{concatenate}(l_r, l_c, l_t)\}.$$</div>
+<p>Among them, $\mathbf{o}$ is a multi-view image aggregation, and $l_r, l_c, l_t$ describes the robot platform, camera configuration and task instructions respectively. For different data sets, the author gives text descriptions similar to "fixed high camera, movable left arm camera, movable right arm camera" as part of the conditions.</p>
+<p>The advantage of this step is that the model does not need to unify the action space. It only needs to cast the videos of different robot platforms into the same "multi-view image plus description" format. But this also brings an implicit requirement: the camera description must be stable enough and the perspective must cover the action-related area.</p>
+<h3>4.4 embodied pre-training and target platform fine-tuning</h3>
+<p>The pre-training data comes from Agibot-World, RoboMind, and RDT. The data size corresponding to the real experiment is 746, 533 episodes; Egodex is additionally added to the simulation experiment. The authors filtered out episodes with less than three views or shorter than four seconds, and used Agibot's frame-level annotation to cut long episodes into short clips. Sampling is done in proportion to the size of the data set during pre-training.</p>
+<p>Data from the target platform are used both for the fine-tune video diffusion model and for training MIDM. The real platform data is a 20-minute human demonstration, covering 81 tasks and 232 episodes; the simulation low data is set to 20 episodes per task for RoboTwin, and the standard is set to 50 episodes per task.</p>
+<h3>4.5 Test-Time Scaling</h3>
+<p>The sampling of the video diffusion model is random, and a single rollout may be physically inconsistent or task mismatched. Vidar generates $K$ candidate videos during inference: </p>
+<div class="formula">$$\{\tilde{\mathbf{v}}^{(i)}_{1: T}\}_{i=1}^{K}, $$</div>
+<p>Then use evaluator $q_\eta$ to select the highest scoring video: </p>
+<div class="formula">$$\arg\max_i q_\eta(\tilde{\mathbf{v}}^{(i)}_{1: T}).$$</div>
+<p>In the real experiment, $K=3$, three videos were generated in parallel, and then rearranged by GPT-4o based on physical rationality and task text consistency; in the simulation experiment, TTS was turned off for reproducibility, that is, $K=1$. The appendix notes that each pairwise comparison costs about $0.003, and GPT-4o rearrangement accounts for about 25% of the total delay at $K=3$.</p>
+<h3>4.6 Masked Inverse Dynamics Model</h3>
+<p>MIDM contains two networks: mask prediction network $U$ and action regression network $R$. Given frame $x$, first predict the spatial mask: </p>
+<div class="formula">$$m=U(x), \qquad \hat a=R(\mathrm{Round}(m)\odot x).$$</div>
+<p>The training loss is: </p>
+<div class="formula">$$L_I=\mathbb{E}_{x, a}\left[l(\hat a-a)+\lambda\|m\|_1\right], $$</div>
+<p>Among them, $l$ is Huber loss, $\lambda\|m\|_1$ encourages mask sparseness, and Round is trained by straight-through estimator. The intuition is: if the model must predict actions with as few pixels as possible, it will tend to retain arms, grippers, tools, and contact points, and filter out background and reflection interference.</p>
+<figure>
+<img alt="MIDM learned masks" src="figures/figures_GRM_mask_fig.png"/>
+<figcaption>Figure. MIDM learned mask: In unseen backgrounds and reflective surfaces, the mask still mainly falls on the robot arm and key operating areas.</figcaption>
+</figure>
+<h3>4.7 Why not use ready-made segmentation models</h3>
+<p>Appendix tests RoboEngine segmentation. The author points out that it often only recognizes one arm in dual-arm scenes, is unstable from the wrist perspective, and lacks temporal consistency. Vidar therefore does not rely on external segmentation labels, but instead lets action supervision shape the mask inversely.</p>
+<figure>
+<img alt="RoboEngine segmentation results" src="figures/figures_roboengine_mask_fig.png"/>
+<figcaption>Appendix. RoboEngine segmentation example: As a comparison, it shows that explicit segmentation may miss action-related parts in multi-view dual-arm scenes.</figcaption>
+</figure>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental hypothesis</h3>
+<ol>
+<li>Vidar also achieves a higher success rate with only 20 minutes of target domain demonstration.</li>
+<li>Vidar can generalize to unseen tasks and unseen contexts.</li>
+<li>Embodied pre-training on a unified observation space can improve video generation quality.</li>
+<li>MIDM generalizes better than the ordinary ResNet inverse dynamics model.</li>
+</ol>
+<h3>5.2 Data and training settings</h3>
+<table>
+<thead>
+<tr><th>Project</th><th>settings</th></tr>
+</thead>
+<tbody>
+<tr><td>Pre-training data</td><td>Agibot-World, RoboMind, RDT; real experiments total 746, 533 episodes; simulation experiments additionally add Egodex.</td></tr>
+<tr><td>Target real platform data</td><td>20 minutes of human demonstration, 81 tasks, 232 episodes; target platform not seen in pre-training.</td></tr>
+<tr><td>Simulation data</td><td>RoboTwin 2.0; low data is 20 episodes per task and the camera is adjusted to fully see the arm; standard is 50 episodes per task and official perspective.</td></tr>
+<tr><td>video model</td><td>The simulation uses Wan2.2; the real main experiment uses Vidu 2.0; the appendix also reproduces Wan2.2 and HunyuanVideo.</td></tr>
+<tr><td>Number of training steps</td><td>Wan2.2: 10K pre-training + 12K fine-tuning; Vidu 2.0: 10K pre-training + 13K fine-tuning; video downsampling to 8 fps.</td></tr>
+<tr><td>MIDM</td><td>U-Net mask predictor + ResNet-50 action regressor; $\lambda=3\times10^{-3}$; trained with fine-tuning dataset only.</td></tr>
+</tbody>
+</table>
+<h3>5.3 RoboTwin 2.0 Main Results</h3>
+<p>The RoboTwin results use a more difficult multi-task setup: instead of training a policy individually for each task, it is evaluated evenly across 50 tasks, with 100 episodes each. Pi0* in the table is the official leaderboard result. Because each task is trained independently, the author's explanation is easier and not completely comparable.</p>
+<table>
+<thead>
+<tr>
+<th>method</th><th>Low Clean</th><th>Low Randomized</th><th>Standard Clean</th><th>Standard Randomized</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Pi0*</td><td>-</td><td>-</td><td>46.42%</td><td>16.34%</td></tr>
+<tr><td>Pi0.5</td><td>25.0%</td><td>9.2%</td><td>44.8%</td><td>14.2%</td></tr>
+<tr><td><strong>Vidar</strong></td><td><strong>60.0%</strong></td><td><strong>15.7%</strong></td><td><strong>65.8%</strong></td><td><strong>17.5%</strong></td></tr>
+</tbody>
+</table>
+<p>Key interpretation: Vidar improves the most in the clean scene, indicating that video priors and multi-view conditions are very helpful for task execution; the improvement in the randomized scene is smaller, indicating that background and object randomization are still bottlenecks, but Vidar still exceeds Pi0.5.</p>
+<h3>5.4 Real robot main results</h3>
+<p>Real experiments are divided into three categories: seen tasks/backgrounds, unseen tasks, and unseen backgrounds. UniPi and VPP were selected as baselines because the author believes that it is difficult for conventional VLA to effectively adapt when there are only 20 minutes of data.</p>
+<table>
+<thead>
+<tr><th>method</th><th>Seen Tasks &amp; Backgrounds</th><th>Unseen Tasks</th><th>Unseen Backgrounds</th></tr>
+</thead>
+<tbody>
+<tr><td>VPP</td><td>4.5%</td><td>13.3%</td><td>0.0%</td></tr>
+<tr><td>UniPi</td><td>36.4%</td><td>6.7%</td><td>22.2%</td></tr>
+<tr><td><strong>Vidar</strong></td><td><strong>68.2%</strong></td><td><strong>66.7%</strong></td><td><strong>55.6%</strong></td></tr>
+</tbody>
+</table>
+<p>The strongest evidence here is that unseen tasks are still 66.7%, indicating that the video model not only remembers the demonstration tasks, but can also use language and video priors to process semantic tasks, such as grabbing the shortest piece of bread, wiping the table with a rag, etc. unseen backgrounds dropped to 55.6%, but still significantly higher than UniPi and VPP.</p>
+<figure>
+<img alt="Vidar prediction and execution demos" src="figures/figures_GRM_demo_fig_v2.png"/>
+<figcaption>Figure. On a real robot, the left side is the prediction video and the right side is the corresponding execution. It can be used to check whether the video rollout is consistent with the action execution.</figcaption>
+</figure>
+<h3>5.5 Video quality gains of embodied pre-training</h3>
+<table>
+<thead>
+<tr><th>Configuration</th><th>Subject Consistency</th><th>Background Consistency</th><th>Imaging Quality</th></tr>
+</thead>
+<tbody>
+<tr><td>Vidu 2.0</td><td>0.565</td><td>0.800</td><td>0.345</td></tr>
+<tr><td><strong>+ Embodied Pre-training</strong></td><td><strong>0.855</strong></td><td><strong>0.909</strong></td><td><strong>0.667</strong></td></tr>
+</tbody>
+</table>
+<p>VBench indicators show that robot video pre-training significantly improves subject consistency, background consistency and imaging quality. For robot control, subject consistency is not a purely visual aesthetic indicator. It is related to whether the arm, object and contact relationships remain stable throughout the rollout.</p>
+<h3>5.6 MIDM generalization results</h3>
+<table>
+<thead>
+<tr><th>inverse dynamics model</th><th>Training Accuracy</th><th>Testing Accuracy</th><th>Testing $l_1$ Error</th></tr>
+</thead>
+<tbody>
+<tr><td>ResNet</td><td>99.9%</td><td>24.3%</td><td>0.0430</td></tr>
+<tr><td><strong>MIDM</strong></td><td>99.9%</td><td><strong>49.0%</strong></td><td><strong>0.0308</strong></td></tr>
+</tbody>
+</table>
+<p>Both scores are almost full on the training set, but the success rate of MIDM on the test set is doubled, indicating that ResNet is more likely to take advantage of background or texture shortcuts, and MIDM's sparse mask regularization helps draw attention back to action-related areas.</p>
+<h3>5.7 Ablation experiment</h3>
+<table>
+<thead>
+<tr><th>Configuration</th><th>Seen Tasks &amp; Backgrounds</th><th>Unseen Tasks</th><th>Unseen Backgrounds</th></tr>
+</thead>
+<tbody>
+<tr><td>Vidar w/o TTS</td><td>45.5%</td><td>33.3%</td><td>44.4%</td></tr>
+<tr><td>Vidar w/o MIDM</td><td>59.1%</td><td>26.7%</td><td>22.2%</td></tr>
+<tr><td><strong>Vidar</strong></td><td><strong>68.2%</strong></td><td><strong>66.7%</strong></td><td><strong>55.6%</strong></td></tr>
+</tbody>
+</table>
+<p>TTS improves unseen tasks significantly, from 33.3% to 66.7%; MIDM is especially critical for unseen background, from 22.2% to 55.6%. This is consistent with the narrative of the paper: TTS mainly filters out videos that do not match the task or are physically unreasonable, and MIDM mainly resists background interference.</p>
+<h3>5.8 Supplementary results in Appendix</h3>
+<div class="grid-2">
+<div class="mini">
+<h4>$\lambda$ for MIDM</h4>
+<p>$\lambda=3\times10^{-3}$ best: testing accuracy 49.0%, testing $l_1$ error 0.0308. If $\lambda=10^{-1}$ is too large, the mask will be too sparse, and the test accuracy is only 7.1%; if $\lambda=10^{-4}$ is too small, the constraints will be insufficient, and the test accuracy will be 24.4%.</p>
+</div>
+<div class="mini">
+<h4>Wan2.2 additional real experiments</h4>
+<p>On 14 real tasks, Vidar-Wan2.2's seen cases average 69.3%, Pi0.5 is 34.3%; unseen cases average 67.1%, Pi0.5 is 12.9%. This support method is not fully bound to Vidu 2.0.</p>
+</div>
+<div class="mini">
+<h4>HunyuanVideo Additional Experiments</h4>
+<p>The average success rate of the six tasks was 58.3%, including 100% for grabbing apples and placing them in the steamer, 25% for grabbing cup handles, and 20% for stacking blocks. It shows that it is feasible to replace the backbone, but the differences between different tasks are still large.</p>
+</div>
+<div class="mini">
+<h4>Failure case</h4>
+<p>Additional visualizations in the appendix contain success and failure cases. Report readers should pay attention to whether the failure results from unreasonable video prediction, incorrect TTS selection, failed MIDM action decoding, or accumulation of open-loop execution errors.</p>
+</div>
+</div>
+<figure>
+<img alt="Additional demos and failure cases" src="figures/figures_GRM_challenging_demo_fig.png"/>
+<figcaption>Appendix. More examples of challenge tasks, including success and failure cases, which are important diagrams for understanding boundary conditions.</figcaption>
+</figure>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Data processing</h3>
+<ul>
+<li>Convert each data set episode into a unified multi-view image layout; the wrist or perspectives with less information will be resized and then spliced.</li>
+<li>Add robot, camera and task description to each piece of data to form $l_r, l_c, l_t$.</li>
+<li>Filter data with less than three views or shorter than four seconds; Agibot uses frame-level annotation to segment short clips.</li>
+<li>RoboTwin low data specially adjusts the camera to make both arms fully visible to facilitate MIDM learning movements.</li>
+</ul>
+<h3>6.2 Training resources</h3>
+<table>
+<thead>
+<tr><th>module</th><th>Resources and training</th></tr>
+</thead>
+<tbody>
+<tr><td>Vidu 2.0</td><td>64 NVIDIA Ampere 80GB GPUs, 23, 000 iterations, about 64 hours; 10, 000 pre-training, the rest fine-tuning.</td></tr>
+<tr><td>Wan2.2</td><td>5B parameters; pre-train lr $2\times10^{-5}$, fine-tune lr $2\times10^{-5}$, warm-up 200, pre-training 10K, fine-tuning 12K.</td></tr>
+<tr><td>HunyuanVideo</td><td>13B parameters; 64 NVIDIA Hopper 80GB GPU, about 54 hours; pre-training 10K, fine-tuning 2K.</td></tr>
+<tr><td>MIDM</td><td>92M parameters; 8 NVIDIA Hopper 80GB GPUs, 60, 000 iterations, about 5 hours.</td></tr>
+</tbody>
+</table>
+<h3>6.3 MIDM hyperparameters</h3>
+<table>
+<thead>
+<tr><th>hyperparameters</th><th>value</th></tr>
+</thead>
+<tbody>
+<tr><td>Mask network</td><td>U-Net, 5 layers down/up sampling</td></tr>
+<tr><td>Action network</td><td>ResNet-50</td></tr>
+<tr><td>Loss</td><td>Huber loss + $\lambda\|m\|_1$</td></tr>
+<tr><td>Learning rate</td><td>$5\times10^{-4}$</td></tr>
+<tr><td>Warm-up</td><td>6000 steps</td></tr>
+<tr><td>AdamW</td><td>$\beta=(0.9, 0.999)$, $\epsilon=10^{-8}$, weight decay $10^{-2}$</td></tr>
+<tr><td>Mask sparsity</td><td>$\lambda=3\times10^{-3}$</td></tr>
+</tbody>
+</table>
+<h3>6.4 Reasoning process</h3>
+<ol>
+<li>Enter the current multi-view and task text.</li>
+<li>The video model generates 60 frames, 8 fps, or 7.5 seconds of future video at one time.</li>
+<li>The real experiment generates $K=3$ candidates, and extracts 5 to 7 frames and gives them to GPT-4o for sorting according to the task and physical rationality.</li>
+<li>When a video is selected, MIDM runs locally and converts video frames into action sequences.</li>
+<li>The execution is open-loop, and no re-planning is performed based on observations during execution after generation.</li>
+</ol>
+<div class="warn">
+<strong>Recurrence risk: </strong>Vidu 2.0 is not a completely open source backbone; TTS uses GPT-4o; the video model is deployed in the cloud, and a single 60-frame video takes about 25 seconds. These factors impact standalone replication and live deployment.
+ </div>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is that it provides a very clear cross-embodiment transfer split: do not forcefully unify the action space, but first unify the video observation space, let the large video model learn the operating dynamics across robots and cross-views, and then use a small amount of action data from the target platform to train the inverse dynamics adapter. This idea compresses expensive robot action supervision to the last step, which is very consistent with the current paradigm of "learn universal priors first, and then align them at low cost" in the current era of large models.</p>
+<p>The second value point is that the design of MIDM is very simple but it captures the pain points in the generalization of real robots: changes in background, reflection, and perspective will make overfitting shortcuts from ordinary images to action models, while action supervision plus sparse masks can force the model to focus on arms and contact areas without segmentation labels.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li>The main result is not a single scene: RoboTwin simulation, real seen task, real unseen task and real unseen background are covered simultaneously.</li>
+<li>There are strong baselines Pi0.5, UniPi, VPP, and the author explains the comparability issues of Pi0 leaderboard with multitasking setups.</li>
+<li>Ablation directly corresponds to the method components: w/o TTS and w/o MIDM verifying the contribution of inferred rearrangement and masked inverse dynamics respectively.</li>
+<li>The appendix provides a task-by-task table, not just averages; you can see the differences in many tasks, such as handover, hanging mugs, putting bottles, etc. are still difficult.</li>
+<li>VBench and MIDM training/test comparisons provide mechanism evidence: embedded pre-training improves video consistency, and MIDM improves test action prediction rather than just training fit.</li>
+</ul>
+<h3>7.3 Main limitations</h3>
+<ul>
+<li><strong>Strong reliance on observability: </strong>The Appendix Hardware section clearly states that the intermediate video must contain the information required for action prediction. In Aloha's original perspective, the arm joints were often out of view, so the author adjusted the center camera. Many commercial platforms may not be able to arrange cameras in this way.</li>
+<li><strong>Open loop execution: </strong>In the real experiment, the video is generated once and the action is executed once, which is not a closed-loop visual feedback control. In long-term tasks or disturbance scenarios, errors may accumulate.</li>
+<li><strong>High inference latency: </strong>A 60-frame video takes about 25 seconds to generate, and TTS requires additional GPT-4o sorting. The authors also acknowledge the need to distill or quantify cost reductions.</li>
+<li><strong>TTS relies on external evaluator: </strong>GPT-4o sorting can improve results, but the bias, cost and reproducibility stability of the evaluator need to be additionally considered.</li>
+<li><strong>The scale of real experiments is still limited: </strong>81 tasks and 232 episodes are very convincing, but it is still not large enough compared to deployment-level generalization. In particular, the failure types of complex contact tasks with both arms need more systematic analysis.</li>
+<li><strong>Video actionability is not fully guaranteed: </strong>Diffused video may look reasonable but is not dynamically executable. MIDM can only convert the selected video into an action, but there is no guarantee that the action will complete the task.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<table>
+<thead>
+<tr><th>Applicable conditions</th><th>Conditions that do not apply or require caution</th></tr>
+</thead>
+<tbody>
+<tr><td>There are multi-view RGB videos, and most of the arms, grippers, and contact objects are visible.</td><td>The key states are outside the image, such as joint angles, forces, and occluded contact points, and the action cannot be reversed from the video.</td></tr>
+<tr><td>Tasks allow inference latencies of seconds or more and can be executed in an open-loop for a period of time.</td><td>High-speed dynamics, real-time obstacle avoidance, and strong human-computer interaction safety constraints.</td></tr>
+<tr><td>The target platform can take a small number of high-quality demonstrations and train MIDM with the same camera layout.</td><td>The camera layout changes frequently or the demonstration actions are noisy.</td></tr>
+<tr><td>Semantically explicit, visually discriminable video tasks.</td><td>Fine assembly tasks requiring force control, haptics, or latent state reasoning.</td></tr>
+</tbody>
+</table>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the biggest difference between Vidar and UniPi?</h3>
+<p>UniPi also uses video as an intermediate planning representation, but Vidar emphasizes large-scale embodied video pre-training, unified multi-view observation space, and MIDM action decoding on the target platform. In real experiments, UniPi directly fine-tune Vidu 2.0 and uses ResNet IDM, which lacks heterogeneous robot video pre-training and mask mechanisms.</p>
+<h3>Q2: Why doesn't the video model directly output actions?</h3>
+<p>The author wants to avoid the embodiment gap caused by action space heterogeneity. Different robots have different joints, grippers, and control frequencies, so it is difficult to directly unify the actions; the video space is more versatile and can carry semantic and physical interactions, and then a lightweight inverse dynamics model is trained on each target platform.</p>
+<h3>Q3: Why does MIDM mask not need to split labels?</h3>
+<p>Because supervision comes from action prediction errors. If certain pixels are useful for action prediction, retaining them will reduce Huber loss; at the same time, $\ell_1$ regularization requires the mask to be as small as possible, and the model tends to retain only action-related areas. Round is trained with a straight-through estimator.</p>
+<h3>Q4: What are the functions and costs of TTS?</h3>
+<p>The function is to reduce the variance of diffusion sampling and select videos with more reasonable physics and better matching tasks from multiple candidates. The cost is multiple video generation and GPT-4o sorting. In the real experiment $K=3$, sorting accounts for about 25% of the total delay and introduces external model dependencies.</p>
+<h3>Q5: What is the point that is most likely to be questioned?</h3>
+<p>The first is reproducibility: Vidu 2.0 and GPT-4o sorting are not completely open source and controllable. The second is open loop control and high latency. The third is to adjust the camera so that the target platform can fully see both arms. This is critical to the method, but it may not always be satisfied in actual deployment.</p>
+<h3>Q6: If you continue this line, what is the most natural next step?</h3>
+<p>Change Vidar from open-loop video execution to closed-loop receding horizon; replace GPT-4o TTS with a locally deployable physical consistency/task success evaluator; further integrate touch, force or proprioception into states other than video to solve the problem of invisible information in video.</p>
+</section>
+</main>
+</body>
+</html>

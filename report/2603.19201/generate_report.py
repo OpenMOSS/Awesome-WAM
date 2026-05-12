@@ -1,0 +1,302 @@
+﻿from pathlib import Path
+out = Path('Report/2603.19201')
+out.mkdir(parents=True, exist_ok=True)
+html = r'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniVTA - 中文精读报告</title>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root{--ink:#1f2937;--muted:#64748b;--blue:#2563eb;--bg:#f8fafc;--card:#fff;--line:#e2e8f0;--amber:#f59e0b;--violet:#7c3aed;--green:#16a34a;--red:#dc2626}
+    body{max-width:1080px;margin:0 auto;padding:2rem;font-family:-apple-system,"Noto Sans SC","Microsoft YaHei",sans-serif;line-height:1.82;color:var(--ink);background:linear-gradient(180deg,#f8fbff 0,#fff 28rem)}
+    h1{font-size:2rem;line-height:1.25;border-bottom:3px solid var(--blue);padding-bottom:.75rem} h2{font-size:1.45rem;color:#1e40af;margin-top:2.6rem;border-left:5px solid var(--blue);padding-left:.8rem} h3{font-size:1.18rem;color:#1e3a5f;margin-top:1.5rem} h4{font-size:1.05rem;color:#334155;margin-bottom:.3rem}
+    a{color:#1d4ed8}.meta,.toc,.card{background:var(--card);border:1px solid var(--line);box-shadow:0 8px 24px rgba(15,23,42,.04);border-radius:12px;padding:1rem 1.2rem;margin:1rem 0}.meta{background:#eff6ff}.tldr{background:#fffbeb;border-left:5px solid var(--amber);padding:1rem 1.2rem;border-radius:10px;margin:1.2rem 0;font-size:1.04rem}.note{background:#f8fafc;border-left:4px solid #94a3b8;padding:.8rem 1rem;border-radius:8px;margin:.8rem 0}.appendix-ref{font-size:.85rem;color:var(--violet);background:#f5f3ff;padding:.1rem .4rem;border-radius:4px;font-family:monospace}.figure{text-align:center;margin:1.4rem 0}.figure img{max-width:100%;border:1px solid var(--line);border-radius:8px;background:white}.caption{font-size:.92rem;color:var(--muted);margin-top:.45rem;font-style:italic}.formula-block{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:1rem 1.2rem;margin:1rem 0}.intuition{font-weight:700;color:#1e3a5f}.symbol-table{width:100%;border-collapse:collapse}.symbol-table td{border-bottom:1px solid #e5e7eb;padding:.35rem .55rem}.symbol-table td:first-child{font-family:monospace;color:#1d4ed8;width:28%}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.94rem}th{background:#f1f5f9;text-align:left}th,td{border:1px solid var(--line);padding:.48rem .58rem;vertical-align:top}.small{font-size:.9rem}.ok{color:var(--green);font-weight:700}.warn{color:#d97706;font-weight:700}.toc ul{list-style:none;padding-left:.4rem}.toc li{margin:.2rem 0}.pseudocode{background:#111827;color:#e5e7eb;border-radius:10px;padding:1rem;overflow:auto;font-family:ui-monospace,Consolas,monospace;font-size:.9rem;line-height:1.55}.impl-note{background:#fff7ed;border-left:4px solid #f97316;padding:.7rem .9rem;border-radius:8px;margin:.7rem 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}.pill{display:inline-block;background:#e0f2fe;border:1px solid #bae6fd;border-radius:999px;padding:.12rem .55rem;margin:.1rem;color:#075985;font-size:.9rem}details{margin:.8rem 0}summary{cursor:pointer;font-weight:700;color:#2563eb}details>div{background:#f8fafc;border-left:3px solid #93c5fd;border-radius:6px;padding:.8rem 1rem;margin-top:.4rem}
+  </style>
+</head>
+<body>
+<header>
+  <h1>OmniVTA: Visuo-Tactile World Modeling for Contact-Rich Robotic Manipulation</h1>
+  <div class="meta">
+    <p><strong>作者：</strong>Yuhang Zheng, Songen Gu, Weize Li, Yupeng Zheng, Yujie Zang, Shuai Tian, Xiang Li, Ce Hao, Chen Gao, Si Liu, Haoran Li, Yilun Chen, Shuicheng Yan, Wenchao Ding</p>
+    <p><strong>机构：</strong>TARS Robotics; National University of Singapore; Fudan University; CASIA; Tsinghua University; Zhongguancun Academy; Beihang University</p>
+    <p><strong>发表：</strong>arXiv 预印本，提交日期 2026-03-19，在线日期 2026-03-23</p>
+    <p><strong>arXiv：</strong><a href="https://arxiv.org/abs/2603.19201">2603.19201</a> | <a href="https://arxiv.org/pdf/2603.19201">PDF</a> | <strong>项目页：</strong><a href="https://mrsecant.github.io/OmniVTA">https://mrsecant.github.io/OmniVTA</a></p>
+    <p><strong>附录状态：</strong><span class="warn">源码未包含 Appendix / Supplementary tex 文件</span>；因此本报告不存在可整合的附录证明、超参数表或补充实验。所有分析基于正文 LaTeX 源码、表格和图像文件。</p>
+  </div>
+</header>
+
+<div class="toc">
+  <strong>目录</strong>
+  <ul>
+    <li><a href="#s1">1. 论文速览</a></li><li><a href="#s2">2. 动机</a></li><li><a href="#s3">3. 相关工作梳理</a></li><li><a href="#s4">4. 数据集：OmniViTac</a></li><li><a href="#s5">5. 方法详解</a></li><li><a href="#s6">6. 实验</a></li><li><a href="#s7">7. 分析、局限与边界</a></li>
+  </ul>
+</div>
+
+<section id="s1"><h2>1. 论文速览</h2>
+  <div class="tldr"><strong>一句话总结：</strong>论文同时提出大规模视触觉动作数据集 OmniViTac 和基于世界模型的视触觉操作框架 OmniVTA，用短时触觉预测、接触感知融合和 60 Hz 触觉反射控制提升擦拭、削皮、切割、装配、抓取、手内调整等接触丰富任务的真实机器人成功率。</div>
+  <p><strong>难度评级：</strong>★★★★☆。需要理解 diffusion policy / diffusion transformer、VAE/implicit neural representation、多模态融合、触觉传感器数据表示和真实机器人 imitation learning 实验设计。</p>
+  <p><strong>关键词：</strong><span class="pill">Visuo-Tactile Manipulation</span><span class="pill">World Model</span><span class="pill">Contact-Rich Manipulation</span><span class="pill">TactileVAE</span><span class="pill">Reflexive Control</span></p>
+  <table><tr><th>阅读定位项</th><th>基于原文的简要回答</th></tr>
+    <tr><td>论文要解决什么</td><td>现有视触觉操作数据规模和任务覆盖不足；现有方法多把触觉当作被动观测，缺少显式接触动态建模和高频闭环触觉控制。</td></tr>
+    <tr><td>作者的方法抓手</td><td>先用 OmniViTac 提供 21,879 条、86 个任务、100+ 物体的对齐视触觉动作数据，再用 TactileVAE、两流 VTWM、LTD+gating 融合策略和 RLTC 组成 OmniVTA。</td></tr>
+    <tr><td>最重要的结果</td><td>OmniVTA 在六类真实机器人任务上整体优于 DP、DP+tactile、KineDex、ForceMimic、RDP，并在泛化和扰动鲁棒性设置下保持最高或并列最高成功率。</td></tr>
+    <tr><td>阅读时要注意的点</td><td>核心不是“加了触觉”本身，而是把触觉变成预测对象、融合调制信号和高频纠偏目标；另需注意源码没有附录，超参数集中在实验设置正文。</td></tr>
+  </table>
+  <h3>核心贡献清单</h3>
+  <ul>
+    <li><strong>OmniViTac 数据集。</strong>21,879 条同步轨迹、86 个任务、126 个物体、六类物理接触模式；意义是把数据规模、任务多样性和触觉-视觉-动作时间对齐同时作为训练世界模型的基础。</li>
+    <li><strong>OmniVTA 方法框架。</strong>把触觉表示学习、视触觉世界模型、接触感知自适应融合和 60 Hz 闭环触觉控制放入统一 pipeline；意义是让触觉既参与预测，也参与策略生成和执行纠偏。</li>
+    <li><strong>真实机器人验证。</strong>六类接触丰富任务上比较多个 imitation learning / force-conditioned / reactive baselines；意义是验证预测式接触建模和高频触觉反馈对泛化、扰动恢复有直接贡献。</li>
+  </ul>
+  <div class="figure"><img src="figures/teaser.png" alt="teaser"><div class="caption">Figure 1 / Teaser：左侧为 OmniViTac 数据集，中间为 OmniVTA 世界模型式视触觉动作框架，右侧为真实机器人结果示意。</div></div>
+</section>
+
+<section id="s2"><h2>2. 动机</h2>
+  <h3>2.1 要解决什么问题</h3>
+  <p>论文关注的任务是接触丰富操作，例如 wiping、assembly、peeling、cutting 等。这类任务不能只靠视觉判断，因为关键状态往往来自接触力、摩擦变化、滑移、插入阻塞、切断瞬间的力突变等触觉信息。视觉能告诉机器人“物体在哪里”，但很难可靠告诉机器人“当前接触是否稳定、是否过力、是否快要打滑”。</p>
+  <p>作者把问题分成两层：数据层面缺少大规模、任务多样且时间严格对齐的 vision-tactile-action demonstrations；方法层面则缺少把触觉信号显式用于接触动态预测和闭环控制的策略。</p>
+  <h3>2.2 已有方法的局限</h3>
+  <ul>
+    <li><strong>数据集局限：</strong>早期触觉数据多是静态按压或物体纹理采集；较新的 manipulation datasets 虽有动作轨迹，但任务数、物体数、传感器种类和高频触觉-视觉同步仍不足。</li>
+    <li><strong>表示局限：</strong>许多方法把触觉作为辅助输入，用于弥补遮挡或识别接触状态，但没有把未来接触演化作为显式预测目标。</li>
+    <li><strong>控制局限：</strong>action chunking 常以较低频率开环执行，遇到滑移、错位、外部扰动时不能即时纠偏；RDP 一类 reactive 方法虽引入快反馈，但作者报告其在强接触任务中可能产生过强接触，导致传感器受损风险。</li>
+  </ul>
+  <h3>2.3 本文的解决思路</h3>
+  <p>作者借鉴人类 sensorimotor control：一方面形成对接触演化的 feedforward anticipation，另一方面用 tactile feedback 做快速 reflexive correction。对应到方法上，OmniVTA 先预测短时未来触觉 latent，再基于当前/预测触觉差异进行接触感知融合，最后用 60 Hz 的 RLTC 根据预测触觉与实际触觉之间的偏差修正动作。</p>
+</section>
+
+<section id="s3"><h2>3. 相关工作梳理</h2>
+  <h3>3.1 论文自述的相关工作</h3>
+  <table><tr><th>技术线</th><th>代表工作与定位</th><th>本文区别</th></tr>
+    <tr><td>Tactile sensing 与 tactile representation learning</td><td>GelSight、DIGIT 等 visuo-tactile sensors 提供高分辨率接触几何；Sparsh、AnyTouch、UniT 等通过 masked autoencoding、contrastive learning 或 VQGAN-like latent modeling 学触觉表示。</td><td>本文不只学静态触觉表示，而是用四类触觉传感器支持的操作数据训练任务无关 tactile latent，并服务于世界模型和策略。</td></tr>
+    <tr><td>Visuo-tactile manipulation policies</td><td>See-to-Touch、RoboPack、3D-ViTac、RDP、VLA-Touch、Tactile-VLA、TA-VLA 等显示触觉能补足视觉遮挡和细粒度控制。</td><td>本文强调触觉的预测性使用：预测未来接触、按接触概率调制视触觉权重，并用预测/观测差异进行闭环控制。</td></tr>
+    <tr><td>Visuo-tactile manipulation datasets and systems</td><td>ObjectFolder2.0、AnyTouch、Octopi-1.5、RH20T、FreeTacMan、VLA-Touch、exUMI、AgiBot World 等覆盖不同程度的触觉、视觉、动作数据。</td><td>OmniViTac 把任务数扩展到 86、轨迹到 21,879、物体到 126，并保留 30-60 Hz 触觉及动作数据和时间同步。</td></tr>
+  </table>
+  <h3>3.2 直接前作对比</h3>
+  <table><tr><th>维度</th><th>DP / DP+tactile</th><th>RDP</th><th>KineDex / ForceMimic</th><th><strong>OmniVTA</strong></th></tr>
+    <tr><td>核心思路</td><td>Diffusion policy 生成 action chunk；DP+tactile 额外拼接触觉特征。</td><td>慢 diffusion planner + 快 tactile reactive controller。</td><td>基于视觉观测联合预测 action 和 force。</td><td>世界模型预测未来触觉 latent，融合策略生成慢动作，RLTC 高频纠偏。</td></tr>
+    <tr><td>关键假设</td><td>当前/历史观测足够生成短时动作。</td><td>触觉可用于反应式修正。</td><td>force 或 tactile embedding 可作为动力学相关量。</td><td>未来触觉预测能提供接触状态先验，预测-观测差异能指导纠偏。</td></tr>
+    <tr><td>适用场景</td><td>一般视觉 imitation learning；触觉版适合有接触观测的任务。</td><td>接触扰动下的 reactive 操作。</td><td>需要力/接触信息的扩散策略。</td><td>擦拭、削皮、切割、装配、抓取、调整等多类接触丰富任务。</td></tr>
+    <tr><td>实验性能</td><td>表 2 中 DP 在多项 P 设置为 0；DP+tactile 有提升但仍低于 OmniVTA。</td><td>强于普通 DP，但在强接触任务中作者观察到过强接触。</td><td>部分任务优于 DP+tactile，但整体不及 OmniVTA。</td><td>表 2 中多数 O/G/P 设置最高；RLTC 相比 w/o RLTC 显著改善扰动表现。</td></tr>
+  </table>
+</section>
+
+<section id="s4"><h2>4. 数据集：OmniViTac</h2>
+  <p>OmniViTac 是本文方法的训练基础。它包含 21,879 条同步轨迹、86 个任务、126 个物体，记录 RGB-D、触觉信号、动作轨迹和连续 gripper aperture。作者将任务组织成六类物理接触模式：Assembly、Cutting、Adjustment、Peeling、Wiping、Grasping。</p>
+  <div class="figure"><img src="figures/dataset_teaser_0318.png" alt="dataset overview"><div class="caption">Figure 2：OmniViTac 数据集概览，包含跨 embodiment 平台、六类模式、五类语义场景和数据质量流程。</div></div>
+  <h3>4.1 采集系统</h3>
+  <ul>
+    <li><strong>Robot demonstrations：</strong>UFACTORY xArm-7，包含 kinesthetic teaching 和 GELLO teleoperation 两种模式。</li>
+    <li><strong>Human demonstrations：</strong>TacUMI 手持采集设备，使用 RealSense T265 以 200 Hz 输出 6-DoF poses；轨迹结束后检查 tracking drift，位置误差大于 8 mm 的样本丢弃。</li>
+    <li><strong>同构末端执行器：</strong>机器人与 TacUMI 使用相同平行夹爪，并记录归一化到 $[0,1]$ 的连续夹爪宽度。</li>
+    <li><strong>视觉：</strong>wrist-view 和 third-person RGB-D；D435 为 $640\times480$，L515 为 $1280\times720$，相机 30 Hz。</li>
+    <li><strong>触觉：</strong>Xense、Daimon、Tac3D-A1、GelSight Mini；Xense 是主要大规模采集传感器，提供 $35\times20$ 3D displacement fields at 60 Hz。</li>
+  </ul>
+  <h3>4.2 数据处理与质量控制</h3>
+  <p>采集时所有 sensory streams 按原生频率异步记录，后处理按时间戳同步。每 50 条轨迹随机可视化 3 条轨迹做在线质量检查；离线工具继续检查并删除异常样本。训练前去掉首尾静止帧，将 RGB-D、触觉、动作通过时间戳对齐，时间误差低于 10 ms，并切分成训练片段。</p>
+  <h3>4.3 六类触觉模式</h3>
+  <table><tr><th>模式</th><th>接触机制</th><th>触觉信息作用</th></tr>
+    <tr><td>Assembly</td><td>接触几何与多方向力协调</td><td>感知紧公差和插入是否成功。</td></tr>
+    <tr><td>Cutting</td><td>法向力逐步增大并在切断时出现力下降</td><td>判断穿透/切断过程。</td></tr>
+    <tr><td>Adjustment</td><td>扭转与剪切力</td><td>感知滑移和手内重定向状态。</td></tr>
+    <tr><td>Peeling</td><td>剪切与法向力连续耦合</td><td>维持工具-表面接触。</td></tr>
+    <tr><td>Wiping</td><td>法向压力 + 平面剪切</td><td>保持表面贴合并克服摩擦。</td></tr>
+    <tr><td>Grasping</td><td>多样力型，覆盖脆弱物体、透明物体和铰接物体</td><td>确认稳定抓取并调节法向/剪切。</td></tr>
+  </table>
+  <div class="figure"><img src="figures/OmniVTA-6pattern.png" alt="six patterns"><div class="caption">Figure 3：六类 visuo-tactile manipulation patterns 示例。</div></div>
+  <div class="figure"><img src="figures/data_stat_family.png" alt="statistics"><div class="caption">Figure 4：接触面积、力强度、任务层级、有效接触比例、轨迹计数和 t-SNE 分析。作者据此总结 tactile signals 的 spatial locality 与 contact-driven dynamics。</div></div>
+</section>
+
+<section id="s5"><h2>5. 方法详解</h2>
+  <h3>5.1 方法概览</h3>
+  <p>OmniVTA 是 hierarchical slow-fast policy。Slow Policy 由 Visuo-Tactile World Model (VTWM) 和 Adaptive Fusion Policy (AFP) 组成，用低频视觉、高频触觉和本体状态规划长时 action chunks；Fast Policy 是 Reflexive Latent Tactile Controller (RLTC)，以 60 Hz 根据观察触觉与预测触觉输出细粒度 correction。最终执行动作是慢策略动作和快控制器输出的加权和。</p>
+  <div class="figure"><img src="figures/system.png" alt="system"><div class="caption">Figure 5：OmniVTA 系统图。慢策略负责预测与规划，快策略负责触觉闭环纠偏。</div></div>
+  <div class="pseudocode">Input: visual frames v, tactile sequence X, robot state s
+1. z_t = TactileVAE.encode(X)                      # 压缩高频触觉
+2. z_v = SD-VAE.encode(v)                          # 视觉 latent
+3. z_t^pred = VTWM(z_v history, z_t history, action history)
+4. f_t = LTD(current tactile latent, predicted tactile latent)
+5. W_v, W_t = contact-aware gating(f_t)
+6. f_vt = concat(W_v * f_v, W_t * projected(f_t))
+7. A_c = diffusion_policy(f_vt, s)                 # 慢动作 chunk
+8. a_r = RLTC(current tactile, predicted tactile, delta states) at 60 Hz
+9. execute weighted_sum(A_c, a_r)</div>
+
+  <h3>5.2 方法演变脉络</h3>
+  <p><strong>普通视觉 diffusion policy</strong> → 加入 <strong>当前触觉输入</strong> → 显式建模 <strong>未来触觉预测</strong> → 用 <strong>LTD 和 gating</strong> 把预测触觉转为接触感知策略输入 → 用 <strong>RLTC</strong> 把预测-观测差异转为高频纠偏动作。每一步都对应论文指出的一个缺口：视觉无法直接读出接触状态；当前触觉没有未来接触先验；简单拼接不会随接触状态改变模态权重；action chunk 开环执行不能快速响应扰动。</p>
+
+  <h3>5.3 TactileVAE</h3>
+  <p>TactileVAE 的输入不是高分辨率 tactile image，而是 3D marker displacement。单帧可表示为 $H\times W\times3$，三个通道对应 $x,y,z$ 位移。作者用 causal 3D convolution 做时空编码，使时刻 $t$ 的 latent 只依赖当前和过去观测，保证部署时没有未来信息泄漏。</p>
+  <div class="figure"><img src="figures/vae.png" alt="vae"><div class="caption">Figure 6：TactileVAE 用时空编码器压缩 marker displacement，并用 implicit decoder 重建连续 deformation field。</div></div>
+  <div class="formula-block"><div class="intuition">公式 1：给定空间坐标和局部 latent，预测该点的 3D 形变。</div>
+    $$\mathbf{d}(\mathbf{x}) = \mathcal{D}_{\theta}\left(\gamma(\mathbf{x}), \Phi(\mathbf{z}_{t}, \mathbf{x})\right)$$
+    <table class="symbol-table"><tr><td>$\mathbf{x}\in\mathbb{R}^2$</td><td>触觉表面上的二维查询坐标。</td></tr><tr><td>$\mathbf{z}_t$</td><td>编码器输出的 tactile latent feature map，尺寸为 $H/s\times W/s\times C$，$s=2^M$。</td></tr><tr><td>$\gamma(\mathbf{x})$</td><td>位置编码，使 MLP 能表达高频空间变化。</td></tr><tr><td>$\Phi(\mathbf{z}_t,\mathbf{x})$</td><td>通过空间插值从 latent map 取出的局部特征。</td></tr><tr><td>$\mathcal{D}_\theta$</td><td>MLP implicit decoder。</td></tr><tr><td>$\mathbf{d}(\mathbf{x})\in\mathbb{R}^3$</td><td>该点的三维 deformation vector。</td></tr></table>
+    <p class="small">直觉：触觉胶体表面形变是连续场，不应只按像素/marker 点重建。INR decoder 允许在任意坐标查询形变，从而把局部空间结构保留在 latent feature map 中。</p>
+  </div>
+  <div class="formula-block"><div class="intuition">公式 2：TactileVAE 训练目标。</div>
+    $$\mathcal{L}_{\text{TacVAE}} = \|\mathbf{d}(\mathbf{x})-\hat{\mathbf{d}}(\mathbf{x})\|_2^2 + \lambda_{\mathrm{KL}}\mathcal{L}_{\mathrm{KL}}$$
+    <p>第一项监督重建的 3D deformation；第二项是 VAE 的 KL regularization。实验设置中 $\lambda_{\text{KL}}=10^{-6}$。</p>
+  </div>
+
+  <h3>5.4 Visuo-Tactile World Model (VTWM)</h3>
+  <p>VTWM 采用 two-stream conditional generative framework：视觉分支用 SD-VAE 提取 image latents，触觉分支用预训练 TactileVAE 压缩 tactile signals；两个模态各自进入 spatial-temporal diffusion transformer，在共享条件下预测未来。条件来自 multi-modal observation conditioner，它分别聚合视觉、触觉和动作序列，并将 action 表示为 3D end-effector position 的 2D image-plane projection。</p>
+  <div class="figure"><img src="figures/slow-policy.png" alt="slow policy"><div class="caption">Figure 7：Slow Policy。左：两流 VTWM；右：LTD + gating 的 AFP。</div></div>
+  <div class="formula-block"><div class="intuition">公式 3：基础 diffusion loss 只监督需要生成的未来帧。</div>
+    $$\mathcal{L}_{\text{diffusion}}=\mathbb{E}_{\mathbf{z}_o,\boldsymbol{\epsilon},t}\left[\sum_{i=1}^{K}(1-m_i)\odot\left\|\epsilon_i-\boldsymbol{\epsilon}_\theta(\mathbf{z}_o,t)_i\right\|_2^2\right]$$
+    <table class="symbol-table"><tr><td>$\mathbf{z}_o=\{\mathbf{z}_o^1,\dots,\mathbf{z}_o^K\}$</td><td>观测 latent 序列，包含 tactile latent $\mathbf{z}_t$ 和 visual latent $\mathbf{z}_v$。</td></tr><tr><td>$m_i$</td><td>时间 mask；历史 conditioning 帧不作为生成误差，未来帧参与预测。</td></tr><tr><td>$\epsilon_i$</td><td>扩散过程加入的真实噪声。</td></tr><tr><td>$\boldsymbol{\epsilon}_\theta(\cdot)_i$</td><td>模型预测的第 $i$ 个时间步噪声。</td></tr></table>
+  </div>
+  <div class="formula-block"><div class="intuition">公式 4：dynamic-aware 与 amplitude-aware 权重。</div>
+    $$w_{\text{dyn}}^i=\operatorname{resize}\left(\operatorname{clip}_{[0,1]}\left(\|X_{i+1}-X_i\|_2\right)\right)$$
+    $$w_{\text{amp}}^i=\operatorname{resize}\left(\operatorname{clip}_{[0,1]}\left(\|X_i\|_2\right)\right)$$
+    <p>前者突出时间上变化快的位置，后者突出接触响应幅度大的位置。二者都从 raw tactile resolution resize 到 latent resolution，用于强调高频接触动态和局部接触强度。</p>
+  </div>
+  <div class="formula-block"><div class="intuition">公式 5：VTWM 总损失。</div>
+    $$\mathcal{L}_{VTWM}=\mathcal{L}_{\text{diffusion}}+\lambda_1\mathcal{L}_{\text{dyn}}+\lambda_2\mathcal{L}_{\text{amp}}$$
+    <p>实验中 $\lambda_{\text{dyn}}=1.0$、$\lambda_{\text{amp}}=1.0$。这不是额外预测目标，而是对扩散噪声预测误差做空间-时间重加权。</p>
+  </div>
+
+  <h3>5.5 Adaptive Visuo-Tactile Fusion Policy (AFP)</h3>
+  <p>AFP 包含 LTD Encoder、contact-aware gating、visuo-tactile diffusion policy 三部分。</p>
+  <div class="formula-block"><div class="intuition">公式 6：LTD 用“预测触觉 - 当前触觉”显式表达未来接触变化。</div>
+    $$f_t=\text{concat}(f_t^c, f_t^p, f_t^p-f_t^c)$$
+    <table class="symbol-table"><tr><td>$f_t^c$</td><td>当前 tactile observation 经 2D conv + max pooling 后的全局表示。</td></tr><tr><td>$f_t^p$</td><td>预测多帧 tactile latents 经逐帧空间聚合和 1D temporal conv + max pooling 后的未来触觉表示。</td></tr><tr><td>$f_t^p-f_t^c$</td><td>突出预测接触状态与当前触觉状态之间的差异。</td></tr></table>
+  </div>
+  <div class="formula-block"><div class="intuition">公式 7：gating 融合视觉与触觉。</div>
+    $$f_{vt}=\text{concat}(W_v\odot f_v,\;W_t\odot\tilde{f}_t)$$
+    <p>接触概率由 tactile representation 经 MLP + sigmoid 预测，标签由 tactile deformation magnitude 阈值得到，并用 BCE loss 训练。Gating network 输出逐通道权重 $W_v,W_t$，满足 $W_v+W_t=1$。无接触时触觉权重接近 0；接触概率升高时触觉权重上升。</p>
+  </div>
+  <div class="formula-block"><div class="intuition">公式 8：动作 diffusion policy 的反向去噪更新。</div>
+    $$A_{c,t-1}=\alpha_t A_{c,t}-\gamma_t\epsilon_\theta(A_{c,t},t,f_c)+\sigma_t\mathcal{N}(0,I)$$
+    <p>$A_c=(a_c^1,\dots,a_c^H)$ 是 coarse action chunk；$f_c=\text{concat}(f_{vt},s)$ 是融合多模态特征和机器人本体状态。训练使用 DDPM 噪声预测目标：</p>
+    $$\mathcal{L}_{act}=\mathbb{E}_{t,A_{c,0},\epsilon_t}\left[\left\|\epsilon_t-\epsilon_\theta(\bar{\alpha}_t A_{c,0}+\bar{\beta}_t\epsilon_t,t,f_c)\right\|_2^2\right]$$
+    <p>AFP 总目标为 $\mathcal{L}_{AFP}=\mathcal{L}_{act}+\lambda_{ct}\mathcal{L}_{bce}$，实验中 $\lambda_{ct}=0.2$。</p>
+  </div>
+
+  <h3>5.6 Reflexive Latent Tactile Controller (RLTC)</h3>
+  <p>RLTC 解决 action chunk 开环执行的问题。它将单帧 tactile feedback 重复 $M$ 次以适配 TactileVAE 的时间压缩；将世界模型低频预测 tactile latent 最近邻上采样到 60 Hz，与当前 tactile feature 对齐；然后用 LTD Encoder 编码当前/预测触觉，再拼接过去 $h$ 步 TCP 坐标系下的 delta actions 和 delta gripper states，经三层 MLP 输出单步 refined action $a_r$。</p>
+  <div class="figure"><img src="figures/controller.png" alt="controller"><div class="caption">Figure 8：RLTC 在 60 Hz 下输入观测触觉、预测触觉和机器人状态，输出单步纠偏动作。</div></div>
+  <div class="formula-block"><div class="intuition">公式 9：RLTC 训练目标。</div>
+    $$\mathcal{L}_{RLTC}=\|a_r-\hat{a}_r\|_2^2$$
+    <p>训练数据来自异常接触恢复片段。作者先估计每类任务的有效触觉分布均值和标准差，将过大或过小接触力识别为 abnormal states，再抽取从异常回到有效分布的 recovery segments 作为纠偏示范。</p>
+  </div>
+
+  <h3>5.7 实现要点</h3>
+  <ul>
+    <li>触觉输入使用 3D marker displacement 而非 raw tactile images，以降低分辨率和提高推理频率。</li>
+    <li>TactileVAE 使用 causal 3D convolutions，避免部署时依赖未来帧。</li>
+    <li>VTWM 推理时不生成视觉观测，只预测未来触觉信号以提高 rollout 频率；视觉生成分支只在训练/消融中用于分析。</li>
+    <li>World model 的 action condition 使用 3D 末端位置的 2D image-plane projection，作者实验显示其在 unseen position 上优于 3D absolute/relative actions。</li>
+    <li>Policy 使用当前和上一帧视觉、同一时间窗口内 8 帧触觉、2 个本体状态；输出 6 个动作的 chunk，并插值到 60 Hz 执行。</li>
+  </ul>
+</section>
+
+<section id="s6"><h2>6. 实验</h2>
+  <h3>6.1 实验设置</h3>
+  <table><tr><th>项目</th><th>设置</th></tr>
+    <tr><td>任务</td><td>Wipe, Peel, Cut, Assembly, Grasp, Adjustment。</td></tr>
+    <tr><td>训练物体</td><td>每类选择 5-6 个物体，每个物体 150 条轨迹；如 wipe 用 4 种颜色/形状花瓶、盘子、白板，cut 用 cucumber、Chinese yam、carrot、pepper、banana。</td></tr>
+    <tr><td>数据划分</td><td>世界模型训练/测试为 90% / 10%。</td></tr>
+    <tr><td>真实机器人平台</td><td>UFactory xArm7 + 平行二指夹爪 + 两个 fingertip tactile sensors；wrist RealSense D435 RGB at 15 Hz；触觉 60 Hz；真实操作实验只用 Xense。</td></tr>
+    <tr><td>评价设置</td><td>Object diversity (O)、Generalization (G：unseen heights / unseen knife)、Perturbation robustness (P：垂直方向扰动物体破坏接触)。</td></tr>
+    <tr><td>评价指标</td><td>主指标为 success rate。Wipe/Peel/Cut 用处理长度比例；Assembly/Grasp 要完整插入或无损抓取；Adjustment 要姿态变化超过 60°。</td></tr>
+  </table>
+  <h4>训练配置表</h4>
+  <table><tr><th>模块</th><th>训练/超参数</th><th>来源</th></tr>
+    <tr><td>TactileVAE</td><td>使用 20% manipulation trajectories + 10 个额外物体触觉交互数据，约 1.2M tactile samples；训练 50 epochs；8 NVIDIA A100 GPUs；$\lambda_{KL}=1e-6$。</td><td>正文 §Experimental Setup</td></tr>
+    <tr><td>VTWM</td><td>AdamW, lr $1\times10^{-4}$, weight decay 0, per-GPU batch size 5, 100,000 steps, gradient norm threshold 0.1，20,000 steps 后启用 gradient clipping；$\lambda_{dyn}=1.0$, $\lambda_{amp}=1.0$。</td><td>正文 §Training Details</td></tr>
+    <tr><td>AFP</td><td>同一训练集；OmniVTA 和 policy baselines 每类数据合并训练统一模型；AFP 250k steps；其他 baselines 350k steps；$\lambda_{ct}=0.2$。</td><td>正文 §Training Details</td></tr>
+    <tr><td>Policy input/output</td><td>视觉 15 Hz，触觉 60 Hz，本体 60 Hz；输入为当前+上一帧视觉、同窗口 8 帧触觉、2 个本体观测；输出 6 个动作 chunk，执行时插值到 60 Hz。</td><td>正文 §Parameter settings</td></tr>
+    <tr><td>推理时间</td><td>Slow Policy 230 ms；Slow Policy w/ Visual Gen. 480 ms；Fast Policy 3.5 ms；硬件 RTX 4090D。</td><td>Table policy_time</td></tr>
+  </table>
+
+  <h3>6.2 主要结果</h3>
+  <div class="figure"><img src="figures/manipulation.png" alt="manipulation"><div class="caption">Figure 9：六类任务的真实机器人执行过程。</div></div>
+  <table><tr><th>Method</th><th>Wipe O/G/P</th><th>Peel O/G/P</th><th>Cut O/G/P</th><th>Assembly O/G/P</th><th>Grasp O</th><th>Adjustment O/G</th></tr>
+    <tr><td>DP</td><td>0.12/0.05/0</td><td>0.06/0/0</td><td>0.28/0.10/0</td><td>0.10/0/0.05</td><td>0.20</td><td>0/0</td></tr>
+    <tr><td>DP+tactile</td><td>0.36/0.28/0</td><td>0.32/0.20/0.08</td><td>0.33/0.15/0.13</td><td>0.30/0.10/0.10</td><td>0.48</td><td>0.25/0.15</td></tr>
+    <tr><td>RDP</td><td>0.50/0.38/0.42</td><td>0.48/0.36/0.45</td><td>0.65/0.50/0.43</td><td>0.60/0.50/0.35</td><td>0.88</td><td>0.50/0.50</td></tr>
+    <tr><td>OmniVTA w/o RLTC</td><td>0.66/0.40/0.25</td><td>0.40/0.30/0.20</td><td>0.50/0.50/0.20</td><td>0.40/0.35/0.20</td><td>0.70</td><td>0.40/0.30</td></tr>
+    <tr><td><strong>OmniVTA</strong></td><td><strong>0.80/0.58/0.60</strong></td><td><strong>0.55/0.48/0.63</strong></td><td><strong>0.85/0.83/0.60</strong></td><td><strong>0.60/0.50/0.40</strong></td><td><strong>0.90</strong></td><td><strong>0.65/0.65</strong></td></tr>
+  </table>
+  <p>表中最关键的对比是 OmniVTA 与 OmniVTA w/o RLTC：闭环控制在 Wipe P 从 0.25 到 0.60、Peel P 从 0.20 到 0.63、Cut P 从 0.20 到 0.60、Assembly P 从 0.20 到 0.40，说明 RLTC 主要收益体现在扰动恢复。与 RDP 相比，OmniVTA 在强接触任务中报告了更低触觉 deformation：平均 0.35、最大 0.72，而 RDP 平均 0.56、最大 1.1。</p>
+
+  <h3>6.3 TactileVAE 结果</h3>
+  <table><tr><th>Method</th><th>Wipe L2/cos</th><th>Peel</th><th>Cut</th><th>Assembly</th><th>Grasp</th><th>Adjustment</th></tr>
+    <tr><td>PCA</td><td>0.091/0.810</td><td>0.085/0.430</td><td>0.109/0.400</td><td>0.071/0.720</td><td>0.036/0.600</td><td>0.069/0.560</td></tr>
+    <tr><td>PointNet-AE</td><td>0.059/0.910</td><td>0.067/0.850</td><td>0.062/0.840</td><td>0.058/0.900</td><td>0.028/0.750</td><td>0.047/0.760</td></tr>
+    <tr><td><strong>Ours</strong></td><td><strong>0.038/0.930</strong></td><td><strong>0.033/0.880</strong></td><td><strong>0.031/0.940</strong></td><td><strong>0.022/0.910</strong></td><td><strong>0.011</strong>/0.720</td><td><strong>0.017/0.850</strong></td></tr>
+  </table>
+  <p>TactileVAE 在六类任务的 L2 都最低，cosine similarity 除 Grasp 外最高。Grasp 中 PointNet-AE 的 cos 为 0.750，高于 Ours 的 0.720，但 Ours 的 L2 为 0.011，明显低于 PointNet-AE 的 0.028。</p>
+  <div class="figure"><img src="figures/tsne.png" alt="tsne"><div class="caption">Figure 10：TactileVAE 表示的 t-SNE 可视化；作者用三种 force pattern 和跨传感器设置分析 latent cluster。</div></div>
+  <table><tr><th>TactileVAE 设计</th><th>GelSight-Mini L2</th><th>Tac3D-A1 L2</th><th>Xense-QN1 L2</th></tr><tr><td>w/o implicit decoder</td><td>0.126</td><td>0.098</td><td>0.038</td></tr><tr><td>w/ position embed.</td><td>0.102</td><td>0.085</td><td>0.035</td></tr><tr><td>w/o spatial feature map</td><td>0.107</td><td>0.084</td><td>0.071</td></tr><tr><td><strong>w/ implicit decoder</strong></td><td><strong>0.047</strong></td><td><strong>0.058</strong></td><td><strong>0.034</strong></td></tr></table>
+
+  <h3>6.4 VTWM 结果与消融</h3>
+  <div class="figure"><img src="figures/wm.png" alt="world model"><div class="caption">Figure 11：六类任务的视触觉生成可视化，红色为预测切向 deformation，蓝色为 ground truth。</div></div>
+  <table><tr><th>任务</th><th>Ours L2avg / Cavg</th><th>次优基线 L2avg / Cavg</th><th>解读</th></tr>
+    <tr><td>Wipe</td><td>0.059 / 0.93</td><td>KineDex 0.082 / 0.81</td><td>Ours 同时降低误差并提高方向一致性。</td></tr>
+    <tr><td>Peel</td><td>0.036 / 0.87</td><td>KineDex 0.066 / 0.79</td><td>连续剪切/法向耦合任务中预测优势明显。</td></tr>
+    <tr><td>Cut</td><td>0.050 / 0.88</td><td>UVA 0.077 / exUMI 0.72</td><td>高力变化场景仍保持较好长期预测。</td></tr>
+    <tr><td>Adjustment</td><td>0.025 / 0.85</td><td>KineDex 0.053 / 0.70</td><td>手内调整的 torsion/shear 动态被较好建模。</td></tr>
+    <tr><td>Assembly</td><td>0.030 / 0.89</td><td>KineDex 0.047 / 0.78</td><td>局部接触几何任务中世界模型较稳。</td></tr>
+    <tr><td>Grasp</td><td>0.010 / 0.68</td><td>KineDex 0.017 / 0.59</td><td>Grasp L2 最低，但 cosine 绝对值较其他任务低。</td></tr>
+  </table>
+  <table><tr><th>消融</th><th>设置</th><th>L2</th><th>Cos</th><th>结论</th></tr>
+    <tr><td>Action representation</td><td>Unseen position: 3D absolute / 3D relative / 2D</td><td>0.075 / 0.056 / <strong>0.042</strong></td><td>0.72 / 0.88 / <strong>0.91</strong></td><td>2D image-plane action 对 unseen position 泛化最好。</td></tr>
+    <tr><td>Joint generation</td><td>Seen position: no joint gen vs joint gen</td><td>0.041 → 0.038</td><td>0.90 → 0.92</td><td>联合生成视觉特征给触觉预测提供全局动态线索。</td></tr>
+    <tr><td>Dynamic weighting</td><td>Seen position: add dyn. weight</td><td>0.038 → <strong>0.035</strong></td><td>0.92 → <strong>0.93</strong></td><td>强调快速变化和强接触区域有助于触觉预测。</td></tr>
+  </table>
+  <div class="figure"><img src="figures/wm_disturb.png" alt="wm disturb"><div class="caption">Figure 12：VTWM 在接触被破坏后的 perturbation and recovery 可视化。</div></div>
+
+  <h3>6.5 AFP 与 RLTC 消融</h3>
+  <table><tr><th>Tactile pred. length</th><th>LTD</th><th>Gating</th><th>Visual gen.</th><th>Wipe</th><th>Peel</th><th>Avg.</th></tr>
+    <tr><td>0</td><td>×</td><td>×</td><td>×</td><td>0.12</td><td>0.06</td><td>0.09</td></tr>
+    <tr><td>2</td><td>×</td><td>×</td><td>×</td><td>0.40</td><td>0.26</td><td>0.33</td></tr>
+    <tr><td>4</td><td>×</td><td>×</td><td>×</td><td>0.45</td><td>0.30</td><td>0.38</td></tr>
+    <tr><td>6</td><td>×</td><td>×</td><td>×</td><td>0.50</td><td>0.30</td><td>0.40</td></tr>
+    <tr><td>6</td><td>✓</td><td>×</td><td>×</td><td>0.57</td><td>0.36</td><td>0.47</td></tr>
+    <tr><td>6</td><td>✓</td><td>✓</td><td>×</td><td>0.66</td><td><strong>0.40</strong></td><td>0.53</td></tr>
+    <tr><td>6</td><td>✓</td><td>✓</td><td>✓</td><td><strong>0.70</strong></td><td>0.38</td><td><strong>0.54</strong></td></tr>
+  </table>
+  <p>消融显示：预测触觉长度从 0 到 6，平均成功率从 0.09 升到 0.40；加入 LTD 后升到 0.47；加入 gating 后升到 0.53。加入 visual generation 的平均值只有 0.54，增益很小，同时推理时间从 230 ms 增至 480 ms，因此最终设计不依赖未来视觉生成。</p>
+  <div class="figure"><img src="figures/gate_weight.png" alt="gate"><div class="caption">Figure 13：预测接触概率与视觉/触觉权重随时间变化；接触概率升高时 tactile weight 上升。</div></div>
+  <div class="figure"><img src="figures/mp_disturb.png" alt="mp disturb"><div class="caption">Figure 14：策略扰动实验，物体被突然降低导致接触破坏，RLTC 帮助恢复接触。</div></div>
+  <div class="figure"><img src="figures/prediction.png" alt="prediction"><div class="caption">Figure 15：触觉预测准确率降低会破坏接触概率估计和模态权重，从而降低成功率。</div></div>
+</section>
+
+<section id="s7"><h2>7. 分析、局限与边界</h2>
+  <h3>7.1 这篇论文最有价值的地方</h3>
+  <p>基于论文自身贡献与实验，最核心的价值在于把“触觉”从被动 policy input 提升为三个可训练/可验证的对象：可压缩的 tactile representation、可预测的未来接触状态、可用于高频闭环纠偏的目标信号。这个价值不是单独由某个模块证明，而是由数据集统计、VTWM 预测指标、AFP 消融和真实机器人扰动实验共同支撑。</p>
+  <h3>7.2 结果为什么站得住</h3>
+  <ul>
+    <li><strong>任务覆盖：</strong>六类物理接触模式覆盖精密接触、表面摩擦、强法向力、连续剪切、抓取和手内调整。</li>
+    <li><strong>评估设置：</strong>不只报告 object diversity，还报告 unseen heights、unseen tool 和接触扰动。</li>
+    <li><strong>模块证据链：</strong>TactileVAE 重建表、VTWM 预测表、AFP 消融表、policy success table 分别对应 representation、prediction、fusion、control。</li>
+    <li><strong>机制可视化：</strong>gate weight 随接触概率变化，prediction accuracy 降低导致成功率下降，扰动可视化显示从 no-contact 到 recovery 的过程。</li>
+  </ul>
+  <h3>7.3 作者自述或源码中明确出现的局限</h3>
+  <p>正文 Conclusion 没有正式展开 limitations；源码末尾存在被注释掉的 “Limitation and future work” 段落，内容为：OmniViTac 当前是 single-arm、gripper-based tactile manipulation benchmark，尚未覆盖 dual-arm setting 或其他 end-effector types，例如 dexterous hands。该注释还提到未来工作将探索用更大更多样数据扩展 world model、扩展到 dexterous hands 与 dual-arm manipulation，以及 cross-embodiment transfer。由于这段在源码中被注释，本报告将其标为“源码注释中的作者意图”，不等同于正式正文结论。</p>
+  <h3>7.4 论文中明确写出的适用边界</h3>
+  <ul>
+    <li>真实操作实验使用 xArm7、平行二指夹爪和 Xense 触觉传感器；其他传感器主要用于 TactileVAE representation validation。</li>
+    <li>任务定义集中在六类接触丰富 manipulation patterns，不覆盖灵巧手全手触觉、双臂协作或非夹爪末端执行器。</li>
+    <li>VTWM 推理阶段主要使用未来触觉预测，不使用未来视觉生成；作者依据是 visual generation 推理成本高且对策略成功率提升不显著。</li>
+    <li>RLTC 的训练依赖从人类轨迹中识别 abnormal tactile states 和 recovery segments；该过程假设每类任务能估计有效触觉分布。</li>
+  </ul>
+  <h3>7.5 章节覆盖与验收摘要</h3>
+  <div class="card small">
+    <p><span class="ok">已完成</span> Phase 2.5 内部章节盘点：Abstract、Introduction、Related Works、The OmniViTac Dataset、Methodology、Experimental Evaluation、Conclusion、Acknowledgments 均已映射到报告对应章节；没有 Appendix 文件。</p>
+    <p><span class="ok">已覆盖</span> 所有源码图像文件：teaser、dataset_teaser、OmniVTA-6pattern、data_stat_family、system、vae、slow-policy、controller、object、manipulation、tsne、wm、wm_disturb、gate_weight、mp_disturb、prediction。</p>
+    <p><span class="ok">已覆盖</span> 主要表格：dataset comparison 摘要、object/task setup、main success rate、TactileVAE comparison、TactileVAE ablation、VTWM prediction 摘要、VTWM ablation、AFP ablation、policy inference time。</p>
+    <p><span class="warn">注意</span> 由于 arXiv 源码没有附录，报告中没有附录引用标注；这不是遗漏，而是源文件结构所致。</p>
+  </div>
+</section>
+</body>
+</html>
+'''
+(out/'index.html').write_text(html, encoding='utf-8')
+print(out/'index.html')

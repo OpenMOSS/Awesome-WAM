@@ -1,0 +1,20 @@
+
+\label{sec:preliminaries}
+
+\noindent \textbf{Video Diffusion Models.}
+Our framework leverages Stable Video Diffusion (SVD)~\cite{blattmann2023stable} for the video generation backbone. SVD utilizes a VAE to encode the input video $V \in \mathbb{R}^{T \times 3 \times H \times W}$ into a compressed latent representation $z \in \mathbb{R}^{T \times C \times h \times w}$. Operating within this latent space, the model generates a video by iteratively removing Gaussian noise from a completely noisy latent $z_S \sim \mathcal{N}(0, \mathbf{I})$ through a reverse denoising process:
+\begin{equation}
+    z_{s-1} = \frac{1}{\sqrt{\alpha_s}} \left( z_s - \frac{1-\alpha_s}{\sqrt{1-\bar{\alpha}_s}} \epsilon_\theta(z_s, s, P,I) \right) + \sigma_s\epsilon,
+\end{equation}
+where $\epsilon_\theta(\cdot)$ is a learnable noise estimator and $\epsilon_\theta(z_s, s, P, I)$ is the predicted noise conditioned on the observed frame $I$ and task description $P$. However, such multi-step sampling leads to high inference latency that hinders real-time control.
+
+
+\noindent \textbf{Vision Foundation Models.}
+Pre-trained on internet-scale datasets, VFMs have demonstrated remarkable capabilities in learning highly structured and regularized representation spaces. We leverage frozen VFMs to extract these representations from the model's own multi-step generated video frames $\hat{V}$ to serve as teacher targets for self-distilling geometric and semantic foresight (see~\cref{sec:distill}). 
+Formally, given a VFM, we extract the target representation $Y \in \mathbb{R}^{T\times C_\textnormal{VFM} \times h \times w}$ as:
+\begin{equation}
+    Y = \Phi(\operatorname{Interpolate}(\hat{V})),
+\label{eq:vfm}
+\end{equation}
+where $\Phi(\cdot)$ denotes the VFM encoder and $\operatorname{Interpolate}(\cdot)$ is the linear interpolation operation that aligns the output feature maps to the target spatial resolution $h \times w$. Here, $C_\textnormal{VFM}$ denotes the output channel dimension determined by the specific VFM. 
+

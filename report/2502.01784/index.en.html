@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>VILP: Imitation Learning with Latent Video Planning - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>VILP: Imitation Learning with Latent Video Planning</h1>
+<p><strong>Reading Report</strong>: VILP puts the video generation model into the imitation learning policy, but the focus is not on generating larger RGB videos, but on quickly generating future robot videos in latent space, and converting video plans into actions in real time to achieve receding horizon planning.</p>
+<div>
+<span class="tag">arXiv: 2502.01784</span>
+<span class="tag">Imitation Learning</span>
+<span class="tag">Latent Video Diffusion</span>
+<span class="tag">Robot Video Planning</span>
+<span class="tag">Receding Horizon</span>
+</div>
+<div class="meta">
+<div>Authors: Zhengtong Xu, Qiang Qiu, Yu She</div>
+<div>Institution: Purdue University</div>
+<div>Code: <a href="https://github.com/ZhengtongXu/VILP">https: //github.com/ZhengtongXu/VILP</a></div>
+<div>Local output: <code>Report/2502.01784/</code></div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#problem">2. Background and problem setting</a></li>
+<li><a href="#method">3. Method details</a></li>
+<li><a href="#experiments">4. Experiments and results</a></li>
+<li><a href="#details">5. Key points of implementation and diagrams</a></li>
+<li><a href="#reproduce">6. Key points of reproducibility and implementation</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>Existing video planning robot methods usually generate videos in pixel space, which is slow and difficult to replan in real time; long horizon open-loop execution is easy to accumulate errors. What VILP wants to solve is: how to use video generation as part of the robot strategy, while being fast enough to support receding horizon, and using video data to reduce reliance on high-quality action annotation data.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Use VQGAN to compress multi-view/RGBD images into latent space, train the 3D-UNet DDIM video diffusion model in latent; use visual observation to encode through ResNet-18 and use cross-attention to globally condition video generation; then use goal-conditioned low-level policy to map adjacent prediction frames into action sequences, only execute the first \(N_e\) step and repeatedly re-plan.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>Compared with UniPi, VILP significantly reduces training memory and inference time, and maintains or improves video quality and strategy success rate on multiple tasks. For example, VILP-8 in Arrange-Blocks-Hybrid achieves a max/mean success rate of 84.0/80.4, while UniPi-16 only achieves 18.0/13.2; in real Real-Arrange-Blocks, VILP-16 completes two block arrangements in 7/15, UniPi-4/16 is 0/15, and the VILP inference time is 0.238s faster than 1.422s for UniPi-16.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The advantages of VILP mainly come from the speed of latent planning, cross-attention condition mechanism, multi-view alignment and receding horizon; however, it is not a completely action data-free method, and low-level strategy training is still required from video to action. When reading the experiment, you must distinguish between the FID/FVD/speed experiment of "evaluating video planning only" and the success rate experiment of "complete policy rollout".</td>
+</tr>
+</table>
+<figure>
+<img alt="VILP generated video plans" src="figures/images_vp_show.png"/>
+<figcaption>Figure 1: Predicted robot video frames generated by VILP. These video plans are then mapped into robot movements.</figcaption>
+</figure>
+</section>
+<section id="problem">
+<h2>2. Background and problem setting</h2>
+<h3>Why video planning is suitable for robots</h3>
+<p>Video generative models naturally learn temporal consistency and future evolution: given current observations, it can "imagine" future frames after the robot performs a task. If these future frames can be converted into actions, a video planning policy is formed. Video is easier to collect and expand than motion data, so video generation may help robots move into a more scalable data paradigm.</p>
+<h3>Three key questions raised by the author</h3>
+<ul>
+<li><strong>Receding horizon planning</strong>: When the video generation is too slow, long videos can only be executed in open-loop, and errors accumulate seriously. The question is whether video planning can be accelerated to near real-time.</li>
+<li><strong>Bridging video and action</strong>: Video models can be trained with motion-free videos, but ultimately the robot needs motion. The question is whether video-to-action mapping can be established with less or not identically distributed action data.</li>
+<li><strong>Robotic data uniqueness</strong>: Robot data often has multi-view, RGBD, and multi-modal action distribution. Video planning strategies must adapt to these characteristics rather than copy single-view generic video generation.</li>
+</ul>
+</section>
+<section id="method">
+<h2>3. Method details</h2>
+<h3>3.1 Video data format</h3>
+<p>The paper writes the video data as \(\mathcal{D}^{v}=\{(o_0^i, o_1^i, \ldots, o_{T_d^i}^i)\}_{i=1}^{E}\). Where \(o\) is the combination of multi-view or RGBD images: \(o=\{f^j\}_{j=1}^{M}\), \(M\) is the number of views. That said, VILP handles multi-camera input as a common robotic data format from the beginning.</p>
+<h3>3.2 VQGAN compressed into latent space</h3>
+<p>Given an image \(f\in\mathbb{R}^{\tilde{H}\times\tilde{W}\times\tilde{C}}\), VQGAN encoder \(\mathcal{E}\) compresses it into \(z=\mathcal{E}(f)\in\mathbb{R}^{H\times W\times C}\), and decoder \(\mathcal{D}\) can reconstruct the image from \(z\). Both RGB images and depth images can be compressed; VQGAN is fixed after training and is not updated with diffusion training.</p>
+<div class="callout">
+ latent space is a source of speed. Paper example: 96x160 images can be compressed into 12x20 latent space, greatly reducing the calculation amount of video diffusion.
+ </div>
+<h3>3.3 Latent video diffusion planner</h3>
+<p>Sample the future \(N\) frame from the video: </p>
+<p>$$\mathbf{f}_t=[f_{t+\Delta t}, f_{t+2\Delta t}, \ldots, f_{t+N\Delta t}]$$</p>
+<p>Compress to get latent sequence: </p>
+<p>$$\mathbf{z}_t=[z_{t+\Delta t}, z_{t+2\Delta t}, \ldots, z_{t+N\Delta t}]$$</p>
+<p>The video diffusion model is trained on latent sequences with the goal of: </p>
+<p>$$\mathcal{L}(\theta)=\mathbb{E}_{\mathbf{z}_t^0, \epsilon^k, k}\left[\|\epsilon^k-\epsilon_\theta(\mathbf{z}_t^k, k)\|^2\right]$$</p>
+<p>The network uses UNet with 3D convolution to capture both spatial and temporal features. In order to make it a planner, we also need to condition the current observation \(o_t\) and learn \(p(\mathbf{z}_t|o_t)\).</p>
+<figure>
+<img alt="Latent video planning pipeline" src="figures/images_video_planning.png"/>
+<figcaption>Figure 2: VILP video planning pipeline. The image is first compressed into latent, and 3D UNet performs DDIM denoising in the latent space to generate future videos.</figcaption>
+</figure>
+<h3>3.4 Observation conditioning and multi-view generation</h3>
+<p>VILP conditioning is divided into three steps: </p>
+<ol>
+<li>Use modified ResNet-18 to encode each view observation into a low-dimensional vector; use different encoders for different views, and the depth map is repeated three times as a three-channel input.</li>
+<li>Splice all perspective embeddings into \(c_t\), and inject the 3D UNet middle layer through cross-attention: \(\text{Attention}(Q, K, V)=\text{softmax}(QK/\sqrt{d})V\).</li>
+<li>Each perspective trains a diffusion model to generate a video from that perspective, and simultaneously integrates multi-view observation embedding to align the generated videos from different perspectives in time.</li>
+</ol>
+<h3>3.5 From predicted videos to actions</h3>
+<p>A low-level strategy uses adjacent predicted frames to generate action sequences: </p>
+<p>$$\hat{\mathbf{a}}_{t+n\Delta t}=\pi(\hat{o}_{t+n\Delta t}, \hat{o}_{t+(n+1)\Delta t}), \quad n=0, \ldots, N-1$$</p>
+<p>\(\pi\) consists of two CNN encoders and an MLP head. It maps two adjacent prediction observations into a continuous action segment \([a_{t+n\Delta t}, \ldots, a_{t+(n+1)\Delta t-1}]\). During execution, all generated actions are not executed, but only the first \(N_e\) step is executed, and then re-observed, re-generated, and re-action decoded. This is receding horizon control.</p>
+<figure>
+<img alt="Low-level policy" src="figures/images_low_level.png"/>
+<figcaption>Figure 3: The low-level strategy maps adjacent prediction frames into action sequences and uses the receding horizon execution strategy.</figcaption>
+</figure>
+</section>
+<section id="experiments">
+<h2>4. Experiments and results</h2>
+<h3>4.1 Video planning experiment</h3>
+<p>The authors only evaluate video planning on Move-the-Stack, Push-T, and Towers-of-Hanoi, without involving policy rollout. Using 9: 1 episode split, 90% training, 10% unseen testing, indicators include FID, FVD, single inference time. Both VILP and UniPi use DDIM, and the number after the method name represents denoising steps.</p>
+<table>
+<tr><th>Task</th><th>Key observations</th></tr>
+<tr><td>Move-the-Stack</td><td>UniPi-64 achieves the best FID/FVD, but at 2.5s; VILP-4 at 0.058s is of similar quality and much faster.</td></tr>
+<tr><td>Push-T</td><td>VILP significantly outperforms UniPi at a small number of steps, with VILP-8 FID 14.65, VILP-16 FVD 447.56, and UniPi-16 FVD 744.06.</td></tr>
+<tr><td>Towers-of-Hanoi</td><td>VILP-8/16 has better FID/FVD than UniPi, maintaining a better quality/speed trade-off for long-structured tasks.</td></tr>
+</table>
+<figure>
+<img alt="Experiment tasks" src="figures/images_vp_exp.png"/>
+<figcaption>Figure 4: Collection of tasks used by the video planning and strategy rollout.</figcaption>
+</figure>
+<h3>4.2 Training memory and speed</h3>
+<p>VILP is generated in latent space, and the training memory is much lower than UniPi. For example, VILP in Arrange-Blocks only requires 10.0GB to generate 5 frames of 96x160, while UniPi requires 82.5GB for the same setting; VILP in Towers-of-Hanoi requires 8.7GB and UniPi 68.2GB. In terms of inference speed, VILP can reach levels from 0.058s to 0.231s in multiple settings, supporting near-real-time/real-time replanning.</p>
+<h3>4.3 Complete strategy rollout: Nut-Assembly and Arrange-Blocks</h3>
+<table>
+<tr><th>Task</th><th>Diffusion Policy</th><th>VILP</th><th>UniPi</th><th>Conclusion</th></tr>
+<tr><td>Nut-Assembly-Small</td><td>28.0/24.3</td><td>26.7/23.3</td><td>20.0/17.6</td><td>When it comes to small action data, VILP is close to Diffusion Policy and is better than UniPi.</td></tr>
+<tr><td>Nut-Assembly-Hybrid</td><td>48.0/43.1</td><td>56.7/53.2</td><td>35.3/27.2</td><td>VILP is the strongest after adding off-target/hybrid action data.</td></tr>
+<tr><td>Arrange-Blocks-Small</td><td>8.9/5.9</td><td>46.0/40.4</td><td>14.7/8.9</td><td>Video data provides a wealth of information about task structure.</td></tr>
+<tr><td>Arrange-Blocks-Hybrid</td><td>22.7/17.1</td><td>84.0/77.6</td><td>18.7/16.2</td><td>VILP has the greatest advantage in this setting.</td></tr>
+</table>
+<p>The values in the table are max/mean success rate. This experiment supports the author's claim that VILP can leverage task knowledge in video generation models when there is a lot of video data but limited or complex high-quality action annotations.</p>
+<figure>
+<img alt="Hybrid datasets" src="figures/images_hybrid_square.png"/>
+<figcaption>Figure 5: Hybrid data configuration diagram. Low-level action data can contain different targets or different objects, and may not be completely equivalent to the target task.</figcaption>
+</figure>
+<h3>4.4 Comparison with other imitation learning methods</h3>
+<table>
+<tr><th>Task</th><th>UniPi</th><th>DiffusionPolicy-C</th><th>DiffusionPolicy-T</th><th>LSTM-GMM</th><th>IBC</th><th>VILP w/o low dim.</th><th>VILP w/ low dim.</th></tr>
+<tr><td>Sim Push-T</td><td>82.0</td><td>84</td><td>66</td><td>54</td><td>64</td><td>82.6</td><td><strong>88.0</strong></td></tr>
+<tr><td>Can-PickPlace</td><td>37.4</td><td>97</td><td><strong>98</strong></td><td>88</td><td>1</td><td>95.7</td><td>92.2</td></tr>
+</table>
+<p>VILP is best on Sim Push-T, which the author believes shows that it can represent multi-modal action distribution; it is close to Diffusion Policy-C/T on Can-PickPlace, which shows that video planning routes are not only meaningful in low-data scenarios.</p>
+<h3>4.5 Module ablation and horizon ablation</h3>
+<p>Module ablation shows that conditional concatenation is significantly weaker than VILP's cross-attention/global conditioning; multi-view fusion is critical to Can-PickPlace. Horizon ablation shows that the video planning horizon and action horizon cannot be blindly increased: too short to see enough of the future, too long to train and infer, which is expensive and more difficult to generate. The author's empirically preferred combination is video horizon 6 + action horizon 8, or video horizon 12 + action horizon 16.</p>
+<figure>
+<img alt="Horizon ablation" src="figures/images_horizon_ablation.png"/>
+<figcaption>Figure 6: Video planning horizon and action horizon ablation on Sim Push-T.</figcaption>
+</figure>
+<h3>4.6 Real Real-Arrange-Blocks</h3>
+<p>The real task asked Franka Panda to line up the L block and T block in the "LT" configuration on the blue line. The initial position and orientation are random, the action space is delta motion in the x/y direction, and it is trained using 220 human demonstrations. Results: VILP-16 completed two block arrangements 7/15, and another 6/15 completed one block; UniPi-4 and UniPi-16 both completed two blocks/one block 0/15. The inference time is 0.238s for VILP-16 and 1.422s for UniPi-16.</p>
+<figure>
+<img alt="Real Arrange Blocks rollout" src="figures/images_real_arrange_blocks.png"/>
+<figcaption>Figure 7: A fragment of a VILP rollout from a real Real-Arrange-Blocks mission.</figcaption>
+</figure>
+</section>
+<section id="details">
+<h2>5. Key points of implementation and diagrams</h2>
+<h3>Key implementation choices</h3>
+<ul>
+<li>Video generation uses DDIM; VILP-4, VILP-8, and VILP-16 represent 4/8/16 denoising steps respectively.</li>
+<li>Video planner's UNet captures spatiotemporal relationships with 3D convolution.</li>
+<li>The observation encoder has different responsibilities than the VQGAN compression encoder: the former is used for conditionalization, the latter is used for low-variance, reconstructable latent representations.</li>
+<li>Multi-view generation uses an independent diffusion model for each view, while ensuring time alignment through multi-view embedding fusion.</li>
+<li>In the UniPi comparison, the author implemented the same low-level policy to compare the video planner differences as fairly as possible.</li>
+</ul>
+<h3>The paper has no independent appendix</h3>
+<p>There are no additional appendix files in the arXiv source code; all methods, experiments, and discussions are in `vilp.tex`. This report has integrated all major charts and experimental tables in the source code.</p>
+</section>
+<section id="reproduce">
+<h2>6. Key points of reproducibility and implementation</h2>
+<h3>Minimum recurrence path</h3>
+<ol>
+<li>Prepare multi-view/RGBD video data \(\mathcal{D}^{v}\), and a small amount of data with action tags for low-level policy.</li>
+<li>Train VQGAN autoencoder to compress each frame to latent; freeze after training.</li>
+<li>Samples a sequence of future frames from the video by \(N, \Delta t\) and encodes it as \(\mathbf{z}_t\).</li>
+<li>Training conditional latent video diffusion: input current observation \(o_t\), noisy latent video, denoising step, and predict noise.</li>
+<li>Different viewpoint observations are encoded with modified ResNet-18 and injected into 3D UNet via cross-attention.</li>
+<li>Train the low-level goal-conditioned policy \(\pi(\hat{o}_t, \hat{o}_{t+\Delta t})\rightarrow\hat{\mathbf{a}}\).</li>
+<li>When deployed, the future video latent is generated, decoded or directly used for adjacent frame action prediction, only the first \(N_e\) steps are executed and the cycle is re-planned.</li>
+</ol>
+<div class="callout warn">
+ The most important things to pay attention to when reproducing are VQGAN compression quality, selection of video horizon and action horizon, action data distribution of low-level policy, and multi-view time alignment. VILP's speed advantage relies on small resolution latent and fewer DDIM steps.
+ </div>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>The most valuable part of this paper</h3>
+<p>It advances "video generation as a robot planner" from a slower conceptual route to an engineering form that can be re-planned in real time. There are two most valuable points: first, latent video diffusion makes video planning fast enough to support receding horizons instead of long open-loops; second, it clearly demonstrates that video data and action data can be partially decoupled, with the video model responsible for learning the future evolution of the task, and a small amount/mixed action data responsible for bridging video to action.</p>
+<h3>Why does the result stand?</h3>
+<ul>
+<li>The author separately evaluated the video planning quality, training memory, inference speed and final strategy success rate, covering the two-level issues of "whether the generation is good" and "whether the control is effective".</li>
+<li>The comparison with UniPi uses the same low-level policy and U-Net basic settings as much as possible to highlight the differences in latent planning and conditioning.</li>
+<li>Strategy rollout is not only verified in simulations, but also in real Real-Arrange-Blocks; the speed difference in real tasks directly affects the quality of closed-loop control.</li>
+<li>Ablation experiments support the core design: conditional concatenation is weaker, multi-view fusion is useful, and horizon selection exists to explain trade-off.</li>
+</ul>
+<h3>Main limitations</h3>
+<ul>
+<li><strong>action tag still required</strong>: VILP reduces reliance on high-quality task-specific action data, but the video-to-action low-level policy is not obtained unsupervised.</li>
+<li><strong>Mission horizon is still limited</strong>: The experiments are mainly short to medium length operations; longer task-level multi-modal planning remains future work.</li>
+<li><strong>Per-view training diffusion increases complexity</strong>: Multi-view alignment is effective, but training the model separately for each view will increase system maintenance costs.</li>
+<li><strong>Generation artifacts not fully resolved</strong>: The authors pointed out that small artifacts did not significantly affect the experiment, but artifacts may mislead low-level strategies in complex contact tasks.</li>
+<li><strong>Strong dependence on specific resolution and task settings</strong>: Real-time performance is obtained at lower resolutions such as 96x160, 80x80, etc., and needs to be re-evaluated when moving to higher resolutions or more viewing angles.</li>
+</ul>
+<h3>Questions to ask while reading</h3>
+<ul>
+<li>How much does the low-level policy learn from predicting videos, and when is it worth training an extra video planner compared to direct diffusion policy?</li>
+<li>How sensitive is VILP to predicting the visual quality of videos? Which artifacts affect motion and which don't?</li>
+<li>A complete success rate of 7/15 on real missions suggests it is doable, but far from a stable deployment, what are the main failure modes?</li>
+<li>If a stronger pretrained video model is used instead of latent diffusion trained from scratch, can video data requirements be further reduced?</li>
+<li>Is it possible to train a unified video-to-action mapper across tasks, robots, and perspectives to truly achieve the more general route discussed by the author?</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RynnVLA-002 - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>RynnVLA-002: A Unified Vision-Language-Action and World Model</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Jun Cen, Siteng Huang, Yuqian Yuan, Kehan Li, Hangjie Yuan, Chaohui Yu, Yuming Jiang, Jiayan Guo, Xin Li, Hao Luo, Fan Wang, Deli Zhao, Hao Chen</p>
+      <p><strong>机构：</strong>DAMO Academy, Alibaba Group; Hupan Lab; Zhejiang University</p>
+      <p><strong>版本：</strong>arXiv:2511.17502 v2，2025-11-21 提交，2025-11-24 修订</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2511.17502">arXiv</a> | <a href="https://arxiv.org/pdf/2511.17502">PDF</a> | <a href="https://github.com/alibaba-damo-academy/RynnVLA-002">官方代码</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#overview">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作梳理</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验</a></li>
+      <li><a href="#repro">6. 复现审计</a></li>
+      <li><a href="#discussion">7. 分析、局限与边界</a></li>
+    </ul>
+  </nav>
+<section id="overview">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>RynnVLA-002 把 VLA action policy 和 action-conditioned world model 放进同一个 autoregressive multimodal LLM 框架，让模型既能根据图像和语言生成动作，也能根据图像和动作预测未来图像，并用二者的联合训练互相增强。
+    </div>
+    <p><strong>难度评级：</strong>★★★★☆。阅读需要熟悉 VLA、MLLM tokenization、VQ-GAN 图像 token、离散动作 token、continuous action head、world model 视频预测指标，以及 LIBERO / LeRobot 评测协议。</p>
+    <p><strong>关键词：</strong><span class="tag">Vision-Language-Action</span><span class="tag">World Model</span><span class="tag">Unified Vocabulary</span><span class="tag">Action Chunking</span><span class="tag">Action Transformer</span><span class="tag">LIBERO</span></p>
+
+    <table>
+      <tr><th>阅读定位项</th><th>精简答案</th></tr>
+      <tr><td>论文要解决什么</td><td>标准 VLA 只把 action 放在输出侧，缺少对动作动态和物理演化的显式内部建模；标准 world model 能预测未来观测但不能直接输出机器人动作。论文试图统一 action planning 和 future visual prediction。</td></tr>
+      <tr><td>作者的方法抓手</td><td>基于 Chameleon 的统一图文生成架构，引入 image/text/state/action tokenizers，将 VLA 数据和 world model 数据混合训练；同时保留离散 action token 训练，并增加 continuous Action Transformer head 解决真实机器人泛化和速度问题。</td></tr>
+      <tr><td>最重要的结果</td><td>在 LIBERO 中，RynnVLA-002-Continuous 无额外预训练达到 97.4% 平均成功率；真实 LeRobot SO100 上，加入 world model 数据后成功率从低于 30% 提升到 block 任务 80% 以上，论文摘要称整体成功率提升 50%。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>“统一”不是只共享 backbone 名义，而是把 VLA 查询和 world-model 查询都组织成同一套 token 序列与共享参数；但离散 action 在真实机器人上失败，所以连续动作头是这篇方法能落地的重要补丁。</td></tr>
+    </table>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li>提出 RynnVLA-002，把 VLA model 和 world model 统一到一个 action world model 中，共享参数并混合训练。</li>
+      <li>提出离散 action chunk 的 attention mask，禁止当前 action 依赖同一 chunk 内先前 action，缓解 autoregressive action 的误差传播。</li>
+      <li>在离散建模之外加入 continuous Action Transformer head，并用 L1 回归监督连续动作 chunk，使真实机器人动作更平滑、推理更快、泛化更好。</li>
+      <li>在 LIBERO 和真实 LeRobot SO100 上验证：world model 数据帮助 VLA，VLA 数据也帮助 world model 生成。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/action_world_model.png" alt="Action world model concept">
+      <div class="caption">Fig. 1 / Action World Model：VLA 从图像生成动作，world model 从动作和图像生成未来图像，RynnVLA-002 试图统一二者。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决什么问题</h3>
+    <p>VLA 模型把语言目标和视觉观测映射到动作，是当前机器人 foundation policy 的主流形式。论文认为这种架构有三个缺陷：动作只在输出侧，模型没有显式 action dynamics 表示；模型不预测“如果执行某动作世界会怎样变化”，因此缺少想象和反事实能力；模型没有直接学习物理动态，难以内化接触、稳定性、物体交互等规律。</p>
+    <p>World model 正好补上另一半：它可以根据当前图像和动作预测未来状态，学习环境动态。但传统 world model 不直接输出动作，所以无法独立完成 action planning。RynnVLA-002 的问题定义就是把二者放到同一个可查询的模型里：问它 “What action should the robot take to ...?” 时它是 VLA；问它 “Generate the next frame ...” 时它是 world model。</p>
+
+    <h3>2.2 已有方法卡在哪里</h3>
+    <p>VLM-based VLA 往往借助大规模 MLLM 的视觉语言理解能力，再加 action head 或 action expert。离散 action token 便于接入语言模型的 cross-entropy 训练，但在精细控制上有量化误差和自回归误差累积问题。连续 action head 可以输出更平滑轨迹，但如果没有对世界演化的建模，模型仍可能只学习“图像到动作”的短视关联。</p>
+    <p>Visual generation-based VLA 与 world model 能预测未来帧，但仍常常面临视觉保真度、跨域迁移、计算效率，以及如何把预测动态真正转化为动作改进的问题。本文的定位是：用同一个 MLLM 同时吃 VLA 数据和 world model 数据，让动作理解与视觉动态预测互相提供训练信号。</p>
+
+    <h3>2.3 本文解决思路</h3>
+    <p>RynnVLA-002 采用 unified token vocabulary，把 image/text/action/state 组织成同一语言模型可处理的 token 序列。VLA 侧从语言、状态和历史双视角图像生成 action chunk；world model 侧从图像和 action token 生成下一帧图像。离散 action 用 cross-entropy 训练，world image token 也用 cross-entropy 训练；连续 action head 则使用 L1 regression。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作梳理</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的脉络</th><th>RynnVLA-002 的定位</th></tr>
+      <tr><td>VLM-based VLA</td><td>RT-2、OpenVLA、LCB、Diffusion-VLA、DexVLA、GR00T、$\pi_0$ / $\pi_{0.5}$ 等把视觉语言模型扩展成动作生成器。</td><td>沿用 MLLM 作为统一骨架，但不只做 action output，还把动作作为 world model 输入，从而让 action 成为被理解和生成的模态。</td></tr>
+      <tr><td>Visual Generation-based VLA</td><td>UniPi、DREAMGEN、GeVRM、GR-2、RynnVLA-001 等通过未来视觉生成或视频预测增强策略学习。</td><td>基于 Chameleon 这类统一 image understanding/generation 模型，把视觉生成能力直接纳入 VLA 训练，而不是单独预训练后只作为辅助。</td></tr>
+      <tr><td>World Models</td><td>WorldDreamer、Genie、iVideoGPT、Cosmos 等强调预测动态、合成环境、支持模型式决策或策略选择。</td><td>本文不把 world model 当作外部评估器，而是把 world-model token 序列和 VLA token 序列混合训练，验证二者互相增强。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <div class="figure">
+      <img src="figures/overview_6.png" alt="RynnVLA-002 overview">
+      <div class="caption">Fig. 2 / Overview：左侧为 VLA 查询，右侧为 world model 查询；二者共享 RynnVLA-002 主体。</div>
+    </div>
+
+    <h3>4.1 统一建模目标</h3>
+    <p>论文先把 VLA 和 world model 写成两个条件生成问题：</p>
+    <div class="formula-block">
+      <p class="intuition">VLA 问题：给定语言、状态和历史观测，生成动作。</p>
+      $$a_t \sim \pi(a_t \mid l, s_{t-1}, o_{t-h:t})$$
+      <p class="intuition">World model 问题：给定历史观测和动作，预测下一帧观测。</p>
+      $$\hat{o}_t \sim f(o_t \mid o_{t-h:t-1}, a_{t-h:t-1})$$
+      <p>RynnVLA-002 用一个参数集合 $\psi$ 来支持这两种查询。不同任务只改变输入 token 的组织方式和文本前缀，主体模型共享。</p>
+    </div>
+
+    <h3>4.2 Data Tokenization</h3>
+    <p>模型初始化自 Chameleon，因为 Chameleon 本身支持 unified image understanding and generation。RynnVLA-002 涉及四个 tokenizer：</p>
+    <table class="compact">
+      <tr><th>Tokenizer</th><th>作用</th><th>关键细节</th></tr>
+      <tr><td>Image tokenizer</td><td>把图像离散化为视觉 token</td><td>VQ-GAN；compression ratio 16；codebook size 8192；$256\times256$ 图像生成 256 tokens，$512\times512$ 生成 1024 tokens。</td></tr>
+      <tr><td>Text tokenizer</td><td>处理语言 prompt</td><td>继承 Chameleon 的 BPE tokenizer。</td></tr>
+      <tr><td>State tokenizer</td><td>离散化 proprioceptive state</td><td>每个连续维度按训练数据范围分成 256 bins。</td></tr>
+      <tr><td>Action tokenizer</td><td>离散化机器人动作</td><td>每个连续动作维度分成 256 bins；连续 Action Transformer 输出 raw action，不经过 tokenization。</td></tr>
+    </table>
+    <div class="impl-note">
+      <strong>实现要点：</strong>image、text、action、state tokens 共用一个 65,536 大小的 vocabulary。这个设定让 action 不只是输出数值，而是进入和图像、文本同一套自回归 token 语言。
+    </div>
+
+    <h3>4.3 VLA Model Data</h3>
+    <p>VLA 训练样本的序列结构为：</p>
+    <div class="formula-block">
+      $$\texttt{\{text\}}\ \texttt{\{state\}}\ \underbrace{\texttt{\{image-front-wrist\}}}_{\times M}\ \underbrace{\texttt{\{action\}}}_{\times K}$$
+      <table class="symbol-table compact">
+        <tr><td>$M$</td><td>历史图像观测数量。实验中 VLA 使用 $M=2$。</td></tr>
+        <tr><td>$K$</td><td>action chunk size。LIBERO-Long 和 LIBERO-Spatial 使用 $K=10$，LIBERO-Object 和 LIBERO-Goal 使用 $K=5$。</td></tr>
+        <tr><td>$\mathcal{L}_{dis\_action}$</td><td>离散 action token 的 cross-entropy loss。</td></tr>
+      </table>
+    </div>
+    <p>文本 prompt 形式是 “What action should the robot take to &lt;task&gt;?”。输入图像包括 front 和 wrist camera，状态包括 proprioceptive state。</p>
+
+    <h3>4.4 World Model Data</h3>
+    <p>world model 的序列结构为：</p>
+    <div class="formula-block">
+      $$\texttt{\{text\}}\ \underbrace{\texttt{\{images-front-wrist\}}\texttt{\{action\}}\overbrace{\texttt{\{images-front-wrist\}}}^{\mathcal{L}_{img}}}_{\times N}$$
+      <p>所有 world model 样本使用同一个文本前缀，论文正文写为 “Generate the next frame based on the current image and the action.”，官方 README 的数据样例则是 “Generate the next image based on the provided sequence of historical images and corresponding actions.”</p>
+      <table class="symbol-table compact">
+        <tr><td>$N$</td><td>自回归预测轮数。实验中为效率设为 $N=1$。</td></tr>
+        <tr><td>$\mathcal{L}_{img}$</td><td>未来图像离散 token 的 cross-entropy loss。</td></tr>
+      </table>
+    </div>
+    <p>离散训练目标为：</p>
+    <div class="formula-block">
+      $$\mathcal{L}_{dis}=\mathcal{L}_{dis\_action}+\mathcal{L}_{img}$$
+      <p>这意味着 action prediction 和 image prediction 在同一个训练阶段混合优化。</p>
+    </div>
+
+    <h3>4.5 Discrete Action Chunk 的 Attention Mask</h3>
+    <p>自回归生成多个动作时，如果默认 causal attention 允许后续 action token 看见前面 action token，早期动作错误会进入后续动作条件，引起 error accumulation。作者的 attention mask 修改为：当前 action 只看 text / visual / state 输入，不看同一 chunk 里先前 action。</p>
+    <div class="figure">
+      <img src="figures/attention_mask.png" alt="Attention mask">
+      <div class="caption">Fig. 3 / Attention Mask：默认 VLA、本文 VLA mask 和 world model mask 的对比。</div>
+    </div>
+    <p>这个设计把多个 action token 变成“条件独立地从视觉上下文生成”，降低误差传播。但代价也在论文中出现：真实机器人上，这种离散 action chunk 容易不平滑，因为同一 chunk 内动作彼此隔离，不能保证轨迹连续。</p>
+
+    <h3>4.6 Continuous Action Transformer Head</h3>
+    <p>为了处理真实机器人泛化和推理速度，作者在离散联合建模之外加一个小型 Action Transformer。它读取完整上下文，包括 language、image、state tokens，用 learnable action queries 并行输出整个连续动作 chunk。</p>
+    <div class="formula-block">
+      <p class="intuition">最终训练目标把离散 action、world image 和连续 action 三种监督合在一起。</p>
+      $$\mathcal{L}=\mathcal{L}_{dis}+\alpha\mathcal{L}_{conti}
+      =\mathcal{L}_{dis\_action}+\mathcal{L}_{img}+\alpha\mathcal{L}_{conti\_action}$$
+      <table class="symbol-table compact">
+        <tr><td>$\mathcal{L}_{conti\_action}$</td><td>连续动作的 L1 regression loss。</td></tr>
+        <tr><td>$\alpha$</td><td>连续动作损失权重，实验中设为 10。</td></tr>
+      </table>
+    </div>
+    <pre class="pseudocode">Training batch construction
+1. Sample VLA data:
+   prompt = "What action should the robot take to <task>?"
+   input = text + state + M history images from front/wrist cameras
+   target_discrete = K action tokens
+   target_continuous = K raw actions through Action Transformer
+
+2. Sample world-model data:
+   prompt = "Generate the next frame based on the current image and the action."
+   input = current front/wrist images + action tokens
+   target = next front/wrist image tokens
+
+3. Optimize:
+   L = CE(discrete actions) + CE(image tokens) + alpha * L1(continuous actions)</pre>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <h3>5.1 实验设置</h3>
+    <table>
+      <tr><th>实验</th><th>设置</th><th>指标</th></tr>
+      <tr><td>LIBERO simulation</td><td>四个 suite：Spatial、Object、Goal、Long。清洗数据时移除 unsuccessful trajectories 和 no-operation actions；world model 使用 90% / 10% train-val split。</td><td>VLA 用每任务 50 次不同初始状态 rollout 的 success rate；world model 用 FVD、PSNR、SSIM、LPIPS。</td></tr>
+      <tr><td>LeRobot SO100 real-world</td><td>两类 pick-and-place：block inside circle 248 demos，strawberries into cup 249 demos；均为 human teleoperation expert demonstrations。</td><td>每任务每场景测试 10 次，报告 success rate。</td></tr>
+      <tr><td>Ablation</td><td>分别去掉 world model 数据、action chunking、本文 attention mask、wrist camera、proprioceptive state，比较离散和连续动作。</td><td>LIBERO success rate、真实机器人 success rate、world model generation metrics、Hz 推理频率。</td></tr>
+    </table>
+
+    <h3>5.2 LIBERO 主结果</h3>
+    <table class="compact">
+      <tr><th>方法</th><th>Pretraining</th><th>Action Type</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Average</th></tr>
+      <tr><td>UniVLA</td><td>是</td><td>Discrete</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+      <tr><td>OpenVLA-OFT</td><td>是</td><td>Continuous</td><td>97.6</td><td>98.4</td><td><strong>97.9</strong></td><td><strong>94.5</strong></td><td>97.1</td></tr>
+      <tr><td>RynnVLA-002-Discrete</td><td>否</td><td>Discrete</td><td>94.2</td><td>96.8</td><td>94.6</td><td>87.6</td><td>93.3</td></tr>
+      <tr><td><strong>RynnVLA-002-Continuous</strong></td><td>否</td><td>Continuous</td><td><strong>99.0</strong></td><td><strong>99.8</strong></td><td>96.4</td><td>94.4</td><td><strong>97.4</strong></td></tr>
+    </table>
+    <p>作者强调的关键点是：RynnVLA-002-Continuous 在没有大规模机器人预训练的情况下，平均成功率达到 97.4%，与若干带预训练的强 baseline 相当或更高。离散版本也达到 93.3%，说明统一离散 action/world token 方案在仿真中有效，但连续头进一步提高了整体表现。</p>
+
+    <h3>5.3 真实机器人结果</h3>
+    <div class="figure">
+      <img src="figures/real_robot_3.png" alt="Real robot settings">
+      <div class="caption">Fig. 4 / Real robot settings：单目标、多目标和带 distractors 的 SO100 桌面操作设置。</div>
+    </div>
+    <table class="compact">
+      <tr><th>任务 / 场景</th><th>GR00T N1.5</th><th>$\pi_0$</th><th>RynnVLA-002</th></tr>
+      <tr><td>Block / Single-target</td><td>90.0</td><td>100.0</td><td>90.0</td></tr>
+      <tr><td>Block / Multi-target</td><td>60.0</td><td>70.0</td><td><strong>90.0</strong></td></tr>
+      <tr><td>Block / w/ Distractors</td><td>50.0</td><td>50.0</td><td><strong>80.0</strong></td></tr>
+      <tr><td>Strawberries / Single-target</td><td>50.0</td><td>80.0</td><td>80.0</td></tr>
+      <tr><td>Strawberries / Multi-target</td><td>50.0</td><td>70.0</td><td><strong>80.0</strong></td></tr>
+      <tr><td>Strawberries / w/ Distractors</td><td><strong>70.0</strong></td><td>40.0</td><td>50.0</td></tr>
+    </table>
+    <p>真实机器人评价更能暴露 discrete action 的局限。论文正文说 RynnVLA-002 在 cluttered environments 中竞争力较强，尤其 block 任务中 multi-target 和 distractor 场景比 baseline 高 10% 到 30%。但 strawberry + distractors 场景中 GR00T N1.5 仍高于 RynnVLA-002，这说明本文真实机器人结果不是全场景压倒式领先。</p>
+
+    <h3>5.4 World Model Benefits VLA</h3>
+    <table class="compact">
+      <tr><th>离散动作设置</th><th>World Model</th><th>Action Chunking</th><th>本文 Attention Mask</th><th>Average</th></tr>
+      <tr><td>VLA only</td><td>否</td><td>否</td><td>否</td><td>62.8</td></tr>
+      <tr><td>+ World Model</td><td>是</td><td>否</td><td>否</td><td>67.2</td></tr>
+      <tr><td>+ Chunking, default mask</td><td>否</td><td>是</td><td>否</td><td>54.0</td></tr>
+      <tr><td>+ Chunking + proposed mask</td><td>否</td><td>是</td><td>是</td><td>76.6</td></tr>
+      <tr><td>完整离散模型</td><td>是</td><td>是</td><td>是</td><td>78.1</td></tr>
+    </table>
+    <p>这张消融表说明两个点：只加 world model 数据能从 62.8 提到 67.2；action chunking 如果用默认 causal mask 会掉到 54.0，而配合本文 mask 后提高到 76.6。完整离散模型达到 78.1。</p>
+    <div class="figure">
+      <img src="figures/vis_vla.png" alt="VLA visualization">
+      <div class="caption">Fig. 5 / VLA visualization：无 world model 数据时模型直接朝目标位置移动；加入 world model 后在失败时继续尝试抓取。</div>
+    </div>
+
+    <h3>5.5 Continuous Action 的消融</h3>
+    <table class="compact">
+      <tr><th>设置</th><th>World Model</th><th>Wrist Camera</th><th>Proprioceptive State</th><th>Goal</th><th>Object</th><th>Spatial</th><th>Long</th><th>Average</th></tr>
+      <tr><td>基础连续 VLA</td><td>否</td><td>否</td><td>否</td><td>90.2</td><td>92.4</td><td>88.4</td><td>67.0</td><td>84.5</td></tr>
+      <tr><td>+ Wrist Camera</td><td>否</td><td>是</td><td>否</td><td>91.4</td><td>95.4</td><td>98.2</td><td>81.4</td><td>91.6</td></tr>
+      <tr><td>+ World Model</td><td>是</td><td>是</td><td>否</td><td>96.0</td><td>97.4</td><td>99.0</td><td>85.8</td><td>94.6</td></tr>
+      <tr><td>完整连续模型</td><td>是</td><td>是</td><td>是</td><td>96.4</td><td>99.8</td><td>99.0</td><td>94.4</td><td>97.4</td></tr>
+    </table>
+    <p>连续模型的最强证据是：wrist camera 从 84.5 提到 91.6，world model 数据从 91.6 提到 94.6，proprioceptive state 再把 Long 从 85.8 拉到 94.4。真实机器人消融更强：缺 wrist camera 或 proprioceptive state 时成功率为 0；缺 world model 时 Single / Multi / Distractors 只有 30.0 / 10.0 / 0，而完整连续模型达到 80.0 / 80.0 / 50.0。</p>
+
+    <h3>5.6 VLA Enhances World Model</h3>
+    <table class="compact">
+      <tr><th>Suite</th><th>模型</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+      <tr><td>Goal</td><td>World Model</td><td>370.0</td><td><strong>22.25</strong></td><td>77.84</td><td>19.70</td></tr>
+      <tr><td>Goal</td><td>Action World Model</td><td><strong>336.8</strong></td><td>22.13</td><td><strong>78.13</strong></td><td><strong>19.43</strong></td></tr>
+      <tr><td>Object</td><td>World Model</td><td>1141.6</td><td>20.31</td><td>59.59</td><td>27.30</td></tr>
+      <tr><td>Object</td><td>Action World Model</td><td><strong>877.2</strong></td><td><strong>22.18</strong></td><td><strong>65.03</strong></td><td><strong>22.60</strong></td></tr>
+      <tr><td>Spatial</td><td>World Model</td><td>405.4</td><td>22.32</td><td>79.15</td><td>20.28</td></tr>
+      <tr><td>Spatial</td><td>Action World Model</td><td><strong>373.1</strong></td><td><strong>23.88</strong></td><td><strong>82.41</strong></td><td><strong>16.33</strong></td></tr>
+      <tr><td>Long</td><td>World Model</td><td>557.73</td><td>18.24</td><td>69.16</td><td>31.60</td></tr>
+      <tr><td>Long</td><td>Action World Model</td><td><strong>427.86</strong></td><td><strong>19.36</strong></td><td><strong>72.19</strong></td><td><strong>27.78</strong></td></tr>
+    </table>
+    <p>world model 指标显示，混合 VLA 数据后的 Action World Model 在大多数指标上优于单独 world model。<span class="appendix-ref">补充材料 / World Model Visualization</span> 进一步说明：baseline world model 在两个例子里从 front camera 视角预测不到成功抓取，而 Action World Model 能生成包含成功抓取的视频；baseline 还出现 front/wrist 两视角预测不一致的问题。</p>
+    <div class="figure">
+      <img src="figures/wm_3.png" alt="World model visualization">
+      <div class="caption">Fig. 6 / World model visualization：补充材料中的世界模型可视化对比。</div>
+    </div>
+
+    <h3>5.7 效率与动作形式</h3>
+    <p>论文的效率消融表给出明确趋势：连续动作并行生成远快于离散自回归动作。例如无 wrist、无历史的连续模型在 chunk size 5 时 24.94 Hz，在 chunk size 10 时 48.20 Hz；加入 wrist 和历史后仍有 7.75 / 15.78 Hz。离散模型即使使用 action chunking，也只有约 2.74 到 3.69 Hz。论文还报告离散 action tokens 会加速 continuous action generation 的收敛，尤其训练早期优势明显。</p>
+    <div class="figure">
+      <img src="figures/performance_comparison_4plots_row.png" alt="Discrete vs continuous performance">
+      <div class="caption">Fig. 7 / Discrete vs Continuous：连续动作收敛更快，真实机器人差距更明显。</div>
+    </div>
+  </section>
+
+  <section id="repro">
+    <h2>6. 复现审计</h2>
+    <h3>6.1 代码与模型资源</h3>
+    <div class="audit-card">
+      <p><span class="audit-pass">已公开：</span>官方 GitHub 为 <a href="https://github.com/alibaba-damo-academy/RynnVLA-002">alibaba-damo-academy/RynnVLA-002</a>。README 标注 2025-11-10 发布 models、training code、evaluation code，覆盖 LIBERO simulation benchmark 和 real-world LeRobot experiments。</p>
+      <p><span class="audit-pass">模型 Zoo：</span>README 提供 VLA Model 256×256 的四个 LIBERO checkpoint，以及 World Model / Action World Model 512×512 的各 suite checkpoint，表中数值与论文主表一致。</p>
+      <p><span class="audit-warn">依赖成本：</span>需要安装本仓库、flash-attn、LIBERO，并下载 Chameleon tokenizer、base-model 和 starting point 权重。复现涉及 pretokenize 与 no-pretokenize 两条训练管线。</p>
+    </div>
+
+    <h3>6.2 关键超参数</h3>
+    <table class="compact">
+      <tr><th>项</th><th>论文设置</th></tr>
+      <tr><td>VLA history images</td><td>$M=2$，front + wrist camera 历史观测。</td></tr>
+      <tr><td>Action chunk size</td><td>LIBERO-Long / Spatial 使用 $K=10$；LIBERO-Object / Goal 使用 $K=5$。</td></tr>
+      <tr><td>World model prediction round</td><td>$N=1$，为了计算效率只预测一轮下一帧。</td></tr>
+      <tr><td>连续动作损失权重</td><td>$\alpha=10$。</td></tr>
+      <tr><td>图像 tokenization</td><td>VQ-GAN，compression ratio 16，codebook size 8192。</td></tr>
+      <tr><td>state/action discretization</td><td>每维 256 bins，范围由训练数据 min/max 决定。</td></tr>
+      <tr><td>数据清洗</td><td>移除 unsuccessful trajectories 和 no-operation actions，沿用 OpenVLA 风格。</td></tr>
+    </table>
+
+    <h3>6.3 官方复现路径</h3>
+    <ol>
+      <li>安装依赖：<code>pip install -r requirements.txt</code>，安装 <code>flash-attn</code>，<code>pip install -e .</code>，并安装 LIBERO。</li>
+      <li>下载 Chameleon tokenizer、base-model、starting point 权重，放入 README 指定的 <code>rynnvla-002/ckpts/...</code> 路径。</li>
+      <li>对 LIBERO 数据过滤 no-op actions：运行 <code>regenerate_libero_dataset_filter_no_op.py</code>。</li>
+      <li>选择 Pretokenize 或 NoPretokenize。Pretokenize 需要先保存图像/action/state，再生成 VLA conversations 和 world model conversations，最后把 conversation token 化并拼接记录。</li>
+      <li>配置 <code>rynnvla-002/configs/libero_goal/...</code> 里的数据路径，运行 <code>exps_pretokenize</code> 或 <code>exps_nopretokenize</code> 下的训练脚本。</li>
+      <li>评估 LIBERO：在 <code>evals_libero/</code> 中设置 <code>checkpoint_path</code>，运行 continuous 或 discrete 的评估脚本。</li>
+      <li>真实 LeRobot：README 提供数据生成、state/action min-max 计算、tokenization、训练和 <code>eval_solver_lerobot_action_head_state.py</code> 推理入口。</li>
+    </ol>
+
+    <h3>6.4 复现风险</h3>
+    <ul>
+      <li>真实机器人数据是作者新采集的 SO100 teleoperation demonstrations，论文没有在正文中说明完整公开程度；即使代码公开，真实机器人表格复现仍依赖数据、硬件和操作协议。</li>
+      <li>论文主表强调 “without pretraining”，但模型初始化依赖 Chameleon 和 starting point 权重。这里的 “without pretraining” 应理解为没有额外机器人任务预训练，而不是从随机初始化训练整个 MLLM。</li>
+      <li>world model 指标依赖清洗后的 LIBERO 90/10 split，复现时需要保证 no-op 过滤、任务划分和图像分辨率一致。</li>
+    </ul>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>按论文自己的证据，最有价值的地方是把 “action as output” 改成 “action as a modality”。离散 action token 让动作可以进入和图像、文本同一套自回归词表；world model 训练又要求模型从动作预测视觉后果。因此 VLA 不只是学习从图像到动作的监督映射，还被迫学习动作如何改变物体和视角。LIBERO 和真实机器人消融都显示 world model 数据能提升 VLA，补充材料可视化也显示 VLA 数据改善 world model 对抓取过程的生成。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>论文的主张由几类证据互相支撑：主表显示连续 RynnVLA-002 在 LIBERO 上达到 97.4%；离散消融表显示 world model、action chunking、attention mask 各自贡献；连续消融表显示 wrist camera、state 和 world model 对 Long 和真实机器人很关键；world model 指标表显示 Action World Model 改善 FVD/SSIM/LPIPS；真实机器人消融显示缺 world model、wrist camera 或 proprioceptive state 会显著失败。这些证据覆盖了 “统一模型互相增强” 的两个方向。</p>
+
+    <h3>7.3 作者自述与实验暴露的局限</h3>
+    <ul>
+      <li>离散 action chunk 在真实机器人上几乎不能成功。作者把原因归于有限真实数据下大自回归模型过拟合、本文 attention mask 让 chunk 内动作隔离从而无法保证轨迹连续，导致动作抖动和不平滑。</li>
+      <li>真实机器人实验范围较窄：只有 LeRobot SO100 上两个 pick-and-place 任务，每个场景 10 次测试。结果能证明方法在该设置下有效，但不足以覆盖复杂长程真实任务。</li>
+      <li>论文没有给出大规模跨 embodiment 真实机器人部署结果。和 $\pi_0$ / GR00T 这类 pretrained baseline 比较时，RynnVLA-002 的优势主要出现在特定 finetune 数据和场景中。</li>
+      <li>world model 当前为 $N=1$ 的单轮未来帧预测，主要作为训练信号和可视化验证；论文没有展示用 world model 显式 rollout 多步候选动作或做规划搜索。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>RynnVLA-002 更适用于有成对图像、动作、状态数据，并且未来视觉状态能反映任务进展的操作任务。它需要图像 tokenizer、action/state discretization 范围、front/wrist camera 和 proprioceptive state 的稳定接口。对于强接触、力控、遮挡严重、视觉状态难以表达任务成功，或需要高速闭环控制的任务，本文证据还不充分。</p>
+  </section>
+</main>
+</body>
+</html>

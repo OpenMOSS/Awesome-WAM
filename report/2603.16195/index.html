@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S-VAM - 精读报告</title>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+      <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>S-VAM: Shortcut Video-Action Model by Self-Distilling Geometric and Semantic Foresight</h1>
+  <div class="meta">
+    <p><b>作者：</b>Haodong Yan, Zhide Zhong, Jiaguan Zhu, Junjie He, Weilin Yuan, Wenxuan Song, Xin Gong, Yingjie Cai, Guanyi Zhao, Xu Yan, Bingbing Liu, Ying-Cong Chen, Haoang Li</p>
+    <p><b>机构：</b>The Hong Kong University of Science and Technology (Guangzhou); Huawei Foundation Model Department</p>
+    <p><b>发表：</b>arXiv preprint, 2026</p>
+    <p><b>arXiv：</b><a href="https://arxiv.org/abs/2603.16195">2603.16195</a> | <b>PDF：</b><a href="https://arxiv.org/pdf/2603.16195">下载</a> | <b>Project：</b><a href="https://haodong-yan.github.io/S-VAM/">haodong-yan.github.io/S-VAM</a> | <b>Code：</b><a href="https://github.com/Haodong-Yan/S-VAM-Code">GitHub</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <b>目录</b>
+  <ul>
+    <li><a href="#overview">1. 论文速览</a></li>
+    <li><a href="#motivation">2. 动机</a></li>
+    <li><a href="#related">3. 相关工作梳理</a></li>
+    <li><a href="#method">4. 方法详解</a></li>
+    <li><a href="#exp">5. 实验</a></li>
+    <li><a href="#discussion">6. 分析与讨论</a></li>
+  </ul>
+</nav>
+<section id="overview">
+<h2>1. 论文速览</h2>
+<div class="tldr"><b>一句话总结：</b>S-VAM 试图解决 video-action model 中“多步视频生成有高质量 foresight 但太慢、单步扩散特征很快但 noisy/entangled”的矛盾：它用自蒸馏把多步生成视频中的 VFM 几何/语义表征压缩成单步前向可预测的 shortcut foresight，再交给 action expert 输出动作。</div>
+<p><b>难度评级：</b>★★★★☆。需要理解 VLA/VAM、Stable Video Diffusion、扩散模型去噪特征、Vision Foundation Model 表征、token condensation/QFormer/Perceiver，以及 diffusion policy。</p>
+<p><b>关键词：</b>Video-Action Model, Self-Distillation, Geometric Foresight, Semantic Foresight, Vision Foundation Models, Diffusion Policy。</p>
+<table>
+<tr><th>阅读定位问题</th><th>答案</th></tr>
+<tr><td>论文要解决什么</td><td>现有 VAM 要么依赖慢速 multi-step video generation，要么使用 noisy one-step diffusion features，难以同时满足实时控制和高质量未来预见。</td></tr>
+<tr><td>作者的方法抓手</td><td>用 diffusion model 自己多步生成的视频抽取 VFM teacher targets，再训练 lightweight geometric/semantic decouplers 从单步 denoising features 直接预测这些 teacher representations。</td></tr>
+<tr><td>最重要的结果</td><td>CALVIN 平均序列长度 4.16，MetaWorld 平均成功率 72.8%；真实双臂 Cobot 四任务上优于 VPP，且 action chunk 为 8 时有效控制频率 25 Hz。</td></tr>
+<tr><td>阅读时要注意的点</td><td>核心不是简单把 VFM 特征拼到策略里，而是 teacher target 来自同一 diffusion trajectory 的 multi-step generated videos，避免 GT future frames 与 one-step features 的轨迹错配。</td></tr>
+</table>
+<h3>核心贡献清单</h3>
+<ul>
+  <li><b>提出 S-VAM shortcut。</b>绕过 iterative video generation 的推理延迟，用单次 denoising forward pass 获得可用于控制的未来表征。</li>
+  <li><b>提出 geometric/semantic foresight self-distillation。</b>用 DPAv3 和 DINOv2 从 SVD 多步生成视频中抽取 teacher representations，监督 decouplers 学会从 noisy one-step features 中恢复结构化 foresight。</li>
+  <li><b>提出 Uni-Perceiver action expert 条件聚合。</b>把几何、语义和原始扩散特征压缩成 compact tokens，作为 diffusion policy 的条件。</li>
+  <li><b>在仿真和真实机器人验证。</b>覆盖 CALVIN、MetaWorld 和 AgileX Cobot 真实双臂任务，并提供组件消融和 VFM teacher target 消融。</li>
+</ul>
+</section>
+
+<section id="motivation">
+<h2>2. 动机</h2>
+<h3>2.1 要解决什么问题</h3>
+<p>VLA 模型通常把预训练 VLM 接上 action head，再用机器人动作数据微调。问题是，VLM 主要来自静态图文预训练，本身不具备物理交互所需的 spatiotemporal foresight；如果完全依赖机器人动作数据学习动态规律，数据成本很高。</p>
+<p>VAM 路线试图用 video diffusion model 产生 visual plan，再让 action expert 根据视觉计划预测控制。这样可以利用互联网视频中的动态先验，减少对机器人动作数据的依赖。</p>
+<div class="figure"><img src="figures/teaser_35.png" alt="teaser"><div class="caption">Motivation and overview：论文用该图说明 VAM 的效率-foresight trade-off，以及 S-VAM 的 shortcut 思路。</div></div>
+<h3>2.2 已有方法的局限</h3>
+<ul>
+  <li><b>Multi-step video generation：</b>多步去噪能产生较高保真视觉未来，但推理延迟高，不适合实时控制。</li>
+  <li><b>One-step feature extraction：</b>单步扩散特征速度快，但特征 noisy 且 entangled，难以稳定表达几何结构、对象语义和未来交互。</li>
+  <li><b>直接动作学习：</b>不显式引入视频模型动态先验，需要从有限机器人数据中学习物理动态。</li>
+  <li><b>用 GT future frames 做蒸馏：</b>论文消融指出，GT future frames 与 one-step diffusion features 不在同一生成轨迹上，会造成 trajectory misalignment，性能从 4.16 降到 3.82。</li>
+</ul>
+<h3>2.3 本文的解决思路</h3>
+<p>本文把“慢速多步生成视频中的稳定结构化表征”当作 teacher，把“快速单步 denoising features”当作 student 输入。几何分支学习 DPAv3 表征，语义分支学习 DINOv2 表征。推理时不再跑完整多步视频生成，只需要一次 denoising feature extraction 加 decouplers，就能得到可供动作专家使用的 geometric and semantic foresight。</p>
+</section>
+
+<section id="related">
+<h2>3. 相关工作梳理</h2>
+<h3>3.1 论文自述的相关工作</h3>
+<table>
+<tr><th>技术线</th><th>论文中的定位</th><th>与 S-VAM 的区别</th></tr>
+<tr><td>Vision-Language-Action Models</td><td>RT-1、OpenVLA、$\pi_0$ 等通过 VLM + action head 从视觉和语言预测动作。</td><td>S-VAM 不只做静态视觉语言到动作，而引入 video diffusion backbone 的未来动态先验。</td></tr>
+<tr><td>Video Generation Models for Robot Learning</td><td>VPP、SuSIE、GR-1 等利用视频生成或未来预测辅助机器人控制。</td><td>S-VAM 针对 multi-step video generation 的延迟问题，通过自蒸馏建立 one-step shortcut。</td></tr>
+<tr><td>Vision Foundation Models in Robot Learning</td><td>CLIP/SigLIP/DINO/Depth/VGGT 等可提供语义、几何或运动相关表征。</td><td>S-VAM 将 VFM 表征作为 teacher targets，而非直接把 VFM 特征输入策略；最终选择 DINOv2 + DPAv3。</td></tr>
+</table>
+<h3>3.2 直接前作对比</h3>
+<table>
+<tr><th>维度</th><th>VPP</th><th>HiF-VLA / Uni-VLA</th><th><b>S-VAM</b></th></tr>
+<tr><td>核心思路</td><td>使用 one-step diffusion features 提供快速预测信息。</td><td>使用 predictive mechanisms 或 VLM-based future reasoning。</td><td>自蒸馏多步生成视频中的几何/语义 VFM 表征到单步特征。</td></tr>
+<tr><td>关键假设</td><td>单步扩散内部特征足以指导动作。</td><td>VLM/预测模块能捕获任务相关未来信息。</td><td>同一 diffusion trajectory 的 multi-step generated video 包含稳定 teacher foresight，可被 lightweight decouplers 学到。</td></tr>
+<tr><td>适用场景</td><td>强调实时，但在复杂目标、透明物体、精细几何中容易受 noisy features 影响。</td><td>仿真长时域或多任务 manipulation。</td><td>需要实时控制且依赖几何/语义未来预见的操作任务。</td></tr>
+<tr><td>实验性能</td><td>CALVIN Avg. Len. 3.58；MetaWorld 68.2%；真实 Hard 透明任务 16%。</td><td>HiF-VLA CALVIN 4.08、MetaWorld 57.7%；Uni-VLA CALVIN 3.80。</td><td>CALVIN 4.16；MetaWorld 72.8%；真实 Hard 透明任务 32%。</td></tr>
+</table>
+</section>
+
+<section id="method">
+<h2>4. 方法详解</h2>
+<h3>4.1 方法概览</h3>
+<p>S-VAM 的 pipeline 是：输入当前观察 $I$ 和任务描述 $P$；SVD 在第一步 denoising 时抽取多层 up-sampling features；geometric decoupler 和 semantic decoupler 分别把这些 noisy/entangled features 解耦为 DPAv3-like 和 DINOv2-like future representations；Uni-Perceiver 把两类 foresight 与原始 diffusion feature 聚合为 compact tokens；diffusion policy 根据这些 tokens 和文本 embedding 输出动作序列。</p>
+<div class="figure"><img src="figures/method_34.png" alt="method overview"><div class="caption">S-VAM architecture：核心是从 one-step diffusion features 到 geometric/semantic foresight 的 shortcut，再由 Uni-Perceiver 和 diffusion policy 生成动作。</div></div>
+<div class="pseudocode">Training stage 1: fine-tune SVD backbone when needed
+Training stage 2: freeze SVD, generate multi-step videos V_hat, extract teacher targets
+  Y_geo = DPAv3(Interpolate(V_hat))
+  Y_sem = DINOv2(Interpolate(V_hat))
+  extract one-step denoising features F
+  train geo/sem decouplers: F -> Y_geo, Y_sem
+Training stage 3: freeze SVD + decouplers
+  C = Concat(F_geo, F_sem, F_raw)
+  F_agg = UniPerceiver(C)
+  train diffusion policy to denoise action sequences
+Inference:
+  one SVD denoising forward pass -> F
+  decouplers -> geometric/semantic foresight
+  Uni-Perceiver + diffusion policy -> action chunk</div>
+<h3>4.2 方法演变脉络</h3>
+<table>
+<tr><th>阶段</th><th>形式</th><th>改进动机</th></tr>
+<tr><td>Direct VLA</td><td>当前图像/语言直接到动作。</td><td>缺少显式 spatiotemporal foresight，机器人数据需求高。</td></tr>
+<tr><td>VAM with multi-step video generation</td><td>视频扩散模型多步生成未来视觉计划，再预测动作。</td><td>foresight 高保真，但 multi-step denoising 推理慢。</td></tr>
+<tr><td>One-step VAM</td><td>用单步扩散内部特征指导动作。</td><td>实时性好，但特征 noisy/entangled。</td></tr>
+<tr><td><b>S-VAM</b></td><td>把多步生成视频的 VFM representations 自蒸馏到单步特征。</td><td>保留单步效率，同时获得更稳定的几何/语义未来表征。</td></tr>
+</table>
+<h3>4.3 核心设计与数学推导</h3>
+<h4>4.3.1 Stable Video Diffusion 基础</h4>
+<div class="formula-block"><div class="intuition">SVD 在 latent space 中从噪声逐步去噪生成视频；多步采样质量高但慢。</div>
+$$z_{s-1}=\frac{1}{\sqrt{\alpha_s}}\left(z_s-\frac{1-\alpha_s}{\sqrt{1-\bar{\alpha}_s}}\epsilon_\theta(z_s,s,P,I)\right)+\sigma_s\epsilon.$$
+<p class="small">$z_s$ 是第 $s$ 步 latent，$\epsilon_\theta$ 是噪声预测网络，条件为观察帧 $I$ 和任务描述 $P$。S-VAM 不在控制时完整执行多步采样，而是使用第一步 denoising features。</p></div>
+<h4>4.3.2 VFM teacher target</h4>
+<div class="formula-block"><div class="intuition">teacher target 来自扩散模型自己多步生成的视频，而不是 ground-truth future frames。</div>
+$$Y=\Phi(\operatorname{Interpolate}(\hat{V})),\qquad Y\in\mathbb{R}^{T\times C_{\mathrm{VFM}}\times h\times w}.$$
+<p class="small">$\hat{V}$ 是 SVD multi-step generated video；$\Phi$ 是 frozen VFM encoder；插值用于对齐空间分辨率。论文使用 DPAv3 作为 geometric teacher、DINOv2 作为 semantic teacher。</p></div>
+<h4>4.3.3 One-step denoising feature 聚合</h4>
+<div class="formula-block"><div class="intuition">单步 features 来自第一步 denoising 的多层 up-sampling blocks，需要对齐分辨率并拼接。</div>
+$$F'_l=\operatorname{Interpolate}(F_l),\qquad F'_l\in\mathbb{R}^{T\times C_l\times h\times w}.$$
+$$F=\operatorname{Concat}((F'_0,\dots,F'_L),\mathrm{dim}=1),\qquad F\in\mathbb{R}^{T\times C_\Sigma\times h\times w}.$$
+<p class="small">$F_l$ 是第 $l$ 个 up-sampling layer 的 feature map，$C_\Sigma=\sum_l C_l$。这些特征快，但本身 noisy 和 entangled。</p></div>
+<h4>4.3.4 Geometric/Semantic decouplers</h4>
+<div class="formula-block"><div class="intuition">decoupler 不只看 noisy feature，还用当前观察的 VFM reference representation 作为 anchor。</div>
+$$Y_i^{\mathrm{ref}}=\Phi_i(\operatorname{Interpolate}(I_{\mathrm{obs}}))\in\mathbb{R}^{1\times C_i\times h\times w},\quad i\in\{\mathrm{geo},\mathrm{sem}\}.$$
+$$\tilde{F}_i^0=\operatorname{Concat}((F,\operatorname{Repeat}(Y_i^{\mathrm{ref}})),\mathrm{dim}=1).$$
+$$\tilde{F}_i^k=\mathcal{T}_i^k(\mathcal{S}_i^k(\tilde{F}_i^{k-1})),\quad 1\le k\le K.$$
+<p class="small">$\mathcal{S}$ 和 $\mathcal{T}$ 分别是 spatial 和 temporal transformer layers。每个分支最后投影回对应 VFM 维度。</p></div>
+<div class="formula-block"><div class="intuition">自蒸馏 loss：让 decoupler 输出贴近多步生成视频抽取的 teacher VFM 表征。</div>
+$$\mathcal{L}_i=\|\tilde{F}_i^K-Y_i\|_2^2,
+\qquad i\in\{\mathrm{geo},\mathrm{sem}\}.$$
+<p class="small">论文强调，teacher 来自同一 diffusion trajectory 的 generated videos，避免用 GT future frames 造成 trajectory misalignment。</p></div>
+<h4>4.3.5 Uni-Perceiver 与 diffusion policy</h4>
+<div class="formula-block"><div class="intuition">把几何、语义和原始扩散特征合成一个 holistic context，再压缩为少量 tokens。</div>
+$$\mathcal{C}=\operatorname{Concat}(\tilde{F}_{\mathrm{geo}}^K,\tilde{F}_{\mathrm{sem}}^K,F)\in\mathbb{R}^{T\times C_{\mathrm{hol}}\times h\times w}.$$
+$$F_{\mathrm{agg}}=\operatorname{FFN}(\operatorname{SelfAttn}(\operatorname{CrossAttn}(\mathcal{Q},\mathcal{C}))).$$
+<p class="small">$\mathcal{Q}$ 是 $N$ 个 learnable latent queries。Cross-attention 从高维 spatiotemporal context 中抽取信息，self-attention 建模 compact tokens 内部关系。</p></div>
+<div class="formula-block"><div class="intuition">动作专家本质是 diffusion policy：从 noisy action 中预测噪声，条件是聚合后的 foresight tokens 和文本 embedding。</div>
+$$\mathcal{L}_A=\mathbb{E}_{j,a_j,\epsilon}\left[\|\epsilon-\epsilon_\phi(a_j,F_{\mathrm{agg}},E,j)\|_2^2\right].$$
+<p class="small">$a_j$ 是 diffusion timestep $j$ 的 noisy action，$E$ 是任务文本 embedding，$\epsilon_\phi$ 是动作噪声预测网络。</p></div>
+<h3>4.4 实现要点</h3>
+<div class="impl-note"><b>三阶段训练：</b>先 fine-tune SVD backbone；再 freeze video generation model，训练 geometric/semantic decouplers；最后 freeze SVD 和 decouplers，仅训练 action expert。</div>
+<div class="impl-note"><b>训练步数：</b>MetaWorld SVD 100k steps，真实任务 SVD 40k steps；CALVIN 直接采用 VPP fine-tuned model；decouplers 所有 benchmark 50k steps；action expert 在 CALVIN 60k steps，其余 benchmark 40k steps。</div>
+<div class="impl-note"><b>硬件：</b>SVD fine-tuning 使用 4 NVIDIA H100；decoupler self-distillation 使用单张 H100；action expert 使用 4 NVIDIA H100；推理使用单张 NVIDIA RTX 3090 24GB。</div>
+<div class="impl-note"><b>teacher target 选择：</b>semantic 使用 DINOv2，geometric 使用 DPAv3。消融显示 DINOv2+DPAv3 平均长度 4.16，高于 SigLIP+DPAv3 的 4.06 和 DINOv2+VGGT 的 4.04。</div>
+<div class="impl-note"><b>实时性：</b>真实实验中一次 forward 307.6 ms，其中 video diffusion backbone 231.0 ms、decouplers 40.1 ms、action expert 36.5 ms；每次预测 action chunk 长度 8，对应有效控制频率 25 Hz。</div>
+</section>
+
+<section id="exp">
+<h2>5. 实验</h2>
+<h3>5.1 实验设置</h3>
+<table>
+<tr><th>项目</th><th>设置</th></tr>
+<tr><td>CALVIN</td><td>ABC→D：在 ABC 环境训练，在 unseen D 环境评估，考察连续 long-horizon tasks 泛化。指标为第 $i$ 个任务成功率和 Avg. Len.</td></tr>
+<tr><td>MetaWorld</td><td>50 个 Sawyer manipulation tasks，按 Easy/Middle/Hard 统计。训练集每任务 50 demonstrations。</td></tr>
+<tr><td>真实机器人</td><td>AgileX Robotics Cobot 双臂平台，Mobile ALOHA design；每臂 7 DoF 和 parallel gripper；仅使用 front camera monocular RGB observations。</td></tr>
+<tr><td>真实任务</td><td>Place-to-Pot、Place-to-Pot (Hard, transparent object)、Pour-Water、Lift-Pot。统一 multi-task model，每任务约 50 human demonstrations，评估每任务 25 trials。</td></tr>
+<tr><td>Baselines</td><td>Direct action learning：RT-1、Diffusion Policy、OpenVLA、CLOVER、$\pi_0$、Spatial Forcing；Predictive methods：SuSIE、VPP、GR-1、Uni-VLA、HiF-VLA 等。</td></tr>
+<tr><td>代码仓库</td><td>项目页提供官方代码：<a href="https://github.com/Haodong-Yan/S-VAM-Code">https://github.com/Haodong-Yan/S-VAM-Code</a>。</td></tr>
+</table>
+<h3>5.2 主要结果</h3>
+<h4>CALVIN</h4>
+<table>
+<tr><th>Method</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>Avg. Len.</th></tr>
+<tr><td>Spatial Forcing</td><td>93.6</td><td>85.8</td><td>78.4</td><td>72.0</td><td>64.6</td><td>3.94</td></tr>
+<tr><td>VPP</td><td>90.9</td><td>81.5</td><td>71.3</td><td>62.0</td><td>51.8</td><td>3.58</td></tr>
+<tr><td>Uni-VLA</td><td>95.5</td><td>85.8</td><td>74.8</td><td>66.9</td><td>56.5</td><td>3.80</td></tr>
+<tr><td>HiF-VLA</td><td>93.5</td><td>87.4</td><td>81.4</td><td>75.9</td><td><b>69.4</b></td><td>4.08</td></tr>
+<tr><td><b>S-VAM</b></td><td>95.8</td><td><b>90.7</b></td><td><b>83.7</b></td><td><b>77.0</b></td><td>68.9</td><td><b>4.16</b></td></tr>
+</table>
+<p>论文强调 S-VAM 比直接 baseline VPP 高 0.58 Avg. Len.。定性图中，VPP 的 one-step entangled features 产生偏离指令的 attention trajectory；S-VAM 的 decoupled foresight 使 attention trajectory 与语言指令更一致。</p>
+<div class="figure"><img src="figures/calvin_32.png" alt="CALVIN qualitative"><div class="caption">CALVIN qualitative comparison：展示 attention trajectory 与执行 rollout 的差异。</div></div>
+<h4>MetaWorld</h4>
+<table>
+<tr><th>Method</th><th>Easy</th><th>Middle</th><th>Hard</th><th>Average</th></tr>
+<tr><td>Spatial Forcing</td><td>0.737</td><td>0.436</td><td>0.451</td><td>0.609</td></tr>
+<tr><td>HiF-VLA</td><td>0.729</td><td>0.364</td><td>0.404</td><td>0.577</td></tr>
+<tr><td>VPP</td><td><b>0.818</b></td><td>0.493</td><td>0.526</td><td>0.682</td></tr>
+<tr><td><b>S-VAM</b></td><td>0.793</td><td><b>0.607</b></td><td><b>0.684</b></td><td><b>0.728</b></td></tr>
+</table>
+<p>S-VAM 平均成功率 72.8%，Hard tasks 为 68.4%，论文称其在 hard tasks 上显著超过 VPP 的 52.6%。作者把优势归因于 decoupled geometric/semantic foresight 能在复杂物体交互和精细几何约束中提供更稳定的目标定位。</p>
+<div class="figure"><img src="figures/meta_32.png" alt="MetaWorld qualitative"><div class="caption">MetaWorld qualitative comparison：VPP 的 attention trajectory 偏离目标 nut；S-VAM 的几何/语义 foresight 帮助 action expert 定位目标。</div></div>
+<h4>真实机器人</h4>
+<div class="figure"><img src="figures/real_world_35.png" alt="real world"><div class="caption">真实双臂 Cobot 多任务实验：论文报告 S-VAM 在四个任务上均优于 VPP，且不牺牲实时控制能力。</div></div>
+<p>真实实验的关键细节：每任务约 50 demonstrations，25 trials。Place-to-Pot (Hard) 涉及透明物体，VPP 成功率 16%，S-VAM 提升到 32%。论文解释为 geometric decoupler 有助于透明表面的深度歧义，semantic decoupler 有助于保持透明物体的一致表征。</p>
+<h3>5.3 消融实验</h3>
+<table>
+<tr><th>Variant</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>Avg. Len.</th><th>目的</th></tr>
+<tr><td>w/o Geometric Distillation</td><td>94.1</td><td>87.1</td><td>79.3</td><td>73.5</td><td>66.5</td><td>4.01</td><td>验证几何 foresight 作用。</td></tr>
+<tr><td>w/o Semantic Distillation</td><td>94.0</td><td>87.1</td><td>80.4</td><td>73.2</td><td>64.1</td><td>3.99</td><td>验证语义 foresight 对对象身份一致性的作用。</td></tr>
+<tr><td>w/o Self-Distillation</td><td>94.2</td><td>85.2</td><td>75.9</td><td>67.8</td><td>59.0</td><td>3.82</td><td>用 GT future frames 替代模型自生成视频 teacher。</td></tr>
+<tr><td>w/o Uni-Perceiver</td><td>94.0</td><td>84.6</td><td>74.7</td><td>65.1</td><td>53.8</td><td>3.72</td><td>验证 compact token condensation 的必要性。</td></tr>
+<tr><td>w/o Original Diffusion Feature</td><td>95.3</td><td>86.6</td><td>77.6</td><td>70.9</td><td>62.5</td><td>3.93</td><td>验证原始扩散特征提供 residual global context。</td></tr>
+<tr><td><b>S-VAM Full</b></td><td><b>95.8</b></td><td><b>90.7</b></td><td><b>83.7</b></td><td><b>77.0</b></td><td><b>68.9</b></td><td><b>4.16</b></td><td>完整模型。</td></tr>
+</table>
+<h3>5.4 补充实验：VFM teacher target 选择</h3>
+<table>
+<tr><th>Type</th><th>Representation</th><th>Avg. Len.</th><th>论文解释</th></tr>
+<tr><td>Semantic</td><td>CLIP / SigLIP</td><td>3.72 / 3.77</td><td>global semantics 有场景级信息，但对低层控制的 dense patch-level affordance 不足。</td></tr>
+<tr><td>Semantic</td><td>DINOv2 / DINOv3</td><td>4.01 / 3.95</td><td>dense patch-level 表征优于 CLIP/SigLIP。</td></tr>
+<tr><td>Geometric</td><td>DPAv3 / VGGT</td><td>3.99 / 3.74</td><td>DPAv3 适应 dynamic video streams；VGGT 偏 static scene reconstruction。</td></tr>
+<tr><td>Motion-aware</td><td>VideoMAEv2 / V-JEPA2</td><td>3.90 / 3.74</td><td>作者认为当前视频模型在 fine-grained feature fidelity 上仍弱于专门图像模型。</td></tr>
+<tr><td>Synergistic</td><td>SigLIP+DPAv3 / DINOv2+VGGT / <b>DINOv2+DPAv3</b></td><td>4.06 / 4.04 / <b>4.16</b></td><td>DINOv2 的 dense semantics 与 DPAv3 的 dynamic geometry 互补。</td></tr>
+</table>
+</section>
+
+<section id="discussion">
+<h2>6. 分析与讨论</h2>
+<h3>6.1 论文已给出的结果分析与解释</h3>
+<ul>
+  <li>CALVIN 中，作者把 S-VAM 相对 VPP 的优势归因于 decoupled geometric and semantic foresight 能形成更连贯、与语言指令一致的 attention trajectory。</li>
+  <li>MetaWorld hard tasks 中，作者认为复杂物体交互和精细几何约束更需要动态几何与 dense semantic foresight。</li>
+  <li>真实透明物体任务中，作者明确解释：geometric decoupler 缓解透明表面的 depth ambiguity，semantic decoupler 维持透明物体的一致对象表征。</li>
+  <li>VFM target 消融中，作者解释 DINOv2 优于 CLIP/SigLIP 是因为 dense patch-level 表征更适合低层控制；DPAv3 优于 VGGT 是因为 DPAv3 面向动态视频流。</li>
+</ul>
+<h3>6.2 作者自述的局限性</h3>
+<p>源码中的 Conclusion 没有显式列出 limitation 或 failure cases，也未提供独立 appendix。因此本报告不额外加入报告撰写者的主观局限。可复现性层面的缺口仅在 §6.4 中按论文已公开信息列出。</p>
+<h3>6.3 论文中明确写出的适用边界与讨论</h3>
+<ul>
+  <li>S-VAM 的 teacher target 依赖 SVD 自己的 multi-step generated videos；如果视频生成 backbone 对某类场景不能产生稳定未来，self-distilled teacher 也会受影响。该点是从方法机制推出的适用前提，不是作者单独列出的实验局限。</li>
+  <li>真实实验只使用 front-camera monocular RGB observations，并在 4 个双臂任务上验证。</li>
+  <li>实时控制结论基于 action chunk 长度 8、RTX 3090 推理、307.6 ms forward pass 的设置。</li>
+</ul>
+<h3>6.4 可复现性审计</h3>
+<table>
+<tr><th>项目</th><th>状态</th><th>说明</th></tr>
+<tr><td>源码结构</td><td class="audit-pass">已获取</td><td>arXiv e-print 包含 main.tex、secs/、bib、style 和 PDF figures。</td></tr>
+<tr><td>图表</td><td class="audit-pass">已提取</td><td>所有 PDF 图已转换为 PNG 并放入 figures/。</td></tr>
+<tr><td>代码仓库</td><td class="audit-pass">已找到</td><td>项目页链接到 <a href="https://github.com/Haodong-Yan/S-VAM-Code">Haodong-Yan/S-VAM-Code</a>。</td></tr>
+<tr><td>训练配置</td><td class="audit-warn">部分完整</td><td>论文给出三阶段训练步数和 GPU 配置，但未在 LaTeX 中列出 batch size、learning rate 等完整超参数表。</td></tr>
+<tr><td>数据设置</td><td class="audit-pass">主要信息明确</td><td>CALVIN、MetaWorld、真实 Cobot demos/trials 均有说明。</td></tr>
+<tr><td>附录</td><td class="audit-warn">无独立附录</td><td>源码中未发现 appendix，因此没有额外证明、失败案例或完整超参数附录可整合。</td></tr>
+</table>
+</section>
+</main>
+</body>
+</html>

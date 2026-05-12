@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VideoVLA - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>VideoVLA: Video Generators Can Be Generalizable Robot Manipulators</h1>
+<div class="meta">
+<p><strong>Method name: </strong>VideoVLA</p>
+<p><strong>Authors: </strong>Yichao Shen, Fangyun Wei, Zhiying Du, Yaobo Liang, Yan Lu, Jiaolong Yang, Nanning Zheng, Baining Guo</p>
+<p><strong>Organization: </strong>IAIR, Xi'an Jiaotong University; Microsoft Research Asia; Fudan University</p>
+<p><strong>Publication: </strong>NeurIPS 2025; arXiv v1 submitted on 2025-12-07</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2512.06963">arXiv: 2512.06963</a> | <a href="https://arxiv.org/pdf/2512.06963">PDF</a> | <a href="https://videovla-nips2025.github.io/">Project page</a> | <a href="https://github.com/VideoVLA-Project/VideoVLA">official code</a> | <a href="https://huggingface.co/VideoVLA/VideoVLA_Cogvideobase_Pretrained">model</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents: </strong>
+<a href="#quick">1. Quick overview</a>
+<a href="#motivation">2. Motivation</a>
+<a href="#related">3. Related work</a>
+<a href="#method">4. Detailed explanation of method</a>
+<a href="#experiments">5. Experiment</a>
+<a href="#reproduce">6. Reproducible auditing</a>
+<a href="#discussion">7. Analysis, Limitations and Boundaries</a>
+</nav>
+<section id="quick">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>VideoVLA transforms pre-trained video generators like CogVideoX-5B into VLA robot strategies: given language and the current image, use a multi-modal Diffusion Transformer to simultaneously predict future action chunks and future visual results after executing these actions.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>Existing VLA mostly relies on pre-trained understanding models, which can complete tasks within the training distribution, but the generalization to new tasks, new objects, and new embodiment skills is still limited; the author attempts to transfer the physical imagination and future state prediction capabilities of the video generator to robot operations.</td></tr>
+<tr><th>The author's approach</th><td>Unify video generation and action generation into a diffusion denoising problem: language token and current image latent are used as conditions, and future video latent and 7-D action sequence are used as common denoising targets.</td></tr>
+<tr><th>most important results</th><td>The average SIMPLER in-domain task average is 63.0, slightly higher than CogACT 62.6; SIMPLER novel objects average 65.2, new skills average 48.6; real Realman in-domain average 64.6, novel objects 50.6, cross-embodiment skills 58.0, all are the best in the table.</td></tr>
+<tr><th>Things to note when reading</th><td>The core is not to generate an additional video for display, but to use video-action dual prediction as a training constraint. Ablation shows that removing video loss or only predicting actions will significantly reduce in-domain and generalization performance.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand VLA, Diffusion Transformer, CogVideoX/causal video VAE, action chunking, SIMPLER evaluation, and robot cross-embodiment generalization.</p>
+<p><strong>Keywords: </strong>VideoVLA, video generation, VLA, Diffusion Transformer, visual imagination, action chunk, CogVideoX, SIMPLER, Realman robot. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Paradigm Shift: </strong>From "using a visual language understanding model as a VLA backbone" to "using a video generation model as a VLA manipulator".</li>
+<li><strong>Unified modeling: </strong>Put language, current visual latent, future visual latent, and action vectors into the same DiT sequence to jointly predict action and visual consequences.</li>
+<li><strong>Generalization evidence: </strong>Demonstrates stronger average performance than OpenVLA, SpatialVLA, $\pi_0$, CogACT in novel objects and unseen skills.</li>
+<li><strong>Imagine - perform correlation analysis: </strong>Using motion similarity and human judgment to demonstrate that better visual imagination is associated with higher execution success rates.</li>
+</ul>
+<div class="figure">
+<img alt="VideoVLA illustration" src="figures/teaser.png"/>
+<div class="caption"><strong>Figure 1.</strong> VideoVLA, given verbal instructions and current visual observations, simultaneously predicts the next actions and the future visual impact of these actions on environmental interactions.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The long-term goal of robotic manipulation is to generalize to tasks, objects, and environments not seen during training. Existing VLA reduces task-specific robot data requirements through large-scale vision, language or visual language understanding models, but the author believes that this route is still difficult to fully achieve true generalization, especially on novel objects and unseen skills.</p>
+<p>The video generation model shows strong generalization under novel text/image conditions and generates physically plausible future videos. The authors observe that this is highly aligned with robotic operations: robots also need to predict physical consequences from new instructions and new visual observations, and organize actions accordingly.</p>
+<h3>2.2 Key assumptions</h3>
+<p>If a model can generate "visual imagery" that is consistent with actual execution, then it is more likely to predict actions that will accomplish the task. In other words, future visual outcomes are not additional by-products but implicit supervisory and diagnostic signals of action reliability.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Representation in the paper</th><th>Positioning of VideoVLA</th></tr>
+<tr><td>Vision-Language-Action Models</td><td>Octo, Open X-Embodiment, OpenVLA, CogACT, HPT, GR-2, RDT, etc.</td><td>Previous works mostly relied on understanding-oriented foundation models; VideoVLA uses a generation-oriented video model instead, and predicts actions and visual consequences at the same time.</td></tr>
+<tr><td>Video Generation Models</td><td>SVD, OpenSora, CogVideoX, HunyuanVideo, Wan, etc.</td><td>VideoVLA is based on CogVideoX and follows the two-stage generation paradigm of video VAE + DiT, but adds actions to the same diffusion sequence.</td></tr>
+<tr><td>Video Generation for Robot Manipulation</td><td>UniPi, UniSim, RoboDreamer, Gen2Act, VidMan, GR-1, GR-2, etc.</td><td>Most methods treat video generation as modular visual planning or auxiliary features; VideoVLA is an end-to-end unified VLA, directly adapted from a pre-trained video generator.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Formalization of the problem</h3>
+<p>The input is text instruction $\mathcal{T}$ and current visual observation $\mathcal{O}$, and two types of future quantities are output: </p>
+<div class="formula-block">
+<p class="intuition">Action output: action chunk that can be executed sequentially in $K$ steps in the future.</p>
+ $$\mathcal{A}=\{\boldsymbol{a}_i\in \mathbb{R}^{7}\}_{i=1}^{K}$$
+ <table>
+<tr><td>$\boldsymbol{a}_i[1: 3]$</td><td>wrist rotation. </td></tr>
+<tr><td>$\boldsymbol{a}_i[4: 6]$</td><td>wrist translation. </td></tr>
+<tr><td>$\boldsymbol{a}_i[7]$</td><td>gripper state, 0 is closed, 1 is open.</td></tr>
+</table>
+</div>
+<div class="formula-block">
+<p class="intuition">Visual output: Future video frames expected after the action is performed, but the implementation predicts latent.</p>
+ $$\mathcal{F}=\{\boldsymbol{F}_j\}_{j=1}^{N}$$
+ <p>Action frequency and video frame frequency are not required to be the same: each action may correspond to multiple future frames. After executing an action chunk, the robot obtains new observations and repeatedly predicts the next action chunk.</p>
+</div>
+<h3>4.2 Overall architecture</h3>
+<p>VideoVLA mainly consists of two encoders and a DiT backbone. The T5 text encoder converts language commands into fixed-length 226 tokens; CogVideoX's 3D-causal VAE encoder encodes video clips into frame latents. Since the VAE is causal, the first frame latent $\boldsymbol{V}_1$ only encodes the first frame, which is the current observation.</p>
+<div class="figure">
+<img alt="VideoVLA overview" src="figures/overview.png"/>
+<div class="caption"><strong>Figure 2.</strong> Language and video are first encoded into tokens/latents; DiT uses language tokens and current frame latent as conditions to jointly predict future action chunks and future frame latents. The pink video decoder is only used when visualizing the future.</div>
+</div>
+<p>During training, the complete video clip enters the video encoder, so the model can obtain the current latent $\boldsymbol{V}_1$ and the future target latents $\{\boldsymbol{V}_j\}_{j=2}^{n}$; during inference, only the current observation is encoded to obtain $\boldsymbol{V}_1$.</p>
+<h3>4.3 Data preprocessing and token sequence</h3>
+<p>For each visual latent, VideoVLA flattens the spatial dimensions in raster order. Let $\boldsymbol{V}'_1$ be the flattened version of the current observation latent, and $\{\boldsymbol{V}'_j\}_{j=2}^{n}$ be the flattened version of future frame latents. Multimodal sequences are spliced from the following parts: </p>
+<div class="pseudocode">Input/target sequence: T5 language tokens T
++ current observation latent V'_1
++ noisy future frame latents {V'_j}_{j=2..n}
++ noisy action chunk A
+
+Condition: T and V'_1
+Diffusion targets: future visual latents and action chunk</div>
+<p>All modes are first projected to a common embedding dimension; future video latents and actions are added with Gaussian noise, and the model uses DDPM diffusion loss to learn denoise. Noise timestep embedding is injected via adaptive LayerNorm as DiT. The backbone is initialized from pretrained CogVideoX.</p>
+<h3>4.4 Unified Future Modeling</h3>
+<p>VideoVLA's unified future modeling refers to treating "future action" and "future visual consequences" as two modalities of the same future process, modeled simultaneously in one transformer. Different from modular video planning, VideoVLA does not first generate a video and then take actions through inverse dynamics, but allows action tokens and visual tokens to interact directly in denoising.</p>
+<div class="formula-block">
+<p class="intuition">Training goal: apply diffusion denoising loss to action and future video latent simultaneously.</p>
+ $$\mathcal{L}_{dual}=\mathcal{L}_{video\ denoise}+\mathcal{L}_{action\ denoise}$$
+ <p>The main text of the paper does not write the total loss as a separate formula, but it clearly states in the dual-prediction ablation that default uses denoising losses for both modes at the same time.</p>
+</div>
+<p>The appendix further compares attention direction and diffusion schedule: both default bidirectional interaction and synchronous diffusion schedule are better than causal mask or asynchronous schedule.<span class="appendix-ref">Appendix More Analysis</span></p>
+<h3>4.5 Training and inference details</h3>
+<table>
+<tr><th>Project</th><th>The settings given in the paper</th></tr>
+<tr><td>Pre-training data</td><td>Open X-Embodiment subset, 22.5M frames; OXE originally included 60 datasets, 22 robot embodiments, and more than 1M real-world robot trajectories.</td></tr>
+<tr><td>Real robot fine-tuning data</td><td>Realman robot teleoperation, 5824 samples, covering three types of tasks: pick, stack, and place.</td></tr>
+<tr><td>backbone</td><td>CogVideoX-5B. </td></tr>
+<tr><td>Default horizon</td><td>Inference predicts 13 future frame latents, or 49 frames, at each step, and predicts 6 future actions.</td></tr>
+<tr><td>Deployment execution</td><td>Predict 6 actions each time, but only execute the first 3.</td></tr>
+<tr><td>training</td><td>Pre-training 100K iterations; real fine-tuning 15K iterations; 32 AMD MI300X GPUs; batch size 256.</td></tr>
+<tr><td>optimizer</td><td>AdamW, learning rate 1e-5, weight decay 1e-4. </td></tr>
+<tr><td>sampling</td><td>DDIM sampling; write inference in the main text using 50 denoising steps; write 10 denoising steps in the appendix real deployment limitations, 1.1s/H100, about 3Hz.</td></tr>
+<tr><td>Efficiency settings</td><td>The simulation predicts 13 latents/49 frames; the real experiment predicts the efficiency of 4 latents/13 frames.</td></tr>
+</table>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental scope and evaluation protocol</h3>
+<p>The paper does both simulation and real-world, and includes in-domain and generalization respectively. Generalization focuses on two types of abilities: performing learned skills on novel objects, and transferring skills learned by other embodiments and unseen by the target embodiment to the target robot.</p>
+<table>
+<tr><th>Review category</th><th>Number of tasks/trials</th></tr>
+<tr><td>Google Robot SIMPLER-VM</td><td>Pick Up Coke Can 300; Move Near 240; Open/Close Drawer 216; Open Top Drawer and Place Apple 108. </td></tr>
+<tr><td>Google Robot SIMPLER-VA</td><td>Pick Up Coke Can 825; Move Near 600; Open/Close Drawer 378; Open Top Drawer and Place Apple 189. </td></tr>
+<tr><td>WidowX SIMPLER-VM</td><td>Four tasks with 24 trials each.</td></tr>
+<tr><td>Novel objects / new skills simulation</td><td>25 trials per novel object; 20 trials per new skill.</td></tr>
+<tr><td>Real-world</td><td>Pick Up 24; Stack 48; Place 24; 12 for each novel object; 16 for each new skill.</td></tr>
+</table>
+<h3>5.2 SIMPLER in-domain</h3>
+<p>In SIMPLER, Google robot has Visual Matching (VM) and Variant Aggregation (VA), and WidowX only has VM. VideoVLA is highest on WidowX VM average, Google VA average, and all 12 task global averages, with Google VM average being second.</p>
+<div class="scroll">
+<table>
+<tr><th>method</th><th>WidowX VM Avg</th><th>Google VM Avg</th><th>Google VA Avg</th><th>Avg All</th></tr>
+<tr><td>RT-1-X</td><td>1.1</td><td>42.7</td><td>30.5</td><td>24.8</td></tr>
+<tr><td>OpenVLA</td><td>4.2</td><td>34.3</td><td>39.4</td><td>26.0</td></tr>
+<tr><td>SpatialVLA</td><td>34.4</td><td>54.6</td><td>52.4</td><td>47.1</td></tr>
+<tr><td>$\pi_0$</td><td><strong>53.1</strong></td><td>53.5</td><td>43.4</td><td>50.0</td></tr>
+<tr><td>CogACT</td><td>51.3</td><td><strong>75.2</strong></td><td>61.4</td><td>62.6</td></tr>
+<tr><td><strong>VideoVLA</strong></td><td><strong>53.1</strong></td><td>73.1</td><td><strong>62.8</strong></td><td><strong>63.0</strong></td></tr>
+</table>
+</div>
+<h3>5.3 SIMPLER novel objects</h3>
+<p>Google robot's Pick Up skill evaluated on 10 unseen objects from YCB and GSO. VideoVLA averages 65.2, which is significantly higher than SpatialVLA 50.8 and CogACT 42.4, and is best on 8/10 objects.</p>
+<table>
+<tr><th>method</th><th>Avg</th><th>Main points</th></tr>
+<tr><td>OpenVLA</td><td>6.4</td><td>Several objects are close to 0.</td></tr>
+<tr><td>SpatialVLA</td><td>50.8</td><td>Second highest; highest on cleaner bottle is 56.0.</td></tr>
+<tr><td>$\pi_0$</td><td>28.8</td><td>Moderate, but 0 for toy airplane.</td></tr>
+<tr><td>CogACT</td><td>42.4</td><td>green cube 84.0, carrot 72.0, but several objects are lower.</td></tr>
+<tr><td><strong>VideoVLA</strong></td><td><strong>65.2</strong></td><td>green cube 96.0, carrot 84.0, eggplant 88.0, plum 80.0, tennis ball 68.0. </td></tr>
+</table>
+<h3>5.4 SIMPLER new skills / cross-embodiment transfer</h3>
+<p>The new skills come from the WidowX robot training data, but are not in the Google robot training set. VideoVLA was best across all skills with an average of 48.6, 28.2 points higher than second place CogACT at 20.4.</p>
+<table>
+<tr><th>method</th><th>Put Spoon</th><th>Put Carrot</th><th>Stack Block</th><th>Take Out Apple</th><th>Flip Cup</th><th>Pour Coke</th><th>Slide</th><th>Avg</th></tr>
+<tr><td>OpenVLA</td><td>0.0</td><td>12.5</td><td>0.0</td><td>26.7</td><td>0.0</td><td>4.0</td><td>0.0</td><td>6.2</td></tr>
+<tr><td>CogACT</td><td>20.8</td><td>41.7</td><td>5.0</td><td>43.8</td><td>4.0</td><td>20.0</td><td>8.0</td><td>20.4</td></tr>
+<tr><td><strong>VideoVLA</strong></td><td><strong>56.3</strong></td><td><strong>58.3</strong></td><td><strong>20.0</strong></td><td><strong>93.8</strong></td><td><strong>20.0</strong></td><td><strong>52.0</strong></td><td><strong>40.0</strong></td><td><strong>48.6</strong></td></tr>
+</table>
+<h3>5.5 Real Realman Experiment</h3>
+<p>The real robot is a Realman 7-DoF arm + gripper. All models are first pre-trained in OXE and then fine-tuned using the Realman data collected by the author. In-domain includes pick, stack, and place. Place needs to be picked up first and then placed, so the success rates of the two stages are reported respectively.</p>
+<table>
+<tr><th>method</th><th>Pick Up Avg</th><th>Stack Avg</th><th>Place Avg</th><th>Task Avg</th></tr>
+<tr><td>OpenVLA</td><td>8.3</td><td>6.3</td><td>14.6</td><td>9.7</td></tr>
+<tr><td>SpatialVLA</td><td>37.5</td><td>20.8</td><td>10.4</td><td>22.9</td></tr>
+<tr><td>$\pi_0$</td><td>66.7</td><td>54.2</td><td>31.3</td><td>50.7</td></tr>
+<tr><td>CogACT</td><td><strong>75.0</strong></td><td>64.6</td><td>35.5</td><td>58.4</td></tr>
+<tr><td><strong>VideoVLA</strong></td><td>70.8</td><td><strong>66.7</strong></td><td><strong>56.3</strong></td><td><strong>64.6</strong></td></tr>
+</table>
+<p>Among real novel objects, VideoVLA has a non-zero success rate for all 12 unseen objects, with an average of 50.6; CogACT is second, with an average of 26.9. In real cross-embodiment skill transfer, VideoVLA averages 58.0, which is significantly higher than CogACT 35.1.</p>
+<table>
+<tr><th>Real generalization setting</th><th>OpenVLA</th><th>SpatialVLA</th><th>$\pi_0$</th><th>CogACT</th><th>VideoVLA</th></tr>
+<tr><td>Novel objects Avg</td><td>9.6</td><td>14.1</td><td>21.8</td><td>26.9</td><td><strong>50.6</strong></td></tr>
+<tr><td>New skills Avg</td><td>8.3</td><td>13.5</td><td>28.5</td><td>35.1</td><td><strong>58.0</strong></td></tr>
+</table>
+<h3>5.6 Ablation experiment</h3>
+<table>
+<tr><th>Backbone</th><th>Pick Up Coke Can</th><th>Move Near</th><th>Open/Close Drawer</th><th>Avg</th></tr>
+<tr><td>OpenSora-1.1</td><td>67.7</td><td>57.1</td><td>25.9</td><td>50.2</td></tr>
+<tr><td>CogVideoX-5B trained from scratch</td><td>18.6</td><td>10.8</td><td>9.2</td><td>12.6</td></tr>
+<tr><td><strong>CogVideoX-5B pretrained</strong></td><td><strong>92.3</strong></td><td><strong>82.9</strong></td><td><strong>66.2</strong></td><td><strong>80.4</strong></td></tr>
+</table>
+<table>
+<tr><th>Future frames</th><th>Pick Up Coke Can</th><th>Move Near</th><th>Open/Close Drawer</th><th>Avg</th></tr>
+<tr><td>13 frames</td><td>88.7</td><td>75.4</td><td>61.6</td><td>75.2</td></tr>
+<tr><td>25 frames</td><td>90.0</td><td>79.2</td><td>63.0</td><td>77.4</td></tr>
+<tr><td><strong>49 frames</strong></td><td><strong>92.3</strong></td><td><strong>82.9</strong></td><td><strong>66.2</strong></td><td><strong>80.4</strong></td></tr>
+</table>
+<table>
+<tr><th>Dual-prediction variant</th><th>In-domain Avg</th><th>Novel Objects</th><th>New Skills</th></tr>
+<tr><td>Default</td><td><strong>80.4</strong></td><td><strong>65.2</strong></td><td><strong>48.6</strong></td></tr>
+<tr><td>No video loss</td><td>27.0</td><td>12.7</td><td>4.4</td></tr>
+<tr><td>Action only</td><td>25.5</td><td>11.3</td><td>2.1</td></tr>
+</table>
+<table>
+<tr><th>appendix ablation</th><th>Pick Up</th><th>Move</th><th>Open/Close</th><th>Avg</th></tr>
+<tr><td>Default bidirectional</td><td>92.3</td><td>82.9</td><td>66.2</td><td><strong>80.4</strong></td></tr>
+<tr><td>Causal mask</td><td>89.3</td><td>76.2</td><td>61.1</td><td>75.5</td></tr>
+<tr><td>Async train, sync inference</td><td>87.3</td><td>74.1</td><td>60.2</td><td>73.8</td></tr>
+<tr><td>Async train, async inference</td><td>84.7</td><td>70.8</td><td>57.4</td><td>71.0</td></tr>
+</table>
+<p>These ablations support three points: pre-trained video generation backbones are critical; longer future video horizons facilitate action consequence inference; and bidirectional, simultaneous joint denoising of action and video is better than staged or unidirectional information flow.<span class="appendix-ref">Appendix More Analysis</span></p>
+<h3>5.7 Imagination-Execution Correlation</h3>
+<p>The author records the real video frames when performing the predicted action, and passes the predicted video latents through VAE decoder to obtain imagination frames. Then use SIFT to extract keypoints in the first frame, use SAM to segment the foreground, retain only the robot and object areas, and then use SAM-PT to track the keypoint trajectory. After aligning the imagination and execution trajectories through Hungarian matching, the normalized cosine similarity of the trajectory vectors is calculated, and the robot motion similarity is obtained after averaging.</p>
+<div class="figure">
+<img alt="Google robot similarity" src="figures/SIM_google.png"/>
+<div class="caption"><strong>Figure 3a.</strong> In Google robot, the higher the motion similarity between visual imagination and real execution, the higher the probability of successful execution.</div>
+</div>
+<div class="figure">
+<img alt="WidowX robot similarity" src="figures/SIM_WINX.png"/>
+<div class="caption"><strong>Figure 3b.</strong> The same trend is observed in the WidowX robot.</div>
+</div>
+<table>
+<tr><th>Metric</th><th>Novel Objects</th><th>New Skills</th></tr>
+<tr><td>Visual Imagination Success Rate</td><td>84.0</td><td>63.4</td></tr>
+<tr><td>Actual Execution Success Rate</td><td>65.2</td><td>48.6</td></tr>
+</table>
+<p>Visual imagination is judged manually: success requires satisfying semantic following instructions without significant geometric distortion or violation of physical plausibility. Actual execution is lower than imagined, which the authors attribute to the additional difficulty of precise physical grounding, activation noise, and perception errors.</p>
+<div class="figure">
+<img alt="VideoVLA visualization" src="figures/visualization.png"/>
+<div class="caption"><strong>Figure 4.</strong> Examples of visual imagination and real execution of VideoVLA predictions.</div>
+</div>
+<div class="figure">
+<img alt="Real-world supplementary visualization" src="figures/visualization_real_supp.png"/>
+<div class="caption"><strong>Figure 5.</strong> Appendix Real robot visualization.</div>
+</div>
+<div class="figure">
+<img alt="Simulation supplementary visualization" src="figures/visualization_sim_supp.png"/>
+<div class="caption"><strong>Figure 6.</strong> Appendix Simulation Visualization.</div>
+</div>
+</section>
+<section id="reproduce">
+<h2>6. Reproducible auditing</h2>
+<div class="audit-card">
+<h4>Code and models</h4>
+<p><span class="pass">There is an official code entrance: </span><a href="https://github.com/VideoVLA-Project/VideoVLA">VideoVLA-Project/VideoVLA</a>. README provides `build.sh` environment preparation, CogVideo T5/VAE checkpoint configuration, and `sample_video_action.py` inference commands. The project page provides model links to Hugging Face.</p>
+</div>
+<table>
+<tr><th>Recurring items</th><th>Information given in the paper/project</th><th>Status</th></tr>
+<tr><td>Model structure</td><td>CogVideoX-5B backbone; T5 text encoder 226 tokens; 3D-causal VAE video encoder; 7-D action vector; DiT unified token sequence. </td><td><span class="pass">relatively sufficient</span></td></tr>
+<tr><td>Training hyperparameters</td><td>100K pretraining, 15K finetuning, 32 AMD MI300X, batch 256, AdamW, LR 1e-5, WD 1e-4, DDIM sampling. </td><td><span class="pass">relatively sufficient</span></td></tr>
+<tr><td>data</td><td>OXE subset 22.5M frames; real Realman 5824 samples. Whether the real data is public is not made clear in the README.</td><td><span class="warn">Public reproducibility limited</span></td></tr>
+<tr><td>Evaluation Agreement</td><td>The main text and appendix give SIMPLER/real-world trial counts, task list and main results.</td><td><span class="pass">fully</span></td></tr>
+<tr><td>Full training cost</td><td>32 AMD MI300X and large CogVideoX backbone.</td><td><span class="warn">High cost</span></td></tr>
+</table>
+<div class="pseudocode">Official inference skeleton: bash build.sh
+
+# Download CogVideo T5 and VAE checkpoints.
+# Update paths in: config_use/action_config/videovla_config.yaml
+
+python sample_video_action.py \
+ --base config_use/action_config/videovla_config.yaml \
+ config_use/action_config/inference_config/inference.yaml</div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own evidence, the most valuable part is to convert the "future visual modeling capabilities of the video generator" into robot strategy training signals, rather than using the video generator as an external planner. Dual-prediction ablation shows: only retaining action or removing video loss, in-domain and generalization are significantly reduced, which directly supports that "visual imagination participates in training" is the core factor.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>Results span simulation and reality, in-domain and generalization, and strong contrasts are reported in both novel objects and cross-embodiment skill transfer. Backbone ablation, future frames ablation, dual-prediction ablation, causal mask ablation, and diffusion schedule ablation jointly constrain alternative explanations: it is not that the simple model is large, nor is it simple action diffusion, but the pre-trained video generation backbone plus joint future modeling work together.</p>
+<h3>7.3 Limitations clearly stated by the author</h3>
+<p>The appendix states that the main limitation is inference speed. In a real deployment, VideoVLA predicts 4 future latents (13 frames) and 6 future actions (execute the first 3), using 10 DDIM denoising steps, in about 1.1 seconds on a single H100, so the effective control frequency is about 3 Hz. The author believes that the bottleneck comes from the large pre-trained video generator CogVideoX-5B, and proposes that it can be accelerated by robot-directed small video generators, one-step denoising (such as ShortCut) and distillation in the future.<span class="appendix-ref">Appendix Limitations and Broader Impacts</span></p>
+<h3>7.4 Applicable boundaries</h3>
+<ul>
+<li>The method is suitable for desktop operation tasks that require predicting visual consequences; for high-frequency closed-loop, fast contact, and fine force control tasks, the current 3 Hz control frequency may be insufficient.</li>
+<li>The complete training relies on large-scale OXE data, CogVideoX-5B and 32 MI300X, and ordinary laboratories are more likely to reproduce the inference or small-scale fine-tuning.</li>
+<li>The size of the real robot data set is 5824 samples, and the tasks are concentrated in pick, stack, and place; the generalization of the real open world still needs to be verified on a larger scale.</li>
+<li>Imagination success relies on manual judgment, which shows that the quality of visual imagination currently lacks fully automated and standardized evaluation indicators.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

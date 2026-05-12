@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mask World Model - Reading Report</title>
+<script>
+window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<div class="wrap">
+<header class="hero">
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Mask World Model: Predicting What Matters for Robust Robot Policy Learning</h1>
+<div class="meta">
+<p><b>Authors: </b>Yunfan Lou, Xiaowei Chi, Xiaojie Zhang, Zezhong Qian, Chengxuan Li, Rongyu Zhang, Yaoxu Lyu, Guoyu Song, Chuyao Fu, Haoxuan Xu, Pengwei Wang, Shanghang Zhang</p>
+<p><b>Publication: </b>arXiv preprint, 2026; the source code uses the ICML 2026 template, but the arXiv page does not provide formal meeting reception information</p>
+<p><b>Version: </b>v2, 2026-04-22; first version 2026-04-21</p>
+<p><b>arXiv: </b><a href="https://arxiv.org/abs/2604.19683">2604.19683</a> | <a href="https://arxiv.org/pdf/2604.19683">PDF</a> | <a href="https://github.com/LYFCLOUDFAN/mask-world-model">Code</a></p>
+</div>
+</header>
+<div class="toc"><b>Contents</b><ul><li><a href="#s1">1. Quick overview of the paper</a></li><li><a href="#s2">2. Motivation</a></li><li><a href="#s3">3. Summary of related work</a></li><li><a href="#s4">4. Detailed explanation of method</a></li><li><a href="#s5">5. Experiment</a></li><li><a href="#s6">6. Summary of recurrence information</a></li><li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li></ul></div>
+<section class="card" id="s1"><h2>1. Quick overview of the paper</h2>
+<div class="tldr"><b>One-sentence summary: </b>This paper changes the prediction target of the robot world model from future RGB images to future semantic masks, and connects this mask-centric predictive feature to the diffusion policy, exchanging semantic supervision during the training period for a more robust control strategy that only relies on raw RGB during the deployment period.</div>
+<p><b>Difficulty rating: </b>★★★★☆. Requires familiarity with robot imitation learning, video diffusion/world model, diffusion policy, VAE latent and transformer token representation.</p>
+<p><b>Keywords: </b><span class="tag">Mask World Model</span><span class="tag">Semantic Bottleneck</span><span class="tag">Video Diffusion</span><span class="tag">Diffusion Policy</span><span class="tag">Robot Generalization</span></p>
+<table><tr><th>Reading targeting item</th><th>content</th></tr><tr><td>What should the paper solve?</td><td>The RGB video world model spends capacity predicting nuisance variables such as texture, lighting, and background, resulting in appearance-driven drift and fragile generalization in closed-loop control.</td></tr><tr><td>The author's approach</td><td>During the training period, the semantic mask is used as the future prediction target to form a geometric information bottleneck; during the deployment period, no external segmenter is required, and only raw multi-view RGB is input.</td></tr><tr><td>most important results</td><td>MWM has an average success rate of 98.3% in LIBERO, 68.3% in RLBench, and 67.5% in the real Franka four tasks, and maintains higher robustness under visual perturbation and random token pruning.</td></tr><tr><td>Things to note when reading</td><td>The core is not to "use mask as an additional input", but to "let the world model learn to predict mask dynamics, and let the policy explicitly consume these predicted features."</td></tr></table>
+<h3>Core contribution list</h3><ul><li><b>Proposed Mask World Model.</b>It internally predicts future semantic masks, uses semantic supervision during training, and still only uses raw RGB during testing; this means that the deployment link does not rely on real-time segmentation models.</li><li><b>Design mask-guided diffusion policy.</b>Action generation is conditioned on mask-centric predictive features; this means that masks are not visual by-products but intermediate representations that go into control decisions.</li><li><b>Compare various methods of extracting and using mask information.</b>Experiments show that mask-centric designs consistently outperform future RGB prediction; this means that the gain mainly comes from the transfer of representation and target space, not just a specific architecture.</li></ul>
+</section>
+<section class="card" id="s2"><h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3><p>The paper focuses on the reliability of generalist robot manipulation policy under real visual changes. Existing video world models can provide long-term prediction and data efficiency, but if the goal is to predict future RGB, the model will simultaneously fit the contact geometry that is really needed for robot control, as well as texture, lighting, reflection, and dynamic background that are weakly related to action selection.</p><p>The specific failure chain given in the paper is: the RGB prediction target treats illumination/background change as equally important as contact-relevant motion; in closed-loop execution, small appearance errors will accumulate, causing predictive drift, making the strategy brittle under medium distribution shifts.</p>
+<h3>2.2 Limitations of existing methods</h3><ul><li><b>RGB-centric world models: </b>Optimizing photometric fidelity can easily entangle appearance and dynamics.</li><li><b>VLA policies: </b>Leveraging large-scale visual language representations, but still requiring more explicit object state and interaction geometry for precise spatial relationships and contact-sensitive control.</li><li><b>Semantic helper methods: </b>Often semantics are used as input cues for the current observation or rely on external grounding masks; this article emphasizes predictive semantic lookahead and maintains a pure-RGB interface during testing.</li></ul>
+<h3>2.3 The solution ideas of this article</h3><p>The core insight is: For control, the evolution of future object identity, spatial layout, and contact relationships is more critical than whether future pixels are realistic. Therefore, MWM transforms the world model prediction space from RGB to semantic masks, forming a geometric information bottleneck to filter redundant appearances while preserving object geometry and interaction structures.</p>
+</section>
+<section class="card" id="s3"><h2>3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3><table><tr><th>Technical line</th><th>How to summarize a paper</th><th>The difference in this article</th></tr><tr><td>Video world models for robot policy learning</td><td>From latent dynamics / Dreamer-style agents to diffusion / transformer video generators, recently used in robotic prediction and physics simulation.</td><td>Most targets are still RGB reconstruction or related photometric latent; MWM predicts future semantic mask dynamics.</td></tr><tr><td>Vision-Language-Action models</td><td>VLA utilizes pre-trained visual language representations to map instructions and observations to actions.</td><td>MWM does not take semantics as the current input cue, but learns semantic lookahead and trains policy consumption prediction features.</td></tr><tr><td>Structured representations under masking</td><td>Object-centric representations, scene factorization, and masked modeling/token dropping all support the intuition that structured compact representations improve stability.</td><td>MWM embodies this idea into predictable mask dynamics in robot control, and verifies it with real robots and disturbances.</td></tr></table>
+<h3>3.2 Direct comparison with previous works</h3><table><tr><th>Dimensions</th><th>RGB world model / VPP class methods</th><th>GE-ACT / VLA baseline</th><th>$\pi0$ baseline</th><th><b>MWM</b></th></tr><tr><td>Core idea</td><td>Predict future RGB or RGB latent and use its characteristics to guide policy.</td><td>Using a visual action conditioning strategy as a strong RGB-centric baseline.</td><td>General robot strategy baseline, compared in real robot experiments.</td><td>Predict future semantic masks and feed intermediate predictive tokens into the diffusion policy.</td></tr><tr><td>key assumptions</td><td>High-quality visual predictions can provide control information.</td><td>Current visual representations are sufficient to support controlled generalization.</td><td>Pre-trained generic policies can be adapted to the task.</td><td>Control requires geometry and contact evolution, and mask bottleneck can filter nuisance variables.</td></tr><tr><td>deployment input</td><td>Usually raw RGB.</td><td>raw RGB. </td><td>raw RGB. </td><td>raw multi-view RGB; no test period splitter required.</td></tr><tr><td>Experimental performance</td><td>RGB prediction variants are lower than MWM in LIBERO.</td><td>LIBERO average 96.5%; real task 23.8%; nPAUC 0.629.</td><td>Real task 38.8%; visual generalization OOD-SR 19.2%.</td><td>LIBERO 98.3%; real task 67.5%; nPAUC 0.648; visual generalization OOD-SR 42.1%.</td></tr></table>
+</section>
+<section class="card" id="s4"><h2>4. Detailed explanation of method</h2>
+<h3>4.1 Method overview</h3><p>The data flow of MWM can be split into two stages: the first stage starts from historical observations and language conditions, training the mask dynamics backbone to predict future semantic masks; the second stage freezes or reuses the intermediate features of the backbone, and trains the diffusion policy to generate future action sequences. The training period requires offline semantic mask supervision, and the testing period only provides raw RGB and language instructions.</p>
+<div class="figure"><img alt="MWM overview" src="figures/teaser.png"/><div class="caption">Figure 1: Paper overview. The left side emphasizes that RGB prediction is susceptible to interference by nuisance variables; the right side MWM predicts semantic masks and hands over mask-centric features to policy.</div></div>
+<div class="figure"><img alt="MWM architecture" src="figures/mwm.png"/><div class="caption">Figure 2: MWM architecture. Core modules include mask encoding, diffusion-based dynamics model, policy head, and random token pruning robustness probes.</div></div>
+<h3>4.2 Method evolution</h3><p><b>Video prediction policy → RGB-centric world model → Mask World Model. </b>The first two use future visual prediction as a control auxiliary signal, but the prediction target still contains a lot of photometric nuisance. MWM changes the prediction goal: instead of letting the model "look predictive like a video", let the model predict the semantic layout of future objects/robots/task-relevant regions.</p>
+<h3>4.3 Core design and mathematical derivation</h3>
+<h4>4.3.1 Geometric Information Bottleneck</h4><p>The theoretical motivation of the paper is to use semantic masks as bottleneck: retain decision-relevant geometric variables and compress texture, lighting and background. The text does not give a complete information theory proof, but it implements the hypothesis into specific training goals and controlled experiments.</p>
+<h4>4.3.2 Mask latent encoding</h4><div class="formula-block"><div class="intuition">In plain English: First encode the original RGB and semantic mask into the VAE latent space, and subsequent diffusion does not operate directly on the pixels.</div>$$\mathbf{z}^{o}_t = \mathcal{E}(\mathbf{o}_t), \qquad \mathbf{z}^{m}_t = \mathcal{E}(\tilde{\mathbf{m}}_t).$$<table class="symbol-table"><tr><td>$\mathbf{o}_t$</td><td>Multi-view RGB observation at time $t$.</td></tr><tr><td>$\tilde{\mathbf{m}}_t$</td><td>The semantic mask generated offline can include categories such as robots, grippers, and task objects.</td></tr><tr><td>$\mathcal{E}$</td><td>VAE encoder; the main text and appendix explain that VAE can be trained in Stage 1 and frozen in Stage 2.</td></tr><tr><td>$\mathbf{z}^{o}_t, \mathbf{z}^{m}_t$</td><td>RGB latent and mask latent serve as the tokenized input of the video diffusion backbone.</td></tr></table></div>
+<div class="formula-block"><div class="intuition">In plain English: Standardize VAE latent to avoid inconsistencies in different latent channel scales affecting diffusion training.</div>$$\bar{\mathbf{z}} = (\mathbf{z}-\boldsymbol{\mu}_{\text{VAE}})\oslash \boldsymbol{\sigma}_{\text{VAE}}.$$<p>Here $\oslash$ represents element-wise division, and $\boldsymbol{\mu}_{\text{VAE}}$ and $\boldsymbol{\sigma}_{\text{VAE}}$ are VAE latent statistics. The implementation should be unified and normalized before being sent to transformer/diffusion, and the same convention should be maintained during decode or loss alignment.</p></div>
+<h4>4.3.3 Flow-matching style mask prediction</h4><div class="formula-block"><div class="intuition">In plain English: Linear interpolation between the starting point latent and the target mask latent allows the network to learn the velocity field from the current point to the target point.</div>$$\mathbf{z}_s=(1-s)\mathbf{z}_0+s\mathbf{z}_1.$$<table class="symbol-table"><tr><td>$s\in[0, 1]$</td><td>Diffusion/flow time.</td></tr><tr><td>$\mathbf{z}_0$</td><td>Source distribution sample or noise side latent.</td></tr><tr><td>$\mathbf{z}_1$</td><td>Target future mask latent.</td></tr><tr><td>$\mathbf{z}_s$</td><td>Interpolation state, as velocity network input.</td></tr></table></div>
+<div class="formula-block"><div class="intuition">In plain English: train the network to predict the direction "from the current interpolation point to the target mask latent".</div>$$\mathcal{L}_{\text{mask}}=\mathbb{E}\left[w(s)\, \left\|\mathbf{v}_\theta(\mathbf{z}_s, s, \mathbf{c}_t)-(\mathbf{z}_1-\mathbf{z}_0)\right\|_2^2\right].$$<p>$\mathbf{c}_t$ is a conditional context containing historical RGB observations, language instructions, and temporal/spatial position encoding. $w(s)$ is the time weight. This loss causes the dynamics backbone not to fit the future RGB texture, but to fit the geometric evolution of the future mask.</p><details><summary>Supplementary derivation: why the target speed is $\mathbf{z}_1-\mathbf{z}_0$</summary><div>Taking the derivative of $s$ from the linear path $\mathbf{z}_s=(1-s)\mathbf{z}_0+s\mathbf{z}_1$, we get $d\mathbf{z}_s/ds=\mathbf{z}_1-\mathbf{z}_0$. Therefore, the supervision signal of the velocity network is the path tangent vector. This derivation is an intermediate step completion of the formula in the main text.</div></details></div>
+<h4>4.3.4 Conditional noising for future masks</h4><div class="formula-block"><div class="intuition">In plain English: The historical observation part remains as a condition, and the future mask part is noisy. The network only needs to complete the future semantic evolution.</div>$$\begin{aligned}\mathbf{x}_s&amp;=\mathbf{b}\odot \hat{\mathbf{z}}^{o}_{t-n+1: t}+(1-\mathbf{b})\odot \tilde{\mathbf{z}}_s, \\\tilde{\mathbf{z}}_s&amp;=(1-s)\hat{\mathbf{z}}^{m}_{t+1: t+\tau}+s\boldsymbol{\epsilon}, \qquad \boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0}, \mathbf{I}).\end{aligned}$$<table class="symbol-table"><tr><td>$\mathbf{b}$</td><td>A binary mask that distinguishes conditional frame positions from future positions that need to be predicted/denoised.</td></tr><tr><td>$n$</td><td>The length of the historical observation window.</td></tr><tr><td>$\tau$</td><td>future prediction horizon.</td></tr><tr><td>$\hat{\mathbf{z}}^o$</td><td>Standardized observation latent.</td></tr><tr><td>$\hat{\mathbf{z}}^m$</td><td>Standardized future mask latent.</td></tr></table><p>The key to the implementation of this design is the mask alignment of the batch dimension, time dimension and view/token dimension; if the $\mathbf{b}$ broadcasting is wrong, the historical conditions will also be noisy, destroying the condition prediction.</p></div>
+<h4>4.3.5 Spatio-temporal positional scaling and AdaLN/RMS modulation</h4><div class="formula-block"><div class="intuition">Vernacular: The position encoding in the video transformer should distinguish time, height and width at the same time; the scaling factor allows the position scale under different resolutions/time lengths to remain controllable.</div>$$\text{RoPE}(t, h, w)\leftarrow \text{RoPE}(\gamma_t t, \gamma_h h, \gamma_w w).$$</div><div class="formula-block"><div class="intuition">Vernacular: First normalize the token, and then use diffusion timestep or scale/shift modulation generated by the conditional signal to represent it.</div>$$\begin{aligned}\bar{\mathbf{x}}&amp;=\mathrm{RMSNorm}(\mathbf{x}), \\\mathrm{Modulate}(\bar{\mathbf{x}}; s)&amp;=\bar{\mathbf{x}}\odot(1+\alpha(s))+\beta(s).\end{aligned}$$<p>During implementation, $\alpha(s)$ and $\beta(s)$ need to be broadcast to the token/channel dimension; $1+\alpha$ retains the identity path to facilitate initialization and stable training.</p></div>
+<h4>4.3.6 Action diffusion objective</h4><div class="formula-block"><div class="intuition">In plain English: Add noise to the action sequence and let the policy head learn to denoise or score under the condition of mask-centric predictive features.</div>$$\mathcal{L}_{\text{act}}=\mathbb{E}\left[\lambda(\sigma)\left\|\phi_\xi(\tilde{\mathbf{u}}, \sigma, \mathbf{H}_t)+\boldsymbol{\epsilon}/\sigma\right\|_2^2\right].$$<table class="symbol-table"><tr><td>$\tilde{\mathbf{u}}$</td><td>Noise action sequences.</td></tr><tr><td>$\sigma$</td><td>noise scale.</td></tr><tr><td>$\mathbf{H}_t$</td><td>Predictive features provided by mask dynamics backbone.</td></tr><tr><td>$\phi_\xi$</td><td>diffusion policy/action head. </td></tr><tr><td>$\lambda(\sigma)$</td><td>Loss weights for different noise scales.</td></tr></table></div>
+<h3>4.4 Implementation Points (For reproducibility)</h3><div class="note"><b>Semantic supervision is only used during the training period: </b>Appendix description Stage 1 requires semantic segmentation masks, and uses RoboEngine to offline generate pixel-wise annotations of the robot arm, gripper, and task object for real robot data; only raw RGB is used during inference.<span class="appendix-ref">Appendix Real-World Experimental Setup</span></div><div class="note"><b>Two-stage training: </b>Stage 1 learns mask prediction world model; Stage 2 trains action prediction head. The hyperparameter table shows that Stage 1/2 uses AdamW, global batch size 128, weight decay $10^{-5}$, warmup 1000, gradient clip 1.0, and bfloat16.<span class="appendix-ref">Appendix Implementation Details</span></div><div class="note"><b>Architecture size: </b>Stage 1 uses 28 layers, hidden dim 2048, 32 heads, cross-attn dim 2048; Stage 2 uses 28 layers, hidden dim 512, 16 heads, cross-attn dim 2048. VAE is trainable in Stage 1 and frozen in Stage 2.<span class="appendix-ref">Appendix Implementation Details</span></div>
+<pre class="pseudo">MWM training sketch
+Input: demonstrations D = {(RGB observations, language, actions)}, offline masks M
+Stage 1:
+  encode historical RGB and future semantic masks into VAE latents
+  sample diffusion/flow time s and noise epsilon
+  train world model W_theta to predict future mask dynamics
+Stage 2:
+  freeze or reuse W_theta as predictive feature extractor
+  condition action diffusion head phi_xi on W_theta features H_t
+  train phi_xi to denoise future action sequence
+Inference:
+  input raw multi-view RGB + language only
+  run W_theta internally to produce mask-centric predictive features
+  sample action sequence with diffusion policy head</pre>
+</section>
+<section class="card" id="s5"><h2>5. Experiment</h2>
+<h3>5.1 Experimental setup</h3><table><tr><th>Project</th><th>settings</th></tr><tr><td>Simulation benchmark</td><td>LIBERO (Spatial/Object/Goal/Libero-10, 500 episodes per suite); RLBench (6 tasks, 20 episodes each with randomized seeds).</td></tr><tr><td>real robot</td><td>7-DoF Franka Emika Panda, two Intel RealSense D435i: fixed third-person + wrist-mounted eye-in-hand; RGB-D resize to $256\times256$; deployed at 10Hz.<span class="appendix-ref">Appendix Real-World Experimental Setup</span></td></tr><tr><td>real tasks</td><td>Task1: Placing food items into a basket; Task2: Opening a drawer to insert a pen; Task3: Pouring water into a bowl; Task4: Shelving a book. 50 post-train demonstrations per method per task.</td></tr><tr><td>Baselines</td><td>LIBERO/RLBench includes RGB-centric world model / policy variants and GE-ACT; real experiments compare GE-ACT and $\pi0$.</td></tr><tr><td>indicator</td><td>Success Rate (SR); visual generalization report ID SR, BG/Light/Color shift SR, OOD-SR, Retain; RTP report normalized pruning AUC (nPAUC).</td></tr><tr><td>code</td><td><a href="https://github.com/LYFCLOUDFAN/mask-world-model">https: //github.com/LYFCLOUDFAN/mask-world-model</a></td></tr></table>
+<h4>Complete hyperparameter table</h4><table><tr><th>Configuration</th><th>Stage 1 Dynamics</th><th>Stage 2 Policy</th><th>Source</th></tr><tr><td>Learning Rate</td><td>$3\times10^{-4}$</td><td>$5\times10^{-5}$</td><td><span class="appendix-ref">Appendix Implementation Details</span></td></tr><tr><td>Batch Size</td><td>128 global</td><td>128 global</td><td>Same as above</td></tr><tr><td>Weight Decay</td><td>$1\times10^{-5}$</td><td>$1\times10^{-5}$</td><td>Same as above</td></tr><tr><td>Warmup Steps</td><td>1000</td><td>1000</td><td>Same as above</td></tr><tr><td>Gradient Clip</td><td>1.0</td><td>1.0</td><td>Same as above</td></tr><tr><td>Precision</td><td>bfloat16</td><td>bfloat16</td><td>Same as above</td></tr><tr><td>Layers</td><td>28</td><td>28</td><td>Same as above</td></tr><tr><td>Hidden Dimension</td><td>2048</td><td>512</td><td>Same as above</td></tr><tr><td>Attention Heads</td><td>32</td><td>16</td><td>Same as above</td></tr><tr><td>Cross-Attn Dim</td><td>2048</td><td>2048</td><td>Same as above</td></tr><tr><td>VAE</td><td>Trainable</td><td>Frozen</td><td>Same as above</td></tr><tr><td>Backbone / Policy</td><td>Trainable</td><td>Trainable</td><td>Same as above</td></tr><tr><td>Observation / action horizon</td><td>4 frames</td><td>36 actions</td><td>Same as above</td></tr><tr><td>Spatial / temporal compression</td><td>$f_s=32$, $f_t=8$</td><td>-</td><td>Same as above</td></tr><tr><td>Resolution</td><td>$256\times256$</td><td>-</td><td>Same as above</td></tr></table>
+<h3>5.2 Main results</h3><h4>LIBERO</h4><table><tr><th>Method</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Libero-10</th><th>Avg.</th></tr><tr><td>Best non-MWM row reported in table</td><td>0.982</td><td>0.976</td><td>0.958</td><td>0.944</td><td>0.965</td></tr><tr><td>MWM variant before final</td><td>0.948</td><td>0.988</td><td>0.922</td><td>0.812</td><td>0.918</td></tr><tr><td><b>MWM (ours)</b></td><td><b>0.988</b></td><td><b>1.000</b></td><td><b>0.982</b></td><td><b>0.960</b></td><td><b>0.983</b></td></tr></table><p>The main table shows that MWM is the highest or tied for the highest on all four LIBERO suites, with an average SR of 98.3%. Libero-10 is the long task combination setting, and the MWM improves from 0.944 for the best non-MWM row to 0.960.</p>
+<h4>RLBench</h4><table><tr><th>Method group</th><th>Avg. SR</th></tr><tr><td>3rd-view RGB baseline group</td><td>42.5% / 50.0%</td></tr><tr><td>3rd+wrist RGB baseline group</td><td>23.3% / 33.3% / 30.8%</td></tr><tr><td><b>MWM (ours)</b></td><td><b>68.3%</b></td></tr></table><p>The RLBench table is evaluated on 20 episodes of randomized seeds, and the average MWM success rate is 68.3%, which is higher than each RGB-centric baseline row in the table.</p>
+<h4>real robot</h4><div class="figure"><img alt="real robot rollout" src="figures/realworld.png"/><div class="caption">Figure 3: Real robot qualitative rollouts.</div></div><table><tr><th>Method</th><th>Task1</th><th>Task2</th><th>Task3</th><th>Task4</th><th>Avg.</th></tr><tr><td>GE-ACT</td><td>35%</td><td>20%</td><td>10%</td><td>30%</td><td>23.8%</td></tr><tr><td>$\pi0$</td><td>50%</td><td>30%</td><td>5%</td><td>70%</td><td>38.8%</td></tr><tr><td><b>MWM (ours)</b></td><td><b>75%</b></td><td><b>55%</b></td><td><b>60%</b></td><td><b>80%</b></td><td><b>67.5%</b></td></tr></table><p>The authors point out that the greatest improvement occurs in tasks such as drawer manipulation and pouring where goal constraints are tighter and are more sensitive to compounding errors. This explanation comes from the main text Results and analysis.</p>
+<h3>5.3 Ablation experiment</h3><p>The main text focuses on "whether mask-centric representation/objective is better than future RGB prediction" and "whether different mask information extraction and use methods are stable." The MWM variants in the LIBERO table show that the final MWM averages 0.983, which is higher than other mask/RGB variants; the paper shows that the performance improvement mainly comes from representation and target space transfer, rather than single architectural details.</p>
+<h3>5.4 Supplementary experiments (from appendix)</h3><h4>Random token pruning detailed list</h4><table><tr><th>Pruning r</th><th>MWM Spatial</th><th>MWM Object</th><th>MWM Goal</th><th>MWM L10</th><th>GE-ACT Spatial</th><th>GE-ACT Object</th><th>GE-ACT Goal</th><th>GE-ACT L10</th></tr><tr><td>0.1</td><td>0.98</td><td>1.00</td><td>0.98</td><td>0.96</td><td>0.96</td><td>0.99</td><td>0.95</td><td>0.94</td></tr><tr><td>0.4</td><td>0.95</td><td>0.97</td><td>0.89</td><td>0.79</td><td>0.96</td><td>0.96</td><td>0.89</td><td>0.77</td></tr><tr><td>0.6</td><td>0.85</td><td>0.80</td><td>0.65</td><td>0.37</td><td>0.83</td><td>0.47</td><td>0.67</td><td>0.39</td></tr><tr><td>0.8</td><td>0.05</td><td>0.10</td><td>0.07</td><td>0.00</td><td>0.11</td><td>0.00</td><td>0.21</td><td>0.00</td></tr><tr><td>0.9</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr></table><p>Text summary nPAUC: MWM 0.648, GE-ACT 0.629. The detailed table in the appendix shows that the retention rate of MWM in the Object suite is significantly high under medium pruning. For example, the MWM Object is 0.80 for $r=0.6$, while the GE-ACT Object is 0.47.<span class="appendix-ref">Appendix Detailed Random Token Pruning Results</span></p>
+<h4>Visual generalization detailed list</h4><div class="figure"><img alt="visual generalization" src="figures/fanhua.png"/><div class="caption">Figure: Visual generalization stress tests, varying background, lighting, and object color.</div></div><table><tr><th>Shift</th><th>GE-ACT Avg.</th><th>$\pi0$ Avg.</th><th>MWM Avg.</th></tr><tr><td>Background</td><td>3.8%</td><td>13.8%</td><td><b>27.5%</b></td></tr><tr><td>Lighting</td><td>18.8%</td><td>17.5%</td><td><b>56.3%</b></td></tr><tr><td>Object Color</td><td>15.0%</td><td>26.3%</td><td><b>42.5%</b></td></tr><tr><td>OOD-SR summary</td><td>12.5%</td><td>19.2%</td><td><b>42.1%</b></td></tr><tr><td>Retain</td><td>0.53</td><td>0.49</td><td><b>0.62</b></td></tr></table><p>The appendix expands each type of shift into four tasks; MWM has the highest average success rate under all three shifts. The authors explicitly refer to these shifts as nuisance variables for overfitting stress tests.<span class="appendix-ref">Appendix Detailed Visual Generalization Results</span></p>
+<div class="figure"><img alt="real world setup" src="figures/realworld_setting.png"/><div class="caption">Appendix Figure: Real robot hardware and four task environments.</div></div>
+</section>
+<section class="card" id="s6"><h2>6. Summary of recurrence information</h2><table><tr><th>Recurring items</th><th>Information given in the paper</th><th>Notch/Note</th></tr><tr><td>Source code</td><td>Provide a link to the GitHub repository.</td><td>You need to refer to the warehouse README to confirm the released checkpoints and data download method.</td></tr><tr><td>data</td><td>LIBERO, RLBench, real Franka four tasks; real 50 demonstrations per task.</td><td>Whether the real data is public requires checking the code repository.</td></tr><tr><td>semantic mask</td><td>Real robots use RoboEngine to generate semantic annotations offline.</td><td>Reproducing Stage 1 must have an equivalent mask annotation pipeline.</td></tr><tr><td>Hardware</td><td>Franka Panda + Dual RealSense D435i, $256\times256$, 10Hz.</td><td>Training GPU model/number is not explicitly listed in the source snippet.</td></tr><tr><td>hyperparameters</td><td>The appendix gives learning rate, batch, model width/depth, precision, gradient clip, etc.</td><td>If the details of optimizer betas and scheduler are not added in the code, they need to be confirmed from the warehouse.</td></tr></table></section>
+<section class="card" id="s7"><h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3><p>Based on the paper's own claims and experiments, the core value is that it changes the goal of the robot world model from photometric prediction to decision-relevant semantic dynamics prediction, and through the design of semantic supervision during the training period and pure RGB during the test period, it avoids dependence on external segmenters during deployment. This value is supported by LIBERO/RLBench main results, real robot results, visual perturbation and token pruning stress tests.</p>
+<h3>7.2 Why the results hold up</h3><ul><li><b>Cross-domain verification: </b>Results cover LIBERO, RLBench and the real Franka robot, rather than being reported only in a single simulation environment.</li><li><b>Disturbance verification: </b>The paper performs real robot stress tests on background, lighting, and object color shift, and provides OOD-SR and Retain.</li><li><b>Robustness probe: </b>Random token pruning tests observability/compute stress at the transformer token level; MWM nPAUC is higher than GE-ACT.</li><li><b>Appendix detailed table: </b>The appendix gives item-by-item results for pruning ratio and task-level results for each type of visual generalization shift, supporting trends in the main text.</li></ul>
+<h3>7.3 Analysis and explanation of the results given in the paper</h3><p>The author explains that real robot improvements come from semantic bottlenecks and multi-view observations that provide more decision-relevant representations, especially on tasks with tighter goal constraints and more sensitive compounding errors. RGB-based policies are more prone to appearance-driven drift. For visual generalization, the author regards BG/Light/Color shift as stress tests to detect whether the model is overfitting nuisance variables such as table texture, illumination or object color.</p>
+<h3>7.4 Limitations of the author's statement</h3><p>The Conclusion of the paper does not include a dedicated limitations section. The boundaries that can be clearly read in the main text and appendices are: Stage 1 training requires offline semantic masks; real robot experiments are limited to four tabletop manipulation tasks; RLBench evaluates 20 episodes per task; real robots have 50 demonstrations post-training per task. The above are all boundaries set by the paper's experiments, rather than additional inferences by the report author.</p>
+<h3>7.5 Applicable boundaries and discussion</h3><ul><li>Prerequisite: Task geometry, object identity, spatial relationships, and contact evolution are more critical than appearance texture.</li><li>Deployment conditions: Inference only requires raw RGB and language, but semantic mask supervision must be available during training.</li><li>Experimental Boundaries: The paper presents real-world results based on Franka Panda, dual RealSense, four tasks, and a 10Hz control setting.</li><li>Future work: The original article Conclusion mainly summarizes that MWM provides a mask-centric predictive framework for robust robot policy learning, and does not expand on the specific future work list.</li></ul>
+</section>
+</div>
+</main>
+</body></html>

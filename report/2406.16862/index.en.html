@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Dreamitate: Real-World Visuomotor Policy Learning via Video Generation | Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="kicker">arXiv: 2406.16862 · PhD group meeting Reading Report</div>
+<h1>Dreamitate: Real-World Visuomotor Policy Learning via Video Generation</h1>
+<p class="subtitle">This paper uses "generating a video of a human using a tool to complete a task" as the middle layer of robot strategy learning: the video model first imagines how the tool should move, and then passes the trajectory to the real manipulator for execution through 3D tool tracking.</p>
+<div class="meta">
+<span>Authors: Junbang Liang, Ruoshi Liu, Ege Ozguroglu, Sruthi Sudhakar, Achal Dave, Pavel Tokmakov, Shuran Song, Carl Vondrick</span>
+<span>Submitted: 2024-06-24</span>
+<span>Field: Robotics, Computer Vision</span>
+<span>Project page: <a href="https://dreamitate.cs.columbia.edu/">dreamitate.cs.columbia.edu</a></span>
+</div>
+</header>
+<nav class="toc">
+<a href="#overview">1. Quick overview of the paper</a>
+<a href="#problem">2. Problems and motivations</a>
+<a href="#method">3. Method dismantling</a>
+<a href="#experiments">4. Experimental results</a>
+<a href="#appendix">5. Integration of appendices information</a>
+<a href="#reading">6. The group will read the clues</a>
+<a href="#analysis">7. Analysis, Limitations and Boundaries</a>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<p class="lead">Dreamitate's core judgment is that for many tool operation tasks, what the robot really needs to reproduce is not the "human" arm movements, but the three-dimensional movement of the "tool". As long as the tool is a known rigid body and the video model can generate a reasonable tool usage process in the new scene, the tool trajectory in the generated video can be extracted and converted into the robot end effector trajectory.</p>
+<table>
+<thead>
+<tr>
+<th>reading orientation</th>
+<th>Short answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What should the paper solve?</td>
+<td>Reduce dependence on real robot action annotation and teleoperation data, allowing visual motion strategies to learn from human tool use videos and generalize under unseen objects, lighting and desktop conditions.</td>
+</tr>
+<tr>
+<td>The author's approach</td>
+<td>Connect human demonstration and robotic execution using the same set of 3D printable tools; fine-tune Stable Video Diffusion to generate binocular tool operation videos; track tool 6D pose with MegaPose and binocular geometry; let robots execute tool trajectories.</td>
+</tr>
+<tr>
+<td>most important results</td>
+<td>Significantly outperforms Diffusion Policy on four real-world tasks: rotation 37/40 vs. 22/40, scooping 34/40 vs. 22/40, sweeping 37/40 vs. 5/40, and Push-Shape's mIoU/rotation error is 0.731/8.0° vs. 0.550/48.2°.</td>
+</tr>
+<tr>
+<td>Things to note when reading</td>
+<td>It is not a universal language conditional strategy, nor is it a closed-loop real-time control; the experiments rely on known rigid body tools, binocular cameras, trackable tool motion, and task-level video models. The advantage comes from the tool intermediate representation, and the boundaries mainly come from this representation.</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img alt="Dreamitate 总览示意" src="figures/figures_teaser.png"/>
+<figcaption>Paper teaser: The video generation model first synthesizes the process of "humans using tools to complete tasks", and then tracks the tool trajectory and lets the robot execute it.</figcaption>
+</figure>
+</section>
+<section id="problem">
+<h2>2. Problems and motivations</h2>
+<h3>2.1 Bottlenecks of behavioral cloning</h3>
+<p>Traditional behavioral cloning requires pairs of visual observations and robot action labels. Collecting this kind of data with real manipulators is usually slow and expensive, and is prone to out-of-distribution failure once objects, scenes, or tasks are changed. The author believes that learning directly from robot trajectories is clean, but it misses the large amount of human operation videos on the Internet and in the real world that are easier to collect.</p>
+<h3>2.2 Opportunities and gaps in video generation models</h3>
+<p>The video diffusion model has been able to generate reasonable future visual dynamics from static images, which means that it may carry priors on human behavior and object interactions. But generating "human videos" is not equivalent to generating "robot actions". There is a clear embodiment gap between human hands, arms, body poses, and robotic end effectors. The key twist in Dreamitate is to bypass the ontological differences between humans and robots and focus on shared tools.</p>
+<h3>2.3 The middle layer of paper selection</h3>
+<p>The author regards tools as carriers of action across embodiments: humans use tools in demonstrations, and robots are equipped with the same tools. As long as the tool trajectory is correct, the arm posture can be handed over to the inverse kinematics or trajectory execution module for processing. Therefore, the video model does not have to directly output robot movements, but rather outputs interpretable videos of tool movements.</p>
+</section>
+<section id="method">
+<h2>3. Method dismantling</h2>
+<figure>
+<img alt="Dreamitate 方法流程" src="figures/figures_newmethod.png"/>
+<figcaption>Method diagram: Collect binocular human tool usage videos, fine-tune the video model; generate operation videos based on new scene images during testing, track the tool trajectory, and drive the robot to execute.</figcaption>
+</figure>
+<h3>3.1 Formal goals</h3>
+<p>Given an initial scene image $v_0$, the goal is to plan a sequence of robot actions $a_t \\in SE(3)$. Dreamitate breaks action prediction into two steps: first generate a future video, and then read the tool trajectory from the video.</p>
+<div class="eq">
+ $$\{\\hat v_t\}_{t=1}^{T}=f_\theta(v_0), \qquad a_t = T(\\hat v_t).$$
+ </div>
+<p>Here $f_\theta$ is the task-specific video generation model, and $T$ is the tool tracker. This split allows the strategy to have a visual intermediate result: if the robot fails, the researcher can check whether the video model is thinking wrong, or whether there is a problem with the tool tracking/trajectory execution.</p>
+<h3>3.2 Data Collection: Binocular Human Tool Demonstration</h3>
+<p>The training data comes from videos of humans using custom tools to complete tasks. The first frame of each demo is the scene input, and subsequent frames record how the person moves the tool. The paper uses two calibrated cameras to observe the desktop from different angles, which not only improves tool visibility, but also provides geometric constraints for subsequent 3D pose recovery.</p>
+<p>The appendix supplements the camera setup: two Intel RealSense D435i cameras were placed approximately 660 mm apart, viewing the desktop at approximately 45° viewing angle, and approximately 760 mm from the desktop. The training videos are recorded at 1280×720, then cropped and scaled for use by the model. Use UFACTORY xArm 7 for Rotation and Scooping, and UR5 for Sweeping and Push-Shape.</p>
+<h3>3.3 Video model: fine-tuning tasks on Stable Video Diffusion</h3>
+<p>The author initializes with pre-trained Stable Video Diffusion and trains a model for each task. The training goal is to reconstruct the binocular demonstration video from the initial scene image, and the loss is the frame-by-frame $L_2$ distance between the predicted and ground-truth frames: </p>
+<div class="eq">
+ $$\min_\theta \sum_t \left(\lVert f_\theta(v^1_0)_t-v^1_t\rVert_2^2+\lVert f_\theta(v^2_0)_t-v^2_t\rVert_2^2\right).$$
+ </div>
+<p>In implementation, the model generates 25 frames at a time: the first 13 frames correspond to the first perspective, and the last 12 frames correspond to the second perspective. The first frame is the same as the input and will be discarded during testing. The authors freeze the encoder and decoder, only fine-tune the spatial/temporal attention layer, and modify the image conditional embedding of each frame to mark the output perspective. 30 denoising steps are used during inference, and classifier-free guidance is set to 1.0.</p>
+<h3>3.4 Track then Act: From generating video to robot trajectory</h3>
+<p>Each task uses a 3D printing tool of a known CAD model. After the video is generated, the system uses MegaPose to estimate the 6D pose of the tool in each frame, and then combines the binocular camera calibration to fuse the estimates from the two perspectives into a three-dimensional trajectory. The appendix explains that the translation fusion method is to take the midpoint of the nearest point of the space straight line projected from the two viewing angles, and the rotation is to take the average of the estimates from the two viewing angles.</p>
+<p>For tool parts that are easily blocked, the author has done task-based processing: in the scooping task, only the handle is tracked to avoid obstruction by particulate matter; in cleaning and push-shape, because the handle is blocked by human hands, the main body of the tool is tracked instead. The obtained tool trajectory $a_0, \ldots, a_T$ is directly executed as the robot end effector trajectory.</p>
+<figure>
+<img alt="Dreamitate 使用的工具" src="figures/figures_tools_final.png"/>
+<figcaption>Collection of tools in the paper. Dreamitate's cross-embodiment assumptions rely on these known, rigid, and traceable tools.</figcaption>
+</figure>
+</section>
+<section id="experiments">
+<h2>4. Experimental results</h2>
+<h3>4.1 Experimental tasks and data scale</h3>
+<p>All experiments are done on real robots and real desktop environments. Training and testing maintain the same camera configuration, but different tabletops, lighting, and object collections; training and test objects do not overlap.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>training object</th>
+<th>Number of demos</th>
+<th>test subject</th>
+<th>Number of tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rotation</td>
+<td>31 objects</td>
+<td>371</td>
+<td>10 objects</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Scooping</td>
+<td>17 bowls, 8 pellets</td>
+<td>368</td>
+<td>8 bowls, 4 pellets</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Sweeping</td>
+<td>6 types of particulate matter</td>
+<td>356</td>
+<td>6 types of particulate matter</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Push-Shape</td>
+<td>26 letter shapes</td>
+<td>727</td>
+<td>8 numbers/polygon shapes</td>
+<td>32</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img alt="Scooping 对象集合" src="figures/figures_scoop_objects.png"/>
+<figcaption>Containers and particles used in Scooping. Training/test objects do not overlap and are used to test generalization to new objects.</figcaption>
+</figure>
+<figure>
+<img alt="Sweeping 对象集合" src="figures/figures_sweep_objects.png"/>
+<figcaption>Sweeping collection of particles. This task specifically tests the ability of the tool path to avoid obstacles and sweep material into the target area.</figcaption>
+</figure>
+<figure>
+<img alt="Push-Shape 对象集合" src="figures/figures_push_objects.png"/>
+<figcaption>Training and test shapes for Push-Shape. The test shapes are extended from letters to numbers and polygons, and position and orientation co-generalization are assessed.</figcaption>
+</figure>
+<h3>4.2 Baseline: Diffusion Policy</h3>
+<p>The main comparison method is the CNN version of Diffusion Policy. To be fair, the baseline uses the same batch of training data; its target trajectories are also extracted from human demonstrations through MegaPose, rather than using additional robot teleoperation data. The input is a binocular image, and the image encoder is two pre-trained ResNet-18, trained for 200 epochs, predicting 12 time steps into the future, and executed in an open-loop manner. The authors also tried a CLIP variant, but with even worse results.</p>
+<h3>4.3 Main results</h3>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>Rotation</th>
+<th>Scooping</th>
+<th>Sweeping</th>
+<th>Push-Shape mIoU</th>
+<th>Push-Shape rotation error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diffusion Policy</td>
+<td>22/40</td>
+<td>22/40</td>
+<td>5/40</td>
+<td>0.550</td>
+<td>48.2°</td>
+</tr>
+<tr>
+<td>Dreamitate</td>
+<td>37/40</td>
+<td>34/40</td>
+<td>37/40</td>
+<td>0.731</td>
+<td>8.0°</td>
+</tr>
+</tbody>
+</table>
+<p>The strongest signal from the results is not a slight improvement in a certain task, but a significant improvement in four types of tasks with different geometries and contact patterns. In particular, Sweeping goes from 5/40 to 37/40, which shows that it is difficult for baseline to directly return a reliable tool path from the image, while Dreamitate's video middle layer can better express the spatial process of "first bypassing obstacles, and then sweeping the material to the target."</p>
+<h3>4.4 Interpretation of tasks</h3>
+<div class="grid">
+<div class="card">
+<h3>Rotation</h3>
+<p>The task requires contacting the object with the clamping tool and rotating it counterclockwise by at least 25° while maintaining contact. Dreamitate is at 92.5% and Diffusion Policy is at 55%. The author pointed out that common failures of baseline are failure to establish contact, unstable grasp points or slipping; the few failures of Dreamitate mostly occur on objects that are more difficult to see/contact, such as transparent bagged toys.</p>
+</div>
+<div class="card">
+<h3>Scooping</h3>
+<p>The task requires scooping particulate matter into a target container. Dreamitate is 34/40 and Diffusion Policy is 22/40. Qualitative graphs show that baseline is easily disturbed by surrounding objects, or sends materials to the wrong container; the video trajectories generated by Dreamitate are closer to human scooping actions.</p>
+</div>
+<div class="card">
+<h3>Sweeping</h3>
+<p>The task requires cleaning up particulate matter and avoiding obstacles. Dreamitate is 37/40 and Diffusion Policy is 5/40. The gap here is particularly large, probably because the cleaning task requires not only terminal reach, but also continuous path shape, obstacle avoidance, and contact direction to be jointly correct.</p>
+</div>
+<div class="card">
+<h3>Push-Shape</h3>
+<p>This is a Push-T style long-term task, where the bubble shape needs to be pushed to the target mask while adjusting its orientation. Dreamitate's mIoU is 0.731 and the rotation error is 8.0°; although Diffusion Policy can push objects closer to the target, it often does not complete the correct rotation.</p>
+</div>
+</div>
+<figure>
+<img alt="Scooping 定性结果" src="figures/figures_scooping-final.png"/>
+<figcaption>Scooping qualitative results: Dreamitate's tool trajectory can complete scooping and deliver it to the target, while baseline can easily send materials to the wrong location or scoop inaccurately.</figcaption>
+</figure>
+<figure>
+<img alt="Sweeping 定性结果" src="figures/figures_sweeping_final.png"/>
+<figcaption>Sweeping qualitative results: Dreamitate performs more stably on obstacle avoidance and cleaning paths, while baseline often fails on obstacles or target locations.</figcaption>
+</figure>
+<h3>4.5 Data scale curve</h3>
+<p>The author conducted a training data proportion experiment on Rotation: when Dreamitate used 1/3 of the data, the success rate was 77.5%, 2/3 of the data was 75.0%, and the full amount of data was 92.5%; Diffusion Policy was 7.5%, 25.0%, and 55.0% respectively. This set of results supports the author's explanation: the pre-trained video model provides additional visual motion priors, allowing Dreamitate to maintain good performance under small-scale human demonstrations.</p>
+</section>
+<section id="appendix">
+<h2>5. Integration of appendices information</h2>
+<h3>5.1 Model hyperparameters</h3>
+<p>The appendix gives the video model training settings for each task. The resolution of all tasks is 768×448, and the learning rate is $10^{-5}$. Rotation, Scooping, and Sweeping are mostly trained at 16384 steps; Push-Shape is trained at 17408 steps. The clip duration of Rotation and Push-Shape is 2.0 seconds and fps is 6; the clip duration of Scooping and Sweeping is 3.0 seconds and fps is 5. The motion bucket scores are all 200.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>resolution</th>
+<th>learning rate</th>
+<th>Batch</th>
+<th>Number of training steps</th>
+<th>Clip / FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rotation Full</td>
+<td>768×448</td>
+<td>1e-5</td>
+<td>4</td>
+<td>16384</td>
+<td>2.0 s / 6</td>
+</tr>
+<tr>
+<td>Rotation 1/3</td>
+<td>768×448</td>
+<td>1e-5</td>
+<td>3</td>
+<td>15360</td>
+<td>2.0 s / 6</td>
+</tr>
+<tr>
+<td>Scooping</td>
+<td>768×448</td>
+<td>1e-5</td>
+<td>4</td>
+<td>16384</td>
+<td>3.0 s / 5</td>
+</tr>
+<tr>
+<td>Sweeping</td>
+<td>768×448</td>
+<td>1e-5</td>
+<td>4</td>
+<td>16384</td>
+<td>3.0 s / 5</td>
+</tr>
+<tr>
+<td>Push-Shape</td>
+<td>768×448</td>
+<td>1e-5</td>
+<td>4</td>
+<td>17408</td>
+<td>2.0 s / 6</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 Real experimental layout</h3>
+<p>A black cloth tabletop was used to increase the frictional difference, which in particular increases the contact uncertainty of the Push-Shape. Push-Shape's mIoU is calculated in the first binocular view, and the best image is selected from the multi-step execution to calculate the IoU and rotation error. Sweeping and Push-Shape also limit the height of the end effector to prevent the tool from hitting the table.</p>
+<figure>
+<img alt="人类演示采集设置" src="figures/figures_human_realworld_setup_cropped.png"/>
+<figcaption>Human demonstration acquisition setup. The appendix highlights that the binocular perspective is used both for the video condition and for subsequent tool 3D pose estimation.</figcaption>
+</figure>
+<h3>5.3 Consistency of trajectory annotation</h3>
+<p>It is worth noting that the training labels for Diffusion Policy also come from the same set of MegaPose tool tracking pipelines. Therefore, the main comparison is not "the author's method has better trajectory annotation", but "under the same trajectory source, whether the intermediate layer of video generation is more stable than the direct action diffusion strategy." This allowed the main experiment to more focused on testing Dreamitate's methodological hypotheses.</p>
+<figure>
+<img alt="Rotation 附录定性结果" src="figures/figures_appendix_rotate_crop.png"/>
+<figcaption>Rotation Appendix Qualitative Results: Supplementary demonstration of Dreamitate's tool trajectory generation and execution performance on different unseen objects.</figcaption>
+</figure>
+<figure>
+<img alt="Sweeping 附录定性结果" src="figures/figures_appendix_sweep_crop.png"/>
+<figcaption>Sweeping appendix qualitative results: showing execution trajectories for more obstacle layouts and particle conditions.</figcaption>
+</figure>
+</section>
+<section id="reading">
+<h2>6. The group will read the clues</h2>
+<h3>6.1 It can be discussed in terms of three levels of questions</h3>
+<ol>
+<li><strong>Data layer: </strong>Why are human tool videos more scalable than robot motion data? Why can the same set of tools reduce the embodiment gap?</li>
+<li><strong>Presentation layer: </strong>Why is generating video a useful intermediate representation? What more interpretable structure does it have than directly predicting actions?</li>
+<li><strong>Execution layer: </strong>What errors are amplified when converting generated videos into SE(3) tool trajectories? What problems do binocular tracking and known CAD models each solve?</li>
+</ol>
+<h3>6.2 Suggested details for discussion</h3>
+<ul>
+<li>The success of Dreamitate is not just "using large models", but constraining the video model to the robot executable space of the tool trajectory.</li>
+<li>The comparison with Diffusion Policy is relatively strong because both use the same demonstration data and homologous trajectory annotations; the difference mainly comes from policy representation.</li>
+<li>Scaling curve is a good discussion point in group meetings: Dreamitate is still 77.5% under 1/3 data, but slightly lower than 1/3 under 2/3 data, indicating that there is variance in small sample experiments and cannot be overly interpreted as a monotonic law.</li>
+<li>The rotation error of Push-Shape dropped from 48.2° to 8.0°, indicating that the video middle layer is particularly suitable for expressing the target posture and contact path, not just the end position.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>The most valuable part of this paper</h3>
+<p>The most valuable part is that the visual motion prior of the video generation model falls on an intermediate representation that the robot can execute, inspect, and debug. The paper does not require the video model to directly generate robot joint commands, nor does it regard the generated video as just a good-looking visualization; it explicitly uses the tool 6D tracking to turn the video into a trajectory. This allows for an operational interface between "large-scale video priors" and "real robot control".</p>
+<p>The second value is that the experimental design is closer to the real generalization problem. The training and test objects do not overlap, the tasks cover rotation, scooping, sweeping and long-term shape pushing, and the baseline uses the same batch of human demonstrations and homologous trajectory labels. The results are thus more suggestive: when the action space can be expressed by tool trajectories, generative video intermediate layers may be more robust than end-to-end action diffusion strategies.</p>
+<h3>Why does the result stand?</h3>
+<p>First, the lifting directions of the four tasks are consistent and cover different contact modes: continuous contact rotation, particle scooping, obstacle cleaning, and Push-Shape that requires joint adjustment of position and orientation. Secondly, the major numerical differences are large, such as Sweeping's 37/40 vs. 5/40, and Push-Shape rotation error 8.0° vs. 48.2°, which are less like small fluctuations caused by individual evaluation details. Third, the author explains in the appendix that both baseline and Dreamitate use MegaPose to obtain trajectories from demonstrations, making the comparison more focused on the form of policy learning rather than the advantages of additional annotation.</p>
+<p>However, Rotation's data scale curve also reminds us that real robot experiments have variance, and 1/3 data 77.5% and 2/3 data 75.0% are not monotonic. Therefore, this set of curves is more suitable as supporting evidence that "pre-training video prior brings stability to small data" and should not be read as a precise scaling law.</p>
+<h3>Limitations explicitly acknowledged by the author</h3>
+<ul>
+<li><strong>Actions must be visually trackable: </strong>The system relies on recovering tool trajectories from generated videos, making it difficult to handle critical actions that are invisible, heavily occluded, or non-rigid.</li>
+<li><strong>Tool occlusion can cause failure: </strong>If the end effector or tool body is severely obscured by hands, objects, or particles, MegaPose tracking will be unstable and subsequent robot trajectories will be affected.</li>
+<li><strong>Rigid tool assumptions limit the scope of the task: </strong>Currently, it is more suitable for operations dominated by rigid body tools such as shoveling, pushing, sweeping, and clamping. It is not suitable for fine-grained finger control, flexible object manipulation, or complex assembly.</li>
+<li><strong>High computational cost: </strong>The inference cost of the video diffusion model is relatively high, and the paper currently does not support real-time closed-loop control. The authors believe that future video model acceleration may alleviate this.</li>
+</ul>
+<h3>A deeper level of applicability</h3>
+<p>Dreamitate's boundaries can be summarized as follows: it is attractive when the "correctness" of the task is primarily determined by the 6D trajectory of the tool; its open-loop video-to-trajectory chain becomes brittle when the task requires high-frequency tactile feedback, closed-loop error correction, subtle force control, or latent variables outside of the tool. In other words, it transforms a complex robot learning problem into a video geometry problem that is easier to supervise and interpret, but does not remove the uncertainty of the contact physics itself.</p>
+<p class="warning">At the group meeting, this paper can be discussed in the pedigree of "How does the visual generative model enter robot control": its answer is not to let the generative model directly control the robot, but to let the generative model generate an intermediate world that humans can understand, geometric algorithms can analyze, and robots can execute.</p>
+</section>
+<section>
+<h2>Reference and reproducibility Notes</h2>
+<p>This article is organized based on the LaTeX source code, PDF, main text and appendices of arXiv: 2406.16862. The images in the report come from local image assets that are included with the paper source code or have been converted, and are saved in <code>Report/2406.16862/figures/</code>. </p>
+<p class="small">Temporary files have been retained in <code>tmp/arxiv_source_2406.16862.tar.gz</code>, <code>tmp/2406.16862.pdf</code> and <code>tmp/arxiv_source_2406.16862/</code>, to facilitate subsequent verification of source code, PDF and charts.</p>
+</section>
+</main>
+</body>
+</html>

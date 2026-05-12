@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>LDA-1B: Scaling Latent Dynamics Action Model via Universal Embodied Data Ingestion - Reading Report</title>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="title-wrap">
+<h1>LDA-1B: Scaling Latent Dynamics Action Model via Universal Embodied Data Ingestion</h1>
+<p class="subtitle">arXiv: 2602.12215 Reading Report - preparation for junior PhD group meeting</p>
+<div class="meta">
+<span class="pill">Jiangran Lyu, Kai Liu, Xuheng Zhang et al.</span>
+<span class="pill">Peking University / Galbot / CASIA / BAAI / Tsinghua / Sun Yat-sen / NVIDIA</span>
+<span class="pill">Robot Foundation Model</span>
+<span class="pill">Latent Dynamics + Diffusion Transformer</span>
+<span class="pill">EI-30K, 30k+ hours</span>
+</div>
+</div>
+</header>
+<nav class="toc">
+<a href="#overview">1. Quick overview of the paper</a>
+<a href="#problem">2. Problem background</a>
+<a href="#related">3. Related job positioning</a>
+<a href="#method">4. Detailed explanation of method</a>
+<a href="#data">5. Data and preprocessing</a>
+<a href="#experiments">6. Key points for experimental reproducibility</a>
+<a href="#analysis">7. Result analysis and discussion</a>
+<a href="#questions">8. List of follow-up questions for team meetings</a>
+<a href="#repro">9. reproducibility information</a>
+</nav>
+<article>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<p class="lead">The core proposition of this paper is that the basic robot model should not only treat large-scale data as behavioral clone samples, but should allocate embodied data of different qualities, different modalities, and even no action annotations to policy, forward dynamics, inverse dynamics, and visual forecasting according to the supervision signals they can provide. LDA-1B uses DINO latent to predict future visual states, and uses MM-DiT to uniformly model action and visual latent, allowing 30k+ hours of mixed data to truly participate in training.</p>
+<table>
+<tr><th>What should the paper solve?</th><td>The existing robot foundation model mainly extends behavior cloning, and usually only consumes high-quality robot teaching; a large number of low-quality trajectories, human videos, and no-action videos are either filtered out or only used crudely. The author wants to solve the problem of "how heterogeneous embodied data can be utilized at scale".</td></tr>
+<tr><th>The author's approach</th><td>LDA-1B is proposed: use Universal Embodied Data Ingestion to assign different training targets to different data; use DINOv3 latent as the future visual prediction target; use multi-modal diffusion transformer to share attention between action tokens and visual tokens but retain modal experts; build the EI-30K data set.</td></tr>
+<tr><th>most important results</th><td>The average success rate of RoboCasa-GR1 is 55.4%, which is higher than the 47.6% of GR00T-N1.6 and 51.3% of GR00T-EI10k; there are obvious gains in contact-rich, dexterous, and long-horizon scenarios in real robots; after adding low-quality trajectories, LDA increases by 10%, while $\pi_{0.5}$ decreases.</td></tr>
+<tr><th>Things to note when reading</th><td>"1B" is not the only key, the key is DINO latent + data role division + four-task joint training. Many improvements in experiments come from the coupling of data, latent representation, and architecture, and cannot be attributed solely to the number of parameters.</td></tr>
+</table>
+<div class="grid three">
+<div class="card"><div class="kpi">30k+</div><div class="kpi-label">Hours EI-30K Heterogeneous Embodied Data</div></div>
+<div class="card"><div class="kpi">55.4%</div><div class="kpi-label">RoboCasa-GR1 average success rate</div></div>
+<div class="card"><div class="kpi">+10%</div><div class="kpi-label">Mixed quality data fine-tuning benefits</div></div>
+</div>
+<figure>
+<img alt="LDA-1B teaser" src="figures/lda_teaser.jpg"/>
+<figcaption>Main picture of the paper: LDA-1B unifies policy, dynamics, and visual forecasting into a structured DINO latent space, and allows different data sources to play complementary roles.</figcaption>
+</figure>
+</section>
+<section id="problem">
+<h2>2. Problem background</h2>
+<h3>2.1 Why "just doing BC extension" is not enough</h3>
+<p>Most of the existing basic robot models compress the training goals into one form: given the current observation and language, predict the next action. This paradigm is straightforward when high-quality robot teaching is sufficient, but has three bottlenecks.</p>
+<ul>
+<li><strong>Data waste: </strong>Low-quality trajectories, exploration trajectories, failed retries, human videos, and no-action videos are not suitable for direct BC, but contain information such as environmental dynamics, object affordance, and contact consequences.</li>
+<li><strong>Target mismatch: </strong>BC penalizes "acting like an expert" but does not explicitly require the model to understand how the action changes the state of the world. Exposure to rich, long-term tasks is especially likely to accumulate errors.</li>
+<li><strong>Representation overload: </strong>If you use pixel or VAE latent to predict future images, the model will be hampered by appearance details such as texture, lighting, and background, making it difficult to use capacity for controllable dynamics.</li>
+</ul>
+<h3>2.2 Basic assumptions of LDA</h3>
+<p>The implicit assumptions of LDA can be summarized as: <strong>Heterogeneous data is not BC data of uniform quality, but a set of dynamics data with different supervisory values.</strong>High-quality robot/human teaching can train policy and dynamics; low-quality action trajectories, although not suitable for imitation, can still train forward/inverse dynamics; motion-free videos can at least train visual time evolution and object state changes.</p>
+<div class="note">
+<strong>You can say this in the group meeting: </strong>LDA does not simply pile up data "the more the better", but splits and uses the data according to supervised conditional distribution. What it tries to answer is: What tasks can still learn from this data when the action annotation quality is uneven, the robot embodiment is different, or even has no actions?
+ </div>
+</section>
+<section id="related">
+<h2>3. Related job positioning</h2>
+<p>The Related Work of the paper mainly focuses on three lines: robot foundation model, unified video-action/world model, and large-scale embodied data sets. The author positions himself as follows: existing models are either partial to BC, or the world model has not scaled up to a high-quality robot strategy, or the data format and quality control are insufficient.</p>
+<table class="tight">
+<tr><th>Category</th><th>Representation problem</th><th>Differences in LDA</th></tr>
+<tr><td>Robot Foundation Models</td><td>$\pi_{0.5}$, RDT, GR00T, etc. often rely on high quality teaching and BC style training.</td><td>Explicitly model dynamics with UWM-style multi-objective training and involve mixed-quality data.</td></tr>
+<tr><td>Unified Video Action Models</td><td>DyWA, FLARE, WorldVLA, UWM, UVA, Motus, etc. combine video/action, but are often limited in pixel/VAE latent or thicker data roles.</td><td>Predict future states in DINO latent to avoid appearance reconstruction pressure while controlling four categories of targets through task embedding.</td></tr>
+<tr><td>Embodied Interaction Datasets</td><td>Data sources are scattered, formats are inconsistent, action coordinates are inconsistent, and much of the data is closed source or only serves a single model.</td><td>Building EI-30K: robot, human, motion, and non-motion data are unified into LeRobot style format and marked with quality.</td></tr>
+</table>
+<table>
+<tr><th>model</th><th>Data source</th><th>scale</th><th>quality</th><th>training objectives</th><th>Parameter quantity</th></tr>
+<tr><td>$\pi_{0.5}$</td><td>Teleoperation</td><td>10k+ h</td><td>High</td><td>BC</td><td>3B</td></tr>
+<tr><td>RDT</td><td>Teleoperation</td><td>&lt;10k h</td><td>High</td><td>BC</td><td>1B</td></tr>
+<tr><td>GR00T-N1.6</td><td>Heterogeneous</td><td>&lt;10k h</td><td>Mixed</td><td>Latent action + BC</td><td>1B</td></tr>
+<tr><td>UniVLA</td><td>Heterogeneous</td><td>&lt;10k h</td><td>Mixed</td><td>Latent action + BC</td><td>7B</td></tr>
+<tr><td><strong>LDA-1B</strong></td><td><strong>Heterogeneous</strong></td><td><strong>30k+ h</strong></td><td><strong>Mixed</strong></td><td><strong>UWM: policy + dynamics + visual forecasting</strong></td><td><strong>1B</strong></td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<figure>
+<img alt="LDA architecture" src="figures/LDA_pipeline_p1.png"/>
+<figcaption>LDA architecture: Action blocks and future DINO latent are jointly denoised; VLM token, diffusion timestep, task embedding are used as conditions; action and visual modalities have their own expert layers and interact in shared self-attention.</figcaption>
+</figure>
+<h3>4.1 From Unified World Model to LDA</h3>
+<p>The paper first writes robot learning into four types of conditional distributions. Suppose the current observation is $o_t$, the future action block is $a_{t+1: t+k}$, and the future observation is $o_{t+1: t+k}$: </p>
+<ul>
+<li><strong>Policy: </strong> $p(a_{t+1: t+k}\mid o_t)$, predict actions for the current state.</li>
+<li><strong>Forward Dynamics: </strong> $p(o_{t+1: t+k}\mid o_t, a_{t+1: t+k})$, predict the future state of the action.</li>
+<li><strong>Inverse Dynamics: </strong> $p(a_{t+1: t+k}\mid o_{t: t+k})$, invert actions for status changes.</li>
+<li><strong>Visual Planning / Forecasting: </strong> $p(o_{t+1: t+k}\mid o_t)$ does not rely on action labels and only predicts visual evolution.</li>
+</ul>
+<p>UWM treats both actions and future observations as diffusion variables, and the noise predictor can be written as: </p>
+<p>$$ (\epsilon_a^\theta, \epsilon_o^\theta)=s_\theta(o, a_{t_a}, o'_{t_o}, t_a, t_{o'}) $$</p>
+<p>On this basis, LDA adds the language command $\ell$, and changes future observations from pixel/VAE latent to DINO latent.</p>
+<h3>4.2 Universal Embodied Data Ingestion</h3>
+<p>This section is the core training design of the paper. LDA does not send all data into the same BC loss, but uses task specification and task embedding to decide which supervision terms to activate.</p>
+<table>
+<tr><th>data type</th><th>What supervision can be provided?</th><th>Can't force anything</th><th>How to use it in LDA</th></tr>
+<tr><td>High quality robot/human teaching</td><td>Action decisions, state transitions caused by actions, visual future</td><td>-</td><td>policy, forward dynamics, inverse dynamics, and visual forecasting are all available</td></tr>
+<tr><td>Low quality/non-expert tracks</td><td>Real contact, failure recovery, environment transfer, object response</td><td>Not suitable for direct imitation as expert action</td><td>Mainly train dynamics and visual forecasting; conditionally participate in policy post-training</td></tr>
+<tr><td>No action first-person video</td><td>Object state changes, visual temporal structure, affordance priors</td><td>Unable to supervise action prediction or inverse dynamics</td><td>for visual forecasting, supplementing 10k hours of visual experience</td></tr>
+</table>
+<p>The model uses four learnable task embeddings to represent the current task: policy, forward dynamics, inverse dynamics, and visual forecasting. The missing mode uses two register tokens as placeholders, one corresponding to the action and one corresponding to the visual state. This is important: it allows the same transformer to still see a structurally consistent sequence of tokens across different conditional missing modes.</p>
+<h3>4.3 Flow Matching Goals</h3>
+<p>The paper uses flow-matching to train actions and observe latent velocity fields. The action goals and visual goals are: </p>
+<p>$$ \mathcal{L}_{action}= \mathbb{E}\left\|v_a^\theta-(\epsilon_a-a_{t+1: t+k})\right\|_2^2 $$</p>
+<p>$$ \mathcal{L}_{obs}= \mathbb{E}\left\|v_o^\theta-(\epsilon_o-o_{t+1: t+k})\right\|_2^2 $$</p>
+<p>The total loss is $\mathcal{L}=\mathcal{L}_{action}+\mathcal{L}_{obs}$, but during actual training, action loss or observation loss will be selectively turned on according to the task specification. For example, action-free videos have no action supervision and only activate visual prediction; low-quality trajectories can be used more for dynamics instead of forcing actions to be taught by experts.</p>
+<h3>4.4 Why predict DINO latent instead of pixels</h3>
+<p>One of the most critical engineering judgments of this paper is that the future visual state does not target RGB or VAE latent, but the latent feature of DINOv3-ViT-s. The advantage of DINO latent is to retain object semantics, spatial structure and affordances, while weakening control-irrelevant factors such as texture, lighting, and background.</p>
+<div class="warn">
+ If someone in the group asks "DINO is not a static image encoder, why is it suitable for dynamics?" You can answer: The author does not let DINO model time by itself, but uses DINO as a structured state space; time evolution is learned by MM-DiT of LDA. The role of DINO is to reduce the appearance reconstruction burden in future prediction, allowing dynamics learning to focus on object- and contact-related latents.
+ </div>
+<figure>
+<img alt="DINO feature prediction" src="figures/more_dino.jpeg"/>
+<figcaption>Appendix DINO prediction visualization: the left is RGB, the middle is the real DINO feature, and the right is the DINO feature predicted by the model. It illustrates that LDA predicts semantically structured future states rather than pixel-by-pixel reconstruction.</figcaption>
+</figure>
+<h3>4.5 Action space and time frequency</h3>
+<p>LDA uses hand-centric action space to unify robot and human data. Movements include delta wrist pose and finger configuration. Parallel grippers use a single degree of freedom gripper width; dexterous hands use keypoints or joint configurations in the wrist coordinate system. Visual observations are sampled at 3 Hz, actions are sampled at 10 Hz, and the action chunk length is 16.</p>
+<figure>
+<img alt="Unified end effector coordinates" src="figures/unified_eef.jpg"/>
+<figcaption>The end coordinate systems of different robot and human hands are manually aligned to a shared representation. This detail supports joint training across embodiments.</figcaption>
+</figure>
+<h3>4.6 MM-DiT architecture</h3>
+<p>MM-DiT receives action tokens, visual latent tokens, current observations, verbal instructions, diffusion timestep and task embedding. The paper emphasizes two points: </p>
+<ul>
+<li><strong>Share attention: </strong>Actions and visual tokens interact in self-attention, allowing the model to learn "which visual areas change due to actions."</li>
+<li><strong>Modal Expert: </strong>Action and visual modes retain their own QKV projection, FFN and output head to avoid compressing tokens with completely different numerical structures into the same set of linear transformations.</li>
+</ul>
+<p>VLM uses Qwen3-VL as the language and visual condition encoder; the appendix explains that the pre-training stage freezes VLM and DINO encoder, mainly training MM-DiT and action encoder/decoder. During the fine-tuning phase, VLM will be unfrozen for end-to-end adaptation. MM-DiT also conditions a two-step history window including past DINO observations and actions to capture short-term dynamics.</p>
+<table>
+<tr><th>Configuration items</th><th>numerical value</th></tr>
+<tr><td>VLM</td><td>Qwen3-VL</td></tr>
+<tr><td>Observation Encoder</td><td>DINOv3-ViT-s</td></tr>
+<tr><td>Hidden Size / Layers / Heads</td><td>1536 / 16 / 32</td></tr>
+<tr><td>Image / Latent Image Shape</td><td>$(224, 224, 3)$ / $(14, 14, 384)$</td></tr>
+<tr><td>Action Chunk</td><td>16</td></tr>
+<tr><td>Batch Size</td><td>pretraining: $32\times48$; finetuning: $12\times8$</td></tr>
+<tr><td>Optimizer</td><td>AdamW, lr $10^{-4}$, weight decay $10^{-5}$, betas [0.9, 0.95], eps $10^{-8}$</td></tr>
+<tr><td>Schedule</td><td>cosine, minimum lr $5\times10^{-7}$</td></tr>
+<tr><td>Pretraining Cost</td><td>48 NVIDIA H800 GPUs, 400k iterations, 4, 608 GPU hours</td></tr>
+</table>
+</section>
+<section id="data">
+<h2>5. Data and preprocessing</h2>
+<p>EI-30K is an important fulcrum for the establishment of the thesis method. It is not a single robot data set, but unifies real robots, simulated robots, human first-perspective data with moving humans, and first-perspective videos of non-moving human beings.</p>
+<figure>
+<img alt="EI-30K dataset statistics" src="figures/dataset.jpg"/>
+<figcaption>EI-30K statistical graph: Covers more than 30k hours of human-robot interaction data, including different episode lengths and rich manipulation tasks.</figcaption>
+</figure>
+<table>
+<tr><th>Category</th><th>hours</th><th>primary data sources</th><th>role</th></tr>
+<tr><td>Real-world Robot</td><td>8.03k h</td><td>Open X-Embodiment 3000h, Agibot World 3276h, RoboMIND 305h, Humanoid Everyday 30h, RoboCOIN 500h, Galaxea 500h, LET 1000h</td><td>Realistic robot motion, contact, failure and recovery modes</td></tr>
+<tr><td>Simulated Robot</td><td>8.6k h</td><td>InternData-A1 7433h, Behavior-1k 1200h</td><td>High-density, low-noise action supervision and long-term task structure</td></tr>
+<tr><td>Ego Human with Action</td><td>7.2k h</td><td>Ego4D, EPIC-KITCHENS, Ego-Exo4D, SSV2, EgoDex, HOT3D, HoloAssist, OAKINK2, TACO, HOI4D, ARCTIC</td><td>Human intentions, hand movements, fine-grained dexterity priors</td></tr>
+<tr><td>Ego Human Actionless</td><td>10k h</td><td>Egocentric-10k, RH20T-human, EgoMe, Taste-Rob</td><td>visual affordance, temporal structure, motionless visual forecasting</td></tr>
+</table>
+<h3>5.1 Standardized pipeline</h3>
+<p>The appendix gives a more detailed data processing process, which can be divided into three layers.</p>
+<ol>
+<li><strong>Format standardization: </strong>All raw data is converted to LeRobot 2.1 style format, including end-effector poses, hand articulation, camera intrinsic/extrinsic, task metadata, episode boundary and timestamps. All sequences were uniformly resampled to 10 Hz.</li>
+<li><strong>Coordinate alignment and cleaning: </strong>Define canonical EEF frames for each dataset, unifying wrist or gripper centers with rigid offsets; perform camera motion decoupling on moving camera sequences; convert human hands to 21-point MANO representations; discard occluded, truncated, or kinematically invalid frames.</li>
+<li><strong>Post-training processing: </strong>VLM unifies language annotation and completes missing descriptions; removes fragments without valid hand-object interaction; retains but labels low-quality trajectories; organizes metadata by human/robot, task, and quality.</li>
+</ol>
+<div class="note">
+<strong>Reproducible key: </strong>The paper does not just say "30k hours of data were collected", but emphasizes the unity of action frame, camera frame, language instruction and quality label. Without these alignments, Universal Data Ingestion has difficulty working reliably.
+ </div>
+</section>
+<section id="experiments">
+<h2>6. Key points for experimental reproducibility</h2>
+<h3>6.1 RoboCasa-GR1 simulation experiment</h3>
+<p>RoboCasa-GR1 consists of 24 tabletop rearrangement and articulated-object manipulation tasks using a GR-1 humanoid robot with Fourier dexterous hands. The input is the egocentric RGB of the head-mounted camera. All models were fine-tuned on 1, 000 trajectories per task according to the GR00T protocol, evaluated 51 times per task, and the average success rate is reported.</p>
+<table>
+<tr><th>model</th><th>state representation</th><th>MM-DiT</th><th>VLM</th><th>success rate</th></tr>
+<tr><td>GR00T-N1.6</td><td>-</td><td>-</td><td>-</td><td>47.6</td></tr>
+<tr><td>StarVLA</td><td>-</td><td>-</td><td>Qwen3-VL</td><td>47.8</td></tr>
+<tr><td>GR00T-EI10k</td><td>-</td><td>-</td><td>Qwen3-VL</td><td>51.3</td></tr>
+<tr><td>UWM-0.1B</td><td>VAE</td><td>No</td><td>No</td><td>14.2</td></tr>
+<tr><td>UWM-1B</td><td>VAE</td><td>No</td><td>Qwen3-VL</td><td>19.3</td></tr>
+<tr><td>UWM + MM-DiT</td><td>VAE</td><td>Yes</td><td>Qwen3-VL</td><td>20.0</td></tr>
+<tr><td>LDA (DiT)</td><td>DINO</td><td>No</td><td>Qwen3-VL</td><td>48.9</td></tr>
+<tr><td>LDA-0.5B</td><td>DINO</td><td>Yes</td><td>Qwen3-VL</td><td>50.7</td></tr>
+<tr><td><strong>LDA-1B</strong></td><td><strong>DINO</strong></td><td><strong>Yes</strong></td><td><strong>Qwen3-VL</strong></td><td><strong>55.4</strong></td></tr>
+</table>
+<p>The most noteworthy thing about this table is not "LDA is 7.8 points higher than GR00T", but the ablation logic: when UWM is expanded from 0.1B to 1B, and MM-DiT is replaced, it still stops at around 20; once it is replaced with DINO latent, the success rate jumps to 55.4. This strongly supports the author's argument about structured latent state.</p>
+<figure>
+<img alt="RoboCasa qualitative comparison" src="figures/fig_robocasa_p1.png"/>
+<figcaption>Qualitative comparison of RoboCasa: GR00T's failures include grasp slippage, inaccurate placement, and collision during operation; LDA is better able to predict the object state after the action, thereby avoiding subsequent trajectory damage to completed sub-goals.</figcaption>
+</figure>
+<h3>6.2 Real robot experiment</h3>
+<p>Real experiments cover Galbot G1 and Unitree G1. The Galbot G1 uses dual 7-DoF arms that can be fitted with a two-finger gripper or a 22-DoF SharpaWave dexterity hand; the Unitree G1 uses a 10-DoF BrainCo hand. All configurations use only egocentric RGB head-mounted cameras.</p>
+<figure>
+<img alt="Real robot setup" src="figures/real_setup.jpg"/>
+<figcaption>Real robotic platform: Galbot G1 two-finger gripper, Galbot G1 + SharpaWave 22-DoF dexterous hand, Unitree G1 + BrainCo 10-DoF hand.</figcaption>
+</figure>
+<table>
+<tr><th>Task category</th><th>Representative tasks</th><th>Why is it difficult</th></tr>
+<tr><td>Pick and Place</td><td>Pick Vegetable, Handover</td><td>Few-shot adaptation, random object position for new robot embodiment</td></tr>
+<tr><td>Contact-rich</td><td>Flip Box, Beat Block</td><td>Contact force, collision, state change after object flipping</td></tr>
+<tr><td>Fine Manipulation</td><td>Water Flower, Wipe Board</td><td>Continuous closed-loop control, attitude accuracy, tool contact</td></tr>
+<tr><td>Long-horizon</td><td>Sweep Table, Clean/Throw Rubbish</td><td>Multi-stage process, early errors will accumulate to subsequent subtasks</td></tr>
+<tr><td>Dexterous</td><td>Pull Nail, Flip Bread</td><td>High-dimensional finger control, stable contact, tool use and force direction</td></tr>
+</table>
+<p>Each task collects 100 teleoperation traces, and it is not mandatory for all expert demonstrations; about 50-80% are expert behaviors, and the rest include pauses, retries, and inefficient actions. Baseline $\pi_{0.5}$ and GR00T only use the filtered expert subset for fine-tuning; LDA uses all trajectories and absorbs the dynamics information of low-quality data through Universal Embodied Data Ingestion.</p>
+<figure>
+<img alt="Galbot real-world task success" src="figures/fig_galbot_p1.png"/>
+<figcaption>Galbot real two-finger gripper task results: LDA leads overall in the four categories of tasks: Pick &amp; Place, Contact-rich, Fine, and Long-horizon. LDA is 35% in Clean Rubbish and 0% in both baselines.</figcaption>
+</figure>
+<figure>
+<img alt="Dexterous manipulation results" src="figures/fig_dexterous_p1.png"/>
+<figcaption>Real dexterous hand task results: LDA in Pull Nail reaches 80%, and LDA in Flip Bread reaches 90%, which is significantly higher than $\pi_{0.5}$ and GR00T-N1.6.</figcaption>
+</figure>
+<h3>6.3 Generalization and fine-tuning of mixture quality</h3>
+<table>
+<tr><th>model</th><th>Novel Object</th><th>Unseen Background</th><th>OOD Position</th></tr>
+<tr><td>$\pi_{0.5}$</td><td>26.7</td><td>20.0</td><td>6.7</td></tr>
+<tr><td>GR00T</td><td>40.0</td><td>40.0</td><td>20.0</td></tr>
+<tr><td><strong>LDA-1B</strong></td><td><strong>60.0</strong></td><td><strong>60.0</strong></td><td><strong>40.0</strong></td></tr>
+</table>
+<table>
+<tr><th>Task</th><th>model</th><th>High only</th><th>High + Low</th><th>change</th></tr>
+<tr><td>Place pen into box</td><td>$\pi_{0.5}$</td><td>60</td><td>40</td><td>-20</td></tr>
+<tr><td>Place pen into box</td><td>LDA</td><td>70</td><td>80</td><td>+10</td></tr>
+<tr><td>Bimanually remove lid</td><td>$\pi_{0.5}$</td><td>50</td><td>40</td><td>-10</td></tr>
+<tr><td>Bimanually remove lid</td><td>LDA</td><td>50</td><td>60</td><td>+10</td></tr>
+</table>
+<p>This experiment directly verified the central claim of the paper: low-quality data is harmful to ordinary BC baselines, but can be beneficial to LDA, because LDA does not treat these trajectories as equivalent expert actions, but learns dynamics and visual state transfer from them.</p>
+<h3>6.4 Scaling analysis</h3>
+<p>The author uses action prediction L1 error as a reproducible proxy on held-out Agibot World to compare model capacity, data size and training goals. Training configurations include Policy Only, Policy + Visual Forecasting, Policy with Forward/Inverse Dynamics, and full co-training.</p>
+<figure>
+<img alt="Scaling analysis" src="figures/scaling.jpg"/>
+<figcaption>Scaling analysis: Complete co-training continues to reduce action prediction error as the data expands from 5k to 30k hours; after the action-labeled data is exhausted, adding 10k no-action videos still brings benefits.</figcaption>
+</figure>
+</section>
+<section id="analysis">
+<h2>7. Result analysis and discussion</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable thing is not a single benchmark number, but a relatively clear data utilization paradigm: splitting heterogeneous embodied data into supervised conditional distributions instead of stuffing them into BC uniformly. This paradigm is practical for robot learning because real data is never a clean expert-only demo. Human videos, failed trajectories, semi-successful trajectories, low-quality teleops, and simulation data are each "imperfect", but they can serve dynamics, visual forecasting, or policy respectively.</p>
+<p>The second value is to transfer future visual predictions from pixel space to DINO latent. The reason why many robot world models are unstable is that the prediction target is too similar to the video generation task; LDA represents the future state as a latent that is closer to the control-related semantics, thereby making dynamics learning more targeted.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The evidence chain of the paper is relatively complete for three reasons.</p>
+<ul>
+<li><strong>Ablation can isolate critical components: </strong>After UWM is expanded to 1B or MM-DiT is added, it is still only 19.3/20.0, while DINO latent LDA reaches 55.4, indicating that representation space is one of the main factors; removing MM-DiT drops from 55.4 to 48.9, indicating that the architecture also contributes.</li>
+<li><strong>Data role claim has direct experiments: </strong>In mixed quality fine-tuning, adding low-quality data causes $\pi_{0.5}$ to decrease and LDA to increase, which corresponds to the core argument of Universal Data Ingestion.</li>
+<li><strong>Real robot tasks cover multiple failure modes: </strong>From simple pick-and-place to long-horizon rubbish cleaning, pull nail, and flip bread, the difficulty of the task is not just visual recognition, but contact, tool, force direction, and timing error recovery.</li>
+</ul>
+<h3>7.3 Dynamics What we learned</h3>
+<p>The paper uses two types of visualizations to support that "the model is really learning action-conditioned state transitions." The first category is a PCA visualization of DINO latent forward dynamics, showing that predicted future features maintain object permanence, contact continuity, and motion consistency. The second type is action-conditioned attention: for the same observation, compare the attention under active action and No-Op conditions, and take the difference value $\Delta A = |A_1-A_2|$, thereby eliminating static visual saliency and highlighting the causally relevant areas caused by the action.</p>
+<figure>
+<img alt="Latent forward dynamics" src="figures/dino.jpg"/>
+<figcaption>Visualization of latent forward dynamics: Model-predicted future DINO features are aligned with ground truth on object structure and motion trends.</figcaption>
+</figure>
+<figure>
+<img alt="Action conditioned attention" src="figures/attn_diff.jpg"/>
+<figcaption>Action-conditioned attention: When Push Right, pay attention to the leading edge and movement direction of the mug; when Push Close, focus on the contact surface, and the background clutter is suppressed.</figcaption>
+</figure>
+<h3>7.4 Limitations and risks</h3>
+<div class="danger">
+<p><strong>Fixed upper limit for DINO representation: </strong>DINO is a general visual representation and is not necessarily optimal for robot contact, mechanics, and maneuverability. The authors also acknowledge the need for joint learning of visual representation and latent dynamics in the future.</p>
+<p><strong>Viewing angle offset: </strong>The data and experiments are mainly egocentric cameras, and migration to multimodal settings such as external multi-view, tactile, force-sensing or event cameras is still not fully validated.</p>
+<p><strong>The threshold for data engineering is high: </strong>The coordinate alignment, language standardization, quality annotation and cleaning of EI-30K are huge projects. If these processes cannot be reproduced or are not open source enough, the "universality" of the method will be compromised.</p>
+<p><strong>action prediction L1 is just a proxy: </strong>The scaling curve is very convincing, but ultimately more real deployment tasks are needed to verify the correlation between proxy and actual success rate.</p>
+</div>
+</section>
+<section id="questions">
+<h2>8. List of follow-up questions for team meetings</h2>
+<h3>Q1: What is the essential difference between LDA and ordinary diffusion policy?</h3>
+<p>Ordinary diffusion policy mainly denoises actions; LDA simultaneously denoises actions and future DINO latent, and switches policy, forward dynamics, inverse dynamics, and visual forecasting through task embedding. Therefore, it not only learns "how to do it", but also learns "how the world changes after doing it."</p>
+<h3>Q2: Why is low-quality data useful for LDA but harmful to $\pi_{0.5}$?</h3>
+<p>If BC is performed directly, low-quality actions will pollute the policy target; LDA can use low-quality trajectories more for dynamics or visual prediction, allowing the model to learn non-expert but real environmental information such as contact, state transfer, and failure recovery. In the fine-tuning experiment, LDA +10% and $\pi_{0.5}$ decreased, which is evidence of this mechanism.</p>
+<h3>Q3: Will DINO latent lose the fine-grained geometry needed for robot control?</h3>
+<p>This is a legitimate concern. The authors' experimental evidence shows that DINO latent is more suitable for the current task than VAE/pixel-space UWM, especially the large gap from 20.0 to 55.4 for RoboCasa. However, whether DINO is sufficient to express fine contact, force sense and invisible state is still limited. The conclusion of the paper also proposes joint representation learning in the future.</p>
+<h3>Q4: Why are 1B parameters better than 3B GR00T?</h3>
+<p>The explanation of the paper is not "more parameters", but "more correct training objectives and state space". LDA uses 1B parameters to simultaneously learn action and latent dynamics; although GR00T-N1.6 is a strong baseline, it is mainly policy-centric. LDA-1B in RoboCasa is 55.4, which is higher than 3B GR00T-N1.6's 47.6.</p>
+<h3>Q5: If I want to reproduce it, what's the hardest part?</h3>
+<p>Model structure is not the only difficulty. Even more difficult is EI-30K style data unification: action frame alignment, camera frame decoupling, MANO/robot gripper representation unification, language re-annotation, quality labels, and correct activation of losses for different tasks.</p>
+</section>
+<section id="repro">
+<h2>9. reproducibility information</h2>
+<h3>9.1 Resource links</h3>
+<ul>
+<li>arXiv: <a href="https://arxiv.org/abs/2602.12215">https: //arxiv.org/abs/2602.12215</a></li>
+<li>Project page: <a href="https://pku-epic.github.io/LDA">https: //pku-epic.github.io/LDA</a></li>
+<li>Code: <a href="https://github.com/jiangranlv/latent-dynamics-action">https: //github.com/jiangranlv/latent-dynamics-action</a></li>
+<li>Data: project page marked as <code>Data (Coming Soon)</code>. </li>
+</ul>
+<h3>9.2 Training setup shorthand</h3>
+<pre><code>VLM: Qwen3-VL
+Observation encoder: DINOv3-ViT-s
+MM-DiT: hidden 1536, layers 16, heads 32
+Image: 224x224x3
+DINO latent: 14x14x384
+Action chunk: 16
+Pretraining batch: 32 * 48
+Finetuning batch: 12 * 8
+Optimizer: AdamW, lr 1e-4, wd 1e-5, betas [0.9, 0.95]
+Schedule: cosine, min lr 5e-7
+Compute: 48 H800 GPUs, 400k iterations, 4,608 GPU hours</code></pre>
+<h3>9.3 Coverage check of this report</h3>
+<p>This report has covered Abstract, Introduction, Related Work, Latent Dynamics Action Model, EI-30K, Experiments, Conclusion, as well as model hyperparameters, RoboCasa task-by-task results, real robot task protocol, EI-30K data processing pipeline, action-conditioned attention and latent dynamics visualization in the appendix. Appendix content has been thematically integrated into Methods, Data, Experiments, and Discussion chapters.</p>
+<p class="small">Generation date: 2026-05-08. The source code, PDF and decompression Contents have been retained for subsequent reading or verification.</p>
+</section>
+</article>
+</main>
+</body>
+</html>

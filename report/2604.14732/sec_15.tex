@@ -1,0 +1,38 @@
+
+\label{appendix:latent_planning}
+
+In this section, we provide a principled explanation for why latent planning 
+is substantially more effective than direct action-space sampling in long-horizon
+Vision--Language--Action (VLA) tasks.
+Our analysis is not intended as a tight optimality guarantee,
+but rather as a geometric and probabilistic characterization of the search difficulty
+inherent to high-dimensional trajectory spaces, and how latent planning alleviates it
+by reweighting probability mass toward feasible trajectories.
+
+\paragraph{Setup.}
+Let the environment be a Markov decision process
+$(\mathcal{S}, \mathcal{A}, \mathcal{P}, R, \gamma)$.
+A planning horizon-$H$ trajectory lies in the space
+\[
+\mathcal{X} = \mathcal{S}^H \times \mathcal{A}^H,
+\]
+whose ambient dimension grows linearly with $H$.
+We denote by $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$
+the set of trajectories that satisfy physical dynamics, contact constraints,
+and semantic task requirements.
+Throughout, we treat $\mathcal{M}_{\mathrm{traj}}$ as a thin subset of $\mathcal{X}$
+with low intrinsic dimension, consistent with the manifold hypothesis
+commonly assumed in robotics and control.
+
+We consider a learned latent trajectory generator
+$\mathcal{W}_\theta : \mathbb{R}^{d_z} \rightarrow \mathcal{X}$,
+which maps a latent variable $z$ to a full trajectory,
+\[
+\tau_{t:t+H} = \mathcal{W}_\theta(z), \qquad z \sim f_\theta(s_t),
+\]
+where $f_\theta(s_t)$ is a state-conditioned latent distribution.
+The induced trajectory distribution is the pushforward measure
+\[
+P_{\mathrm{latent}} = (\mathcal{W}_\theta)_\# f_\theta .
+\]
+

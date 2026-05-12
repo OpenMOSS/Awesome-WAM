@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fast-WAM - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Fast-WAM: Do World Action Models Need Test-time Future Imagination?</h1>
+    <div class="meta">
+      <p><strong>方法名：</strong>Fast-WAM</p>
+      <p><strong>作者：</strong>Tianyuan Yuan, Zibin Dong, Yicheng Liu, Hang Zhao</p>
+      <p><strong>arXiv：</strong>2603.16666；v1 提交于 2026-03-17，v2 更新于 2026-03-23；方向：Computer Vision and Pattern Recognition, Artificial Intelligence</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2603.16666">arXiv 摘要页</a> | <a href="https://arxiv.org/pdf/2603.16666">PDF</a> | <a href="https://arxiv.org/html/2603.16666v2">HTML</a> | <a href="https://yuantianyuan01.github.io/FastWAM/">项目页</a> | <a href="https://github.com/yuantianyuan01/FastWAM">官方代码</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录：</strong>
+    <a href="#quick">1. 速览</a>
+    <a href="#motivation">2. 动机</a>
+    <a href="#related">3. 相关工作</a>
+    <a href="#method">4. 方法详解</a>
+    <a href="#experiments">5. 实验</a>
+    <a href="#reproduce">6. 可复现审计</a>
+    <a href="#discussion">7. 分析、局限与边界</a>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>Fast-WAM 的结论很尖锐：World Action Model 的主要收益可能不是推理时真的“想象未来视频”，而是训练时做 video co-training 学到了更好的世界表征；因此它保留训练时未来视频建模，但推理时删除未来视频分支，直接从当前观测的 latent world representation 生成动作。
+    </div>
+    <table>
+      <tr><th>论文要解决什么</th><td>现有 WAM 常采用 imagine-then-execute：先迭代生成未来视觉，再根据未来视觉预测动作。这带来很高 test-time latency，但到底是“训练时的视频建模”有用，还是“推理时显式未来想象”有用，并不清楚。</td></tr>
+      <tr><th>作者的方法抓手</th><td>构造 Fast-WAM 和三个受控变体：Fast-WAM-Joint、Fast-WAM-IDM、Fast-WAM w.o. video co-train，在统一 backbone/训练配方下解耦 video co-training 与 test-time future generation。</td></tr>
+      <tr><th>最重要的结果</th><td>Fast-WAM 在 RoboTwin 2.0 达 91.8%，LIBERO 平均 97.6%，无 embodied pretraining；去掉 video co-training 后分别掉到 83.8% 和 93.5%。真实毛巾折叠任务中，Fast-WAM 延迟 190 ms，而 Fast-WAM-IDM 为 810 ms；no-video-co-train 仅 10% 成功率。</td></tr>
+      <tr><th>阅读时要注意的点</th><td>Fast-WAM 不是否定 world model，而是在重新定位 world model 的作用：它也许更像训练阶段的 representation shaping signal，而不是部署时必须显式生成的视频计划。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 WAM/VLA、video diffusion transformer、flow matching、action chunk diffusion、attention mask 防止 future leakage，以及仿真/真实机器人评估。</p>
+    <p><strong>关键词：</strong>World Action Model, video co-training, test-time future imagination, flow matching, Mixture-of-Transformer, Wan2.2-5B, LIBERO, RoboTwin, towel folding。</p>
+    <div class="figure">
+      <img src="figures/x1.png" alt="Three WAM paradigms">
+      <div class="caption"><strong>Figure 1.</strong> 三类 WAM 范式：(A) future video/action joint denoising；(B) 先生成未来视频，再用 inverse dynamics/action predictor；(C) Fast-WAM 训练时保留 video co-training，推理时直接从当前 latent world representation 出动作。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 WAM 的吸引力与代价</h3>
+    <p>标准 VLA 直接把视觉观测和语言映射到动作，主要继承 web-scale 视觉语言预训练的语义先验。但机器人控制还需要理解物理世界如何在动作下演化。WAM 的吸引力在于把未来视觉预测和动作建模放进同一框架，让策略显式接触 task-relevant temporal structure。</p>
+    <p>问题是，大多数 WAM 在推理时要迭代 denoise 未来视频，再根据这个 imagined future 生成动作。视频 diffusion 的迭代采样非常贵，真实机器人闭环里每多几百毫秒都可能让策略变慢、变钝。</p>
+
+    <h3>2.2 论文真正问的问题</h3>
+    <div class="note">
+      <p><strong>核心问题：</strong>WAM 的收益来自哪里？是训练时预测未来视频让 backbone 学到了物理/运动表征，还是推理时显式生成未来观察真的给了动作预测必要 foresight？</p>
+    </div>
+    <p>这个问题过去难回答，因为很多 WAM 把两个因素绑在一起：同一个模型既在训练时学视频预测，也在测试时生成未来视频。Fast-WAM 的贡献是把这两件事拆开，用控制变量实验判断谁更重要。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>代表思路</th><th>Fast-WAM 的定位</th></tr>
+      <tr><td>Vision-Language-Action policies</td><td>OpenVLA、$\pi_0$、$\pi_{0.5}$、GR00T、RDT、SmolVLA 等直接从视觉/语言生成动作。</td><td>Fast-WAM 推理接口接近 VLA：不显式生成未来视频；但训练时额外使用 WAM-style future visual prediction。</td></tr>
+      <tr><td>World Action Models / video-based robot policies</td><td>通过未来视频生成、joint video-action modeling 或 inverse dynamics 从视觉预测中得到动作。</td><td>本文不提出又一个 imagine-then-execute pipeline，而是问这些 pipeline 的收益到底来自训练目标还是测试时想象。</td></tr>
+      <tr><td>减少 test-time video synthesis</td><td>VPP 用 video diffusion 的 predictive representation；UVA joint modeling 后跳过 decoding。</td><td>Fast-WAM 的差异是做受控变体，把 video co-training 和 explicit future imagination 分离，比较二者贡献。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 问题形式化</h3>
+    <p>设当前观测为 $o$，任务语言为 $l$，动作 chunk 为 $a_{1:H}$。标准 visuomotor policy 学：</p>
+    <div class="formula-block">
+      $$p(a_{1:H}\mid o,l).$$
+    </div>
+    <p>典型 imagine-then-execute WAM 引入未来视觉 $v_{1:T}$，写成：</p>
+    <div class="formula-block">
+      $$p(a_{1:H}\mid o,l)=\int p(v_{1:T}\mid o,l)\,p(a_{1:H}\mid o,l,v_{1:T})\,dv_{1:T}.$$
+      <p><span class="intuition">直觉：</span>先想象未来，再根据想象生成动作。代价是推理时要采样或 denoise $v_{1:T}$。</p>
+    </div>
+    <p>Fast-WAM 改成直接策略接口：</p>
+    <div class="formula-block">
+      $$p_\theta(a_{1:H}\mid o,l)=p_\theta(a_{1:H}\mid z(o,l)),$$
+      <p>其中 $z(o,l)$ 是 video backbone 对当前 context 单次前向得到的 latent world representation。关键差异：$z(o,l)$ 不是推理时生成的未来视频，而是训练时被 video co-training 塑形过的当前表示。</p>
+    </div>
+
+    <h3>4.2 架构：Wan2.2 video DiT + action expert DiT</h3>
+    <div class="figure">
+      <img src="figures/x2.png" alt="Fast-WAM architecture">
+      <div class="caption"><strong>Figure 2a.</strong> Fast-WAM 架构：Wan2.2-5B video DiT 作为 world modeling backbone，T5 编码语言，video VAE 编码多相机图像 latent；action expert DiT 生成动作 chunk。</div>
+    </div>
+    <p>模型输入 token 分三组：</p>
+    <ul>
+      <li><strong>clean first-frame latent tokens：</strong>当前观测的干净 latent，是共享视觉锚点。</li>
+      <li><strong>noisy future video latent tokens：</strong>只在训练时存在，用于 future video flow matching。</li>
+      <li><strong>action tokens：</strong>由 action expert 处理，用于动作 chunk generation。</li>
+    </ul>
+    <p>所有 token 通过 cross-attention 接收语言 embedding。视频和动作分支之间采用 Mixture-of-Transformer 结构，并用 structured attention mask 控制信息流。</p>
+
+    <h3>4.3 注意力 mask：既共享 context，又防止 future leakage</h3>
+    <div class="figure">
+      <img src="figures/x3.png" alt="Training and inference masks">
+      <div class="caption"><strong>Figure 2b.</strong> 训练/推理 mask：action tokens 能看当前 clean first-frame tokens，但不能看未来 noisy video tokens；first-frame tokens 不看其他 token，防止未来信息反向污染当前锚点。</div>
+    </div>
+    <p>训练时，future video tokens 在 video branch 内双向 attention，并可访问 first-frame tokens；action tokens 在 action branch 内双向 attention，也可访问 first-frame tokens。最关键约束是 action tokens 不能 attend to future video tokens。这样视频建模和动作预测都依赖同一个当前视觉 context，但动作不会偷看 ground-truth future。</p>
+    <p>推理时，future video branch 被整个删除：只保留 first-frame latent tokens，video backbone 单次前向产生 latent world features，再给 action expert 做 action denoising。</p>
+
+    <h3>4.4 训练目标：action loss + video co-training loss</h3>
+    <p>Fast-WAM 对动作和视频都使用同一个 flow matching 形式。对任意目标变量 $y$，可以是动作 chunk $a_{1:H}$ 或未来视频 latents $z_{1:T}$，采样噪声 $\epsilon\sim\mathcal{N}(0,I)$ 和时间步 $t\in(0,1)$：</p>
+    <div class="formula-block">
+      $$y_t=(1-t)y+t\epsilon.$$
+      <p>训练模型预测从数据到噪声的速度场：</p>
+      $$\mathcal{L}_{\mathrm{FM}}(y)=
+      \mathbb{E}_{y,\epsilon,t}
+      \left[
+      \left\|f_\theta(y_t,t,o,l)-(\epsilon-y)\right\|_2^2
+      \right].$$
+      <p>动作和视频分别为：</p>
+      $$\mathcal{L}_{\mathrm{act}}=\mathcal{L}_{\mathrm{FM}}(a_{1:H}),\qquad
+      \mathcal{L}_{\mathrm{vid}}=\mathcal{L}_{\mathrm{FM}}(z_{1:T}).$$
+      <p>总损失：</p>
+      $$\mathcal{L}=\mathcal{L}_{\mathrm{act}}+\lambda\mathcal{L}_{\mathrm{vid}}.$$
+      <p><span class="intuition">直觉：</span>$\mathcal{L}_{\mathrm{vid}}$ 不一定为了推理时生成视频，而是作为 world representation regularizer / co-training signal。</p>
+    </div>
+
+    <h3>4.5 三个受控变体</h3>
+    <table>
+      <tr><th>变体</th><th>训练时 video co-training</th><th>推理时 future imagination</th><th>作用</th></tr>
+      <tr><td>Fast-WAM</td><td>有</td><td>无</td><td>主方法：保留训练信号，删除推理成本。</td></tr>
+      <tr><td>Fast-WAM-Joint</td><td>有</td><td>有，video/action joint denoising</td><td>模拟 joint-modeling WAM，让 video 与 action tokens 互相 attention。</td></tr>
+      <tr><td>Fast-WAM-IDM</td><td>有</td><td>有，video-then-action</td><td>先生成未来 video，再用 future representation 预测动作；按 LingBot-VA 做 ground-truth video token noise augmentation，$p=0.5$。</td></tr>
+      <tr><td>Fast-WAM w.o. video co-train</td><td>无</td><td>无</td><td>只去掉 $\mathcal{L}_{\mathrm{vid}}$，控制 video co-training 的贡献。</td></tr>
+    </table>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <h3>5.1 实现细节</h3>
+    <ul>
+      <li><strong>Backbone：</strong>Wan2.2-5B，包括 video DiT、T5 text encoder 和 video VAE。</li>
+      <li><strong>Action expert：</strong>与 video branch 同构但 hidden dimension 降到 $d_a=1024$；action expert 约 1B，总模型约 6B 参数。</li>
+      <li><strong>Action horizon：</strong>$h=32$。</li>
+      <li><strong>Video chunk：</strong>视频帧时间下采样 $4\times$，每个 chunk 9 帧；多相机图像先拼成一张图再送入 VAE。</li>
+      <li><strong>Flow matching：</strong>训练/推理使用 logit-normal $t$ schedule；推理 action denoising 10 steps，CFG scale 1.0。</li>
+      <li><strong>优化：</strong>AdamW，learning rate $1\times10^{-4}$，weight decay 0.01，cosine annealing，mixed precision，gradient clipping 1.0。</li>
+      <li><strong>延迟测量：</strong>单张 NVIDIA RTX 5090D V2 32GB。</li>
+    </ul>
+
+    <h3>5.2 Benchmark 设置</h3>
+    <table>
+      <tr><th>Benchmark</th><th>数据与训练</th><th>评估</th></tr>
+      <tr><td>LIBERO</td><td>四个 suites：Spatial、Object、Goal、Long；每个 suite 10 tasks、500 demos；训练 20k steps。</td><td>40 tasks、不同随机种子，总计 2000 trials，报告 success rate。</td></tr>
+      <tr><td>RoboTwin 2.0</td><td>50+ 双臂任务；2500 clean demos + 25000 heavy-randomization demos；训练 30k steps。</td><td>每个任务 100 trials，报告 clean 和 randomized 平均成功率。</td></tr>
+      <tr><td>Real-world towel folding</td><td>Galaxea R1 Lite 平台，60 小时 teleoperated demonstrations；训练 30k steps。</td><td>报告 success rate 和 average completion time；毛巾折叠考验 deformable object dynamics、长时程规划和闭环操作效率。</td></tr>
+    </table>
+    <div class="figure">
+      <img src="figures/bench_grid_2560x720.png" alt="Real-world towel folding task">
+      <div class="caption"><strong>Figure 3.</strong> 真实毛巾折叠任务。作者强调 completion time 与 success rate 同等重要，因为慢速反复试错的成功并不代表好策略。</div>
+    </div>
+
+    <h3>5.3 RoboTwin 2.0 主结果</h3>
+    <table>
+      <tr><th>Method</th><th>Embodied PT.</th><th>Clean</th><th>Rand.</th><th>Average</th></tr>
+      <tr><td>$\pi_0$</td><td>Yes</td><td>65.92</td><td>58.40</td><td>62.2</td></tr>
+      <tr><td>$\pi_{0.5}$</td><td>Yes</td><td>82.74</td><td>76.76</td><td>79.8</td></tr>
+      <tr><td>Motus</td><td>Yes</td><td>88.66</td><td>87.02</td><td>87.8</td></tr>
+      <tr><td>Motus from WAN2.2</td><td>No</td><td>77.56</td><td>77.00</td><td>77.3</td></tr>
+      <tr><td>LingBot-VA</td><td>Yes</td><td>92.90</td><td>91.50</td><td><strong>92.2</strong></td></tr>
+      <tr><td>LingBot-VA from WAN2.2</td><td>No</td><td>80.60</td><td>--</td><td>80.6</td></tr>
+      <tr><td><strong>Fast-WAM</strong></td><td><strong>No</strong></td><td><strong>91.88</strong></td><td><strong>91.78</strong></td><td><strong>91.8</strong></td></tr>
+    </table>
+    <p>Fast-WAM 没用 embodied pretraining，却达到 91.8%，明显超过同样无 embodied pretraining 的 Motus from WAN2.2 (77.3) 和 LingBot-VA from WAN2.2 (80.6)，接近带 embodied pretraining 的 LingBot-VA (92.2)。附录 Table 3 给了 RoboTwin 每任务 clean/rand 明细；整体看，Fast-WAM 在许多任务上与最强 baseline 互有胜负，但 no-video-co-train 的平均值显著低 <span class="appendix-ref">附录 Table 3</span>。</p>
+
+    <h3>5.4 LIBERO 主结果</h3>
+    <table>
+      <tr><th>Method</th><th>Embodied PT.</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Average</th></tr>
+      <tr><td>OpenVLA</td><td>Yes</td><td>84.7</td><td>88.4</td><td>79.2</td><td>53.7</td><td>76.5</td></tr>
+      <tr><td>$\pi_0$</td><td>Yes</td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.1</td></tr>
+      <tr><td>$\pi_{0.5}$</td><td>Yes</td><td>98.8</td><td>98.2</td><td>98.0</td><td>92.4</td><td>96.9</td></tr>
+      <tr><td>LingBot-VA</td><td>Yes</td><td>98.5</td><td>99.6</td><td>97.2</td><td>98.5</td><td><strong>98.5</strong></td></tr>
+      <tr><td>Motus</td><td>Yes</td><td>96.8</td><td>99.8</td><td>96.6</td><td>97.6</td><td>97.7</td></tr>
+      <tr><td><strong>Fast-WAM</strong></td><td><strong>No</strong></td><td><strong>98.2</strong></td><td><strong>100.0</strong></td><td><strong>97.0</strong></td><td><strong>95.2</strong></td><td><strong>97.6</strong></td></tr>
+    </table>
+    <p>LIBERO 上 Fast-WAM 平均 97.6%，超过 $\pi_{0.5}$ 的 96.9，并接近 Motus/LingBot-VA。它没有 embodied pretraining，这是作者强调的数据效率点。</p>
+
+    <h3>5.5 控制变量：未来想象 vs video co-training</h3>
+    <table>
+      <tr><th>Variant</th><th>RoboTwin Avg.</th><th>LIBERO Avg.</th><th>解释</th></tr>
+      <tr><td>Fast-WAM</td><td><strong>91.8</strong></td><td>97.6</td><td>训练有 video co-training，推理无 future imagination。</td></tr>
+      <tr><td>Fast-WAM-Joint</td><td>90.6</td><td><strong>98.5</strong></td><td>joint denoise future video/action，显式推理想象。</td></tr>
+      <tr><td>Fast-WAM-IDM</td><td>91.3</td><td>98.0</td><td>先生成 future video，再 action prediction。</td></tr>
+      <tr><td>Fast-WAM w.o. video co-train</td><td>83.8</td><td>93.5</td><td>推理同 Fast-WAM，但训练去掉 video modeling objective。</td></tr>
+    </table>
+    <p>这是论文的关键证据：Fast-WAM 与两个 imagine-then-execute 变体的差距很小；但去掉 video co-training 后掉得更明显。RoboTwin 从 91.8 掉到 83.8，LIBERO 从 97.6 掉到 93.5，并且 LIBERO Spatial/Long 掉得尤其明显。作者据此认为，WAM 的主要价值更可能来自训练时的视频预测目标，而不是推理时真的生成未来视频。</p>
+
+    <h3>5.6 真实毛巾折叠：性能与延迟</h3>
+    <div class="figure">
+      <img src="figures/x4.png" alt="Real-world results and latency">
+      <div class="caption"><strong>Figure 4.</strong> 真实毛巾折叠结果：左图越靠左上越好；右图给出推理延迟。Fast-WAM 为 190 ms，Fast-WAM-IDM 为 810 ms，Fast-WAM-Joint 为 580 ms。图中还显示 no-video-co-train 成功率约 10%，且 completion time 最长。</div>
+    </div>
+    <p>真实任务中，预训练 $\pi_{0.5}$ 仍是最强方法，成功率最高且 completion time 最短。Fast-WAM family 之间性能相近：Fast-WAM-IDM 成功率最高，Fast-WAM completion time 更好。更重要的是，所有带 video co-training 的 Fast-WAM 变体都明显强于无 pretraining 的 $\pi_{0.5}$，而 no-video-co-train 崩到 10% success。这再次支持 video co-training 是主因。</p>
+    <p>延迟上，Fast-WAM 190 ms，与 no-video-co-train 的 190 ms 相同量级；Fast-WAM-Joint 580 ms，Fast-WAM-IDM 810 ms。Fast-WAM 因此成为一个更好的部署折中点：保留大部分 WAM 性能，但避免显式未来视频采样开销。</p>
+  </section>
+
+  <section id="reproduce">
+    <h2>6. 可复现审计</h2>
+    <h3>6.1 复现所需组件</h3>
+    <table>
+      <tr><th>组件</th><th>论文信息</th><th>复现注意</th></tr>
+      <tr><td>Backbone</td><td>Wan2.2-5B video DiT + T5 text encoder + video VAE。</td><td>需要可加载 Wan2.2-5B；显存/参数规模较高。</td></tr>
+      <tr><td>Action expert</td><td>DiT，同构于 video branch，hidden dim 1024，约 1B。</td><td>动作 token、时间步 embedding、cross-attention 与 video branch 对齐要谨慎。</td></tr>
+      <tr><td>训练目标</td><td>$\mathcal{L}_{act}+\lambda\mathcal{L}_{vid}$。</td><td>论文未在正文明确给出 $\lambda$ 数值，复现实验需从代码或默认配置确认。</td></tr>
+      <tr><td>数据</td><td>LIBERO、RoboTwin 2.0、真实 Galaxea R1 Lite 毛巾折叠 60 小时数据。</td><td>仿真可复现性高；真实数据和硬件更难完全复现。</td></tr>
+      <tr><td>延迟测量</td><td>单张 NVIDIA RTX 5090D V2 32GB。</td><td>跨 GPU 延迟不可直接比较；要报告 action denoising steps 和 batch 设置。</td></tr>
+    </table>
+
+    <h3>6.2 最小复现路线</h3>
+    <ol>
+      <li>先在 LIBERO 上实现 Fast-WAM w.o. video co-train：只用当前 first-frame latent + language + action DiT，跑通 action flow matching。</li>
+      <li>加入 future video latent branch 和 $\mathcal{L}_{vid}$，但保持 action tokens 不能看 future video tokens，验证 Fast-WAM 是否提升。</li>
+      <li>实现 Fast-WAM-Joint：放开 action/video tokens 的相互 attention，测试是否接近 Fast-WAM。</li>
+      <li>实现 Fast-WAM-IDM：先生成 future video representation，再 condition action；注意使用 $p=0.5$ ground-truth video token noise augmentation。</li>
+      <li>复现 LIBERO 表格，再迁移到 RoboTwin 多任务训练；最后才考虑真实毛巾折叠。</li>
+      <li>延迟评估必须单独做：Fast-WAM 无 future branch，但仍有 action denoising 10 steps；IDM/Joint 的额外开销来自未来视频生成/联合采样。</li>
+    </ol>
+
+    <h3>6.3 复现风险点</h3>
+    <table>
+      <tr><th>风险</th><th>为什么重要</th><th>建议</th></tr>
+      <tr><td>$\lambda$ 未在正文给出</td><td>video co-training 强弱直接影响结论。</td><td>优先查官方代码配置；如果没有，做 $\lambda$ sweep。</td></tr>
+      <tr><td>mask 实现容易泄漏 future</td><td>若 action tokens 能看 ground-truth future video，结果会虚高。</td><td>写单元测试检查 attention mask 可达性。</td></tr>
+      <tr><td>多相机拼图输入细节</td><td>多 camera concat 到单图后进 VAE，影响 token layout。</td><td>保持相机顺序、分辨率、crop/resize 一致。</td></tr>
+      <tr><td>真实毛巾数据不可公开验证</td><td>60 小时 teleoperation 和硬件平台影响很大。</td><td>把真实结果视为部署证据，结构性结论主要看仿真控制变量。</td></tr>
+      <tr><td>预训练公平性</td><td>不同 baseline 使用 embodied pretraining 与否混在同表。</td><td>阅读时分组比较：同为 no embodied PT 的方法最公平。</td></tr>
+    </table>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的是问题拆解本身。很多 WAM 论文默认“生成未来视频”是必要步骤，但 Fast-WAM 把它拆成训练目标和推理机制两个因素，并用同一框架里的变体验证。这个实验设计比单纯提出一个新模型更有启发性：它告诉我们 world model 的价值可能主要体现在训练表征，而不是部署时显式想象。</p>
+    <p>第二个价值点是部署导向。190 ms vs 580/810 ms 的差距对真实机器人很现实。Fast-WAM 让 WAM 接近 VLA 的推理接口，同时保留 WAM 训练信号，这是一个很实用的折中。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <ul>
+      <li><strong>控制变量清楚：</strong>Fast-WAM、Joint、IDM、no-co-train 的 backbone 和训练 recipe 尽量对齐。</li>
+      <li><strong>跨 benchmark 一致：</strong>RoboTwin、LIBERO、真实毛巾折叠都显示 video co-training drop 大于 future imagination variant gap。</li>
+      <li><strong>效率指标明确：</strong>真实任务不仅报告 success，也报告 completion time 和 latency。</li>
+      <li><strong>附录细粒度支持：</strong>RoboTwin per-task table 显示提升不是只来自少数任务，no-co-train 的平均下降在 clean/rand 都明显。</li>
+    </ul>
+
+    <h3>7.3 局限与需要追问的点</h3>
+    <table>
+      <tr><th>问题</th><th>影响</th></tr>
+      <tr><td>结论是“future imagination 不那么关键”，不是“完全没用”</td><td>LIBERO 上 Joint/IDM 仍略高于 Fast-WAM；真实任务 Fast-WAM-IDM 成功率最高。只是它们的增益是否值得延迟成本，要看部署场景。</td></tr>
+      <tr><td>只研究 single action chunk</td><td>作者为控制变量省略 outer autoregressive rollout；更长任务中显式未来想象是否更有用仍需验证。</td></tr>
+      <tr><td>真实任务只有毛巾折叠</td><td>deformable object 很有挑战，但单一真实任务不足以覆盖全部机器人操作。</td></tr>
+      <tr><td>模型规模很大</td><td>6B 模型 + Wan2.2-5B backbone，复现和部署门槛高。</td></tr>
+      <tr><td>训练细节仍依赖代码</td><td>正文给了大部分优化参数，但 $\lambda$ 等关键配置需要查官方代码。</td></tr>
+    </table>
+
+    <h3>7.4 组会可追问的问题</h3>
+    <ol>
+      <li>如果任务需要显式中间子目标，例如复杂装配或导航，test-time future imagination 是否会重新变得重要？</li>
+      <li>Fast-WAM 的 video co-training 学到的 representation 到底编码了什么？能否用 probing/attention/feature prediction 证明它捕捉物理动态？</li>
+      <li>Action tokens 不能看 future video tokens，但 video branch 和 action branch 共享 first-frame anchor；这种 mask 是否是最优，还是有更细的 causal mask？</li>
+      <li>Wan2.2 是通用视频生成 backbone。换成机器人视频预训练 backbone 后，Fast-WAM 与 Joint/IDM 的差距会变大还是变小？</li>
+      <li>Fast-WAM 在真实任务中 completion time 优于 IDM，但 success rate 不一定最高。实际系统该如何在延迟、成功率和动作稳定性之间选点？</li>
+    </ol>
+  </section>
+
+  <section id="audit">
+    <h2>附：本报告覆盖检查</h2>
+    <div class="audit-card">
+      <p><span class="pass">已覆盖：</span>Abstract、Introduction、Related Work、Method、Experiment、Conclusion，以及 Appendix 的 RoboTwin per-task 结果。</p>
+      <p><span class="pass">图表处理：</span>使用 arXiv HTML 渲染出的 PNG 图像与源码图片，保存在 <code>figures/</code>；关键表格已重建为 HTML。</p>
+      <p><span class="warn">残余风险：</span>真实毛巾折叠训练数据不是公开 benchmark；完整复现仍依赖官方代码配置，尤其是 $\lambda$ 和具体数据处理。</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

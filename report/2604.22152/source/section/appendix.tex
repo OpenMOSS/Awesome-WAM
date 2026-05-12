@@ -1,0 +1,222 @@
+
+\section{More on Experimental Setup}
+\label{app:setup}
+
+In this section, we provide further details regarding the task definitions, data collection pipelines, and model hyperparameters used in our experiments.
+
+\subsection{Detailed Task Descriptions}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/real_task_demo.pdf}
+    \caption{
+      \textbf{Real-World Evaluation Tasks.} 
+      We visualize the initial scene observations and corresponding language instructions for the five bimanual manipulation tasks evaluated on the AgileX platform.
+    }
+    \label{fig:real_tasks}
+\end{figure}
+
+We evaluate dWorldEval across three domains: Real-World AgileX, RoboTwin~\cite{mu2025robotwin}, and ~\cite{liu2024libero}. Below we describe the specific task designs and their associated language instructions.
+
+\textbf{Real-World Tasks}
+We collected data for five distinct tasks using a bimanual AgileX system. Initial states and corresponding instructions are visualized in Fig.~\ref{fig:real_tasks}.
+
+\begin{itemize}
+    \item \textbf{Bussing Table.} A long-horizon task requiring the robot to classify and sort multiple objects (tableware, trash) into trays or bins. \\
+    \textit{Instruction: ``Clean the table.''}
+    
+    \item \textbf{Place Cup.} Precision pick-and-place where the robot must align a cup onto a specific target mat. \\
+    \textit{Instruction: ``Place the empty blue cup to the cup mat.''}
+    
+    \item \textbf{Handover Block.} A bimanual coordination task involving passing a block from the left arm to the right arm before placement. \\
+    \textit{Instruction: ``Pass the red block to the right arm to place it on the blue mat.''}
+    
+    \item \textbf{Strike Block.} Dynamic tool manipulation that requires grasping a hammer to strike a target block. \\
+    \textit{Instruction: ``Pick up the hammer, then strike the red block.''}
+
+    \item \textbf{Dual Bottle Pick.} A synchronization task requiring the robot to simultaneously grasp and lift two bottles positioned in front of it. \\
+    \textit{Instruction: ``Pick up one bottle with one arm, and pick up another bottle with the other arm.''}
+\end{itemize}
+
+\textbf{Simulation Tasks}
+\begin{itemize}
+    \item \textbf{RoboTwin Stacking \& Placement.} On the RoboTwin benchmark, we utilize the ARX dual-arm configuration to evaluate 10 diverse contact-rich tasks. 
+    We categorize these into: 
+    (1) \textbf{Precision Stacking}, which requires vertical stability and geometry alignment (e.g., Stack Blocks (Three), Stack Bowls (Two \& Three)); and 
+    (2) \textbf{Constrained Placement}, which involves inserting objects into specific receptacles, such as placing Bread (into Basket/Skillet), Cans (into Basket/Pot/Plastic Box), Plate (into Container), and an Empty Cup. 
+    These scenarios involve complex inter-object occlusions and fine-grained physics that are challenging for video generation models.
+    
+    \item \textbf{LIBERO Suites.} We utilize four task suites from the LIBERO benchmark: LIBERO-Object, LIBERO-Spatial, LIBERO-Goal, and LIBERO-100. These tasks involve standard tabletop manipulation skills like opening drawers, moving objects around obstacles, and arranging items based on spatial relations.
+\end{itemize}
+
+\subsection{Model Implementation Details}
+dWorldEval is initialized from MMaDAVLA-8B, a bidirectional transformer with 32 layers, 32 attention heads, and a hidden dimension of 4096. 
+The model is conditioned on a sparse history of $K=4$ keyframes ($256 \times 256$). 
+We use a prediction horizon $\Delta$ consistent with the action chunk size (randomly sampled from {$[2, 8]$}.
+The loss function balances visual reconstruction and progress prediction with weights $w_{\text{score}}=2$ and $w_{\text{vis}}=1$. 
+The model was trained for 15 epoch on 8 H800 GPUs using the AdamW optimizer with a learning rate of 5e-5.
+We employ a global batch size of 128 (using gradient accumulation).We report success rates averaged over 20 episodes per task for simulation benchmarks and 30 episodes for real-world experiments.
+Evaluating a full trajectory takes approximately 30--90 seconds (1.5s/frame) on a single H800 GPU.
+
+\section{Verifying Causal Dependency via Action Shuffling}
+\label{app:action_shuffle}
+
+A faithful action-conditioned world model must genuinely depend on the provided future action chunk. 
+If we deliberately destroy the alignment between actions and outcomes, action-controllability indicators should degrade accordingly.
+
+\paragraph{Experimental Protocol.}
+To test this dependency, we disrupt the causal link between actions and future observations while preserving their marginal distributions. 
+Given a test batch $\{(o^i_t, h^i, l^i, a^i, o^i_{t+\Delta})\}_{i=1}^B$, we replace the true action $a^i$ with a randomly assigned $\tilde{a}^i \leftarrow a^{\pi(i)}$ via a batch-wise permutation $\pi$ (enforcing $\pi(i)\neq i$). 
+We then roll out the world model under two settings:
+(i) \textbf{Aligned}: $\hat{o}^i_{t+\Delta} \sim \mathcal{W}_\theta(o^i_t, h^i, l^i, a^i)$, and
+(ii) \textbf{Shuffled}: $\tilde{o}^i_{t+\Delta} \sim \mathcal{W}_\theta(o^i_t, h^i, l^i, \tilde{a}^i)$.
+Furthermore, to analyze the continuous impact of misalignment and validate $\Delta$-LPIPS as a diagnostic metric, we introduce an inference-time corruption: swapping action chunks with a tunable probability $p$. 
+All evaluation metrics are computed identically under these settings on the same test set used in Sec.~\ref{sec:action_controllability_exp}.
+
+\paragraph{Results.}
+We first examine the complete disruption of action alignment ($p=1$). 
+As shown in Tab.~\ref{tab:action_shuffle}, shuffling actions consistently degrades the action-controllability indicators. 
+This confirms that our metrics are highly sensitive to the action input and that the learned dynamics are not simply relying on static appearance priors.
+
+Building upon this, the probabilistic corruption ($0 \le p \le 1$) reveals a strong correlation between action alignment and evaluation reliability. 
+As illustrated in Fig.~\ref{fig:ablate_action_corruption}, increasing the swap probability $p$ worsens $\Delta$-LPIPS, accompanied by a precipitous drop in the ranking correlation with real success rates. 
+This diagnostic demonstrates that accurate policy ranking is only achievable in the low-$\Delta$-LPIPS regime, reaffirming that strict adherence to input actions is a prerequisite for reliable evaluation.
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.45\linewidth]{figures/ablate_action_corruption.pdf}
+    \caption{\textbf{Action corruption tests.} 
+    Ground-truth action chunks are replaced by chunks from other episodes with probability $p$. 
+    \textbf{Left:} $\Delta$LPIPS increases with $p$, indicating degraded controllability. 
+    \textbf{Right:} Pearson correlation between real and estimated success rates drops accordingly.}
+    \label{fig:ablate_action_corruption}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Action-shuffle sanity check.} We permute future action chunks across samples while keeping history and language fixed. Shuffling breaks action--outcome alignment and degrades action-controllability indicators.}
+\label{tab:action_shuffle}
+\begin{tabular}{lccc}
+\toprule
+Conditioning & LPIPS $\downarrow$ & $\Delta$LPIPS $\downarrow$ \\
+\midrule
+Aligned actions & \textbf{0.215} & \textbf{0.324} &  \\
+Shuffled actions & 0.461 & 0.697  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{VLM Supervision Details}
+\label{app:progress_grading}
+
+
+We utilize an off-the-shelf VLM (SEED-1.5VL~\cite{guo2025seed1}) to generate ground-truth progress scores. Unlike standard zero-shot evaluation, we employ a few-shot In-Context Learning (ICL) strategy to align the model's scoring distribution with human intuition.
+For each query, we construct a prompt containing:
+\begin{enumerate}
+    \item A detailed task definition and rigid scoring rules.
+    \item Three anchor examples with pre-labeled scores (e.g., 0.2, 0.4, and 0.6) to demonstrate intermediate states.
+    \item A batch of query frames (typically 10 frames) to be evaluated independently.
+\end{enumerate}
+This batch-processing approach significantly stabilizes the output and enforces strict adherence to the discrete scoring criteria.
+
+\subsection{Prompt Template}
+For the Libero-Object~\cite{liu2024libero} suite, which primarily involves pick-and-place manipulation, we redefine the scoring criteria to reflect the sequential phases of the action. We employ an few-shot ICL strategy to help the VLM distinguish subtle state changes.
+
+The system instruction maps the continuous manipulation process into discrete progress steps:
+
+\begin{quote}
+\small
+\textbf{System Instruction:} \\
+You are an expert roboticist evaluator. Your task is to judge the completion progress of a robot performing a specific manipulation task (e.g., ``pick up the bbq sauce and place it in the basket"). \\
+\textbf{Task Instruction:} \{TASK\_INSTRUCTION\} \\
+\textbf{Scoring Rules (Progress Phases):} 
+The task progress is discretized into the following stages. Please choose the score that best matches the current visual state:
+\begin{itemize}
+    \item \textbf{0.0}: \textit{Idle / Start}. The robot has not yet interacted with the target object.
+    \item \textbf{0.2}: \textit{Approach / Contact}. The gripper is positioned near the target object or has just made contact, but the object is not yet lifted.
+    \item \textbf{0.4}: \textit{Lifted}. The object is successfully grasped and lifted off the surface.
+    \item \textbf{0.6}: \textit{In Transit}. The robot is moving the object towards the target area (mid-trajectory).
+    \item \textbf{0.8}: \textit{Pre-Placement}. The object is aligned with or hovering just above the target zone, ready for release.
+    \item \textbf{1.0}: \textit{Success}. The object is stably placed in the target configuration, and the gripper has released it (or the task is fully complete).
+\end{itemize}
+\textbf{Important note:} The input frames may appear in random order. You must evaluate each frame independently, strictly based on the visible state in that frame. Do not infer progress from previous frames. \\
+\textbf{Valid outputs:} 0, 0.2, 0.4, 0.6, 0.8, 1.0 \\
+\textbf{Output Format:} Return only a list of numbers (e.g., [0.2, 0, 0.6, 1.0]).
+In-Context Examples: \\
+We provide 8 distinct examples covering the full range of motion to anchor the scoring: \\
+\textit{[Image 1]} (Start State) $\rightarrow$ Text: "Example 1 score: 0.0" \\
+\textit{[Image 2]} (Approaching) $\rightarrow$ Text: "Example 2 score: 0.2" \\
+\textit{[Image 3]} (Just Lifted) $\rightarrow$ Text: "Example 3 score: 0.4" \\
+\textit{[Image 4]} (Mid-Air Moving) $\rightarrow$ Text: "Example 4 score: 0.6" \\
+\textit{[Image 5]} (Approaching Target) $\rightarrow$ Text: "Example 5 score: 0.6" \\
+\textit{[Image 6]} (Aligned/Hovering) $\rightarrow$ Text: "Example 6 score: 0.8" \\
+\textit{[Image 7]} (Just Released) $\rightarrow$ Text: "Example 7 score: 1.0" \\
+\textit{[Image 8]} (Retracting/Done) $\rightarrow$ Text: "Example 8 score: 1.0" \\
+Text: "Now evaluate these frames:"
+\end{quote}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/label_score.pdf}
+    \caption{\textbf{Ground-truth Progress Labels.} Visualization of VLM-annotated scores for the LIBERO-Object~\cite{liu2024libero} task \textit{``pick up the alphabet soup and place it in the basket''}. (a) A successful trajectory exhibits step-wise score increases as milestones are achieved. (b) A failure trajectory effectively reflects incomplete execution, with the score stalling at a low value.}
+    \label{fig:label_score}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/gen_score.pdf}
+    \caption{\textbf{Generated Progress Scores.} Visualization of scores predicted by dWorldEval for the LIBERO-Object~\cite{liu2024libero} task \textit{``pick up the ketchup and place it in the basket''}. (a) The model generates a successful rollout where the score accurately rises to 1.0. (b) The model faithfully predicts a failure case, maintaining a low score consistent with the visual outcome.}
+    \label{fig:gen_score}
+\end{figure*}
+
+\subsection{Visualizing Progress Scores: Labels vs. Generation}
+To intuitively demonstrate the effectiveness of our Progress-as-text mechanism, we provide ground-truth annotations and model predictions. 
+Figure~\ref{fig:label_score} illustrates the ground-truth labeling process, where the VLM assigns discrete, step-wise scores (e.g., 0.2, 0.4) corresponding to specific achieved milestones. 
+Complementing this, Figure~\ref{fig:gen_score} presents the generated progress scores from dWorldEval during inference. 
+These results confirm that our model accurately learns to associate visual state transitions with the correct progress semantics.
+
+\section{Visualizing Baseline Consistency}
+\label{app:baseline_consistency}
+
+We provide the qualitative visualization corresponding to the round-trip analysis in Sec.~\ref{sec:more_experiments}.
+Figure~\ref{fig:baseline_consistency_vis} illustrates the generated rollouts on the LIBERO~\cite{liu2024libero} suite with a horizon of $H=20$.
+It can be observed that dWorldEval successfully restores the initial scene structure at the terminal step $t=2H\Delta$.
+In contrast, the baselines (WorldEval and WorldGym) exhibit significant visual deviation from the initial state.
+This confirms that the high LPIPS errors reported in the main text stem from a compound failure: the baselines struggle not only with spatiotemporal drift (hallucinating objects) but also with strictly adhering to the inverse action sequence required to return to the start.
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/baseline_consistency_vis.pdf}
+    \caption{\textbf{Qualitative comparison of round-trip consistency with baselines.} 
+    We visualize the round-trip rollouts ($H=20$) on the LIBERO~\cite{liu2024libero} from the shared third-person view. 
+    We compare four models: WorldEval~\cite{li2025worldeval}, WorldGym~\cite{quevedo2506worldgym}, Ctrl-World~\cite{guo2025ctrl}, dWorldEval (W/O History), and dWorldEval (Full). 
+    The goal is to return to the initial state at $t=2H$ (rightmost column) by executing inverse actions (i.e., reversing the pick-up trajectory to place the object back). Ours (Full) successfully restores the initial scene structure. In contrast, baselines and the w/o-history ablation exhibit significant deviation at the end of the trajectory, caused by a combination of spatiotemporal drift and failure to follow the inverse control signals.}
+    \label{fig:baseline_consistency_vis}
+\end{figure*}
+
+\section{More Visualization}
+In this section, we provide more visualizations for both the simulation and the real-world environment. Figure \ref{fig:more_robotwin} presents the generated results on the RoboTwin~\cite{mu2025robotwin} benchmark, and Figure \ref{fig:more_real} shows the real-world cases.
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/more_robotwin.pdf}
+        \caption{\textbf{Visualization on the RoboTwin benchmark.}~\cite{mu2025robotwin} 
+    We compare the ground-truth simulation trajectory with the video generated by our model . 
+    Our model synthesizes high-fidelity, synchronized videos across three views (Top-down, Left Wrist, and Right Wrist), accurately preserving the object details and spatial layout of the simulation environment.}
+    \label{fig:more_robotwin}
+\end{figure*}
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/more_real.pdf}
+    \caption{\textbf{Visualization in real-world scenarios.} 
+    We compare the ground-truth physical robot execution with the video generated by our model. 
+    Given the language instruction, our model synthesizes high-fidelity, synchronized videos across three views (Top-down, Left Wrist, and Right Wrist), accurately preserving object details and handling the visual complexity of the real-world environment.}
+    \label{fig:more_real}
+\end{figure*}
+

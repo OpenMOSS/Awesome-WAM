@@ -1,0 +1,17 @@
+idm_figure1_0403.pdf -> fig_intro_teaser.png
+traj.pdf -> fig_traj.png
+idm_main.pdf -> fig_pipeline.png
+train.pdf -> fig_train.png
+sim_abc_once.png -> sim_abc_once.png
+real_ab_once.png -> real_ab_once.png
+ablation_abcd_once.png -> ablation_abcd_once.png
+IDM_smoother_visualize_plot_a0.png -> smoother.png
+demo/sim/invisible_ctrl.png -> invisible_ctrl.png
+demo/sim/invisible.png -> invisible.png
+demo/sim/pass_by_ctrl.png -> pass_by_ctrl.png
+demo/sim/pass_by.png -> pass_by.png
+demo/sim/similar_objects_ctrl.png -> similar_ctrl.png
+demo/sim/similar_objects.png -> similar.png
+demo/real/prompt1.png -> prompt1.png
+demo/real/prompt2.png -> prompt2.png
+demo/real/prompt3.png -> prompt3.png

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dWorldEval - 精读报告</title>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head><body>
+<main>
+<header>    <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model</h1><div class="meta">
+<p><strong>作者：</strong>Yaxuan Li, Zhongyi Zhou, Yefei Chen, Yaokai Xue, Yichen Zhu</p>
+<p><strong>机构：</strong>Current Robotics; University of Toronto</p>
+<p><strong>发表：</strong>arXiv preprint，源码版本 2026-04-27</p>
+<p><strong>arXiv：</strong><a href="https://arxiv.org/abs/2604.22152">2604.22152</a> | <strong>PDF：</strong><a href="https://arxiv.org/pdf/2604.22152">下载</a> | <strong>Project Page：</strong><a href="https://dworldeval.github.io/">dworldeval.github.io</a></p>
+</div></header>
+
+<nav class="toc"><strong>目录</strong><ul><li><a href="#s1">1. 论文速览</a></li><li><a href="#s2">2. 动机</a></li><li><a href="#s3">3. 相关工作</a></li><li><a href="#s4">4. 方法详解</a></li><li><a href="#s5">5. 实验</a></li><li><a href="#s7">7. 分析、局限与边界</a></li></ul></nav>
+<h2 id="s1">1. 论文速览</h2>
+<div class="tldr"><strong>一句话总结：</strong>dWorldEval 用 Masked Discrete Diffusion 构建机器人策略评估用 world model，把视觉、语言、动作和进度分数统一成 token 序列，使生成 rollout 更受动作控制、更长程一致，并可直接输出任务完成进度作为自动成功判定。</div>
+<table><tr><th>阅读定位</th><th>内容</th></tr>
+<tr><td>论文要解决什么</td><td>真实机器人 rollout 和高保真仿真评估成本高；现有 video world model 作为策略评估代理时常忽略错误动作、幻觉成功或出现物体漂移/消失。</td></tr>
+<tr><td>作者的方法抓手</td><td>不用把 action 当弱条件注入视频 denoiser，而是把 action chunk、图像、语言、progress score 都离散化为统一 token，让 self-attention 建模动作与未来视觉的因果关系。</td></tr>
+<tr><td>最重要的结果</td><td>在 LIBERO、RoboTwin 和真实双臂平台上，dWorldEval 的策略评估成功率与真实执行有高相关：LIBERO multi-view $r=0.910$、RoboTwin $r=0.927$、Real World $r=0.918$。</td></tr>
+<tr><td>阅读时要注意的点</td><td>关键指标不是普通 LPIPS，而是衡量状态变化 fidelity 的 $\Delta$-LPIPS；附录 action shuffling 用于验证模型确实依赖未来动作。</td></tr></table>
+<p><strong>难度评级：</strong>★★★★☆。需要理解离散扩散 / masked token denoising、机器人 action chunk tokenization、world model policy evaluation、LPIPS 类感知指标和 VLM 进度标注。</p>
+<p><strong>关键词：</strong>World Model；Policy Evaluation；Masked Discrete Diffusion；Action Controllability；Sparse Keyframe Memory；Progress-as-text。</p>
+<h3>核心贡献清单</h3><ul>
+<li><strong>离散扩散 world model：</strong>提出 dWorldEval，把动作作为主 token 纳入统一序列，提升 action controllability。</li>
+<li><strong>稀疏关键帧记忆：</strong>用低分辨率历史 keyframes 锚定长程空间布局，缓解 rollout drift。</li>
+<li><strong>离散进度 token：</strong>联合生成未来视觉和任务进度分数，使 world model 能自动判定 success。</li>
+<li><strong>系统评估：</strong>在 LIBERO、RoboTwin 和真实机器人任务上验证，报告 $\Delta$-LPIPS、round-trip LPIPS 和真实/想象成功率相关性。</li>
+</ul>
+<div class="figure"><img src="figures/head.png" alt="teaser"><div class="caption">Teaser：dWorldEval 目标是同时满足 action controllability、spatiotemporal consistency、policy compatibility 和 faithful progress scoring。</div></div>
+
+<h2 id="s2">2. 动机</h2>
+<h3>2.1 要解决什么问题</h3>
+<p>论文要解决的是机器人策略评估的可扩展性问题：真实机器人执行昂贵且慢，仿真又需要大量资产和物理建模。生成式 world model 看起来可以作为评估代理，但要成为可靠 evaluator，生成结果必须忠实反映 policy 给出的动作，而不能只生成“看起来合理”的成功视频。</p>
+<h3>2.2 已有方法的局限</h3>
+<ul><li><strong>OOD action 泛化差：</strong>world models 常在成功 demonstrations 上训练，因此面对 undertrained policy 或错误动作时，容易忽略动作并幻觉成功结果。</li><li><strong>物理不一致：</strong>长程 rollout 中会出现刚体变形、接触时物体消失、场景布局漂移等 spatiotemporal inconsistency。</li><li><strong>结构瓶颈：</strong>WorldEval、Ctrl-World、WorldGym 等视频式 evaluator 通常把动作通过 cross-attention 或 AdaLN 作为辅助条件注入视觉 denoiser；强视频先验可能覆盖弱 action signal。</li><li><strong>成功检测外置：</strong>若生成视频后还要外部 VLM / reward function 判断成功，评分可能与生成内容不一致，并增加评估开销。</li></ul>
+<h3>2.3 本文的解决思路</h3>
+<p>dWorldEval 的核心思路是把“视觉生成问题”改写成“统一离散 token 序列的 masked denoising 问题”。动作、语言、历史关键帧、当前多视角观测和目标未来视觉/进度分数都进入同一个 transformer，使视觉 token 能通过 self-attention 直接读取 action token。这样动作不再是视频模型的弱条件，而是生成序列中的一等公民。</p>
+
+<h2 id="s3">3. 相关工作梳理</h2>
+<table><tr><th>相关工作线</th><th>论文自述内容</th><th>dWorldEval 的定位</th></tr>
+<tr><td>World models for policy evaluation</td><td>真实 rollout、AutoEval、物理仿真、WorldEval、Ctrl-World、WorldGym 等用于扩展 policy assessment。</td><td>认为已有 video evaluator 可靠性受限，原因是 action 只是视觉 denoiser 的辅助条件。</td></tr>
+<tr><td>Discrete diffusion in robotics</td><td>DLM / LLaDA / LaViDa / MMaDA 等离散扩散模型可做灵活采样和可控生成；dVLA 等把离散扩散用于 policy learning。</td><td>本文不用离散扩散学 policy，而是学 evaluator world model，并联合预测 visual observation 与 progress score。</td></tr>
+</table>
+<h3>直接前作对比</h3>
+<table><tr><th>维度</th><th>WorldEval / Ctrl-World</th><th>WorldGym</th><th><strong>dWorldEval</strong></th></tr>
+<tr><td>动作注入</td><td>主要通过 cross-attention 类条件机制进入 video denoiser。</td><td>通过 AdaLN modulation 注入动作条件。</td><td>动作 chunk 被 FAST tokenized 后作为统一序列 token，与视觉 token self-attend。</td></tr>
+<tr><td>主要风险</td><td>强视觉先验可能覆盖动作，生成不忠实动作的 transition。</td><td>同样存在动作弱条件与长程 drift 问题。</td><td>结构上增强动作可控性，并用 keyframe memory 控制 drift。</td></tr>
+<tr><td>成功检测</td><td>常依赖外部判别器 / VLM / reward。</td><td>依赖外部评估。</td><td>生成 progress token，终态 $\hat v_T=1$ 判定成功。</td></tr>
+<tr><td>实验指标</td><td>相关性较弱且 rank violation 更高，文中提到 MMRV up to 0.039。</td><td>长程一致性误差随 horizon 增大明显。</td><td>LIBERO single-view MMRV=0.013；多域相关性约 $r\approx0.9$。</td></tr></table>
+
+<h2 id="s4">4. 方法详解</h2>
+<h3>4.1 方法概览</h3>
+<div class="figure"><img src="figures/model.png" alt="model"><div class="caption">Figure 1：dWorldEval 的统一架构、稀疏关键帧记忆和离散 progress token。</div></div>
+<p>输入包括语言指令 $l$、当前观测 $o_t$、历史 $h_t$ 和未来动作序列 $\mathbf a_t$。输出是 horizon $\Delta$ 处的未来视觉结果 $\hat o_{t+\Delta}$ 和任务进度分数 $\hat v_{t+\Delta}\in[0,1]$。policy evaluation 时，策略 $\pi$ 在 world model 内闭环 rollout，生成 imagined trajectory，再用成功函数估计 imagined success rate。</p>
+<h3>4.2 方法演变脉络</h3>
+<div class="note">视频 evaluator：$o_t,l,\mathbf a_t$ 作为条件进入 video denoiser，动作容易被强视觉先验覆盖。</div>
+<div class="note">Failure-augmented evaluator：加入失败轨迹可缓解 hallucinated success，但 action coverage 不可能穷尽，作者认为瓶颈仍是架构。</div>
+<div class="note">dWorldEval：所有模态离散化为统一 token，动作与视觉在 self-attention 内直接交互；再用 keyframe memory 与 progress token 支撑长程一致评估和自动评分。</div>
+<h3>4.3 核心设计与数学推导</h3>
+<h4>4.3.1 World Model Formulation</h4>
+<div class="formula-block"><p class="intuition">这个公式说明 world model 不是只预测视频，而是同时预测未来画面和任务完成进度。</p>
+$$(\hat o_{t+\Delta},\hat v_{t+\Delta})\sim \mathcal W_\theta(\cdot\mid o_t,\mathbf a_t,h_t,l)$$
+<table><tr><td>$o_t$</td><td>当前多视角观测。</td></tr><tr><td>$h_t$</td><td>历史上下文，后续由 sparse keyframe memory 实现。</td></tr><tr><td>$\mathbf a_t$</td><td>未来 action chunk，是要评估的 policy 输出。</td></tr><tr><td>$\hat v_{t+\Delta}$</td><td>离散 progress token 解码后的完成进度，范围 $[0,1]$。</td></tr></table></div>
+<div class="formula-block"><p class="intuition">策略评估时，不跑真实机器人，而是在 world model 中闭环想象。</p>
+$$J=\frac{1}{N}\sum_{i=1}^N \mathcal S(\tau_i),\qquad \tau=\{\hat o_0,\hat o_\Delta,\dots,\hat o_T\}$$
+<p>$\mathcal S(\cdot)$ 是 success indicator。本文自动版本中，最终 progress token 达到 1 时判定成功。</p></div>
+<h4>4.3.2 Unified Token Sequence</h4>
+<p>dWorldEval 用 MAGVIT-v2 tokenizer 编码 RGB observation，用 LLaDA tokenizer 编码 language，用 FAST 编码连续 action chunks。不同模态 token 通过 fixed offsets 映射到单一 index space，再 flatten 成一条序列。由于使用统一 self-attention，视觉 token 在每层都可以直接 attend 到动作 token，从而让生成变化细粒度受动作控制。</p>
+<div class="pseudocode">Unified sequence construction
+1. z_img = MAGVIT-v2(o_t, history keyframes)
+2. z_lang = LLaDA(l and absolute frame-index text)
+3. z_act = FAST(action chunk a_t)
+4. c_t = concat(z_lang, z_history, z_current_obs, z_act)
+5. y_{t+Delta} = concat(future visual tokens, progress text token)</div>
+<h4>4.3.3 Sparse Keyframe Memory</h4>
+<p>为避免长程 rollout 漂移，模型维护滑动窗口，从最近历史中以固定 stride $\Delta$ 采样 $K$ 个 keyframes。历史帧以低分辨率编码，并只使用固定 global view（如 top-down）节省 token；当前观测保留所有视角和全分辨率，以捕捉接触细节。绝对帧索引作为 text tokens prepend 到对应历史 keyframes，帮助模型保持时间顺序。</p>
+<h4>4.3.4 Progress-as-text</h4>
+<p>训练时，作者为任务定义里程碑，并用 SEED-1.5VL few-shot ICL 估计视觉状态的任务完成进度。分数被转换成离散文本 token（例如 “1.0”）并附加到 target sequence。推理时模型直接生成 progress token，终态 token 用于自动计算 success rate。</p>
+<h4>4.3.5 Masked Discrete Diffusion Objective</h4>
+<div class="formula-block"><p class="intuition">训练时随机 mask 未来目标 token，模型学习在上下文和噪声目标下复原干净 token。</p>
+$$\mathcal L_{\text{WM}}=\mathbb E_{\tau,\lambda,\tilde{\mathbf y}}\left[-\frac{1}{m(\lambda)}\sum_{j\in\Omega_\lambda}w_j\log p_\theta(y_j\mid \mathbf c_t,\tilde{\mathbf y}_{t+\Delta},\lambda)\right]$$
+<table><tr><td>$\lambda\sim\mathcal U(0,1)$</td><td>diffusion level，决定 mask 强度。</td></tr><tr><td>$q_\lambda$</td><td>mask-based forward corruption process。</td></tr><tr><td>$\Omega_\lambda$</td><td>被 mask 的 target token 下标集合。</td></tr><tr><td>$m(\lambda)$</td><td>该 level 下的 masking probability，用于归一化。</td></tr><tr><td>$w_j$</td><td>模态重加权；实验中 progress tokens 设为 2，visual tokens 设为 1。</td></tr></table>
+<details><summary>推导直觉</summary><div>如果直接对所有 token 求交叉熵，低比例 mask 时 loss 项少，高比例 mask 时 loss 项多，训练梯度尺度会随 mask level 改变。除以 $m(\lambda)$ 等价于按期望 mask 数归一化，使不同 diffusion level 的贡献更平衡。$w_j$ 则补偿 progress token 数量少但对 evaluation 很关键的问题。</div></details></div>
+<h4>4.3.6 $\Delta$-LPIPS</h4>
+<div class="formula-block"><p class="intuition">普通 LPIPS 看“图像像不像”，$\Delta$-LPIPS 看“动作导致的变化像不像”。</p>
+$$\Delta\mathrm{LPIPS}=\mathbb E_t\left[d_{\mathrm{lpips}}(\mathrm{norm}(\Delta\hat o_t),\mathrm{norm}(\Delta o_t))\right],\quad \Delta o_t=o_{t+\Delta}-o_t$$
+<p>$\mathrm{norm}(\cdot)$ 是 per-sample RMS normalization。这个指标用于评估 action-conditioned dynamic fidelity，尤其适合检测模型是否忽略错误动作。</p></div>
+<h3>4.4 实现要点</h3>
+<ul><li><strong>Tokenizer：</strong>MAGVIT-v2 for RGB，LLaDA for language，FAST for continuous action chunks。</li><li><strong>输入分辨率：</strong>所有模型预测 $256^2$ 多视角结果；历史 keyframes 用 $128^2$。</li><li><strong>历史记忆：</strong>使用 $K=4$ 个 sparse keyframes，stride 与 action chunk length $\Delta$ 对齐。</li><li><strong>预测 horizon：</strong>$\Delta$ 与 action chunk length 对齐，从 $[2,8]$ 中选择。</li><li><strong>采样：</strong>推理采用 16-step iterative parallel decoding。</li><li><strong>loss 权重：</strong>progress token $w_j=2$，visual token $w_j=1$。</li><li><strong>附录实现补充：</strong>Appendix A.2 提到模型基于 LLaDA-8B-Instruct 初始化，训练遵循 LLaDA + MMaDA setup；多视角使用 RGB 拼接，每个视角先 resize 到 $256\times256$，再 horizontal concatenate。</li></ul>
+
+<h2 id="s5">5. 实验</h2>
+<h3>5.1 实验设置</h3>
+<table><tr><th>项目</th><th>设置</th><th>来源</th></tr>
+<tr><td>LIBERO</td><td>LIBERO-Object / Spatial / Goal / 100；同步 third-person 与 wrist views；5.5k 官方专家 demonstrations + 1k suboptimal policy failed rollouts。</td><td>正文 §Experiments；附录 A.1</td></tr>
+<tr><td>RoboTwin</td><td>ARX arm 配置，10 个接触密集 tableware manipulation 任务，5.5k trajectories。</td><td>正文 §Experimental Setup</td></tr>
+<tr><td>Real World</td><td>AgileX 双 6-DoF 机械臂，三台 RealSense 457；5.2k trajectories，含 1k human-collected failures；五个任务。</td><td>正文 §Experimental Setup；Fig. setup</td></tr>
+<tr><td>Baselines</td><td>WorldEval、WorldGym、Ctrl-World；policy 包含 $\pi_0$ 多 checkpoints、DexVLA、Diffusion Policy 等。</td><td>正文 §Experimental Setup</td></tr>
+<tr><td>指标</td><td>LPIPS、$\Delta$-LPIPS、round-trip LPIPS、Pearson correlation $r$、MMRV、imagined success rate。</td><td>正文 §Experiments</td></tr>
+<tr><td>代码 / 项目页</td><td>项目页为 https://dworldeval.github.io/；arXiv 源码未含代码仓库链接。</td><td>main.tex</td></tr></table>
+<div class="figure"><img src="figures/setup.png" alt="setup"><div class="caption">Figure 2：真实双臂 AgileX 平台和 Clean the Table 任务的 failure / success rollout visualization。</div></div>
+<h3>5.2 主要结果：World Model 能否忠实动作</h3>
+<table><tr><th>Method</th><th>LPIPS ↓</th><th>$\Delta$LPIPS Expert ↓</th><th>$\Delta$LPIPS Failure ↓</th></tr><tr><td>WorldEval</td><td>0.262</td><td>0.423</td><td>0.701</td></tr><tr><td>WorldGym</td><td>0.218</td><td>0.347</td><td>0.650</td></tr><tr><td>Ctrl-World</td><td>0.220</td><td>0.334</td><td>0.416</td></tr><tr><td><strong>dWorldEval</strong></td><td><strong>0.215</strong></td><td><strong>0.315</strong></td><td><strong>0.352</strong></td></tr></table>
+<p>这张表的关键比较是 Failure subset：WorldGym 从 expert 0.347 劣化到 failure 0.650，WorldEval 到 0.701；dWorldEval 在 failure 上为 0.352，说明错误动作导致的动态变化仍被更好建模。</p>
+<div class="figure"><img src="figures/consistency.png" alt="consistency"><div class="caption">Figure 3：动作可控性和 spatiotemporal consistency 的定性结果。</div></div>
+<h3>5.3 长程一致性与 memory 消融</h3>
+<table><tr><th>Method</th><th>H=5</th><th>H=10</th><th>H=15</th><th>H=20</th></tr><tr><td>Ours w/o Memory</td><td>0.177</td><td>0.186</td><td>0.302</td><td>0.411</td></tr><tr><td><strong>Ours Full</strong></td><td><strong>0.130</strong></td><td><strong>0.145</strong></td><td><strong>0.193</strong></td><td><strong>0.243</strong></td></tr></table>
+<p>round-trip protocol 先 rollout $H$ 步，再附加 inverse actions 到 $2H$，用初始帧和最终生成帧之间的 LPIPS 衡量 drift。没有 memory 时 H=20 达 0.411；完整模型为 0.243，说明 sparse keyframe memory 对长程布局稳定性有直接贡献。</p>
+<h3>5.4 自动视觉评分与策略评估代理</h3>
+<p>progress token 评估多个 $\pi_0$ checkpoints，并比较 Real、Human imagined grading 和 Auto imagined grading。作者报告自动评分能跟踪真实执行，包括后期 checkpoint 的非单调性能下降，说明模型不是简单假设“时间越晚进度越高”。</p>
+<div class="figure"><img src="figures/score_curve.png" alt="score curve"><div class="caption">Figure 4：progress score 的突变与真实 policy performance tracking。</div></div>
+<table><tr><th>Domain</th><th>报告结果</th><th>含义</th></tr><tr><td>LIBERO single-view</td><td>dWorldEval MMRV=0.013；baselines MMRV up to 0.039。</td><td>rank violation 更少，policy ranking 更稳定。</td></tr><tr><td>LIBERO multi-view</td><td>$r=0.910$；w/o-history ablation 在 multi-view 中 $r$ drops to 0.786。</td><td>history memory 对多视角评估尤其重要。</td></tr><tr><td>RoboTwin</td><td>$r=0.927$。</td><td>在异构策略和仿真机器人任务上保持强相关。</td></tr><tr><td>Real World</td><td>$r=0.918$。</td><td>真实机器人环境下 imagined success rate 与实际成功率仍高度相关。</td></tr></table>
+<div class="figure"><img src="figures/policy_corr.png" alt="policy correlation"><div class="caption">Figure 5：真实执行成功率与 world-model estimated success rate 的相关性。</div></div>
+<h3>5.5 补充实验（含附录）</h3>
+<table><tr><th>补充实验</th><th>关键结果</th><th>来源</th></tr>
+<tr><td>Universal multi-view fidelity</td><td>LIBERO third-person / wrist 的 $\Delta$LPIPS 为 0.324 / 0.303；RoboTwin top-down / wrist 为 0.317 / 0.345；Real World top-down / wrist 为 0.365 / 0.336。</td><td>正文 §More Experiments</td></tr>
+<tr><td>Baseline long-horizon consistency</td><td>H=20 时 WorldEval 0.531、WorldGym 0.482、Ctrl-World 0.370、Ours 0.243。</td><td>正文 Table 2；附录 D</td></tr>
+<tr><td>Action-shuffle sanity check</td><td>Aligned actions：LPIPS 0.215、$\Delta$LPIPS 0.324；Shuffled actions：LPIPS 0.461、$\Delta$LPIPS 0.697。</td><td>附录 B</td></tr>
+<tr><td>Action corruption probability</td><td>附录描述随 action chunks 交换概率 $p$ 增大，$\Delta$LPIPS 近似线性增长，用于验证该指标对动作错配敏感。</td><td>附录 B；Fig. ablate_action_corruption</td></tr>
+<tr><td>VLM progress supervision</td><td>SEED-1.5VL 用 few-shot ICL，把 pick-and-place 分为 0.0/0.2/0.4/0.6/0.8/1.0 六个阶段。</td><td>附录 C</td></tr></table>
+<div class="figure"><img src="figures/ablate_action_corruption.png" alt="action corruption"><div class="caption">Appendix Figure：action corruption tests 用于验证 $\Delta$-LPIPS 诊断作用。</div></div>
+<div class="figure"><img src="figures/baseline_consistency_vis.png" alt="baseline consistency"><div class="caption">Appendix Figure：baseline round-trip consistency 可视化，展示 WorldEval / WorldGym 的视觉漂移。</div></div>
+
+<h2 id="s7">7. 分析、局限与边界</h2>
+<h3>7.1 这篇论文最有价值的地方</h3>
+<p>基于论文自身论证，dWorldEval 的价值在于把 policy evaluation world model 的可靠性拆成可测量的三个条件：action controllability、spatiotemporal consistency 和 discriminative task completion。方法上分别对应 unified action tokens、sparse keyframe memory 和 progress-as-text；实验上分别对应 $\Delta$LPIPS、round-trip LPIPS 和 success-rate correlation。</p>
+<h3>7.2 结果为什么站得住</h3>
+<p>论文提供了互相支撑的证据链：Failure subset 的 $\Delta$LPIPS 表明模型能反映错误动作；action shuffling / corruption 附录验证指标和模型确实依赖动作；memory ablation 证明长程 consistency 不是自动出现；policy correlation 显示这些 world-model 性质最终转化为更可靠的 policy ranking。</p>
+<h3>7.3 论文已给出的结果分析与解释</h3>
+<ul><li>作者将 baselines 在 failure data 上劣化归因于动作作为弱条件被视觉先验覆盖。</li><li>作者认为 sparse keyframe memory 降低长程 drift，而 drift 会导致 false negatives 并破坏与真实 performance 的相关性。</li><li>作者用 progress score 的 sharp transition 和非单调 checkpoint tracking 说明自动评分基于视觉变化，而非时间先验。</li><li>附录 baseline consistency visualization 解释高 LPIPS 来自复合失败：既有 spatiotemporal drift，也有不能严格跟随 inverse action sequence。</li></ul>
+<h3>7.4 作者自述的局限性</h3>
+<p>正文和 Conclusion 没有独立 limitations 段落。可从原文实验范围客观界定边界：模型需要机器人数据从头训练；progress labels 依赖 SEED-1.5VL few-shot ICL 生成；真实世界实验覆盖五个双臂任务；超参数如 optimizer、batch size、训练总步数、硬件和完整采样配置未在源码正文/附录中完整给出。</p>
+<h3>7.5 适用边界与讨论</h3>
+<ul><li><strong>适用：</strong>需要大规模比较机器人 policies，而真实执行成本高、但可获得多视角 rollout 数据和 action chunks 的场景。</li><li><strong>关键前提：</strong>action tokenizer、visual tokenizer 和 language/progress token 必须能稳定映射到统一离散空间。</li><li><strong>评估前提：</strong>$\Delta$-LPIPS 适合衡量动作导致的视觉变化，但仍是视觉感知指标，不等价于物理状态完全正确。</li><li><strong>附录补充：</strong>附录提供了任务细节、实现细节、action shuffling、VLM prompt、progress visualization、baseline consistency 和更多可视化，已整合到方法与实验章节。</li></ul>
+
+<h2>验收记录</h2><ul><li>章节覆盖：Introduction、Related Work、Methodology、Experiments、Conclusion、Appendix A-E 均已映射到报告位置。</li><li>图表覆盖：源码中的主要 PDF 图均已转换为 PNG 并嵌入关键图；补充图表放入实验和讨论相应位置。</li><li>附录整合：实现细节、action shuffling、VLM prompt、progress visualization、baseline consistency 和 more visualization 已整合进方法/实验/讨论。</li><li>客观性：分析与边界仅基于原文正文、表格、图和附录，不加入改进建议。</li></ul>
+</main>
+</body></html>

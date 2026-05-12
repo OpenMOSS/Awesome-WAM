@@ -1,0 +1,321 @@
+\begin{appendices}
+
+\section{Video Generation}
+\label{sec:appendix_video_generation}
+
+In this section, we provide additional details on the video generation models, prompt engineering techniques, and the specific prompts used in our experiments.
+
+\subsection{Wan2.1}
+Wan2.1 is the latest open-source video generation model from Alibaba at the time of this work.
+We note that a newer version, Wan2.2, was released recently but does not support all the modes of Wan2.1 that we require.
+Following the official recommendation, we use Chinese prompts, which we found to yield better results than English prompts.
+
+For Wan2.1, we use its Image-to-Video (I2V) model for standard video generation and its First-Last-Frame-to-Video (FLF2V) model when conditioning on a goal image.
+We generate 41 frames for each video at a resolution of 1280$\times$720 and a frame rate of 16 FPS. We use their UniPC sampler with 40 sampling steps, a noise shift parameter of 5.0, and a guidance scale of 5.0.
+
+\subsection{Veo}
+We also experimented with Veo, a closed-source model from Google. At the time of our experiments, the model supported I2V generation but not goal-image conditioning.
+Specifically, we used the \texttt{veo-3.0-generate-001} model via the Vertex AI API.
+We generated 8-second videos\footnote{During our experiments, the model only supported 8-second video generation. It now also supports durations of 4 and 6 seconds.} at a resolution of 1280$\times$720 and a frame rate of 24 FPS.
+To maintain consistency with Wan2.1, we downsampled the generated videos to 41 frames.
+
+Pricing for the Veo model is subject to change.
+At the time of writing, the cost was \$0.20 per second of generated video (e.g., \$1.60 for an 8-second clip).
+
+\subsection{Prompt Engineering}
+To improve the quality and controllability of the generated videos, we employ prompt extension, a technique where a simple instruction is automatically enriched with additional details about style, composition, and action.
+
+For Wan2.1, we adapt its official prompt extension script. We use the prompt template from the \href{https://github.com/Wan-Video/Wan2.1/blob/main/wan/utils/prompt_extend.py}{official repository} and pass it to the Gemini 2.5 Pro model to generate the extended Chinese prompt.
+
+For Veo, we utilize its native prompt enhancement feature available through the Vertex AI API, which automatically refines the input prompt for improved generation quality.
+
+\subsection{Generation Prompts}
+Below, we provide the original and extended prompts used for each task, along with the corresponding initial image from the robot's perspective.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_drawer_open_seed_47.jpg}
+\caption{Initial observation of the drawer open task.}
+\label{fig:initial_observation_drawer_open}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Open Drawer (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人手抓住黑色抽屉把手，顺利地将其从抽屉中拉出。抽屉应沿直线打开，且不会前后移动。人手不会在视觉上遮挡抽屉把手。    
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Open Drawer (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+实景拍摄，一只人手抓住黑色抽屉把手，将木质抽屉从木制抽屉箱中顺利拉出。抽屉沿着滑轨直线打开，抽屉把手光滑，人手并未遮挡。整体画面为抽屉箱被固定在带有圆形孔洞的蓝色实验平台上，背景是黑色的幕布和金属支架。展示抽屉打开的全过程。   
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Open Drawer (Veo original),width=\columnwidth]
+A human hand grasps a black drawer handle and smoothly pulls the drawer out. The drawer should open in a straight line without moving forward or backward. The human hand should not visually obscure the drawer handle.
+\end{tcolorbox}
+
+\newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_hang_mug_seed_44.jpg}
+\caption{Initial observation of the hang mug task.}
+\label{fig:initial_observation_hang_mug}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Hang Mug (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人的手拿起杯子并将其挂在木架上。人的手不会在视觉上遮挡杯子。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Hang Mug (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+专业工作室摄影，一只手正将一个印有熊猫图案的白色纸杯挂到右侧的木质支架上。纸杯内的液体在过程中有轻微晃动。镜头保持固定，只对物体进行平移，从杯子被拿起，到杯子稳稳地挂在支架上。画面呈现高对比度的冷色调，强调了物品的质感和细节。整体为中景拍摄，突出物体的主体性。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Hang Mug (Veo original),width=\columnwidth]
+A human hand picks up the cup and hangs it on the wooden stand. The human hand does not visually obstruct the cup.
+\end{tcolorbox}
+
+\newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_cup_on_plate_seed_48.jpg}
+\caption{Initial observation of the cup on saucer task.}
+\label{fig:initial_observation_cup_on_saucer}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Cup on Saucer (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人手拿起蓝色的小杯子，举起来，轻轻地放在它红色盘子上。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Cup on Saucer (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+写实风格，一只人手伸出，拿起蓝色带有白色图案的陶瓷小杯子，杯子被稳稳握住。随后，人手将杯子向上举起，并缓慢移动至右侧，将杯子稳稳地放置在一个红色的圆形盘子上。整个过程平稳流畅，镜头从俯视角度拍摄，展现了物体的精细细节和整体的摆放过程。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Cup on Saucer (Veo original),width=\columnwidth]
+A human hand picks up the small blue cup, lifts it up, and gently places it on its red plate.
+\end{tcolorbox}
+
+\newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_yellow_block_insertion_seed_49.jpg}
+\caption{Initial observation of the block insertion task.}
+\label{fig:initial_observation_block_insertion}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Block Insertion (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人手拿起黄色块，并将其准确地插入有蓝色块的盘子的中心。黄色块应该先上升然后下降。人手不会在视觉上遮挡黄色块。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Block Insertion (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+超写实主义近景镜头，一只人手拿起一个黄色方块，然后将它精准地放置在右侧一个由蓝色方块组成的盘子中心。该动作从黄色方块先向上移动，再向下插入盘子中心开始。整个过程中，人手始终保持在黄色方块上方，避免遮挡。画面背景是深色绒布，下方是带有规则孔洞的金属实验平台。镜头稳定，画面清晰。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Block Insertion (Veo original),width=\columnwidth]
+A human hand picks up the yellow block and inserts it precisely into the center of the plate with the blue block. The yellow block should rise first and then fall. The human hand should not visually obscure the yellow block.
+\end{tcolorbox}
+
+\newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_water_plant_seed_46.jpg}
+\caption{Initial observation of the water plant task.}
+\label{fig:initial_observation_water_plant}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Water Plant (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人手抓住左边的绿色水杯，将其举起，然后平稳地给植物浇水。摄像机始终保持静止。人手不会在视觉上遮挡杯子。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Water Plant (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+仰视视角，一只手持绿色马克杯，马克杯倾斜，准备向白盆里的紫色小花浇水。背景为深邃的黑色布景，地面为带有网格的金属平台，光线集中在平台中央，形成明暗对比。整体画面呈现出一种科技感和实验性。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Water Plant (Veo original),width=\columnwidth]
+A human hand grasps the green water cup on the left, lifts it, and steadily waters the plant. The camera remains stationary throughout. The hand does not visually obscure the cup.
+\end{tcolorbox}
+
+\newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_open_lid_seed_46.jpg}
+\caption{Initial observation of the open lid task.}
+\label{fig:initial_observation_open_lid}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Open Lid (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人手抓住锅的透明盖子并将其直接提起。摄像机始终保持静止。人手不会在视觉上遮挡盖子。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Open Lid (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+写实主义摄影，一只手在抓住平底锅的透明锅盖，并将其提起。锅盖上贴有三张长方形的黑色不干胶，上面有白色的反光。锅盖中间有一个黑色的圆形把手。锅的四周是深蓝色的实验台，表面布满了规则排列的圆孔。背景是深色的幕布和金属支架，光线集中在锅具上，营造出一种局部照明的氛围。近景，固定镜头，俯视角度。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Open Lid (Veo original),width=\columnwidth]
+A human hand grasps the transparent lid of a pot and lifts it straight up. The camera remains stationary. The hand does not visually obscure the lid.
+\end{tcolorbox}
+
+\newpage
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\linewidth]{Figure/real_world_experiments/first_rgb_straighten_rope_seed_42.jpg}
+\caption{Initial observation of the straighten rope task.}
+\label{fig:initial_observation_straighten_rope}
+\end{figure}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Straighten Rope (Wan2.1 original),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+一只人手缓缓地把弯曲的绳子推成直的。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Straighten Rope (Wan2.1 extended),width=\columnwidth]
+\begin{CJK*}{UTF8}{gbsn}
+工业风写实记录，在布满孔洞的深色金属实验台上，一只戴着黑色智能手表的人手缓缓出现，将一根红白蓝三色相间的粗布绳从U形弯曲状态，慢慢地推动、抚平成一条直线。整个动作流畅而稳定。镜头固定，采用俯视视角，记录了这一精准的操作过程。
+\end{CJK*}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Straighten Rope (Veo original),width=\columnwidth]
+A hand slowly pushes the bent rope into a straight line.
+\end{tcolorbox}
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{Figure/real_world_experiments/concatenated_before_scaling_yellow_block_insertion_seed_49.jpg}
+    \includegraphics[width=\linewidth]{Figure/real_world_experiments/concatenated_after_scaling_yellow_block_insertion_seed_49.jpg}
+    \caption{
+        \textbf{Comparison of the depth maps before (top) and after (bottom) scaling}.
+        The depth maps are visualized in the \texttt{jet} color map, where the colormap range is obtained from the ground-truth depth map.
+    }
+    \label{fig:depth_maps_before_after_scaling}
+\end{figure*}
+\newpage
+
+\section{Depth Estimation}
+We use the implementation of MegaSaM~\cite{li_megasam_2025} from TAPIP3D~\cite{zhang_tapip3d_2025} for depth estimation.
+Specifically, we use the MoGe~\cite{wang_moge_2024} model to estimate the per-frame depth map.
+Instead of estimating the camera intrinsics, we use the ground-truth calibrated intrinsics from our camera.
+The estimated depth maps are then postprocessed by bundle adjustment and consistent video depth (CVD)~\cite{luo_consistent_2020} optimization following CausalSAM~\cite{zhang_structure_2022}.
+
+Even after these postprocessing steps, the estimated metric depth maps are still ambiguous.
+Therefore, we opt to use the initial ground-truth depth map as the reference depth map for calibration.
+Specifically, we compute the scaling factor between the median depth of the first estimated frame and the initial ground-truth depth map.
+We then multiply the estimated depth maps by this scaling factor to obtain the calibrated depth maps.
+
+After applying the scaling factor (see \cref{fig:depth_maps_before_after_scaling}), the calibrated depth maps are more consistent with the ground-truth depth map and more temporally consistent.
+We find the calibrated depth maps are accurate enough to support precise manipulation tasks such as the block insertion as demonstrated in the figure, which requires millimeter-level precision.
+
+\section{3D Point Tracking}
+We leverage TAPIP3D~\cite{zhang_tapip3d_2025} for 3D point tracking, which tracks 3D points in the XYZ 3D coordinate space instead of the UVD 2D space.
+We generate query points on the first frame using uniform grid sampling of $32 \times 32$ points.
+We set the tracker iterations to 6.
+
+\section{Object Grounding}
+The previous step produces dense 3D tracking for the entire image.
+We need to ground the points to the target object.
+We use the Grounded-SAM2 pipeline~\cite{ren_grounded_2024} for object grounding, which combines Grounding DINO~\cite{liu_grounding_2025} and SAM2~\cite{ravi_sam_2024}.
+We pass the query object name to the pipeline to extract the object mask throughout the video.
+Then, we use the mask video to filter the 3D tracking points and only keep the points that are visible throughout the video.
+We set the bounding box threshold to 0.25 and text threshold to 0.3.
+We select the bounding box from Grounding DINO with the highest score and set it as the input prompt to SAM2 to extract the object mask.
+
+\section{Rejection Sampling}
+After obtaining the 3D object flow, we can project the 3D flow onto the first frame to obtain the 2D object flow.
+We then pass object flow images to Gemini 2.5 Pro to filter out hallucinations, such as generative artifacts and implausible motions, that may be unavoidably introduced by the video generation model.
+We find this strategy to be effective and benefits from scaling the execution-time computation resources.
+For example, we can generate 8 candidates in parallel and select the best one from the 8 candidates using 8 H100 GPUs.
+
+Along with the following system prompt, we also provide the flow image and the task description used to generate the video to clarify our expectation of the task.
+\begin{tcolorbox}[colback=gray!10,colframe=purple,title=Rejection Sampling System Prompt,width=\columnwidth]
+    You are a flow analysis expert. Analyze the stitched flow image and evaluate which flow visualization (marked with IDs in the top-left corner) represents the most reasonable and natural object motion. 
+    The flow is a manual annotation overlay on the image to indicate the intended object motion.
+    Consider:
+    1. Continuity and smoothness of the flow
+    2. Natural motion patterns
+    3. Proper object identification (avoid flows that spread throughout the entire image)
+    4. Alignment with the task requirements
+    You should reject images that show flows throughout the image (which means the object is not identified).
+    Provide a clear recommendation on which flow ID is best and why.
+\end{tcolorbox}
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{Figure/real_world_experiment_results_appendix.pdf}
+    \caption{
+        \textbf{Real-world manipulation experiments.}
+        From top to bottom: block insertion, rope straightening, cup on saucer, open drawer, hang mug, open lid, water plant, and open drawer using the Spot.
+    }
+    \label{fig:real_world_experiments_appendix}
+\end{figure*}
+
+\section{Trajectory Optimization}
+
+During execution time, we refine the sequence of actions using trajectory optimization to find an optimal, collision-free, and smooth sequence of joint configurations $Q = \{q_0, q_1, \dots, q_{T-1}\}$. The trajectory is initialized by linearly interpolating between start and end configurations, $q_{\text{start,IK}}$ and $q_{\text{end,IK}}$, which are pre-calculated using an IK solver. The optimal trajectory $Q^*$ is found by solving the following constrained non-linear optimization problem:
+\begin{equation}
+\label{eq:appendix_ik_optimization}
+\begin{aligned}
+\min_{Q} \quad & w_s \mathcal{C}_{\text{smooth}} + w_r \mathcal{C}_{\text{rest}}, \text{\quad subject to} \\
+\quad & q_0 = q_{\text{start,IK}} \quad \text{and} \quad q_{T-1} = q_{\text{end,IK}}, \\
+& q_{\min} \le q_t \le q_{\max}, \quad \forall t \in \{0, \dots, T-1\}, \\
+& d_s(q_t, q_{t+1}, O_j) \ge \epsilon_{\text{safe}}, \quad \forall t, \forall O_j \in \text{Obstacles}.
+\end{aligned}
+\end{equation}
+This optimization problem is solved using a non-linear least-squares algorithm (Levenberg-Marquardt). The constraints for joint limits and collision avoidance are incorporated as high-weight penalty terms in the objective function, while start and end configurations are hard constraints.
+
+\subsection*{Objective and Penalty Terms}
+
+\textbf{Smoothness Cost ($\mathcal{C}_{\text{smooth}}$)}. This cost penalizes non-smooth motion by minimizing the squared norms of joint velocity ($\dot{q}$), which is approximated using finite differences. In practice, this is implemented as a cost on the deviation from the previous joint configuration, encouraging temporal smoothness:
+\begin{equation} \mathcal{C}_{\text{smooth}} = \sum_{t} w_s \|q_t - q_{t-1}\|^2. \end{equation}
+
+\textbf{Rest Position Cost ($\mathcal{C}_{\text{rest}}$)}. This is a regularization term that encourages the trajectory to remain close to a default home configuration, $q_{\text{rest}}$:
+\begin{equation} \mathcal{C}_{\text{rest}} = \sum_{t} w_r \|q_t - q_{\text{rest}}\|^2. \end{equation}
+
+\textbf{Joint Limits Penalty}. This term penalizes any violation of the minimum ($q_{\min}$) and maximum ($q_{\max}$) joint limits:
+\begin{equation}
+\begin{split}
+\mathcal{C}_{\text{limits}} = \sum_{t} w_l \big( &\|\max(0, q_t - q_{\max})\|^2 \\
+& + \|\max(0, q_{\min} - q_t)\|^2 \big).
+\end{split}
+\end{equation}
+
+\textbf{Collision Avoidance Penalty}. This term enforces a safety margin, $\epsilon_{\text{safe}}$, from world obstacles, $O_j$, by applying a hinge loss on the signed distance, $d_s$, of the robot's swept volume:
+\begin{equation} \mathcal{C}_{\text{collision}} = \sum_{t,j} w_c \cdot \max(0, \epsilon_{\text{safe}} - d_s(q_t, q_{t+1}, O_j))^2. \end{equation}
+
+We implement the optimization using PyRoki~\cite{kim_pyroki_2025} and Jax.
+The cost terms are weighted as follows.
+The joint limit penalty is set to a high value of $w_l=100.0$ to act as a hard constraint.
+The smoothness weight is $w_s=10.0$, the collision penalty weight is $w_c=15.0$, and a small regularization is applied with a rest pose weight of $w_r=0.1$.
+
+\newpage
+\section{Experiments}
+We show more visualizations of the real-world manipulation experiments in \cref{fig:real_world_experiments_appendix}.
+\shortname is versatile and supports cross-embodiment manipulation, which we use to manipulate rigid, deformable, and articulated objects using tabletop and mobile manipulator.
+It is also viewpoint-agnostic and can be deployed on a novel platform after performing hand-eye calibration.
+
+\end{appendices}

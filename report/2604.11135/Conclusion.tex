@@ -1,0 +1,9 @@
+
+This paper presented \method, an intent-aware unified world-action model that bridges future video generation and robot action decoding with explicit spatial value maps. Built on a pretrained video generator and a \mot architecture, \method jointly predicts future frames, future value maps, and future actions, while intent-causal attention ensures that future information reaches the action head only through the intent-aligned value representation. We further introduced a self-distillation RL post-training strategy that freezes the video generation model and value branch and updates only the action head using dense rewards derived from projected value-map responses.
+
+Together with a 30K simulation dataset and evaluation on 50 RoboTwin 2.0~\cite{robotwin2.0} simulation tasks, these designs provide a coherent framework for studying spatially grounded world-action modeling. AIM achieves strong performance on the RoboTwin benchmark and consistently outperforms prior external baselines, showing that explicit spatial value modeling is a practical and effective bridge between RGB world modeling and robot action generation.
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{Reference}
+
+\end{document}

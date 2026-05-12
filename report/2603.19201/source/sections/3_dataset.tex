@@ -1,0 +1,281 @@
+% \documentclass[lettersize,journal]{IEEEtran}
+% \usepackage{amsmath,amsfonts}
+% \usepackage{algorithmic}
+% \usepackage{array}
+% \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+% \usepackage{textcomp}
+% \usepackage{stfloats}
+% \usepackage{url}
+% \usepackage{verbatim}
+% \usepackage{graphicx}
+% \usepackage{array}  
+% \usepackage{multirow} 
+% \usepackage{makecell}
+% \usepackage{booktabs}
+% \usepackage{fontawesome}
+% \usepackage{pifont}
+% \usepackage{float}
+% \usepackage{color}
+% \newcommand{\cmark}{\ding{51}}%
+% \newcommand{\xmark}{\ding{55}}%
+
+ 
+% \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+% \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+%     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+% \usepackage{balance}
+% \begin{document}
+% \title{Imagine the Touch: Learning Contact-Rich Manipulation Policy via Visuo-Tactile World Model}
+% \author{IEEE Publication Technology Department
+% \thanks{Manuscript created October, 2020; This work was developed by the IEEE Publication Technology Department. This work is distributed under the \LaTeX \ Project Public License (LPPL) ( http://www.latex-project.org/ ) version 1.3. A copy of the LPPL, version 1.3, is included in the base \LaTeX \ documentation of all distributions of \LaTeX \ released 2003/12/01 or later. The opinions expressed here are entirely that of the author. No warranty is expressed or implied. User assumes all risk.}}
+
+% \markboth{Journal of \LaTeX\ Class Files,~Vol.~18, No.~9, September~2020}%
+% {How to Use the IEEEtran \LaTeX \ Templates}
+
+% \maketitle
+
+
+\section{The OmniViTac Dataset}
+% To advance contact-rich manipulation with tactile feedback, we introduce \textbf{OmniViTac}, a comprehensive, omni-scale visuo-tactile-action dataset. It comprises 21,879 trajectories, featuring RGBD data and higher-frequency tactile and action data. The dataset encompasses a broad range of manipulation tasks that rely on tactile feedback in various real-world settings, providing comprehensive coverage and precise multi-modal alignment.
+
+% In the remainder of this section, we describe the construction and key characteristics of OmniViTac. \textbf{Section III-A} introduces the Hardware Setup and Data Collection System.\textbf{Section III-B} defines the task taxonomy and analyzes representative visuo-tactile patterns. \textbf{Section III-C} introduces the dataset scale compared with existing visuo-tactile datasets and the dataset statistics.
+
+To support data-driven visuo-tactile learning for contact-rich manipulation, we introduce {OmniViTac}, a large-scale visuo-tactile-action dataset that addresses two key limitations of existing datasets: insufficient scale of fully aligned demonstrations and limited coverage of contact-rich tasks.
+
+OmniViTac contains $21,879$ synchronized trajectories spanning $86$ tasks and $100+$ objects in diverse real-world environments, with RGB-D observations, high-frequency tactile sensing, and action streams recorded in a temporally aligned manner. 
+Compared with prior visuo-tactile-action datasets in Tab.~\ref{tab:dataset_comparison}, OmniViTac substantially expands both task coverage and data scale, while also increasing sensor and collection diversity. Beyond scale alone, OmniViTac is organized around six physics-grounded visuo-tactile interaction patterns, enabling the dataset to capture a broad spectrum of contact dynamics rather than a narrow set of task-specific behaviors. 
+These properties make OmniViTac a comprehensive benchmark for learning generalizable visuo-tactile representations, predictive contact models, and manipulation policies.
+
+In the following, we describe OmniViTac in terms of its system design, task organization, and dataset scale. 
+Sec.~\ref{sec:hardware} presents the hardware setup and synchronized data collection pipeline, which enables temporally aligned acquisition of RGB-D observations, tactile signals, and actions under diverse embodiments and sensing configurations. 
+Sec.~\ref{sec:task} introduces the task taxonomy and representative visuo-tactile interaction patterns, revealing the contact-rich structure underlying the dataset. 
+Sec.~\ref{sec:statistics} summarizes the dataset statistics and comparisons with prior work, highlighting the scale, diversity, and breadth of OmniViTac.
+
+% \subsection{Hardware Setup and Embodiments}
+% To effectively capture a diverse array of visuo-tactile manipulation tasks—each characterized by distinct kinematic requirements and dynamic profiles—we engineered a unified cross-embodiment hardware ecosystem. As illustrated in Fig. 1 (Left), this platform integrates two complementary data collection embodiments with isomorphic end-effectors, ensuring that tasks of varying complexities are optimally recorded without compromising the physical integrity of the interactions.
+
+% \subsubsection{Dual-Embodiment Strategy}
+% Conventional datasets predominantly rely on a single collection modality, which fundamentally limits either the diversity of executable tasks or the efficiency of scaling data. OmniViTac addresses this dichotomy by employing a synergistic hybrid strategy:
+% \begin{itemize}
+% \item \textbf{7-DoF Robotic Manipulator:} For tasks requiring high kinematic precision and stability, we utilize a UFACTORY xArm-7 robotic arm. To accommodate varying task complexities, we implement two distinct control interfaces: (1) Kinesthetic Teaching, where operators manually guide the robot via gravity compensation. This method is optimal for delicate, force-sensitive tasks such as wiping, cutting, and peeling. (2) GELLO-based Teleoperation[Cite GELLO], a master-follower teleoperation framework that facilitates the effortless collection of dynamic pick-and-place maneuvers (e.g., grasping and assembly). GELLO gracefully circumvents the labor-intensive nature of direct teaching for large-range spatial motions while providing a high-fidelity mapping from human action to the robot's joint space.
+
+% \item \textbf{TacUMI Handheld Device:} Inspired by the Universal Manipulation Interface (UMI) [Cite UMI]—which excels at rapidly scaling up data volume—we significantly advanced its foundational design to develop TacUMI, a portable, handheld visuo-tactile data acquisition device. While vanilla UMI predominantly relies on purely visual spatial tracking and passive gripper mechanisms, TacUMI is engineered with substantial hardware innovations: it natively integrates (1) modular tactile sensors to capture rich contact dynamics, (2) an active motorized gripper equipped with high-resolution encoders to actuate and continuously log precise aperture states, and (3) a comprehensive multi-camera visual suite to eliminate observation blind spots. These enhancements transform the device from a basic trajectory tracker into a high-fidelity, multimodal recording platform. By completely decoupling data collection from robotic kinematics, TacUMI empowers human operators to perform highly flexible and natural manipulation maneuvers. This embodiment is particularly crucial for gathering contact-rich data in heavily constrained environments (e.g., reaching inside a narrow shelf) or for tasks requiring complex 6-DoF approach angles that are kinematically infeasible for standard fixed-base arms.
+% \end{itemize}
+
+% \subsubsection{Isomorphic End-Effectors}
+% A fundamental challenge in utilizing cross-embodiment data is the morphological and dynamical domain shift introduced by differing end-effectors. OmniViTac strictly mitigates this gap through hardware consistency at the interaction level. Both the xArm-7 and TacUMI are equipped with identical parallel-jaw grippers. By standardizing the gripper geometry, mechanical compliance, and visual appearance, we ensure that contact physics and grasp constraints remain invariant regardless of the embodiment.
+% Furthermore, a crucial self-developed innovation of TacUMI is the integration of high-resolution encoders to record continuous gripper aperture variations, rather than restricting states to binary (fully open/closed) signals. This continuous spatial awareness is particularly compelling for tactile-sensitive manipulations, where minute adjustments in grasp width directly correlate with force exertion and object deformation. Consequently, this isomorphic design facilitates the seamless transfer of manipulation policies trained on human-collected data to the robot execution domain.
+
+% \subsubsection{Sensory Suite}
+% The platform is equipped with a high-fidelity sensory suite meticulously designed to capture comprehensive visuo-tactile states.
+% \begin{itemize}
+% \item \textbf{Visual Observation:} Multi-view camera configurations are tailored to each collection platform. For the xArm-7 kinesthetic setup, we employ an eye-in-hand Intel RealSense D435 and an external RealSense L515 to capture the global workspace. The GELLO setup utilizes an eye-in-hand D435 alongside an external D435. The handheld TacUMI integrates an eye-in-hand D435, an Intel T265 tracking camera for visual SLAM-based pose estimation, and a supplementary fisheye camera for broader contextual awareness. All RGB and depth streams are captured at spatially aligned [e.g., 848 × 480] resolution at 30 Hz.
+
+% \item \textbf{Diverse Tactile Feedback:} To foster research on sensor generalization, our isomorphic gripper features a modular fingertip interface compatible with multiple tactile sensor modalities. OmniViTac currently supports four distinct sensors (see Fig. 1, Bottom-Left):
+% (1) \textbf{Xense (Quark N1):} Providing simultaneous, high-frequency normal and shear force feedback. This sensor constitutes the majority of our dataset due to its robustness in dynamic interactions;
+% (2) \textbf{GelSight-mini:} For high-resolution, localized surface geometry extraction;
+% (3) \textbf{Tac3D-A1:} Enabling real-time 3D reconstruction of contact patches; and
+% (4) \textbf{Daimon (DM Tac-W):} Designed for multi-modal vibration and distributed pressure sensing.
+% \end{itemize}
+
+% Crucially, to accommodate the disparate operational frequencies of these sensors, all multi-modal streams—comprising RGB-D, tactile signals, and proprioceptive data (e.g., continuous gripper states, joint states, and/or end-effector poses)—are natively collected asynchronously. Rigorous temporal alignment is subsequently achieved through a dedicated post-processing pipeline to guarantee cross-modal timestamp consistency.
+
+
+
+% \subsection{Data Collection and Processing Pipeline}
+% To ensure the fidelity and usability of the OmniViTac dataset for downstream policy learning, we developed a standardized pipeline encompassing asynchronous data acquisition, precise temporal alignment, and multi-level quality assurance.
+
+% \subsubsection{Visuo-tactile Data Collection and Logging}
+% %zyp modify
+% To ensure environmental diversity and robustness, data collection was conducted across various semantic scenarios. Human operators were instructed to randomize the object layout for each task. At the system level, the multi-sensor network is coordinated via a distributed ROS architecture.
+% To preserve native sampling rates and avoid online processing latency, all sensory streams, including multi-view RGB-D images, continuous gripper states, tactile (e.g., raw image and marker displacement~\cite{Chen2024GeneralPurposeSP}), and proprioceptive states (6D end effector and 1D gripper width), are collected asynchronously. At the end of each episode, the multi-modal data and their associated hardware timestamps are serialized into structured \texttt{.pkl} dictionary files. An automated file-level integrity check is performed immediately after each trajectory ends; any episode exceeding a 5\% threshold for missing frames or exhibiting data corruption is automatically removed.
+
+% \subsubsection{Multi-Modal Synchronization and Automated Trimming}
+% A key challenge in processing high-fidelity visuo-tactile datasets lies in managing temporal discrepancies among heterogeneous sensors. In OmniViTac, cameras typically operate at approximately 30 Hz, while tactile sensors and proprioceptive states run at distinct, higher frequencies.
+% To address the issue, we implement an offline temporal synchronization and alignment pipeline. First, the algorithm identifies the maximum overlapping temporal window by determining the latest start time ($t_{\text{start}}^{\max}$) and the earliest end time ($t_{\text{end}}^{\min}$) across all asynchronous timestamp sequences, ensuring valid observation coverage for all modalities.
+
+% Besides, we apply a kinematic-based automated trimming strategy to remove idle phases before and after the actual manipulation. By analyzing the spatial derivatives of the end-effector's pose (e.g., thresholding the sudden positional shift, $\Delta z > \tau$), the pipeline isolates the active manipulation segment. Finally, to construct coherent state-action tuples for policy learning, high-frequency tactile and proprioceptive signals are aligned to the visual time references using a nearest-neighbor timestamp matching algorithm (i.e., minimizing $|t_{\text{sensor}} - t_{\text{anchor}}|$). This approach preserves raw sensory values without introducing interpolation artifacts, ensuring robust synchronization throughout the dataset.
+
+% \subsubsection{Data Verification}
+% To maintain the highest standard of data quality, we integrate a periodic, human-in-the-loop verification mechanism directly into the collection workflow. The system is programmed to automatically pause data collection every 25 trajectories to generate comprehensive multi-modal visualizations, including multi-view RGB videos, dynamic tactile response maps (raw and marker displacement), and gripper and trajectory plots (6D end-effector distribution).
+
+% During these mandatory inspection windows, human operators manually review the generated assets and rigorously discard substandard demonstrations based on several heuristics: (1) abnormal or unresponsive tactile sensor visualizations, (2) inaccuracies or drift in the recorded plots, (3) multi-camera desynchronization or corrupted pixel observations, (4) ultimate task execution failure (e.g., object dropping), and (5) inappropriate manipulation velocities (e.g., motions that are excessively fast or jerky). This systematic screening guarantees the kinematic stability, sensory correctness, and overall reliability of the finalized OmniViTac dataset.
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=0.95\linewidth]{fig/OmniVTA-6pattern.pdf}
+\caption{\textbf{Example visualization of the $6$ visuo-tactile manipulation patterns in OmniViTac.} The dataset captures diverse, contact-rich behaviors across various scenarios, including Assembly, Cutting, Adjustment, Peeling, Grasping, and Wiping. Each panel illustrates the global third-person workspace view overlaid with the end-effector's trajectory, alongside synchronized, high-frequency tactile maps (bottom) that continuously record the complex tool-object contact dynamics during task execution.}
+\label{fig:show_case}
+\end{figure*}
+
+\subsection{Hardware Setup and Data Collection System}
+\label{sec:hardware}
+
+\subsubsection{System Overview}
+
+To efficiently collect large-scale visuo-tactile manipulation data, we develop a unified multimodal data acquisition system that can be operated by a single human operator. The system records synchronized multimodal observations during manipulation, including RGB-D visual observations, tactile signals from fingertip sensors, manipulation trajectories, and continuous gripper aperture states.
+
+All sensory streams are recorded asynchronously at their native frequencies. A post-processing synchronization pipeline then aligns different modalities using timestamps to ensure consistent temporal correspondence across all observations.
+
+\subsubsection{Dual-Embodiment Data Collection}
+
+To balance \emph{robot-aligned demonstrations} and \emph{data collection scalability}, our dataset is collected using two complementary hardware embodiments: a 7-DoF robotic manipulator (xArm-7) and a TacUMI handheld data collection device. The robotic platform captures demonstrations that closely match the kinematic and dynamic distributions of robot execution, while TacUMI enables flexible and efficient human manipulation for large-scale data collection.
+
+\noindent \textbf{Robot Demonstrations (7DoF Robot Arm).}
+We employ a {UFACTORY xArm-7} manipulator to collect robot-aligned demonstrations. Two control modes are used:
+
+\begin{itemize}
+\item \textbf{Kinesthetic Teaching.} The operator directly guides the robot under gravity compensation mode, allowing precise control of contact interactions. This mode is particularly suitable for tasks requiring fine force perception, such as wiping surfaces or inserting connectors.
+
+\item \textbf{GELLO Teleoperation.} For tasks involving larger spatial motions and less reliance on direct force perception, we adopt the {GELLO teleoperation system}~\cite{wu2024gello}. This master–follower interface enables efficient collection of pick-and-place style demonstrations while preserving realistic robot motion trajectories.
+\end{itemize}
+
+\begin{table*}[thb!]
+    \centering
+    \captionsetup{width=\textwidth}
+    \caption{\textbf{Comparison of OmniViTac with existing vision-tactile-action datasets.} \textit{Note:} * indicates that the statistics count only the visuo-tactile trajectories in the corresponding dataset. ``--" denotes not applicable.
+    } 
+    \label{tab:dataset_comparison} 
+    \vspace{-2mm}
+    \addtolength{\tabcolsep}{-2pt}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{@{}lccccccccc@{}}
+            \toprule
+            \multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{\#Task}} & \multirow{2}{*}{\textbf{\#Traj.}} & \multirow{2}{*}{\textbf{\#Object}} & \multirow{2}{*}{\textbf{Vision}} & \multicolumn{3}{c}{\textbf{Tactile}} & \multirow{2}{*}{\textbf{Action}} & \multirow{2}{*}{\textbf{Collection}} \\ \cmidrule(lr){6-8}
+             &  &  &  &  & \textbf{Sensors} & \textbf{Force Dim.} & \textbf{Frequency} &  &  \\ \midrule
+            ObjectFolder2.0~\cite{gao2022objectfolder} & 3 & -- & 1,000 & Rendered & GelSight & 3 & -- & \xmark & Simulated \\
+            AnyTouch~\cite{feng2025anytouch} & 1 & -- & 124 & -- & GelSight Mini/DIGIT/DuraGel/Tac3D & 3 & 30 & \xmark & Handheld \\
+            VTV150k~\cite{xie2025universal} & -- & -- & 100 & -- & GelSight Mini/DIGIT/Tac3D & -- & -- & \xmark & Handheld \\
+            Octopi-1.5~\cite{yu2025demonstrating} & 3 & -- & -- & GoPro & GelSight Mini/TAC-02 & -- & 50$\sim$1000 & \cmark & TMI \\
+            See, Hear, and Feel~\cite{li2022see} & 2 & 60 & 4 & RealSense & GelSight & -- & 30 & \cmark & Teleop \\
+            RH20T*~\cite{fang2023rh20t} & 55 & 917 & -- & RealSense & uSkin & -- & 200 & \cmark & Teleop \\
+            FreeTacMan~\cite{wu2025freetacman} & 50 & 10,000 & 50 & Fisheye & FreeTacMan & -- & 30 & \cmark & Fingertips \\
+            VLA-Touch~\cite{bi2025vla} & 3 & -- & -- & RealSense & GelSight Mini & -- & 10 & \cmark & Kinesthetic Teaching \\
+            OmniVTLA~\cite{cheng2025omnivtla} & 2 & 240 & 56 & RealSense & GelSight/Paxini Gen 2 & -- & 30 & \xmark & Handheld \\
+            exUMI~\cite{xu2025exumi} & 9 & 1,665 & 8 & GoPro & 9DTact & 6 & -- & \cmark & UMI-style \\
+            MLA~\cite{liu2025mla} & 6 & 1,200 & 14 & RealSense & Tashan TS-E-A & 6 & -- & \xmark & Gello-teleop \\
+            Hoi!~\cite{engelbracht2025hoi} & 6 & $\sim$3,000 & 381 & Zed Mini/Aria & DIGIT & 6 & 30$\sim$60 & \cmark & Gello-teleop \\
+            AgiBot World*~\cite{bu2025agibot} & 7 & 5,337 & -- & -- & Xense & 3 & -- & \cmark & Teleop \\ \midrule
+            \textbf{OmniViTac (Ours)} & 86 & 21,879 & 126 & RealSense/Fisheye & Xense/Gelsight Mini/DM-Tac/Tac3D & 3 & 30$\sim$60 & \cmark & UMI-style/Kinesthetic Teaching \\ \bottomrule
+        \end{tabular}}
+    \vspace{-5mm}
+    \addtolength{\tabcolsep}{2pt}
+\end{table*}
+
+\noindent \textbf{Human Demonstrations (TacUMI).} 
+To improve data collection efficiency and flexibility, we develop {TacUMI}, a handheld visuo-tactile data collection device inspired by FastUMI~\cite{zhaxizhuoma2025fastumi}. TacUMI enables natural manipulation motions while recording multimodal sensory observations that are consistent with the robotic platform. Following FastUMI, we use a {RealSense T265} tracking camera, which outputs 6-DoF poses at 200~Hz to estimate trajectories. After each trajectory is collected, an automatic verification step checks for tracking drift, and trajectories with position errors larger than 8~mm are discarded.
+
+
+
+\noindent \textbf{Isomorphic End-Effector.}
+To minimize embodiment-induced domain gaps, both the robotic arm and TacUMI employ identical parallel-jaw grippers. This shared end-effector design ensures consistent grasp geometry and contact mechanics across both data collection embodiments. Each gripper records \emph{continuous motor states}, which are normalized to a $[0,1]$ range to represent the gripper width. The fingertip structure is modular and supports interchangeable tactile sensor modules.
+
+\subsubsection{Sensor Suite}
+To capture the diverse perceptual cues required in contact-rich manipulation, we combine RGB-D sensing with multiple tactile sensors that provide complementary observations of object geometry, surface interaction, and contact dynamics.
+
+\noindent \textbf{Visual Observation.}
+We record both \emph{wrist-view} and \emph{third-person-view} RGB-D observations. Wrist-view images are captured using an Intel RealSense D435 camera, while third-person observations are captured using either a D435 or an L515 camera. All cameras record RGB-D streams at 30~Hz. The D435 provides images at $640\times480$ resolution, while the L515 provides $1280\times720$ resolution. TacUMI additionally integrates a wide-angle RGB camera to capture broader environmental context.
+
+\noindent \textbf{Tactile Sensing.}
+Tactile sensors are mounted on the gripper fingertips to capture detailed contact information during manipulation. Our platform supports four types of tactile sensors with different sensing principles and resolutions:
+
+\begin{itemize}
+
+\item \textbf{Xense (Quark N1):}
+records RGB tactile images with a resolution of $700\times400$ at 30~Hz and 3D displacement fields with a spatial resolution of $35\times20$ at 60~Hz.
+
+\item \textbf{Daimon (Tac-WL):}
+records grayscale tactile images at $640\times480$ resolution at 30~Hz and 3D displacement measurements with resolution $320\times240$ at 60~Hz.
+
+\item \textbf{Tac3D-A1:}
+provides dense 3D displacement sensing with spatial resolution $20\times20$ at 30~Hz.
+
+\item \textbf{GelSight Mini:}
+records RGB tactile images with resolution $320\times240$ and 3D displacement fields with spatial resolution $9\times7$, both captured at 25~Hz.
+
+\end{itemize}
+
+These sensors provide multiple tactile signal modalities for the same manipulation tasks. The Xense sensor is used for the majority of data collection due to its robustness in large-scale manipulation datasets. 
+Consequently, demonstrations collected with Xense are primarily used for analysis and real-robot evaluation, while the additional tactile sensors are included to support research on tactile representation learning and cross-sensor generalization.
+
+\noindent \textbf{Proprioceptive Signals.}
+The system also records proprioceptive states, including robot joint states (only for xArm demonstrations), end-effector poses, and continuous gripper aperture values. During data collection, the average tactile displacement is visualized in real time to provide operators with an intuitive estimate of contact forces.
+
+\subsubsection{Data Collection and Processing Pipeline}
+We describe how visuo-tactile-action trajectories are recorded and how the raw data are collected, validated, and processed.
+
+\noindent \textbf{Data Acquisition.}
+To enable single-operator data collection, we design a foot-pedal control interface for managing the entire recording process. The interface provides three functions: starting the system, recording trajectories, and stopping it. During recording, all sensors continuously publish timestamped observations, which are subscribed and stored by the host computer. To prevent sensor drift from extended operation, the system automatically restarts after every 25 trajectories.
+
+\noindent \textbf{Data Validation.}
+We perform both online and offline quality checks. During collection, every 50 trajectories the system randomly selects three trajectories and visualizes synchronized sensor streams, including camera observations, tactile signals, trajectory curves, and gripper width signals. After data collection, all trajectories can be inspected offline using visualization tools, and abnormal samples are removed.
+
+\noindent \textbf{Data Processing.}
+Before policy training, we preprocess all trajectories to improve data quality and temporal consistency. This pipeline removes redundant static frames at the beginning and end of each trajectory, aligns RGB-D, tactile, and action streams through timestamp synchronization (with temporal error below 10~ms), and segments trajectories into training-ready clips according to downstream policy learning requirements.
+
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=0.95\linewidth]{fig/data_stat_family.png}
+\caption{\textbf{{Comprehensive statistical analysis of the OmniViTac.}} 
+\textbf{(a)} Pattern-level contact area distribution, highlighting the distinct dichotomy between precision-dominant tasks (concentrated in the $0$-$10\%$ range) and surface-dominant tasks (peaking at $70$-$90\%$). 
+\textbf{(b)} Force intensity distribution, showcasing the wide spectrum of force magnitudes required across different manipulation modes. 
+\textbf{(c)} Hierarchical distribution illustrating the rich diversity of $86$ instantiated tasks. 
+\textbf{(d)} Effective contact ratio with variance across patterns, demonstrating the temporal dependency on tactile feedback (e.g., \textit{Adjustment} exhibits the highest continuous engagement). 
+\textbf{(e)} Total trajectory counts per category, demonstrating the massive scale and balanced composition of the benchmark. 
+\textbf{(f)} t-SNE projection of the high-dimensional tactile signals, revealing physically intuitive and semantically separable latent clusters that strictly align with the underlying contact mechanics of each interaction pattern.}
+\label{fig:statistic}
+\end{figure*}
+
+
+
+\subsection{Task Taxonomy and Tactile Pattern Analysis}
+\label{sec:task}
+\subsubsection{Environmental Diversity}
+
+To facilitate robust generalization of visuo-tactile policies to real-world environments, OmniViTac is deliberately designed with high environmental diversity. As illustrated in the inner ring of Fig.~\ref{fig:dataset_teaser} and the examples in Fig.~\ref{fig:show_case}, the dataset encompasses over 70 distinct manipulation tasks, systematically distributed across five semantic scenarios: \textit{Kitchen, Fruit Shop, Industrial Workspace, Chemistry Laboratory,} and \textit{Office}. Diverse scene selection ensures broad coverage of visual distractors, varying illumination conditions, and a wide range of object properties, including rigid, deformable, transparent, and articulated types, thereby posing fundamental challenges to the robustness of policies.
+
+
+\subsubsection{Task Taxonomy}
+To move beyond task classification based purely on visual kinematics, we introduce a physics-grounded taxonomy that categorizes the collected behaviors into six representative visuo-tactile patterns. This taxonomy is defined by the dominant tactile features and contact mechanics underlying successful execution:
+\begin{itemize}
+    \item \textbf{Assembly:} Involves precise coordination of contact geometry and multi-directional forces to perceive tight tolerances and detect successful mating of intricate parts.
+    \item \textbf{Cutting:} Predominantly relies on the progressive magnitude of normal forces to penetrate objects, using sudden force drops to judge the completion of the severing action.
+    \item \textbf{Adjustment:} Characterized by torsional and shear forces, which are crucial for sensing slip and reorienting in-hand objects until the desired stable pose is achieved.
+    \item \textbf{Peeling:} Involves a dynamic and continuous coupling of both shear and normal forces to maintain constant tool-surface contact while stripping object exteriors.
+    \item \textbf{Wiping:} Another canonical contact-rich task demanding the simultaneous regulation of normal pressure (to maintain surface adherence) and planar shear force (to overcome friction during sweeping motions).
+    \item \textbf{Grasping:} A highly versatile category encompassing a broad spectrum of force profiles. It utilizes precise normal force control to safely handle fragile items, leverages contact feedback to verify secure holds on visually challenging (e.g., transparent) objects, and exploits combined normal-shear dynamics to optimize the manipulation of complex articulated mechanisms.
+\end{itemize}
+
+
+
+\subsubsection{Tactile Pattern Analysis}
+
+To quantitatively validate the proposed task taxonomy and analyze the underlying data distribution, we embed the high-dimensional tactile signals from all six pattern categories into a two-dimensional latent space using t-SNE, as shown in Fig.~\ref{fig:statistic}(f). The embedding reveals a highly structured and physically interpretable distribution. Notably, tasks dominated by continuous, high-frequency shear and dynamic normal forces, such as \textit{Wiping} and \textit{Peeling}, form overlapping or closely adjacent clusters, reflecting their shared underlying contact mechanics. In contrast, tasks governed primarily by static normal pressure and localized geometric contacts, such as \textit{Assembly}, yield distinct and well-separated manifolds. The \textit{Grasping} category occupies a broad and expansive region in the feature space, consistent with its inherent intra-class diversity spanning delicate handling of fragile objects to manipulation of complex articulated mechanisms. This clear semantic separability within the tactile latent space underscores that OmniViTac captures rich, pattern-specific contact dynamics rather than redundant or noisy signals.
+
+
+
+\subsection{Dataset Statistics and Scale}
+\label{sec:statistics}
+
+\subsubsection{Overview Statistics}
+% zyp modify
+To rigorously benchmark the scale, diversity, and fidelity of OmniViTac, we provide a comprehensive statistical analysis of all collected trajectories, with an emphasis on task distributions and their associated spatio-temporal tactile properties.
+As illustrated in Fig.~\ref{fig:statistic}(e), the dataset captures a broad range of visuo-tactile patterns commonly encountered in daily manipulation tasks. The ``grasping" category constitutes the largest subset, comprising 9,200 trajectories. Other manipulation categories also account for a significant portion of the dataset, each comprising approximately 3,000 or 1,000 trajectories, with all categories remaining within the same order of magnitude. This balanced composition ensures sufficient data density for both general-purpose pre-training and task-specific fine-tuning.
+
+
+
+
+\subsubsection{Tactile Active Ratio}
+
+A key metric for evaluating contact-rich datasets is the Effective Contact Ratio, defined as the proportion of a trajectory during which the tactile sensors register meaningful tactile interaction. As shown in Fig.~\ref{fig:statistic}(d), \textit{Adjustment} exhibits the highest active ratio (0.67) with relatively low variance, primarily because in-hand reorientation demands continuous contact with the tool or object to monitor slip and state changes. Similarly, tasks such as \textit{Wiping} (0.49) and \textit{Peeling} (0.41) require prolonged frictional interaction. In contrast, \textit{Cutting} yields the lowest active ratio (0.27) and exhibits high variance, as these patterns typically involve an extended phase of visual alignment and pre-contact approach before the brief, high-force severing event.
+
+\subsubsection{Pattern-level Contact Area and Force Intensity}
+
+The heatmaps in Fig.~\ref{fig:statistic}(a) and (b) reveal a clear and physically intuitive distinction in how tactile sensors are spatially and dynamically engaged across different manipulation patterns.
+
+\begin{itemize}
+\item \textbf{Precision-oriented tasks} (e.g., \textit{Assembly, Grasping, Adjustment}): These manipulations are predominantly associated with the lowest deciles in both contact area (with $66\%$ of occurrences in the $0-10\%$ range) and force intensity. This distribution reflects the underlying nature of these tasks, which rely on delicate, localized fingertip contacts and sensitive low-magnitude force feedback to adjust object poses or prevent damage precisely.
+\item \textbf{Power-oriented or surface-oriented tasks} (e.g., \textit{Cutting, Peeling, Wiping}): In contrast, these tasks exhibit extensive sensory activation. Their contact area distributions peak prominently in the $70\%-90\%$ range, indicating full-patch engagement of the sensor surface to maintain frictional contact. Moreover, \textit{Cutting} shows a marked shift toward higher force intensities (peaking in the $40\%-50\%$ range of sensor capacity), which is necessary for penetrating materials and overcoming physical resistance.
+\end{itemize}
+
+Together, these multi-dimensional statistics demonstrate that OmniViTac is not merely a collection of random contacts, but a highly structured and physically grounded benchmark, well-suited to support advanced research in visuo-tactile perception and contact-rich policy learning.

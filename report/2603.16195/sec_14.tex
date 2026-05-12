@@ -1,0 +1,19 @@
+
+\label{sec:real_world_exp}
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.99\linewidth]{imgs/real_world_35.pdf}
+ \caption{Multi-task real-world experiments. (a) We deploy our system on a dual-arm Cobot using only monocular front-camera observations. (b) Our S-VAM demonstrates a significant success rate improvement over VPP~\cite{huvideo} on all tasks without compromising real-time control capabilities.}
+  \label{fig:real_world}
+\end{figure}
+
+\noindent \textbf{Task setups.}
+As shown in \cref{fig:real_world}(a), we conduct our real-world experiments on a Cobot dual-arm robot manufactured by AgileX Robotics, which adopts the Mobile ALOHA system design~\cite{fu2024mobile}. Each arm possesses 7 degrees of freedom and is equipped with a parallel gripper. To maintain consistency with our simulated setup, all experiments are conducted using only the front camera to capture monocular RGB observations. We design four manipulation tasks to evaluate S-VAM's effectiveness: (1) \textit{Place-to-Pot}: picking an object and placing it into a pot; (2) \textit{Place-to-Pot (Hard)}: picking a transparent object and placing it into a pot; (3) \textit{Pour-Water}: pouring water from a transparent cup into a pot; and (4) \textit{Lift-Pot}: lifting the pot with both arms. We train a unified multi-task model on roughly 50 human demonstrations per task. During evaluation, we report the average success rate over 25 trials for each task.
+
+\noindent \textbf{Results Analysis.}
+As shown in \cref{fig:real_world}(b), our S-VAM outperforms VPP~\cite{huvideo} across all tasks. The performance gain is most evident in the \textit{Place-to-Pot (Hard)} task involving transparent objects. In this task, VPP achieves only 16\% success, as its noisy one-step features lack the coherent and stable foresight needed to resolve visual ambiguity. 
+In contrast, our S-VAM benefits from the synergy of both decouplers: the geometric decoupler distills precise geometric priors to resolve the depth ambiguity of transparent surfaces, while the semantic decoupler extracts discriminative object features to maintain a consistent representation of the transparent entity. This distilled foresight enables the action expert to reliably anticipate the target's future states and plan precise action trajectories, boosting the success rate to 32\%. Furthermore, our S-VAM takes 307.6 ms per forward pass (video diffusion backbone: 231.0 ms; decouplers: 40.1 ms; action expert: 36.5 ms), introducing a modest 15.8\% overhead over VPP (265.7 ms). By predicting an action chunk of 8 per forward pass, our S-VAM achieves an effective control frequency of 25 Hz.
+
+
+
+

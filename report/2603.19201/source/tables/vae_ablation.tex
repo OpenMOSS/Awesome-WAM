@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{Ablation study on the design of TactileVAE. We evaluate reconstruction performance using the $L_2$ metric.}
+\label{tab:vae_ablation}
+\small
+\renewcommand{\arraystretch}{1.2} % 增加行间距，提升阅读舒适度
+% 设置列间距，让1栏宽度的表格看起来更紧凑
+\setlength{\tabcolsep}{2pt} 
+
+\begin{tabular}{l S[table-format=1.3] S[table-format=1.3] S[table-format=1.3]}
+\toprule
+\textbf{Method} & {\textbf{GelSight-Mini}} & {\textbf{Tac3D-A1}} & {\textbf{Xense-QN1}} \\
+\midrule
+w/o implicit decoder & 0.126 & 0.098 & 0.038 \\
+w/ position embed. & 0.102 & 0.085 & 0.035 \\
+w/o spatial feature map & 0.107 & 0.084 & 0.071 \\
+w/ implicit decoder & \textbf{0.047} & \textbf{0.058} & \textbf{0.034} \\
+\bottomrule
+\end{tabular}
+\end{table}

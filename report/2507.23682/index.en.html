@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>villa-X: Enhancing Latent Action Modeling in Vision-Language-Action Models - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>villa-X: Enhancing Latent Action Modeling in Vision-Language-Action Models</h1>
+<p><strong>Reading Report</strong>: villa-X is a paper on latent action modeling in the Vision-Language-Action (VLA) model. Its proposition is that latent actions should not only compress visual changes, but also use robot proprioception to align them with real physical actions; and the strategy model should explicitly plan latent actions first, and then conditionally generate robot actions.</p>
+<div>
+<span class="tag">arXiv: 2507.23682v3</span>
+<span class="tag">VLA</span>
+<span class="tag">Latent Action</span>
+<span class="tag">Joint Diffusion</span>
+<span class="tag">SIMPLER / LIBERO / Real Robots</span>
+</div>
+<div class="meta">
+<div>Authors: Xiaoyu Chen, Hangxing Wei, Pushi Zhang, Chuheng Zhang, Kaixin Wang, etc.</div>
+<div>Institution: Microsoft Research, Tsinghua University, Wuhan University, HKUST, Nanjing University</div>
+<div>Code: <a href="https://github.com/microsoft/villa-x">https: //github.com/microsoft/villa-x</a></div>
+<div>Project page: <a href="https://aka.ms/villa-x">https: //aka.ms/villa-x</a></div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#problem">2. Background and problem setting</a></li>
+<li><a href="#method">3. Method details</a></li>
+<li><a href="#experiments">4. Experiments and results</a></li>
+<li><a href="#appendix">5. Appendix key information</a></li>
+<li><a href="#reproduce">6. Key points of reproducibility and implementation</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>Existing VLA utilizes motionless video data through latent action, but latent action is often learned only from visual reconstruction, and it is easy to ignore actions with small pixel changes but critical control, such as end rotation and gripper opening and closing. At the same time, many methods only use latent action as an intermediate pre-training task or an independent token, and fail to fully use it for robot action generation. villa-X wants to solve two problems: "How to learn latent action more physically" and "How to connect to VLA policy more effectively".</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Two starting points: first, add proprioceptive FDM to the Latent Action Model (LAM), so that latent action not only reconstructs future images, but also predicts future robot proprio states and actions, and uses embodiment context to distinguish different robots/control frequencies; second, use joint diffusion in ACT policy to simultaneously predict latent actions and robot actions, and let the robot action expert explicitly condition on the latent action expert's plan.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>On SIMPLER, villa-X reaches an average of 77. 7% for Google Robot and 62. 5% for WidowX, which is better than the multi-category VLA/latent-action/visual-trace baseline; the average of LIBERO four suites is 90. 1%, higher than w/o latent's 81. 9%; on the real Realman and XHand platforms, it is also overall better than the GR00T, GR-1 and w/o latent versions. ACT-latent also demonstrates zero-shot latent planning for an unseen Realman arm and open vocabulary symbol cards. </td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>Don't think of villa-X as simply "adding one more latent token". The key is that the training goal of latent action is physically constrained by proprio-FDM, and the policy structure puts latent action and robot action into the same flow/diffusion generation process. Also note that latent expert's zero-shot demonstration is "planning capability" verified by world/FDM rendering and does not equate to real execution without fine-tuning on all new platforms.</td>
+</tr>
+</table>
+<figure>
+<img alt="LAM overview" src="figures/figs_lam_overview2.png"/>
+<figcaption>Figure 1: Ordinary LAM only performs visual future reconstruction; villa-X adds proprio-FDM to allow latent action to also predict future proprio state/action.</figcaption>
+</figure>
+</section>
+<section id="problem">
+<h2>2. Background and problem setting</h2>
+<h3>Why latent action is important</h3>
+<p>The VLA model needs to generate robot actions from vision and language, but real robot action annotation is expensive and inconsistent across robot forms. The idea of ​​latent action is to abstract the intermediate token of "what action happened" from adjacent frames or short video clips, and convert a large number of action-free human/robot videos into pseudo-action supervision, thereby helping VLA pre-training.</p>
+<p>The problem is: if the latent action only serves image reconstruction, what it learns may be "visually changing things" rather than "controlly important things". For example, the opening and closing of the gripper, the rotation of the end, and the small contact movements do not change much in pixels, but they determine the success or failure of the task.</p>
+<div class="callout">
+ The core judgment of villa-X is that latent action must have the ability to explain both visual changes and physical dynamics to be suitable as a bridge between vision and control.
+ </div>
+<h3>Two big questions</h3>
+<ul>
+<li><strong>How to better learn latent action</strong>: From pure visual compression to joint constraints of visual + proprioceptive dynamics.</li>
+<li><strong>How to better use latent action</strong>: Instead of just doing pre-training head, teacher forcing or independent planning, we jointly model latent action sequence and robot action chunk within the policy.</li>
+</ul>
+</section>
+<section id="method">
+<h2>3. Method details</h2>
+<h3>3.1 Overall training process</h3>
+<p>villa-X contains two core modules: LAM is responsible for extracting physically grounded latent actions from observation pairs; ACT is responsible for generating real robot actions based on VLM features, latent actions, proprio state and embodiment context. The training is divided into three stages: LAM pretraining, ACT joint latent-robot pretraining, and embodiment-specific finetuning.</p>
+<h3>3.2 Latent Action Model (LAM)</h3>
+<p>Standard LAM usually consists of IDM + visual FDM. IDM predicts latent tokens from two frames, and FDM uses the current frame and latent tokens to reconstruct future frames: </p>
+<p>$$z_t=\text{IDM}(o_t, o_{t+K}), \quad \hat{o}_{t+K}=\text{FDM}(o_t, z_t)$$</p>
+<p>villa-X joins proprio-FDM, so that the same \(z_t\) must also predict the future K-step robot status and actions: </p>
+<p>$$(\hat{q}_{t+1},..., \hat{q}_{t+K}, \hat{a}_{t+1},..., \hat{a}_{t+K})=\text{proprio-FDM}(q_t, z_t, c_e)$$</p>
+<p>Among them, \(c_e=f(\text{dataset ID}, \text{control frequency})\), the dataset ID uses learnable embedding, and the control frequency uses sinusoidal features + MLP. The purpose of this is not to stuff the differences between different robots into latent actions, but to hand over the embodiment-specific dynamics to the context and retain a more consistent latent action space.</p>
+<h3>3.3 LAM implementation details</h3>
+<ul>
+<li>IDM is ST-Transformer, input default \(8\times224\times224\) video clip, patch size 14, 12 ST blocks, hidden dim 768, 32 heads.</li>
+<li>The VQ codebook size is 32; discrete tokens are used during training, but the continuous vector of the codebook center is used downstream as latent action.</li>
+<li>Image reconstruction FDM is a 12-layer ViT-base; proprio-FDM is a 2-layer MLP with dual output heads predicting future states/actions.</li>
+<li>LAM batch size 512, learning rate \(1.5\times10^{-4}\), 2000 step warmup, about 128 A100 training for 4 days.</li>
+<li>When human videos do not have proprio labels, proprio-FDM loss is omitted and only the visual FDM target is used.</li>
+</ul>
+<h3>3.4 Actor Module (ACT)</h3>
+<p>ACT puts latent action and robot action into an explicitly decomposed policy: </p>
+<p>$$\pi(a_{t: t+m-1}, z^K_{t: t+(n-1)K}|o_t, l, q_t, c_e)=\pi_{\text{robot}}(a_{t: t+m-1}|z^K_{t: t+(n-1)K}, o_t, l, q_t, c_e)\cdot\pi_{\text{latent}}(z^K_{t: t+(n-1)K}|o_t, l)$$</p>
+<p>ACT consists of three parts: VLM encodes visual language input; ACT-latent predicts mid-level latent action plan; ACT-robot generates low-level action chunks based on VLM features, predicted latent actions, proprio state and embodiment context.</p>
+<figure>
+<img alt="ACT architecture" src="figures/figs_act.png"/>
+<figcaption>Figure 2: ACT architecture. The latent action expert first makes a mid-level plan, and the robot action expert outputs real actions under its conditions and uses embodiment context and attention mask.</figcaption>
+</figure>
+<h3>3.5 Joint diffusion / flow matching</h3>
+<p>In terms of implementation, villa-X uses conditional flow matching to model the joint distribution of latent actions and robot actions. The target action group is recorded as \(x_t\), the condition input is recorded as \(O_t=(o_t, l, q_t, c_e)\), and the training goal is: </p>
+<p>$$L_\tau(\theta)=\mathbb{E}_{p(x_t|O_t), q(x_t^\tau|x_t)}\|v_\tau^\theta(x_t^\tau, O_t)-u(x_t^\tau|x_t)\|^2$$</p>
+<p>Among them, \(x_t^\tau=\tau x_t+(1-\tau)\epsilon\), network prediction denoising vector field \(u(x_t^\tau|x_t)=\epsilon-x_t\). Explicit factorization is implemented via block-wise causal attention mask.</p>
+<h3>3.6 Prevent latent shortcut masking</h3>
+<p>If a robot action branch relies too heavily on latent tokens, it may learn vulnerable shortcuts. The author randomly masks robot-to-latent attention during training: 50% of the time, the robot-to-latent attention is completely masked; otherwise, 50% of latent tokens are randomly masked. Appendix ablation shows that both attention mask and embodiment context help.</p>
+</section>
+<section id="experiments">
+<h2>4. Experiments and results</h2>
+<h3>4.1 Does LAM learn better latent actions?</h3>
+<p>The author compares \texttt{w/pp} with proprio-FDM and \texttt{wo/pp} without. After freezing LAM on LIBERO, use 3-layer MLP to predict robot action from latent action, and count the maximum L1 error. The results show that \texttt{w/pp} has more samples in the small error bin and fewer samples in the high error bin, indicating that proprio-FDM allows latent actions to carry more low-level action information.</p>
+<figure>
+<img alt="Probing experiment" src="figures/figs_probing.png"/>
+<figcaption>Figure 3: Probing experiment. The latent action added to proprio-FDM is more easily decoded by the linear/MLP probe to detect low-level actions.</figcaption>
+</figure>
+<h3>4.2 SIMPLER ablation</h3>
+<table>
+<tr><th>method</th><th>Google Avg.</th><th>WidowX Avg.</th><th>meaning</th></tr>
+<tr><td>Ours</td><td><strong>58.5</strong></td><td><strong>40.8</strong></td><td>Complete LAM + ACT design.</td></tr>
+<tr><td>wo/pp</td><td>57.4</td><td>32.3</td><td>Without proprio-FDM, the decrease is obvious on WidowX.</td></tr>
+<tr><td>wo/LAM</td><td>35.0</td><td>33.1</td><td>Without using latent action, there is a huge drop-off on Google.</td></tr>
+<tr><td>LAPA-style</td><td>43.8</td><td>1.0</td><td>Two-stage latent-action pre-training and then changing the action head, the structural transmission is weak.</td></tr>
+<tr><td>Go-1-style</td><td>32.8</td><td>14.8</td><td>Independent latent planner + robot action prediction is not as good as joint diffusion.</td></tr>
+</table>
+<p>This table corresponds to two conclusions: proprio-FDM improves latent action quality; ACT's joint latent-robot modeling is more effective than LAPA/Go-1 style access.</p>
+<h3>4.3 ACT-latent's zero-shot planning capability</h3>
+<p>The authors tested ACT-latent on an unseen Realman robotic arm. Given a starting image and a language command such as "touch the corn", ACT-latent first generates a latent action sequence, which is then rendered into a video via a separately trained world/image FDM. The results show that the model can recognize open vocabulary symbol cards and generate reasonable touch/movement plans.</p>
+<figure>
+<img alt="Zero-shot latent plan visualization" src="figures/figs_emoji_pic2.png"/>
+<figcaption>Figure 4: Zero-shot latent planning visualization on unseen Realman embodiment + open-vocabulary symbol cards.</figcaption>
+</figure>
+<h3>4.4 SIMPLER main results</h3>
+<table>
+<tr><th>method</th><th>Google Avg.</th><th>WidowX Avg.</th><th>Remarks</th></tr>
+<tr><td>RT-1-X*</td><td>49.4</td><td>1.1</td><td>Assessment directly after pretraining.</td></tr>
+<tr><td>RoboVLMs</td><td>60.8</td><td>37.5</td><td>VLA baseline. </td></tr>
+<tr><td>π0-FAST</td><td>61.9</td><td>32.1</td><td>Strong VLA/action baseline.</td></tr>
+<tr><td>GR00T-N1.5</td><td>57.9</td><td>62.0</td><td>world modeling / future embedding alignment. </td></tr>
+<tr><td>Magma</td><td>62.3</td><td>44.8</td><td>visual trace method.</td></tr>
+<tr><td>MoTo</td><td>59.2</td><td>N/A</td><td>latent-action method.</td></tr>
+<tr><td>LAPA</td><td>N/A</td><td>57.3</td><td>latent-action method.</td></tr>
+<tr><td>Ours w/o latent</td><td>36.5</td><td>49.0</td><td>Remove latent action expert.</td></tr>
+<tr><td><strong>Ours</strong></td><td><strong>77.7</strong></td><td><strong>62.5</strong></td><td>Google/WidowX has the highest average.</td></tr>
+</table>
+<p>SIMPLER results show that villa-X achieves strong performance on both types of robots, and the gap with w/o latent proves that the latent-action expert makes a substantial contribution to the final strategy.</p>
+<h3>4.5 Real robot results</h3>
+<p>There are two real platforms: Realman RM75 + Inspire gripper, and XArm + 12-DoF XHand dexterous hand. Realman uses 375 teleop trajectories for fine-tuning, 75 for each of the five tasks; </p>
+<figure>
+<img alt="Real robot platforms" src="figures/figs_real_robot.png"/>
+<figcaption>Figure 5: Real robot platform and tasks: Realman gripper platform above, XArm + XHand dexterous hand platform below.</figcaption>
+</figure>
+<table>
+<tr><th>Realman indicator</th><th>GR00T</th><th>Ours w/o latent</th><th>Ours</th></tr>
+<tr><td>Pick in</td><td>30</td><td><strong>40</strong></td><td>30</td></tr>
+<tr><td>Pick out</td><td>70</td><td>80</td><td><strong>100</strong></td></tr>
+<tr><td>Push</td><td>10</td><td>30</td><td><strong>50</strong></td></tr>
+<tr><td>Stack</td><td>10</td><td><strong>60</strong></td><td>50</td></tr>
+<tr><td>Unstack</td><td>60</td><td>70</td><td><strong>100</strong></td></tr>
+<tr><td>Change block color</td><td>50</td><td>40</td><td><strong>60</strong></td></tr>
+<tr><td>Change table cover</td><td>30</td><td>30</td><td><strong>60</strong></td></tr>
+</table>
+<table>
+<tr><th>XHand tasks</th><th>Ours seen</th><th>Ours unseen</th><th>Key conclusions</th></tr>
+<tr><td>Pick &amp; Place</td><td>84</td><td>68</td><td>Better than GR-1, GR00T, w/o latent.</td></tr>
+<tr><td>Stack Cube</td><td>75</td><td>50</td><td>unseen object/background still maintains its advantage.</td></tr>
+<tr><td>Place Cup Upright</td><td>60</td><td>30</td><td>Seen/unseen are both the highest or tied for the highest.</td></tr>
+<tr><td>Pour Water</td><td>60</td><td>30</td><td>It is still better than baseline in terms of complex and dexterous operation.</td></tr>
+<tr><td>Flick Ball</td><td>50</td><td>40</td><td>unseen lower than baseline.</td></tr>
+</table>
+<h3>4.6 LIBERO results</h3>
+<p>The appendix is evaluated on four suites, LIBERO-Spatial, Object, Goal, and Long. villa-X averages 90.1%, which is higher than π0-FAST's 85.5%, OpenVLA's 76.5, Octo-base's 75.1, and higher than itself w/o latent's 81.9. The full models in the four suites are Spatial 97.5, Object 97.0, Goal 91.5, and Long 74.5.</p>
+</section>
+<section id="appendix">
+<h2>5. Appendix key information</h2>
+<h3>Data size</h3>
+<p>The pre-training data contains a mix of robot data and action-free human videos. Robot data is about 1.6M trajectories / 223.5M frames, mainly from OpenX mixture and AgiBot; human videos are about 3.6M clips, from Ego4D/EgoHOD, EgoPAT3D, EGTEA, EPIC-KITCHENS, HO-Cap, HOI4D, HoloAssist, RH20T, Something-Something V2, etc.</p>
+<h3>LAM additional visualization</h3>
+<p>The appendix shows image pairs corresponding to the same latent action, illustrating that similar latent actions in different embodiments (including humans and robots) can correspond to similar low-level behaviors. It also demonstrated how to convert robot/human video demonstrations into SIMPLER robot actions through LAM + proprio-FDM and execute them, verifying that latent actions can be migrated from videos to robot actions.</p>
+<figure>
+<img alt="Video to SIMPLER action part 1" src="figures/figs_simpler_fdm_part1.png"/>
+<figcaption>Figure 6: Converting robot video demonstration into SIMPLER actions via LAM and proprio-FDM.</figcaption>
+</figure>
+<h3>Embodiment context ablation</h3>
+<p>Removing embodiment context will increase visual FDM/proprio FDM validation loss. When doing action probing for unseen Realman embodiments, Ours has lower overall probing loss, xyz, rotation, and gripper than w/o context, indicating that context helps the model separate-specific dynamics and improve the generalization of new embodiments.</p>
+<h3>policy ablation</h3>
+<p>Appendix policy ablation shows: Ours in Google Avg. 58.5, WidowX Avg. 40.8; w/o mask dropped to 53.2 / 34.0; w/o context dropped to 49.1 / 38.5. Note that attention mask and embodiment context are not decorations, but key designs that affect policy stability.</p>
+</section>
+<section id="reproduce">
+<h2>6. Key points of reproducibility and implementation</h2>
+<h3>Minimum recurrence path</h3>
+<ol>
+<li>Prepare robot trajectories and human videos; robot data must include observation, state, action, dataset ID, and control frequency.</li>
+<li>Training LAM: ST-Transformer IDM predicts latent tokens from \(T_{\text{LAM}}=8\) frames; visual FDM reconstructs future images; proprio-FDM predicts future states/actions; human videos skip proprio loss.</li>
+<li>Use VQ codebook centers as continuous latent actions for ACT pretraining.</li>
+<li>Building ACT: PaliGemma 3B VLM encodes visual language; ACT-latent and ACT-robot are 18-layer Transformer experts respectively.</li>
+<li>Use conditional flow matching to jointly train latent action sequence and robot action chunk; set up block-wise causal attention and robot-to-latent stochastic masking.</li>
+<li>Fine-tune state/action projection, action decoder and other modules according to the target embodiment, and add wrist camera feature if necessary.</li>
+<li>Evaluation by task distribution on SIMPLER/LIBERO/real robots.</li>
+</ol>
+<div class="callout warn">
+ The reproducibility cost is very high: LAM requires about 128 A100 images for 4 days of training, and ACT pretraining requires about 64 A100 images for 4 days of training. A more realistic way to reproduce is to first use open source checkpoint to do downstream finetune and ablation instead of pre-training all modules from scratch.
+ </div>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>The most valuable part of this paper</h3>
+<p>It advances latent action from "pseudo action token compressed from video" to "intermediate action representation calibrated by physical state and action supervision". This is important because robot control is not purely visual prediction: many key actions are hidden in pixels but very explicit in proprio/action space. The second value of villa-X is the policy structure design. It does not use latent action as a bypass auxiliary task, but allows ACT-latent and ACT-robot to form a clear dependency in joint diffusion, truly connecting the middle-level plan to the low-level control.</p>
+<h3>Why does the result stand?</h3>
+<ul>
+<li>The evidence chain is relatively complete: probing proves that latent action is better at predicting robot action; SIMPLER ablation proves that proprio-FDM and latent action expert are effective for policy; the main results prove that it has advantages over multi-class baselines.</li>
+<li>Evaluation area width: SIMPLER covers Google Robot/WidowX embodiment, LIBERO covers Spatial/Object/Goal/Long, and the real world covers both gripper and dexterous hands.</li>
+<li>Ablation such as w/o latent, wo/pp, LAPA-style, Go-1-style, w/o mask, w/o context, etc. can disassemble and verify the main designs one by one.</li>
+<li>The appendix provides more details on data size, architecture, and training, explains performance sources, and exposes reproducibility costs.</li>
+</ul>
+<h3>Main limitations</h3>
+<ul>
+<li><strong>Training costs are extremely high</strong>: The threshold for 100-calorie pre-training is high and it is difficult for ordinary laboratories to completely reproduce it.</li>
+<li><strong>The zero-shot of latent expert is not a complete closed-loop execution.</strong>: The symbol card experiment mainly checks the latent plan through world/FDM rendering, which is not equivalent to successful execution directly on any unseen robot.</li>
+<li><strong>Still need embodiment-specific finetuning</strong>: Realman/XHand both need to be fine-tuned according to the platform data, and cannot be understood as completely free of data generalization across robots.</li>
+<li><strong>proprio grounding relies on robot state/action annotation</strong>: Human videos do not have proprio branches and can only participate in LAM training through visual targets.</li>
+<li><strong>Some tasks are still not perfect</strong>: Realman Pick in, XHand unseen pour/cup, etc. still have obvious room for failure, indicating that latent action is not a universal bridge.</li>
+</ul>
+<h3>Questions to ask while reading</h3>
+<ul>
+<li>Which actions do the physical grounding learned by proprio-FDM help most: rotation, gripper, contact, or long-distance movement?</li>
+<li>Why are continuous codebook centers more stable than discrete tokens in ACT?</li>
+<li>Can ACT-latent predicted latent plans be individually evaluated, filtered, or corrected using a VLM critic?</li>
+<li>Can we make better use of human videos if we use hand poses and end-effector keypoints instead of proprio state?</li>
+<li>w/o latent isn't bad at some real tasks either, which scenarios does latent action expert really provide the most benefit?</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

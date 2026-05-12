@@ -1,0 +1,25 @@
+
+\paragraph{Vision--Language--Action (VLA) Models.}
+
+We consider language-conditioned robotic manipulation, where at each timestep the model receives a visual observation $o_t \in \mathcal{O}$, a language instruction $g \in \mathcal{G}$, and optionally proprioceptive state $p_t \in \mathcal{P}$, and outputs an action $a_t \in \mathcal{A}$. Given an expert dataset $\mathcal{D}_{\text{expert}} = \{(g, \tau)\}$, where $\tau = \{(o_1, p_1, a_1), \dots, (o_T, p_T, a_T)\}$, a VLA model $\pi_\theta$ is modeled as a conditional distribution over actions, i.e., $\pi_\theta(a_{1:T} \mid o_{1:T}, p_{1:T}, g) = \prod_{t=1}^{T} \pi_\theta(a_t \mid o_{1:t}, p_{1:t}, a_{1:t-1}, g)$. In practice, the VLA model predicts short action sequences conditioned on the current context, $\pi_\theta(a_{t:t+H} \mid o_t, p_t, g)$, and is trained via maximum likelihood on $\mathcal{D}_{\text{expert}}$.
+
+\paragraph{Model Predictive Control (MPC).}
+MPC~\citep{garcia1989model} is a general paradigm for model-based decision making, where actions are selected by optimizing predicted future trajectories over a finite horizon.
+At each decision step $t$, MPC solves:
+
+\(
+\textstyle
+a_{t:t+H}^\star
+=
+\arg\max_{a_{t:t+H}}
+\mathbb{E}
+\left[
+\sum_{i=0}^{H}
+\gamma^{i}
+R(s_{t+i}, a_{t+i})
+\right]
+\),
+where $\gamma \in (0,1)$ is a discount factor and $R(\cdot)$ denotes the reward function.
+Candidate trajectories are evaluated by rolling out a learned world model.
+By explicitly reasoning over future trajectories, MPC achieves improved robustness and sample efficiency compared to purely reactive, model-free policies.
+

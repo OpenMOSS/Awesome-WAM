@@ -1,0 +1,12 @@
+
+\label{sec:method}
+
+As shown in \cref{fig:method_overview}, we propose S-VAM, a shortcut video-action model that foresees geometric and semantic representations for action generation without multi-step denoising. Specifically, we first introduce the preliminaries in \cref{sec:preliminaries}. We then detail geometric and semantic decouplers in \cref{sec:distill}, which disentangle noisy one-step denoising features into future VFM representations. Finally, in \cref{sec:ae}, we describe how the Uni-Perceiver module fuses these representations with original diffusion features to condition the downstream diffusion policy.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.99\linewidth]{imgs/method_34.pdf}
+ \caption{Architecture of our S-VAM. The core technical novelty lies in establishing a \textbf{shortcut} that bypasses the prohibitive latency of iterative video generation. Specifically, specialized decouplers disentangle highly entangled one-step diffusion features into coherent geometric and semantic foresight. This foresight is then aggregated with original features by a Uni-Perceiver, providing a holistic condition context for the downstream diffusion policy to predict precise robot action.} 
+  \label{fig:method_overview}
+\end{figure}
+

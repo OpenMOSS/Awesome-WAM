@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\caption{Ablation study on Adaptive Visuo-Tactile Fusion Policy and the components' impact on task success rate.}
+\label{tab:ablation_components_scaled}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.2}
+
+\begin{tabular}{ccccccc}
+\toprule
+\multicolumn{4}{c}{\textbf{Component}} & \multicolumn{3}{c}{\textbf{Success Rate}} \\
+\cmidrule(lr){1-4} \cmidrule(lr){5-7}
+\begin{tabular}[c]{@{}c@{}}Tactile Pred.\\ Length\end{tabular} & LTD & \begin{tabular}[c]{@{}c@{}}Gating\\ Mech.\end{tabular} & \begin{tabular}[c]{@{}c@{}}Visual\\ Gen.\end{tabular} & Wipe & Peel & Avg. \\
+\midrule
+0 & $\times$ & $\times$ & $\times$ & 0.12 & 0.06 & 0.09 \\
+2 & $\times$ & $\times$ & $\times$ & 0.40 & 0.26 & 0.33 \\
+4 & $\times$ & $\times$ & $\times$ & 0.45 & 0.30 & 0.38 \\
+6 & $\times$ & $\times$ & $\times$ & 0.50 & 0.30 & 0.40 \\
+\midrule
+6 & \checkmark & $\times$ & $\times$ & 0.57 & 0.36 & 0.47 \\
+6 & \checkmark & \checkmark & $\times$ & 0.66 & \textbf{0.40} & 0.53 \\
+6 & \checkmark & \checkmark & \checkmark & \textbf{0.70} & 0.38 & \textbf{0.54} \\
+\bottomrule
+\end{tabular}
+\end{table}

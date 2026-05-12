@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DUST - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Dual-Stream Diffusion for World-Model Augmented Vision-Language-Action Model</h1>
+    <div class="meta">
+      <p><strong>方法名：</strong>DUST, DUal-STream diffusion</p>
+      <p><strong>作者：</strong>John Won, Kyungmin Lee, Huiwon Jang, Dongyoung Kim, Jinwoo Shin</p>
+      <p><strong>机构：</strong>KAIST</p>
+      <p><strong>arXiv：</strong>2510.27607；v1 提交于 2025-10-31，v2 更新于 2025-11-04；20 页，10 图</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2510.27607">arXiv 摘要页</a> | <a href="https://arxiv.org/pdf/2510.27607">PDF</a> | <a href="https://arxiv.org/html/2510.27607v2">HTML</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录：</strong>
+    <a href="#quick">1. 速览</a>
+    <a href="#motivation">2. 动机</a>
+    <a href="#related">3. 相关工作</a>
+    <a href="#method">4. 方法详解</a>
+    <a href="#experiments">5. 实验</a>
+    <a href="#reproduce">6. 可复现审计</a>
+    <a href="#discussion">7. 分析、局限与边界</a>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>DUST 把 VLA 的动作生成和未来视觉状态预测放进同一个 diffusion/flow-matching 框架里，但不用单一 latent space 硬拼两种模态，而是用 action stream 与 vision stream 分开去噪、共享注意力交换信息，并允许推理时给视觉 token 更多 denoising steps，从而把 world model 作为能反哺动作的显式辅助目标。
+    </div>
+    <table>
+      <tr><th>论文要解决什么</th><td>世界模型增强 VLA 往往要同时预测动作序列和下一状态视觉表征。动作是低维、时间平滑的控制序列；未来视觉状态是高维、空间结构化的视觉 token。统一 diffusion 容易产生模态冲突，纯 causal 分离又限制双向信息流。</td></tr>
+      <tr><th>作者的方法抓手</th><td>提出 DUST：MMDiT 双流架构、按模态独立采样噪声时间步 $(\tau_A,\tau_o)$、解耦 flow matching 损失，以及推理时 action/vision 异步采样。</td></tr>
+      <tr><th>最重要的结果</th><td>在 RoboCasa 和 GR-1 上相对 FLARE/GR00T-N1.5 有稳定增益；真实 Franka Research 3 平均成功率 0.677，高于 GR00T-N1.5 的 0.547 和 FLARE 的 0.557；BridgeV2 action-free video 预训练后 RoboCasa 100 demos 平均成功率从 0.501 提升到 0.585。</td></tr>
+      <tr><th>阅读时要注意的点</th><td>这篇文章的核心不是“加一个未来图像预测头”，而是用双时间步和双流结构让动作与未来观测在训练时互相约束，同时避免把两种统计结构差异很大的变量压进一个共享 latent space。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 diffusion policy、flow matching、VLA、VLM feature conditioning、world modeling、MMDiT/AdaLN，以及机器人 benchmark 的成功率评估。</p>
+    <p><strong>关键词：</strong>Vision-Language-Action, world model, multimodal diffusion transformer, decoupled flow matching, asynchronous sampling, RoboCasa, GR-1, BridgeV2。</p>
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>双流 MMDiT：</strong>action tokens 与 future observation tokens 在大部分计算中保持各自通道，只在 shared attention 中交换信息。</li>
+      <li><strong>按模态独立加噪：</strong>训练时分别采样 $\tau_A$ 和 $\tau_o$，让模型看到“干净动作 + 噪声未来状态”“噪声动作 + 干净未来状态”等组合，显式学习前向与逆向的跨模态依赖。</li>
+      <li><strong>解耦 flow matching 损失：</strong>把 joint diffusion 的目标写成 action loss 与 world-modeling loss 的加权和，避免为两种模态设计统一速度场。</li>
+      <li><strong>异步 test-time scaling：</strong>推理时固定 $N_A$，增加 $N_o$，只让视觉 token 更细粒度地去噪；附录显示同步增加两者反而伤害性能。</li>
+    </ul>
+    <div class="figure">
+      <img src="figures/x1.png" alt="Unified Joint Diffusion">
+      <img src="figures/x2.png" alt="Causal Diffusion">
+      <img src="figures/x3.png" alt="Dual-Stream Diffusion">
+      <div class="caption"><strong>Figure 1.</strong> 原文对比三种世界模型增强 VLA 架构：统一联合 diffusion、单向 causal diffusion、以及 DUST 的双流 diffusion。DUST 的关键折中是“流分开、注意力共享”。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 为什么 VLA 需要 world model</h3>
+    <p>标准 VLA 通常把当前图像、机器人状态和语言指令编码成语义条件，再由 action expert 直接生成动作 chunk。它们可以很好地利用 VLM 的视觉和语言理解能力，但弱点是对“动作如何改变环境”没有显式建模。对于机器人控制，这个缺口很重要：抓取是否对齐、夹爪未来会到哪里、目标物是否可能被推开，这些都不是只看当前帧就稳定解决的问题。</p>
+    <p>世界模型增强 VLA 的想法是同时预测动作和未来视觉状态。这样模型不只拟合专家动作分布，还要解释动作对应的视觉后果。论文把这个目标表述为学习动作 $A_t$ 和未来观测嵌入 $\tilde{o}_{t+k}$ 的联合分布。</p>
+
+    <h3>2.2 为什么“直接 joint diffusion”不够</h3>
+    <p>已有 unified joint diffusion 把动作 token 和未来视觉 token 拼在一起，用同一个 diffusion model 统一生成。这个设计隐含一个强假设：动作与视觉可以被一个共享 latent space 共同承载。论文指出这会造成模态冲突：动作是低维、连续、平滑的控制轨迹；未来视觉 embedding 是高维、含空间结构的语义对象。它们需要不同的噪声日程、不同的去噪粒度和不同的归一化条件。</p>
+    <p>另一类 causal design 把两种模态分成不同模型，用单向条件连接。例如先预测未来视觉，再生成动作，或先生成动作，再预测未来状态。这样保留了模态专门性，却牺牲了双向知识传递。DUST 要解决的正是这个 trade-off：既要保留各自结构，又要允许双向交互。</p>
+
+    <h3>2.3 这篇论文的核心假设</h3>
+    <div class="note">
+      <p><strong>核心假设：</strong>动作与未来视觉状态不应该共享同一条去噪路径，但应该共享同一个跨模态注意力接口。训练时，如果动作和视觉被独立加噪，模型就会被迫在不同噪声组合下学习“动作导致什么未来状态”和“什么动作能解释这个未来状态”。</p>
+    </div>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的代表</th><th>DUST 的定位</th></tr>
+      <tr><td>Vision-Language-Action models</td><td>RT-2、OpenVLA、GR-1、$\pi_0$、GR00T-N1.5 等；一部分自回归生成动作，一部分使用 diffusion action expert。</td><td>DUST 继承 diffusion-based VLA 的设定：冻结 VLM backbone，用动作专家生成连续动作，但额外加入未来状态预测。</td></tr>
+      <tr><td>世界模型增强机器人策略</td><td>PAD、EnerVerse、UWM、FLARE、UVA、Video Policy、Video Prediction Policy。</td><td>相对 unified models，DUST 不把动作和视觉合成一个流；相对 causal/disjoint models，DUST 允许 shared attention 里的双向信息交换。</td></tr>
+      <tr><td>未来状态表示</td><td>PAD/PIDM/This&amp;That 预测 RGB；DINO-WM、FLARE 等预测 pretrained encoder embedding。</td><td>DUST 选择预测 Eagle-2/SIGLIP-2 产生的未来图像 embedding，避免像素级重建把容量浪费在控制无关细节上。</td></tr>
+      <tr><td>Diffusion/flow matching 训练</td><td>Diffusion Policy、DiT、flow matching、diffusion forcing、Diffuse Everything。</td><td>DUST 把 diffusion forcing 的 independent noise idea 从“token 级”改成“模态级”，并用两个 flow matching loss 近似 joint objective。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 问题设定与 baseline VLA</h3>
+    <p>数据集由专家轨迹组成：$\mathcal{D}=\{T_1,T_2,\ldots\}$。每条轨迹含任务指令 $I$、观察 $O_t=(o_t^v,o_t^s)$ 和动作 chunk $A_t=(a_t,\ldots,a_{t+k-1})$。目标是在当前视觉观察、机器人本体状态和语言指令条件下预测动作 chunk。</p>
+    <div class="formula-block">
+      <p>标准 diffusion action expert 先构造 noisy action：</p>
+      $$A_t^\tau = \tau A_t + (1-\tau)\epsilon,\qquad \epsilon\sim\mathcal{N}(0,I).$$
+      <p>然后训练速度网络预测线性路径的速度：</p>
+      $$\mathcal{L}_{\mathrm{FM}}(\theta)=\mathbb{E}\left[\left\|V_\theta(\Phi_t,A_t^\tau,o_t^s)-(A_t-\epsilon)\right\|^2\right].$$
+      <p><span class="intuition">直觉：</span>$\tau=0$ 时是纯噪声，$\tau=1$ 时是真实动作；网络学的是“从当前 noisy action 往真实 action 走”的方向。</p>
+    </div>
+    <p>世界模型目标不是预测像素，而是预测执行动作 chunk 后的未来图像 embedding $\tilde{o}_{t+k}$。这个 embedding 来自 VLM 中的视觉编码器，论文实验中使用 Eagle-2 相关的 SIGLIP-2 表征。</p>
+
+    <h3>4.2 DUST 架构：双流但共享注意力</h3>
+    <div class="figure">
+      <img src="figures/x4.png" alt="DUST architecture">
+      <div class="caption"><strong>Figure 2.</strong> DUST 主架构：冻结 VLM 从当前 observation 和 instruction 产生语义条件 $\Phi_t$；diffusion model $\pi_\theta$ 同时处理机器人状态、noisy action sequence 和 noisy future observation embedding。</div>
+    </div>
+    <p>DUST 的核心输入是三元组 $(o_t^s,A_t^\tau,\tilde{o}_{t+k}^\tau)$。动作 token 和未来视觉 token 进入 MMDiT block 后，大部分操作保留两条独立通道；只有在 shared cross-modal attention 层中临时合并，以便 action stream 与 vision stream 交换信息，随后立刻分回各自 stream。</p>
+    <p>每个 stream 有自己的 timestep embedding，并通过 AdaLN 注入。这一点非常关键：如果 action 与 vision 使用同一个 timestep 条件，就没法表达“动作已经很干净但视觉仍很 noisy”这类训练样本。附录进一步说明，论文实现是在原始 MMDiT block 上做轻量修改，让每个模态 stream 的 AdaLN 接受独立时间步 embedding <span class="appendix-ref">附录 A.2 / Figure 6</span>。</p>
+    <div class="figure">
+      <img src="figures/mmdit.png" alt="MMDiT block with modality-specific timestep embeddings">
+      <div class="caption"><strong>Figure 6.</strong> 附录中的 MMDiT 细节：两个 stream 的 AdaLN 条件来自各自 timestep embedding，而不是共享全局 timestep。</div>
+    </div>
+    <p>经过若干 shared MMDiT block 后，DUST 再把两个 stream 分别送入 modality-specific DiT blocks。论文主实验使用 12 个 MMDiT blocks，再接 4 个 action-side DiT blocks 和 4 个 vision-side DiT blocks。这个设计的含义是：前段尽量学习跨模态依赖，后段让每个模态各自完成精细去噪。</p>
+
+    <h3>4.3 解耦加噪与 flow matching 损失</h3>
+    <p>DUST 训练时不是只采样一个 $\tau$，而是分别采样动作时间步 $\tau_A$ 与视觉时间步 $\tau_o$：</p>
+    <div class="formula-block">
+      $$A_t^{\tau_A}=\tau_A A_t+(1-\tau_A)\epsilon_A,$$
+      $$\tilde{o}_{t+k}^{\tau_o}=\tau_o\tilde{o}_{t+k}+(1-\tau_o)\epsilon_o.$$
+      <p>模型输出两个速度场：</p>
+      $$V_\theta(\Phi_t,A_t^{\tau_A},\tilde{o}_{t+k}^{\tau_o},o_t^s)=[V_\theta^A,V_\theta^o].$$
+      <p>对应两个 flow matching loss：</p>
+      $$\mathcal{L}_{A}=\mathbb{E}\left[\|V_\theta^A-(A_t-\epsilon_A)\|^2\right],$$
+      $$\mathcal{L}_{\mathrm{WM}}=\mathbb{E}\left[\|V_\theta^o-(\tilde{o}_{t+k}-\epsilon_o)\|^2\right].$$
+      <p>总损失为：</p>
+      $$\mathcal{L}_{\mathrm{Joint}}=\mathcal{L}_{A}+\lambda_{\mathrm{WM}}\mathcal{L}_{\mathrm{WM}}.$$
+      <p><span class="intuition">直觉：</span>动作和未来视觉各学自己的“去噪方向”，但网络在 shared attention 中看到彼此的当前 noisy/clean 状态，所以联合关系仍然被学习。</p>
+    </div>
+    <p>这个设计让训练样本覆盖多种跨模态条件。例如 $\tau_A\approx1,\tau_o\approx0$ 时，模型要根据较干净动作推断未来视觉；$\tau_A\approx0,\tau_o\approx1$ 时，模型要根据较干净未来视觉反推可解释它的动作。这是 DUST 声称能学习 bidirectional joint distribution 的机制基础。</p>
+
+    <h3>4.4 推理：异步 vision-action joint sampling</h3>
+    <div class="figure">
+      <img src="figures/x5.png" alt="Asynchronous joint sampling">
+      <div class="caption"><strong>Figure 3.</strong> 异步采样：视觉 token 每个小步更新，动作 token 每 $q$ 个小步更新一次。默认 $q=1$，test-time scaling 时增大 $q$，也就是增加 $N_o$ 而固定 $N_A$。</div>
+    </div>
+    <p>推理阶段从两个噪声变量开始：$A_t^0\sim\mathcal{N}(0,I_A)$、$\tilde{o}_{t+k}^0\sim\mathcal{N}(0,I_v)$。设 action diffusion steps 为 $N_A$，vision diffusion steps 为 $N_o=qN_A$。全局小步长为 $\Delta\tau_o=1/N_o$，视觉每一步更新；动作每 $q$ 步更新一次，对应 $\Delta\tau_A=1/N_A=q\Delta\tau_o$。</p>
+    <div class="formula-block">
+      $$\tilde{o}_{t+k}^{\tau_o+\Delta\tau_o}=\tilde{o}_{t+k}^{\tau_o}+V_\theta^o\Delta\tau_o,$$
+      $$A_t^{\tau_A+\Delta\tau_A}=
+      \begin{cases}
+      A_t^{\tau_A}+V_\theta^A\Delta\tau_A, & \text{if update step}\\
+      A_t^{\tau_A}, & \text{otherwise}
+      \end{cases}.$$
+      <p><span class="intuition">直觉：</span>动作低维，过多步数可能过度积分或引入误差；未来视觉 embedding 高维，更多去噪步数通常有利。DUST 的结构把这个不对称性暴露成一个推理时旋钮。</p>
+    </div>
+
+    <h3>4.5 训练与推理伪代码压缩版</h3>
+    <pre class="pseudocode">训练 DUST:
+1. sample batch (o_t^v, o_t^s, I, A_t, o_{t+k}^v)
+2. Phi_t = frozen VLM(o_t^v, I)
+3. future embedding tilde{o}_{t+k} = VLM_img(o_{t+k}^v)
+4. independently sample tau_A, tau_o and Gaussian noises
+5. construct noisy action and noisy future embedding
+6. encode action/state tokens and vision tokens separately
+7. run MMDiT blocks with shared attention and modality-specific AdaLN
+8. run modality-specific DiT blocks
+9. decode V_theta^A and V_theta^o
+10. optimize L_A + lambda_WM L_WM with AdamW
+
+异步采样:
+1. initialize action and vision tokens from Gaussian noise
+2. choose N_A and N_o = q N_A
+3. update vision every small step
+4. update action only every q small steps
+5. return final denoised action chunk and future observation embedding</pre>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <h3>5.1 统一实验设定</h3>
+    <ul>
+      <li><strong>VLM backbone：</strong>冻结 Eagle-2，用第 12 层语义特征作为 diffusion 模块条件。</li>
+      <li><strong>世界模型目标：</strong>未来图像经 SIGLIP-2/Eagle-2 视觉表征得到 256 tokens，再经 $2\times2$ average pooling 降到 64 future image tokens。</li>
+      <li><strong>diffusion token 组成：</strong>1 个 state token、16 个 action tokens、64 个 future image tokens。</li>
+      <li><strong>主模型结构：</strong>12 MMDiT blocks + 4 modality-specific DiT blocks。</li>
+      <li><strong>loss weight：</strong>$\lambda_{\mathrm{WM}}=1.0$，来自消融实验。</li>
+      <li><strong>baselines：</strong>GR00T-N1.5；以及作者复现的 GR00T-N1.5 + FLARE loss。FLARE 无官方代码或 checkpoint，作者用相同 VLM backbone 和相同 SIGLIP-2 未来 embedding target 复现 FLARE loss <span class="appendix-ref">附录 A.2</span>。</li>
+    </ul>
+
+    <h3>5.2 主结果：RoboCasa、GR-1、真实 Franka</h3>
+    <div class="scroll">
+      <table>
+        <tr><th>RoboCasa</th><th colspan="4">100 demos</th><th colspan="4">300 demos</th><th colspan="4">1000 demos</th></tr>
+        <tr><th>Method</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th></tr>
+        <tr><td>GR00T-N1.5</td><td>0.215</td><td>0.603</td><td>0.468</td><td>0.417</td><td>0.272</td><td>0.660</td><td>0.466</td><td>0.450</td><td>0.323</td><td>0.757</td><td>0.508</td><td>0.508</td></tr>
+        <tr><td>+ FLARE</td><td>0.230</td><td>0.648</td><td>0.498</td><td>0.446</td><td>0.380</td><td>0.767</td><td>0.562</td><td>0.553</td><td>0.459</td><td>0.837</td><td>0.682</td><td>0.646</td></tr>
+        <tr><td><strong>+ DUST</strong></td><td><strong>0.295</strong></td><td><strong>0.760</strong></td><td><strong>0.510</strong></td><td><strong>0.501</strong></td><td><strong>0.423</strong></td><td><strong>0.807</strong></td><td><strong>0.581</strong></td><td><strong>0.585</strong></td><td><strong>0.483</strong></td><td><strong>0.863</strong></td><td><strong>0.686</strong></td><td><strong>0.663</strong></td></tr>
+      </table>
+    </div>
+    <p>RoboCasa 结果显示，DUST 在 100/300/1000 demos 三个数据规模上都高于 FLARE。尤其 100 demos 场景下，DUST 平均成功率 0.501，相比 GR00T-N1.5 的 0.417 提高 0.084，相比 FLARE 的 0.446 提高 0.055，说明显式 dual-stream world modeling 对低数据量更有帮助。</p>
+
+    <div class="scroll">
+      <table>
+        <tr><th>GR-1</th><th colspan="3">300 demos</th><th colspan="3">1000 demos</th></tr>
+        <tr><th>Method</th><th>PnP</th><th>Art.</th><th>Avg.</th><th>PnP</th><th>Art.</th><th>Avg.</th></tr>
+        <tr><td>GR00T-N1.5</td><td>0.176</td><td>0.283</td><td>0.203</td><td>0.307</td><td>0.310</td><td>0.308</td></tr>
+        <tr><td>+ FLARE</td><td>0.340</td><td>0.330</td><td>0.337</td><td>0.393</td><td>0.324</td><td>0.363</td></tr>
+        <tr><td><strong>+ DUST</strong></td><td><strong>0.358</strong></td><td><strong>0.367</strong></td><td><strong>0.360</strong></td><td><strong>0.422</strong></td><td><strong>0.413</strong></td><td><strong>0.420</strong></td></tr>
+      </table>
+    </div>
+    <p>GR-1 是更高维的 humanoid manipulation 场景，action space 有 29 DoF。DUST 在 1000 demos 平均成功率 0.420，高于 FLARE 的 0.363。论文强调 GR-1 训练对 batch size 敏感，需要较大规模训练 <span class="appendix-ref">附录 A.2/A.3</span>。</p>
+
+    <div class="figure">
+      <img src="figures/x6.png" alt="Real-world task 1">
+      <img src="figures/x7.png" alt="Real-world task 2">
+      <img src="figures/x8.png" alt="Real-world task 3">
+      <img src="figures/x9.png" alt="Real-world task 4">
+      <div class="caption"><strong>Figure 4.</strong> 真实 Franka Research 3 的四个 pick-and-place task。每个 task 有 cup、doll、cube、sponge 四类物体。</div>
+    </div>
+    <table>
+      <tr><th>真实 Franka</th><th>Task 1</th><th>Task 2</th><th>Task 3</th><th>Task 4</th><th>Avg.</th></tr>
+      <tr><td>GR00T-N1.5</td><td>0.583</td><td>0.750</td><td>0.500</td><td>0.354</td><td>0.547</td></tr>
+      <tr><td>+ FLARE</td><td>0.625</td><td>0.729</td><td>0.500</td><td>0.375</td><td>0.557</td></tr>
+      <tr><td><strong>+ DUST</strong></td><td><strong>0.833</strong></td><td><strong>0.792</strong></td><td><strong>0.625</strong></td><td><strong>0.458</strong></td><td><strong>0.677</strong></td></tr>
+    </table>
+    <p>真实机实验使用 7-DoF Franka Research 3，两台 ZED 摄像头，一台腕部相机、一台侧视相机 <span class="appendix-ref">附录 A.4 / Figure 7</span>。训练数据为每个任务 60 条 teleoperation demonstrations。每个 object-task 配置评估 6 次，每个任务共 24 trials；若物体部分进入目标容器但重心在外，计 0.5 success。</p>
+    <div class="figure">
+      <img src="figures/x10.png" alt="Qualitative rollout comparison">
+      <div class="caption"><strong>Figure 5.</strong> 真实 pick-and-place 的定性对比：GR00T-N1.5 能靠近杯子但夹爪对齐失败；DUST 通过内部未来状态预测调整夹爪位置。</div>
+    </div>
+
+    <h3>5.3 BridgeV2 action-free video 预训练</h3>
+    <p>DUST 的双流结构天然支持只用视频训练 world-modeling stream。预训练阶段使用 BridgeV2 的视频部分，只优化 $\mathcal{L}_{\mathrm{WM}}$，action tokens 随机初始化；然后在 RoboCasa 100 demos 上 finetune。</p>
+    <table>
+      <tr><th>Method</th><th>Video Pretrain</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th></tr>
+      <tr><td>GR00T-N1.5</td><td>No</td><td>0.215</td><td>0.603</td><td>0.468</td><td>0.417</td></tr>
+      <tr><td>DUST</td><td>No</td><td>0.295</td><td>0.760</td><td>0.510</td><td>0.501</td></tr>
+      <tr><td><strong>DUST</strong></td><td><strong>Yes</strong></td><td><strong>0.423</strong></td><td><strong>0.807</strong></td><td><strong>0.581</strong></td><td><strong>0.585</strong></td></tr>
+    </table>
+    <p>这个实验是论文最有扩展意义的部分：如果 action-free human/robot videos 可以只训练未来视觉建模，再迁移到少量带动作的 robot demos，那么 DUST 就不仅是一个策略改造，也可以作为大规模 VLA 预训练的接口。</p>
+
+    <h3>5.4 Test-time scaling：只给 vision 更多步</h3>
+    <table>
+      <tr><th>$N_o$</th><th>RoboCasa 100 Avg.</th><th>RoboCasa 1000 Avg.</th><th>GR-1 1000 Avg.</th></tr>
+      <tr><td>4</td><td>0.501</td><td>0.663</td><td>0.420</td></tr>
+      <tr><td>16</td><td>0.504</td><td>0.668</td><td>0.451</td></tr>
+      <tr><td>32</td><td>0.508</td><td>0.686</td><td><strong>0.471</strong></td></tr>
+      <tr><td>64</td><td><strong>0.518</strong></td><td><strong>0.697</strong></td><td>0.450</td></tr>
+    </table>
+    <p>异步采样整体有效：RoboCasa 100 demos 从 0.501 到 0.518，RoboCasa 1000 demos 从 0.663 到 0.697，GR-1 1000 demos 在 $N_o=32$ 时达到 0.471。论文解释为视觉 embedding 的高维结构更需要细粒度 refinement。</p>
+    <p>附录做了关键对照：如果同步增加 $N_A=N_o$，性能会下降。例如 RoboCasa 100 demos 平均成功率从 0.501 降到 0.425/0.424/0.397；GR-1 也从 0.420 降到 0.416/0.406/0.401 <span class="appendix-ref">附录 A.1 / Table 7</span>。这说明收益不是“更多 diffusion steps”本身，而是“给需要更多步的模态更多步”。</p>
+
+    <h3>5.5 消融实验：结构和训练都不能少</h3>
+    <table>
+      <tr><th>Arch.</th><th>Noise</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th></tr>
+      <tr><td>DiT</td><td>Joint</td><td>0.240</td><td>0.633</td><td>0.340</td><td>0.380</td></tr>
+      <tr><td>DiT</td><td>Decoupled</td><td>0.248</td><td>0.613</td><td>0.454</td><td>0.425</td></tr>
+      <tr><td>MMDiT</td><td>Joint</td><td>0.160</td><td>0.677</td><td>0.382</td><td>0.382</td></tr>
+      <tr><td><strong>MMDiT</strong></td><td><strong>Decoupled</strong></td><td><strong>0.295</strong></td><td><strong>0.760</strong></td><td><strong>0.510</strong></td><td><strong>0.501</strong></td></tr>
+    </table>
+    <p>消融结论很干净：只做 decoupled noising 但没有双流 MMDiT，平均成功率 0.425；只做 MMDiT 但使用 joint noise，平均成功率 0.382；两者一起才到 0.501。</p>
+    <div class="grid">
+      <div class="mini">
+        <h4>MMDiT depth</h4>
+        <p>总层数固定为 16，MMDiT 层数为 6/10/12/14 时平均成功率分别为 0.474/0.483/0.501/0.493。12 MMDiT + 4 DiT 最优。</p>
+      </div>
+      <div class="mini">
+        <h4>$\lambda_{\mathrm{WM}}$</h4>
+        <p>$\lambda_{\mathrm{WM}}=0.2/0.5/1.0/2.0$ 时平均成功率为 0.343/0.489/0.501/0.496。动作和世界模型目标需要相对均衡。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="reproduce">
+    <h2>6. 可复现审计</h2>
+    <h3>6.1 数据与评估任务</h3>
+    <table>
+      <tr><th>Benchmark</th><th>任务与数据</th><th>观察/动作空间</th><th>训练规模</th></tr>
+      <tr><td>RoboCasa</td><td>24 个厨房 manipulation tasks：8 个 pick-and-place、6 个 open/close、10 个 miscellaneous；数据由 MimicGen 在 MuJoCo 中生成。</td><td>3 个视角：left、right、wrist；Franka Panda 7 DoF，包括末端位置/旋转和二值夹爪。</td><td>每任务 100、300、1000 demos；global batch size 32，2 A100；60k/420k/600k steps。</td></tr>
+      <tr><td>GR-1</td><td>24 个 tabletop tasks：16 个 pick-and-place、8 个 articulated tasks；数据来自 GR00T-N1.5/DexMimicGen。</td><td>单个 head egocentric view；GR-1 humanoid + Fourier dexterous hands，总 29 DoF。</td><td>每任务 300、1000 demos；global batch size 960，8 H200，60k steps。</td></tr>
+      <tr><td>真实 Franka</td><td>4 个 pick-and-place 指令模板，每个含 Teddy Bear、Blue Cube、Blue Cup、Sponge。</td><td>7-DoF Franka Research 3，joint position + binary gripper；两台 ZED 相机。</td><td>每任务 60 teleop demos；global batch size 32，2 A100，60k steps。</td></tr>
+      <tr><td>BridgeV2 transfer</td><td>预训练只用 BridgeV2 的 action-free video component。</td><td>只优化 future observation embedding 的 world-modeling loss。</td><td>2 A100，batch size 32，120k pretrain steps；再在 RoboCasa 100 demos 上 finetune 60k steps。</td></tr>
+    </table>
+
+    <h3>6.2 优化与模型细节</h3>
+    <ul>
+      <li>AdamW，base learning rate $1e-4$，$\beta_1=0.95$，$\beta_2=0.999$，$\epsilon=1e-8$。</li>
+      <li>weight decay $1e-5$，bias 和 LayerNorm weights 例外。</li>
+      <li>cosine decay schedule，5% warmup。</li>
+      <li>vision token encoder：3-layer MLP + 2D sinusoidal positional encoding + SiLU；vision decoder：2-layer MLP + ReLU。</li>
+      <li>action token 使用 GR00T-N1.5 原代码中的 linear encoder-decoder pair，加 1D sinusoidal positional encoding。</li>
+      <li>FLARE baseline 因无官方代码/checkpoint，作者复现 FLARE loss，并使用与 DUST 相同的 SIGLIP-2 future embedding target。</li>
+    </ul>
+
+    <h3>6.3 复现风险点</h3>
+    <table>
+      <tr><th>风险点</th><th>为什么重要</th><th>论文给出的缓解信息</th></tr>
+      <tr><td>GR-1 batch size 敏感</td><td>作者明确说 GR-1 需要 large-scale training 才有 meaningful results；小 batch 复现可能掉很多。</td><td>global batch size 960，8 H200，60k steps。</td></tr>
+      <tr><td>FLARE baseline 非官方实现</td><td>结果依赖作者复现的对齐模块和 target choice，不能等同于官方 FLARE。</td><td>作者说明使用同一 VLM backbone、同一 future embedding target，alignment module 是 small MLP。</td></tr>
+      <tr><td>真实机评估随机性</td><td>真实桌面场景中物体初始位置、朝向和接触动力学影响很大。</td><td>作者预先固定 varied configurations；每个 object-task 配置 6 次，半成功计 0.5。</td></tr>
+      <tr><td>代码可用性</td><td>论文源码包含 LaTeX 与图表，但未在 arXiv 页面标出官方 GitHub。</td><td>复现需要依赖 GR00T-N1.5 codebase 和论文附录超参自行实现 DUST。</td></tr>
+    </table>
+
+    <h3>6.4 最小复现路线</h3>
+    <ol>
+      <li>从 GR00T-N1.5 codebase 启动，冻结 Eagle-2 VLM，并确认能训练原始 diffusion action expert。</li>
+      <li>增加 future image embedding target：提取 $o_{t+k}^v$ 的 SIGLIP-2/Eagle-2 image tokens，并做 $2\times2$ average pooling 到 64 tokens。</li>
+      <li>实现 action stream 与 vision stream 的 encoder/decoder，以及 MMDiT block 中的双 AdaLN timestep conditioning。</li>
+      <li>训练时独立采样 $\tau_A,\tau_o$，分别构造 noisy action 和 noisy future embedding。</li>
+      <li>优化 $\mathcal{L}_A+\lambda_{\mathrm{WM}}\mathcal{L}_{\mathrm{WM}}$，先用 $\lambda_{\mathrm{WM}}=1.0$，主实验默认 $N_A=N_o=4$。</li>
+      <li>复现实验优先跑 RoboCasa 100 demos：成本最低，且消融和主结果都在这里最有区分度。</li>
+      <li>最后评估异步采样，把 $N_A$ 固定为 4，尝试 $N_o=16,32,64$；不要同步增加 $N_A$。</li>
+    </ol>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>我认为最有价值的是它把“世界模型辅助动作生成”拆成了一个很清晰的工程和建模问题：动作和未来视觉确实应该互相约束，但它们不应该被迫使用同一条 diffusion 时间轴。DUST 的双流结构、独立噪声、解耦损失和异步推理四件事互相咬合，形成了一个比“加辅助 loss”更完整的设计。</p>
+    <p>另一个亮点是 BridgeV2 action-free video 预训练实验。虽然规模不算巨大，但它展示了一个有吸引力的路径：未来视觉 stream 可以从无动作视频中学习环境动力学，再在少量 robot action 数据上迁移成策略。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <ul>
+      <li><strong>横跨三种设置：</strong>单臂厨房 RoboCasa、humanoid GR-1、真实 Franka，都有增益。</li>
+      <li><strong>baseline 合理：</strong>GR00T-N1.5 是强 diffusion VLA baseline；FLARE 代表 implicit world-modeling baseline，且作者尽量用相同 VLM 和 target 对齐。</li>
+      <li><strong>消融指向清楚：</strong>MMDiT/decoupled noising 单独都不够，二者组合最好；$\lambda_{\mathrm{WM}}$ 和 MMDiT depth 也给了稳定性证据。</li>
+      <li><strong>附录验证异步采样：</strong>同步增加两种模态步数会下降，支持“视觉需要更多步、动作不需要”的解释。</li>
+    </ul>
+
+    <h3>7.3 局限与读者应保留的疑问</h3>
+    <table>
+      <tr><th>问题</th><th>具体影响</th></tr>
+      <tr><td>未来视觉目标仍是 embedding，而非可解释物理状态</td><td>SIGLIP-2/Eagle-2 embedding 比像素更贴近语义，但它是否真正捕获可控物理变量，仍需更细分析。</td></tr>
+      <tr><td>真实机任务范围较窄</td><td>四个 pick-and-place templates 证明了 sim-to-real 之外的有效性，但不足以说明长时序、多阶段、接触复杂任务的鲁棒性。</td></tr>
+      <tr><td>计算成本较高</td><td>GR-1 使用 8 H200、batch size 960；RoboCasa 1000 demos 需 600k steps。DUST 不是轻量小模型改造。</td></tr>
+      <tr><td>未看到官方代码链接</td><td>附录给了伪代码和超参，但真正复现还要处理 GR00T-N1.5/Eagle-2 接口、MMDiT 修改、数据 pipeline。</td></tr>
+      <tr><td>异步采样增加推理开销</td><td>$N_o=64$ 时成功率更高，但会增加 inference time；实际机器人闭环频率可能限制可用步数。</td></tr>
+    </table>
+
+    <h3>7.4 组会可追问的问题</h3>
+    <ol>
+      <li>为什么 MMDiT + joint noise 比 DiT + decoupled noise 还差？是否因为双流结构在没有独立时间步时反而更难优化？</li>
+      <li>future embedding target 选择 SIGLIP-2/Eagle-2 是否最优？换成 DINOv2、V-JEPA 或 robot-specific encoder 会怎样？</li>
+      <li>BridgeV2 预训练只优化 $\mathcal{L}_{\mathrm{WM}}$，action tokens 随机初始化；是否可以额外加入 latent action 或 inverse dynamics proxy？</li>
+      <li>异步采样中 action token 在 inner loop 里保持不变，但 $\tau_A$ 的推进在论文公式与伪代码表述上略有实现细节空间；实际代码中如何同步 condition timestep 需要小心。</li>
+      <li>未来状态预测是辅助训练目标，但推理最终执行只依赖 action chunk 还是也用未来 embedding 做闭环检查？论文主要是前者，后者可能是下一步扩展。</li>
+    </ol>
+  </section>
+
+  <section id="audit">
+    <h2>附：本报告覆盖检查</h2>
+    <div class="audit-card">
+      <p><span class="pass">已覆盖：</span>Abstract、Introduction、Related Works、Preliminaries、Method、Experiments、Conclusion，以及附录的同步采样消融、实现细节、训练超参、benchmark 细节、真实机设置、伪代码和 rollout 图说明。</p>
+      <p><span class="pass">图表处理：</span>使用 arXiv HTML 渲染出的 PNG 图像保存在 <code>figures/</code>；关键定量表格已重建为 HTML 表格。</p>
+      <p><span class="warn">残余风险：</span>arXiv 页面未标注官方代码仓库；报告中的复现路线基于论文附录和源码，不等同于已验证代码运行。</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

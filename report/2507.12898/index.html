@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vidar: Embodied Video Diffusion Model for Generalist Manipulation</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div class="hero">
+      <h1>Vidar: Embodied Video Diffusion Model for Generalist Manipulation</h1>
+      <div>
+        <span class="tag">arXiv:2507.12898</span>
+        <span class="tag">双臂机器人操作</span>
+        <span class="tag">视频扩散世界模型</span>
+        <span class="tag">低样本迁移</span>
+        <span class="tag">Masked Inverse Dynamics</span>
+      </div>
+      <div class="meta">
+        <div><strong>方法名：</strong>Vidar, Video Diffusion for Action Reasoning</div>
+        <div><strong>作者：</strong>Yao Feng, Hengkai Tan, Xinyi Mao, Chendong Xiang, Guodong Liu, Shuhe Huang, Hang Su, Jun Zhu</div>
+        <div><strong>机构：</strong>Tsinghua University; Shengshu Tech</div>
+        <div><strong>会议格式：</strong>NeurIPS 2025 preprint style</div>
+      </div>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ol>
+        <li><a href="#overview">论文速览</a></li>
+        <li><a href="#motivation">动机与问题定义</a></li>
+        <li><a href="#related">相关工作脉络</a></li>
+        <li><a href="#method">方法详解</a></li>
+        <li><a href="#experiments">实验与结果</a></li>
+        <li><a href="#repro">复现要点</a></li>
+        <li><a href="#analysis">分析、局限与边界</a></li>
+        <li><a href="#qa">组会问答准备</a></li>
+      </ol>
+  </nav>
+<section id="overview">
+      <h2>1. 论文速览</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th style="width: 170px;">论文要解决什么</th>
+            <td>新机器人平台上，双臂操作需要大量与硬件绑定的示范数据；不同机器人动作空间、视角和形态差异又让跨平台迁移很难。论文想回答：能否把互联网上和机器人数据中的视频动态知识变成可迁移先验，让一个未见过的双臂平台只用约 20 分钟示范也能执行多任务操作？</td>
+          </tr>
+          <tr>
+            <th>作者的方法抓手</th>
+            <td>把策略分解成两步：先用视频扩散模型生成“接下来应该发生什么”的多视角视频 rollout，再用 Masked Inverse Dynamics Model, MIDM, 把视频帧转成目标机器人动作。关键抓手是统一观察空间、750K 多视角双臂视频的 embodied pre-training、少量目标平台全参数微调、测试时多采样重排，以及无像素标注的动作相关区域 mask。</td>
+          </tr>
+          <tr>
+            <th>最重要的结果</th>
+            <td>RoboTwin 2.0 多任务设置中，Vidar 在 low data clean 场景达到 60.0% 平均成功率，而 Pi0.5 为 25.0%；standard clean 为 65.8%，Pi0.5 为 44.8%。真实平台上，仅约 20 分钟、232 个 episode 的人类示范，Vidar 在 seen tasks/backgrounds、unseen tasks、unseen backgrounds 上分别达到 68.2%、66.7%、55.6%，显著高于 UniPi 和 VPP。</td>
+          </tr>
+          <tr>
+            <th>阅读时要注意的点</th>
+            <td>这篇论文的重点不只是“视频生成好看”，而是视频是否足够 action-aware。要特别看三处：统一观察空间是否真的缓解 embodiment gap；MIDM 的 mask 是否只是在真实平台分布上有效；TTS 依赖 GPT-4o 重排和云端视频模型，带来延迟、成本和闭环控制缺失。另一个边界是作者强依赖多视角能看到手臂与接触区域。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>一句话版本：</strong>Vidar 把大视频模型当作机器人操作的可迁移世界先验，用统一多视角观察空间学“视频中的操作动态”，再用一个带隐式 mask 的逆动力学模型把预测视频落到新双臂机器人的动作空间。
+      </div>
+
+      <figure>
+        <img src="figures/figures_Figure2.png" alt="Vidar method overview" />
+        <figcaption>Figure 2. Vidar 整体流程：外部视频和机器人视频训练视频扩散先验，目标平台少量示范微调，推理时通过 TTS 选择更好的视频，再由 MIDM 输出动作。</figcaption>
+      </figure>
+    </section>
+
+    <section id="motivation">
+      <h2>2. 动机与问题定义</h2>
+      <h3>2.1 为什么不是直接训练 VLA 策略</h3>
+      <p>作者认为双臂操作的难点来自三个耦合因素：动作空间随关节数量膨胀，双臂之间需要精确时间协调，接触动态和长时序规划对数据质量很敏感。VLA 模型虽然可以把视觉、语言和动作端到端连接起来，但动作空间高度依赖机器人形态，跨平台时很难把一个平台的动作标签直接迁移到另一个平台。</p>
+      <p>因此 Vidar 选择绕开动作空间的异构性：视频扩散模型只学习世界如何演化，不直接学习动作；动作只在目标平台上由轻量逆动力学模型解码。这是论文的基本立场：视频是介于互联网数据、机器人数据和目标平台示范之间的中间模态。</p>
+
+      <h3>2.2 形式化问题</h3>
+      <p>原始目标是学习条件操作策略：</p>
+      <div class="formula">$$\pi: \mathcal{L} \times \mathcal{O} \rightarrow \mathbb{P}(\mathcal{A}),$$</div>
+      <p>其中 $\mathcal{L}$ 是语言指令空间，$\mathcal{O}$ 是观察空间，$\mathcal{A}$ 是动作空间。作者将其分解为视频生成模型 $G$ 和逆动力学模型 $I$：</p>
+      <div class="formula">$$\pi = I \circ G,\qquad G:\mathcal{L}\times\mathcal{O}\rightarrow\mathbb{P}(\mathcal{V}),\quad I:\mathcal{V}\rightarrow\mathcal{A}.$$</div>
+      <p>这意味着大部分跨任务、跨场景的知识由 $G$ 承担；目标机器人相关的动作映射由 $I$ 承担。读这篇论文时要一直问：视频空间是否真的保留了足够动作信息？如果某些关节或接触点不在视野里，$I$ 就无法可靠恢复动作。</p>
+
+      <h3>2.3 贡献定位</h3>
+      <ul>
+        <li>提出用大规模视频扩散模型作为双臂操作的 transferable prior，并通过 embodied pre-training 把互联网视频先验适配到机器人视频域。</li>
+        <li>提出统一观察空间，把机器人类型、相机布局、任务语言和多视角帧拼接到统一输入格式，降低多平台数据的视角和形态差异。</li>
+        <li>提出 MIDM，用无像素级监督的 mask 让逆动力学模型关注手臂、工具和接触区域，从而提升背景变化下的动作解码泛化。</li>
+        <li>在 RoboTwin 和真实 Aloha 双臂平台上展示低样本适配，尤其强调真实平台只用约 20 分钟示范。</li>
+      </ul>
+    </section>
+
+    <section id="related">
+      <h2>3. 相关工作脉络</h2>
+      <div class="grid-2">
+        <div class="mini">
+          <h3>3.1 VLA 模型</h3>
+          <p>RT-1、RT-2、OpenVLA、Octo、Pi0、RDT-1B 等方法把视觉、语言和动作接入统一模型，但通常需要大规模机器人轨迹。作者指出这些路线的数据需求很高，且动作与模型强耦合，迁移到异构 embodiment 时不够灵活。</p>
+        </div>
+        <div class="mini">
+          <h3>3.2 视频生成加动作合成</h3>
+          <p>VPP、UVA、VidMan 等工作把视频预测和动作合成耦合在一起，能提升物理一致性或交互性，但如果想替换更强的视频模型，往往需要重新训练整套 video-action 系统。Vidar 的选择是解耦：视频模型负责生成，MIDM 负责目标平台动作。</p>
+        </div>
+        <div class="mini">
+          <h3>3.3 embodied video generation</h3>
+          <p>UniPi、RoboDreamer、Gen2Act、CLOVER、SuSIE、GR-1 等利用视频生成或帧预测帮助机器人规划。作者认为多数工作偏单臂、单视角，或没有充分利用异构机器人视频预训练；Vidar 主要补这个空缺。</p>
+        </div>
+        <div class="mini">
+          <h3>3.4 与世界模型的关系</h3>
+          <p>Vidar 可以被看成一种视频世界模型，但它没有显式建模状态和奖励，也不是在线规划闭环控制。它更接近“离线生成未来视频，选择一个好 rollout，然后开环执行对应动作”的范式。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <h2>4. 方法详解</h2>
+      <h3>4.1 三阶段训练管线</h3>
+      <p>Vidar 的训练从大到小分三层数据：</p>
+      <ol>
+        <li><strong>互联网规模视频预训练：</strong>直接采用已有视频模型 checkpoint，例如 Wan2.2、Vidu 2.0、HunyuanVideo，获得语义、运动和物理交互先验。</li>
+        <li><strong>embodied domain pre-training：</strong>用约 750K 多视角双臂机器人 episode 继续预训练，让视频模型适配机器人、相机和操作动态。</li>
+        <li><strong>目标平台 fine-tuning：</strong>用目标机器人少量示范做全参数 SFT，同时训练 MIDM 把视频帧映射到动作。</li>
+      </ol>
+
+      <h3>4.2 视频生成模型：rectified flow</h3>
+      <p>作者采用 rectified flow 形式的视频扩散模型。模型学习速度场 $v(x_t,t,c)$，从高斯噪声 $x_0$ 流向目标视频 $x_1$：</p>
+      <div class="formula">$$\frac{d x_t}{d t}=v(x_t,t,c),\quad t\in[0,1].$$</div>
+      <p>训练时让速度场逼近从 $x_0$ 到 $x_1$ 的常量流：</p>
+      <div class="formula">$$L_G=\mathbb{E}_{c,t,x_0,x_1}\left[\left\|(x_1-x_0)-v(tx_1+(1-t)x_0,t,c)\right\|^2\right].$$</div>
+      <p>这里的 $c$ 不是只有任务文本，而是统一观察空间里的机器人、相机、任务和多视角图像上下文。这个选择是 Vidar 区别于普通 text-to-video 控制方法的关键。</p>
+
+      <h3>4.3 统一观察空间</h3>
+      <p>统一观察空间定义为：</p>
+      <div class="formula">$$\mathcal{U}=\{\langle\mathbf{o},\mathbf{l}\rangle\mid \mathbf{o}=\mathrm{aggregate}(\mathbf{I}^{(1)},\ldots,\mathbf{I}^{(V)}),\;\mathbf{l}=\mathrm{concatenate}(l_r,l_c,l_t)\}.$$</div>
+      <p>其中 $\mathbf{o}$ 是多视角图像聚合，$l_r,l_c,l_t$ 分别描述机器人平台、相机配置和任务指令。对不同数据集，作者给出类似 “fixed high camera, movable left arm camera, movable right arm camera” 的文本描述，作为条件的一部分。</p>
+      <p>这一步的好处是让模型不需要统一动作空间，只要把不同机器人平台的视频都投到同一种“多视角图像加描述”的格式里。但这也带来一个隐含要求：相机描述要足够稳定且视角能覆盖动作相关区域。</p>
+
+      <h3>4.4 embodied pre-training 与目标平台微调</h3>
+      <p>预训练数据来自 Agibot-World、RoboMind、RDT，真实实验对应的数据规模为 746,533 episodes；仿真实验额外加入 Egodex。作者过滤掉少于三视角或短于四秒的 episode，并用 Agibot 的 frame-level annotation 把长 episode 切成短 clips。预训练时按数据集大小比例采样。</p>
+      <p>目标平台的数据既用于 fine-tune 视频扩散模型，也用于训练 MIDM。真实平台数据为 20 分钟人类示范，覆盖 81 个任务、232 个 episodes；仿真 low data 设置为 RoboTwin 每任务 20 episodes，standard 设置为每任务 50 episodes。</p>
+
+      <h3>4.5 Test-Time Scaling</h3>
+      <p>视频扩散模型的采样有随机性，单次 rollout 可能物理不一致或任务不匹配。Vidar 在推理时生成 $K$ 个候选视频：</p>
+      <div class="formula">$$\{\tilde{\mathbf{v}}^{(i)}_{1:T}\}_{i=1}^{K},$$</div>
+      <p>然后用 evaluator $q_\eta$ 选择最高分视频：</p>
+      <div class="formula">$$\arg\max_i q_\eta(\tilde{\mathbf{v}}^{(i)}_{1:T}).$$</div>
+      <p>真实实验中 $K=3$，三条视频并行生成，再由 GPT-4o 依据物理合理性和任务文本一致性重排；仿真实验中为可复现性关闭 TTS，即 $K=1$。附录说明每次 pairwise comparison 约 0.003 美元，$K=3$ 时 GPT-4o 重排约占总延迟的 25%。</p>
+
+      <h3>4.6 Masked Inverse Dynamics Model</h3>
+      <p>MIDM 包含两个网络：mask prediction network $U$ 和 action regression network $R$。给定帧 $x$，先预测空间 mask：</p>
+      <div class="formula">$$m=U(x),\qquad \hat a=R(\mathrm{Round}(m)\odot x).$$</div>
+      <p>训练损失为：</p>
+      <div class="formula">$$L_I=\mathbb{E}_{x,a}\left[l(\hat a-a)+\lambda\|m\|_1\right],$$</div>
+      <p>其中 $l$ 是 Huber loss，$\lambda\|m\|_1$ 鼓励 mask 稀疏，Round 通过 straight-through estimator 训练。直觉是：如果模型必须用尽量少的像素预测动作，它会倾向保留手臂、夹爪、工具和接触点，过滤背景与反光干扰。</p>
+
+      <figure>
+        <img src="figures/figures_GRM_mask_fig.png" alt="MIDM learned masks" />
+        <figcaption>Figure. MIDM 学到的 mask：在未见背景和反光表面中，mask 仍主要落在机器人手臂与关键操作区域。</figcaption>
+      </figure>
+
+      <h3>4.7 为什么不用现成分割模型</h3>
+      <p>附录测试了 RoboEngine 分割。作者指出它在双臂场景中经常只识别一只手臂，腕部视角下不稳定，也缺少时间一致性。因此 Vidar 不依赖外部分割标签，而是让动作监督反向塑造 mask。</p>
+      <figure>
+        <img src="figures/figures_roboengine_mask_fig.png" alt="RoboEngine segmentation results" />
+        <figcaption>Appendix. RoboEngine 分割示例：作为对照，说明显式分割在多视角双臂场景里可能漏掉动作相关部位。</figcaption>
+      </figure>
+    </section>
+
+    <section id="experiments">
+      <h2>5. 实验与结果</h2>
+      <h3>5.1 实验假设</h3>
+      <ol>
+        <li>Vidar 只用 20 分钟目标域示范也能获得更高成功率。</li>
+        <li>Vidar 能泛化到未见任务和未见背景。</li>
+        <li>统一观察空间上的 embodied pre-training 能提升视频生成质量。</li>
+        <li>MIDM 比普通 ResNet 逆动力学模型更能泛化。</li>
+      </ol>
+
+      <h3>5.2 数据与训练设置</h3>
+      <table>
+        <thead>
+          <tr><th>项目</th><th>设置</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>预训练数据</td><td>Agibot-World、RoboMind、RDT；真实实验共 746,533 episodes；仿真实验额外加入 Egodex。</td></tr>
+          <tr><td>目标真实平台数据</td><td>20 分钟人类示范，81 个任务，232 episodes；目标平台在预训练中未见。</td></tr>
+          <tr><td>仿真数据</td><td>RoboTwin 2.0；low data 为每任务 20 episodes 且调整相机以完整看到手臂；standard 为每任务 50 episodes、官方视角。</td></tr>
+          <tr><td>视频模型</td><td>仿真使用 Wan2.2；真实主实验使用 Vidu 2.0；附录还复现 Wan2.2 和 HunyuanVideo。</td></tr>
+          <tr><td>训练步数</td><td>Wan2.2: 10K pre-training + 12K fine-tuning；Vidu 2.0: 10K pre-training + 13K fine-tuning；视频降采样到 8 fps。</td></tr>
+          <tr><td>MIDM</td><td>U-Net mask predictor + ResNet-50 action regressor；$\lambda=3\times10^{-3}$；仅用 fine-tuning dataset 训练。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5.3 RoboTwin 2.0 主结果</h3>
+      <p>RoboTwin 结果使用更难的多任务设置：不是每个任务单独训练一个策略，而是 50 个任务平均评估，每个任务 100 episodes。表中 Pi0* 是官方 leaderboard 结果，因为其每任务独立训练，作者说明更容易且不完全可比。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>方法</th><th>Low Clean</th><th>Low Randomized</th><th>Standard Clean</th><th>Standard Randomized</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Pi0*</td><td>-</td><td>-</td><td>46.42%</td><td>16.34%</td></tr>
+          <tr><td>Pi0.5</td><td>25.0%</td><td>9.2%</td><td>44.8%</td><td>14.2%</td></tr>
+          <tr><td><strong>Vidar</strong></td><td><strong>60.0%</strong></td><td><strong>15.7%</strong></td><td><strong>65.8%</strong></td><td><strong>17.5%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>关键解读：Vidar 在 clean 场景提升最大，说明视频先验和多视角条件对任务执行很有帮助；randomized 场景提升较小，说明背景和物体随机化仍然是瓶颈，但 Vidar 仍超过 Pi0.5。</p>
+
+      <h3>5.4 真实机器人主结果</h3>
+      <p>真实实验分为 seen tasks/backgrounds、unseen tasks、unseen backgrounds 三类。基线选 UniPi 和 VPP，因为作者认为只有 20 分钟数据时，常规 VLA 很难有效适配。</p>
+      <table>
+        <thead>
+          <tr><th>方法</th><th>Seen Tasks &amp; Backgrounds</th><th>Unseen Tasks</th><th>Unseen Backgrounds</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>VPP</td><td>4.5%</td><td>13.3%</td><td>0.0%</td></tr>
+          <tr><td>UniPi</td><td>36.4%</td><td>6.7%</td><td>22.2%</td></tr>
+          <tr><td><strong>Vidar</strong></td><td><strong>68.2%</strong></td><td><strong>66.7%</strong></td><td><strong>55.6%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>这里最强的证据是 unseen tasks 仍有 66.7%，说明视频模型不仅记住示范任务，还能利用语言和视频先验处理语义任务，例如抓最短的面包、用抹布擦桌子等。unseen backgrounds 降到 55.6%，但仍明显高于 UniPi 和 VPP。</p>
+      <figure>
+        <img src="figures/figures_GRM_demo_fig_v2.png" alt="Vidar prediction and execution demos" />
+        <figcaption>Figure. 真实机器人上，左侧是预测视频，右侧是对应执行，可用于检查视频 rollout 是否和动作执行一致。</figcaption>
+      </figure>
+
+      <h3>5.5 embodied pre-training 的视频质量收益</h3>
+      <table>
+        <thead>
+          <tr><th>配置</th><th>Subject Consistency</th><th>Background Consistency</th><th>Imaging Quality</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vidu 2.0</td><td>0.565</td><td>0.800</td><td>0.345</td></tr>
+          <tr><td><strong>+ Embodied Pre-training</strong></td><td><strong>0.855</strong></td><td><strong>0.909</strong></td><td><strong>0.667</strong></td></tr>
+        </tbody>
+      </table>
+      <p>VBench 指标显示，机器人视频预训练显著提升主体一致性、背景一致性和成像质量。对机器人控制来说，subject consistency 不是纯视觉美观指标，它关系到手臂、物体和接触关系是否在整个 rollout 中保持稳定。</p>
+
+      <h3>5.6 MIDM 泛化结果</h3>
+      <table>
+        <thead>
+          <tr><th>逆动力学模型</th><th>Training Accuracy</th><th>Testing Accuracy</th><th>Testing $l_1$ Error</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ResNet</td><td>99.9%</td><td>24.3%</td><td>0.0430</td></tr>
+          <tr><td><strong>MIDM</strong></td><td>99.9%</td><td><strong>49.0%</strong></td><td><strong>0.0308</strong></td></tr>
+        </tbody>
+      </table>
+      <p>训练集上两者都几乎满分，但测试集 MIDM 成功率翻倍，说明 ResNet 更容易利用背景或纹理捷径，MIDM 的稀疏 mask 正则有助于把注意力拉回动作相关区域。</p>
+
+      <h3>5.7 消融实验</h3>
+      <table>
+        <thead>
+          <tr><th>配置</th><th>Seen Tasks &amp; Backgrounds</th><th>Unseen Tasks</th><th>Unseen Backgrounds</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vidar w/o TTS</td><td>45.5%</td><td>33.3%</td><td>44.4%</td></tr>
+          <tr><td>Vidar w/o MIDM</td><td>59.1%</td><td>26.7%</td><td>22.2%</td></tr>
+          <tr><td><strong>Vidar</strong></td><td><strong>68.2%</strong></td><td><strong>66.7%</strong></td><td><strong>55.6%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>TTS 对 unseen tasks 提升很明显，从 33.3% 到 66.7%；MIDM 对 unseen background 尤其关键，从 22.2% 到 55.6%。这与论文叙事一致：TTS 主要筛掉任务不匹配或物理不合理的视频，MIDM 主要抵抗背景干扰。</p>
+
+      <h3>5.8 附录中的补充结果</h3>
+      <div class="grid-2">
+        <div class="mini">
+          <h4>MIDM 的 $\lambda$</h4>
+          <p>$\lambda=3\times10^{-3}$ 最好：testing accuracy 49.0%，testing $l_1$ error 0.0308。过大 $\lambda=10^{-1}$ 会 mask 太稀疏，测试准确率只有 7.1%；过小 $\lambda=10^{-4}$ 则约束不足，测试准确率 24.4%。</p>
+        </div>
+        <div class="mini">
+          <h4>Wan2.2 附加真实实验</h4>
+          <p>在 14 个真实任务上，Vidar-Wan2.2 的 seen cases 平均 69.3%，Pi0.5 为 34.3%；unseen cases 平均 67.1%，Pi0.5 为 12.9%。这支持方法不完全绑定 Vidu 2.0。</p>
+        </div>
+        <div class="mini">
+          <h4>HunyuanVideo 附加实验</h4>
+          <p>六个任务平均成功率 58.3%，其中抓苹果放入蒸锅为 100%，抓杯柄为 25%，堆积木为 20%。说明换 backbone 可行，但不同任务差异仍大。</p>
+        </div>
+        <div class="mini">
+          <h4>失败案例</h4>
+          <p>附录额外可视化包含成功和失败案例。报告读者应关注失败是否来自视频预测不合理、TTS 选错、MIDM 动作解码失败，还是开环执行误差累积。</p>
+        </div>
+      </div>
+      <figure>
+        <img src="figures/figures_GRM_challenging_demo_fig.png" alt="Additional demos and failure cases" />
+        <figcaption>Appendix. 更多挑战任务示例，包含成功与失败案例，是理解边界条件的重要图。</figcaption>
+      </figure>
+    </section>
+
+    <section id="repro">
+      <h2>6. 复现要点</h2>
+      <h3>6.1 数据处理</h3>
+      <ul>
+        <li>把每个数据集 episode 转成统一多视角图像布局；腕部或信息较少视角会 resize 后拼接。</li>
+        <li>给每条数据补充机器人、相机和任务描述，形成 $l_r,l_c,l_t$。</li>
+        <li>过滤少于三视角或短于四秒的数据；Agibot 用 frame-level annotation 切分短 clips。</li>
+        <li>RoboTwin low data 特意调整相机，使两只手臂完整可见，以利于 MIDM 学动作。</li>
+      </ul>
+
+      <h3>6.2 训练资源</h3>
+      <table>
+        <thead>
+          <tr><th>模块</th><th>资源与训练</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vidu 2.0</td><td>64 张 NVIDIA Ampere 80GB GPU，23,000 iterations，约 64 小时；10,000 pre-training，其余 fine-tuning。</td></tr>
+          <tr><td>Wan2.2</td><td>5B 参数；pre-train lr $2\times10^{-5}$，fine-tune lr $2\times10^{-5}$，warm-up 200，pre-training 10K，fine-tuning 12K。</td></tr>
+          <tr><td>HunyuanVideo</td><td>13B 参数；64 张 NVIDIA Hopper 80GB GPU，约 54 小时；pre-training 10K，fine-tuning 2K。</td></tr>
+          <tr><td>MIDM</td><td>92M 参数；8 张 NVIDIA Hopper 80GB GPU，60,000 iterations，约 5 小时。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.3 MIDM 超参数</h3>
+      <table>
+        <thead>
+          <tr><th>超参数</th><th>值</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mask network</td><td>U-Net，5 层 down/up sampling</td></tr>
+          <tr><td>Action network</td><td>ResNet-50</td></tr>
+          <tr><td>Loss</td><td>Huber loss + $\lambda\|m\|_1$</td></tr>
+          <tr><td>Learning rate</td><td>$5\times10^{-4}$</td></tr>
+          <tr><td>Warm-up</td><td>6000 steps</td></tr>
+          <tr><td>AdamW</td><td>$\beta=(0.9,0.999)$，$\epsilon=10^{-8}$，weight decay $10^{-2}$</td></tr>
+          <tr><td>Mask sparsity</td><td>$\lambda=3\times10^{-3}$</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.4 推理流程</h3>
+      <ol>
+        <li>输入当前多视角观察和任务文本。</li>
+        <li>视频模型一次性生成 60 frames，8 fps，即 7.5 秒未来视频。</li>
+        <li>真实实验生成 $K=3$ 条候选，抽取 5 到 7 帧交给 GPT-4o 根据任务与物理合理性排序。</li>
+        <li>选中视频后，MIDM 在本地运行，把视频帧转换成动作序列。</li>
+        <li>执行为 open-loop，生成后不再根据执行中观察重新规划。</li>
+      </ol>
+
+      <div class="warn">
+        <strong>复现风险：</strong>Vidu 2.0 不是完全开源 backbone；TTS 使用 GPT-4o；视频模型部署在云端，单条 60 帧视频约 25 秒。这些因素会影响独立复现和实时部署。
+      </div>
+    </section>
+
+    <section id="analysis">
+      <h2>7. 分析、局限与边界</h2>
+      <h3>7.1 这篇论文最有价值的地方</h3>
+      <p>最有价值的地方是它给出了一个很清晰的跨 embodiment 迁移拆分：不要强行统一动作空间，而是先统一视频观察空间，让大视频模型学习跨机器人、跨视角的操作动态，再用目标平台少量动作数据训练逆动力学适配器。这个思路把昂贵的机器人动作监督压缩到最后一步，和当前大模型时代“先学通用先验，再低成本对齐”的范式非常一致。</p>
+      <p>第二个价值点是 MIDM 的设计很朴素但抓住了真实机器人泛化中的痛点：背景、反光、视角变化会让普通图像到动作模型过拟合捷径，而动作监督加稀疏 mask 可以在没有分割标签的情况下逼模型关注手臂和接触区域。</p>
+
+      <h3>7.2 结果为什么站得住</h3>
+      <ul>
+        <li>主结果不是单一场景：同时覆盖 RoboTwin 仿真、真实 seen task、真实 unseen task 和真实 unseen background。</li>
+        <li>有强基线 Pi0.5、UniPi、VPP，并且作者解释了 Pi0 leaderboard 与多任务设置的可比性问题。</li>
+        <li>消融直接对应方法组件：w/o TTS 和 w/o MIDM 分别验证推理重排和 masked inverse dynamics 的贡献。</li>
+        <li>附录提供逐任务表格，不只给平均数；可以看到很多任务的差异，例如 handover、hanging mug、put bottles 等仍然很难。</li>
+        <li>VBench 和 MIDM 训练/测试对比提供机制证据：embodied pre-training 提升视频一致性，MIDM 提升测试动作预测而非仅训练拟合。</li>
+      </ul>
+
+      <h3>7.3 主要局限</h3>
+      <ul>
+        <li><strong>强依赖可观察性：</strong>附录硬件部分明确指出，中间视频必须包含动作预测所需信息。Aloha 原始视角中手臂关节常出视野，所以作者调整了中心相机。很多商业平台未必能这样布置相机。</li>
+        <li><strong>开环执行：</strong>真实实验中视频一次生成、动作一次执行，不是闭环视觉反馈控制。长时程任务或扰动场景下，误差可能累积。</li>
+        <li><strong>推理延迟高：</strong>60 帧视频生成约 25 秒，TTS 还要额外 GPT-4o 排序。作者也承认需要蒸馏或量化降低成本。</li>
+        <li><strong>TTS 依赖外部 evaluator：</strong>GPT-4o 排序能提升结果，但 evaluator 的偏差、成本和复现稳定性都要额外考虑。</li>
+        <li><strong>真实实验规模仍有限：</strong>81 个任务、232 episodes 很有说服力，但相比部署级泛化仍不够大，尤其双臂复杂接触任务的失败类型需要更系统分析。</li>
+        <li><strong>视频可行动性没有完全保证：</strong>扩散视频可能看起来合理但在动力学上不可执行，MIDM 只能把已选视频转换为动作，不能保证动作一定完成任务。</li>
+      </ul>
+
+      <h3>7.4 边界条件</h3>
+      <table>
+        <thead>
+          <tr><th>适用条件</th><th>不适用或需谨慎的条件</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>有多视角 RGB 视频，且手臂、夹爪、接触物体大多可见。</td><td>关键状态在图像外，例如关节角、力、被遮挡接触点，视频无法反推出动作。</td></tr>
+          <tr><td>任务允许秒级或更长推理延迟，且可以 open-loop 执行一段时间。</td><td>高速动态、实时避障、强人机交互安全约束。</td></tr>
+          <tr><td>目标平台能采少量高质量示范，并能用同样相机布局训练 MIDM。</td><td>相机布局频繁变化或示范动作噪声很大。</td></tr>
+          <tr><td>语义明确、视觉上可判别的视频任务。</td><td>需要力控、触觉或隐状态推理的精细装配任务。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="qa">
+      <h2>8. 组会问答准备</h2>
+      <h3>Q1: Vidar 和 UniPi 最大区别是什么？</h3>
+      <p>UniPi 也用视频作为中间规划表示，但 Vidar 更强调大规模 embodied video pre-training、统一多视角观察空间，以及目标平台上的 MIDM 动作解码。真实实验里 UniPi 直接 fine-tune Vidu 2.0 并用 ResNet IDM，缺少异构机器人视频预训练和 mask 机制。</p>
+
+      <h3>Q2: 为什么视频模型不直接输出动作？</h3>
+      <p>作者想避免动作空间异构带来的 embodiment gap。不同机器人关节、夹爪、控制频率不同，直接统一动作很困难；视频空间更通用，可以承载语义和物理交互，再由每个目标平台训练轻量逆动力学模型。</p>
+
+      <h3>Q3: MIDM 的 mask 为什么不需要分割标签？</h3>
+      <p>因为监督来自动作预测误差。若某些像素对动作预测有用，保留它们会降低 Huber loss；同时 $\ell_1$ 正则要求 mask 尽量小，模型就倾向只保留动作相关区域。Round 通过 straight-through estimator 训练。</p>
+
+      <h3>Q4: TTS 的作用和代价是什么？</h3>
+      <p>作用是降低扩散采样的方差，从多条候选中选物理更合理、任务更匹配的视频。代价是多次视频生成和 GPT-4o 排序，真实实验 $K=3$ 时，排序约占总延迟 25%，且引入外部模型依赖。</p>
+
+      <h3>Q5: 最可能被质疑的点是什么？</h3>
+      <p>第一是可复现性：Vidu 2.0 和 GPT-4o 排序不是完全开源可控。第二是开环控制和高延迟。第三是相机调整让目标平台完整看到双臂，这对方法很关键，但实际部署中未必总能满足。</p>
+
+      <h3>Q6: 如果继续做这条线，下一步最自然是什么？</h3>
+      <p>把 Vidar 从开环视频执行改成闭环 receding horizon；把 GPT-4o TTS 替换为可本地部署的物理一致性/任务成功 evaluator；进一步把触觉、力或 proprioception 融入视频以外的状态，解决视频不可见信息问题。</p>
+    </section>
+
+</main>
+</body>
+</html>

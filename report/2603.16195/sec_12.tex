@@ -1,0 +1,17 @@
+
+\label{sec:ablation}
+
+To validate the effectiveness of key components in our S-VAM, we conduct an ablation study on the CALVIN~\cite{mees2022calvin} benchmark. Results are summarized in \cref{tab:ablation}.
+
+\noindent \textbf{Geometric and Semantic Distillation.} 
+Removing either the geometric ($4.16 \rightarrow 4.01$) or semantic ($4.16 \rightarrow 3.99$) distillation distinctly degrades performance. Lacking semantic foresight particularly harms long-horizon execution (the $5^{th}$ task success rate drops from $68.9\%$ to $64.1\%$), highlighting its critical role in maintaining consistent object identities to mitigate compounding errors.
+
+\noindent \textbf{Self-Distillation.} To evaluate the necessity of the proposed mechanism, we compare our approach against a w/o Self-Distillation variant that uses VFM supervision extracted from ground-truth (GT) future frames instead of the model's own multi-step predictions. This variant degrades performance ($4.16 \rightarrow 3.82$). The resulting decline stems from the inherent trajectory misalignment between noisy one-step features and GT future representations, highlighting that self-distilling foresight from the model's own predictions is crucial for preserving a shared diffusion trajectory.
+
+\noindent \textbf{Uni-Perceiver.} 
+Removing the Uni-Perceiver causes a severe performance drop ($4.16 \rightarrow 3.72$). This demonstrates that adaptively condensing high-dimensional multi-modal features into a compact representation is essential for providing a holistic condition context to the action expert.
+
+\noindent \textbf{Original Diffusion Features.} 
+Relying exclusively on distilled foresight without the original one-step feature $F$ yields sub-optimal results ($4.16 \rightarrow 3.93$). The raw diffusion features are indispensable, as they supplement structural VFM representations by providing the action expert with residual global context.
+
+

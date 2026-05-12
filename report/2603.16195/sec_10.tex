@@ -1,0 +1,15 @@
+
+\noindent \textbf{Simulated Benchmarks.} 
+We evaluate our S-VAM on two challenging manipulation benchmarks. 1) CALVIN~\cite{mees2022calvin} ABC$\rightarrow$D includes four distinct tabletop environments (ABCD). Policies are trained on ABC and evaluated on unseen D to assess generalization across consecutive long-horizon tasks. 2) MetaWorld~\cite{yu2020meta} features a Sawyer robot performing 50 manipulation tasks across varying difficulty levels as defined in~\cite{seo2023masked}. The training set consists of 50 demonstrations for each task. For fair comparison, all experiments are conducted following~\cite{huvideo} under a third-view setup using only the primary monocular RGB camera.
+
+
+\noindent \textbf{Implementation Details.}
+Our pipeline consists of a three-stage training process.
+In the first stage, we fine-tune the SVD backbone, initialized from weights pretrained on embodied scenes~\cite{huvideo}.
+We train for 100k steps on MetaWorld and 40k steps on real-world tasks using 4 NVIDIA H100 GPUs.
+For CALVIN, we directly adopt the fine-tuned model from~\cite{huvideo} without additional training.
+In the second stage, we freeze the video generation model and train the geometric and semantic decouplers to distill coherent foresight from noisy one-step features. This self-distillation is efficient, requiring only 50k steps on a single NVIDIA H100 GPU for all benchmarks.
+In the final stage, while keeping the SVD backbone and decouplers frozen, we exclusively train the action expert to decode control signals. We train this stage for 60k steps on CALVIN and 40k steps on the remaining benchmarks, using four NVIDIA H100 GPUs. For inference, we use a single NVIDIA RTX 3090 (24GB) GPU. In qualitative analysis, we additionally train a DPT head~\cite{Ranftl_2021_ICCV} that maps geometric foresight to depth maps following a standard probing protocol~\cite{li2025spatial,wu2026geometry}. 
+
+\noindent \textbf{Methods for Comparison.} 
+We compare our S-VAM against state-of-the-art baselines, broadly categorized into two paradigms. \textbf{Direct action learning} methods (e.g., RT-1~\cite{brohan2022rt}, Diffusion Policy~\cite{chi2025diffusion}, OpenVLA~\cite{kim2025openvla}, CLOVER~\cite{bu2024closedloop}, $\pi_0$~\cite{black2024pi_0}, and Spatial Forcing~\cite{li2025spatial}) directly map observations to actions without explicitly modeling future dynamics, whereas \textbf{predictive methods} (e.g., SuSIE~\cite{black2024zeroshot}, GR-1~\cite{wu2023unleashing}, VPP~\cite{huvideo}, Uni-VLA~\cite{wang2025unified}, and HiF-VLA~\cite{lin2025hif}) predict future states or intermediate representations to guide action generation.

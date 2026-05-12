@@ -1,0 +1,331 @@
+\section{Experimental Evaluation}
+Our experiments are organized into three parts. First, we describe the experimental setup and implementation details. Second, we evaluate the overall performance of OmniVTA on manipulation tasks involving diverse tactile interaction patterns. Then, we conduct comprehensive ablation studies to analyze the contribution of each module in the proposed policy.
+Specifically, we investigate the following questions: 
+(1) whether the TactileVAE can effectively encode tactile signals; 
+(2) whether the proposed visuo-tactile world model can predict future tactile signals more accurately than alternative tactile prediction approaches; 
+(3) whether incorporating predicted future tactile signals improves policy performance and whether the proposed usage of predicted tactile information in OmniVTA is effective; and 
+(4) whether the Reflexive Latent Tactile Controller can generate reasonable fine-grained corrective actions and how much it improves policy execution. 
+We further analyze the contribution of each design component through detailed ablation studies.
+
+\subsection{Experimental Setup}
+
+\begin{table*}[t]
+\centering
+\caption{Objects used for training and manipulation across different robotic tasks. Each object is associated with 150 manipulation trajectories in the dataset for training world models and manipulation policies.}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{} l l l @{}}
+\toprule
+\textbf{Task} & \textbf{Object Used for Training} & \textbf{Object Used for Manipulation} \\
+\midrule
+\textbf{Wipe} & vases in 4 different colors and shapes, plate, and whiteboard  & vases in 4 different colors and shapes \\
+\textbf{Peel} & cucumber, Chinese yam, radish, carrot, and white daikon & cucumber, Chinese yam, radish \\
+\textbf{Cut} & cucumber, Chinese yam, carrot, pepper, and banana & cucumber, Chinese yam, pepper, banana \\
+\textbf{Assembly} & 3 colors of USB stick and 3 types of charging adapters & red USB stick and silver USB stick \\
+\textbf{Grasp} & blueberry, strawberry, grape, cherry, and cherry tomato & blueberry, strawberry, grape, and cherry tomato \\
+\textbf{Adjustment} & test tube, pencil, cuboid, cylinder, and triangular prism & cuboid, cylinder \\
+\bottomrule
+\label{tab:object}
+\end{tabular}
+\vspace{-5mm}
+\end{table*}
+
+\subsubsection{Training Details}
+Our OmniVTA framework is trained in four stages: training the TactileVAE, training the Visuo-Tactile World Model, training the Adaptive Visuo-Tactile Fusion Policy, and training the Reflexive Latent Tactile Controller.
+
+\noindent\textbf{Training of TactileVAE.}
+For training the TactileVAE, we use tactile data from 20\% of the manipulation trajectories, together with additional tactile interaction data collected from interactions between 10 extra objects and the tactile sensors. The resulting dataset contains approximately 1.2M tactile samples. 
+Both TactileVAE and the VAE baselines are trained for 50 epochs using 8 NVIDIA A100 GPUs.
+The loss weights are set to $\lambda_{\text{KL}}=1e-6$.
+
+\noindent\textbf{Training of Visuo-Tactile World Model.}
+We first construct a dataset to train the Visuo-Tactile World Model, comprising six categories of tactile interaction patterns. 
+For each category, 5--6 objects are selected, and 150 manipulation trajectories per object are collected using TacUMI and the xArm7. 
+The data are split into training and test sets with a 90\%/10\% ratio. 
+A detailed breakdown of the dataset is provided in Table~\ref{tab:object}.
+
+For training the Visuo-Tactile World Model, we use AdamW with a learning rate of $1\times10^{-4}$ and weight decay $0$. The per-GPU batch size is $5$, and the total number of training steps is $100{,}000$. The gradient norm threshold is set to $0.1$, with gradient clipping enabled after $20{,}000$ steps. The loss weights are set to $\lambda_{\text{dyn}}=1.0$ and $\lambda_{\text{amp}}=1.0$.
+
+\noindent\textbf{Training of Adaptive Visuo-Tactile Fusion Policy.}
+We used the same training set to train the Adaptive Visuo-Tactile Fusion Policy.
+For each interaction category, the data are combined to train a unified visuo-tactile generation and manipulation model (OmniVTA), as well as other policy baselines. 
+The Adaptive Visuo-Tactile Fusion Policy is trained for 250k steps. Other manipulation baselines are trained for 350k steps to compensate for the absence of additional perception modules.
+The loss weights are set to $\lambda_{ct}=0.2$.
+
+\noindent\textbf{Parameter settings.}
+Following prior work, we adopt \emph{relative actions} as the action representation. 
+During training, visual observations are sampled at 15\,Hz, tactile signals at 60\,Hz, and robot proprioception at 60\,Hz. 
+The policy outputs action chunks at 15\,FPS. 
+For observations, both OmniVTA and all baselines use the current and previous visual frames (2 frames in total), the corresponding 8 tactile frames within the same temporal window, and 2 proprioceptive observations as policy inputs. 
+Each action chunk predicts the next 6 actions, which are interpolated to 60\,Hz during execution.
+
+\subsubsection{Hardware Setup}
+
+The experimental platform consists of a UFactory xArm7 robotic arm equipped with a parallel two-finger gripper and two fingertip tactile sensors. 
+An Intel RealSense D435 camera mounted on the robot wrist provides RGB observations at 15\,Hz, while the tactile sensors capture tactile signals at 60\,Hz. For the TactileVAE validation experiments, three types of tactile sensors are used: GelSight Mini, Tac3D, and Xense. 
+The resolutions of their reconstructed 3D displacement fields are $7\times9$, $20\times20$, and $35\times20$, respectively. 
+In the real-world manipulation experiments, we use only the Xense sensors.
+
+\subsubsection{Baselines}
+We select representative baseline methods to evaluate the effectiveness of the proposed TactileVAE, Visuo-Tactile World Model, and the overall OmniVTA framework. 
+
+\noindent \textbf{TactileVAE baselines.} We compare the proposed TactileVAE with two representative tactile encoding methods: PCA-based features and a point cloud-based autoencoder~\cite{chen2024general}.
+
+\noindent \textbf{Tactile prediction baselines.}
+We compare our Visuo-Tactile World Model against three representative paradigms for multi-modal generative modeling.
+
+\begin{itemize}
+\item \textbf{Unified multimodal generation}:
+UVA~\cite{li2025unified} models video frames and actions as a unified token sequence and jointly generates them using a single generative model. We extend this formulation by injecting tactile tokens.
+
+\item \textbf{Joint trajectory diffusion}:
+ForceMimic~\cite{liu2025forcemimic} and KineDex~\cite{zhang2025kinedex} concatenate interaction forces with actions and learn diffusion-based policies conditioned on visual observations. In our implementation, we replace force inputs with tactile feature embeddings extracted using a lightweight MLP autoencoder.
+
+\item \textbf{Conditional modality prediction}:
+exUMI~\cite{xu2025exumi} generates future tactile signals using a latent diffusion model (LDM) conditioned on visual observation and action. Since our method assumes only historical observations are available at inference, future action inputs are replaced with historical action sequences.
+\end{itemize}
+
+\noindent \textbf{Contact-rich policy baselines.}
+We compare against several state-of-the-art imitation learning policies:
+
+\begin{itemize}
+\item \textbf{DP}~\cite{chi2025diffusion}: Diffusion Policy using wrist-view RGB observations and open-loop action chunk execution.
+\item \textbf{DP+tactile}: Diffusion Policy augmented with tactile features encoded by PCA.
+\item \textbf{KineDex}~\cite{zhang2025kinedex}: a diffusion policy that jointly predicts actions and forces from visual observations.
+\item \textbf{ForceMimic}~\cite{liu2025forcemimic}: a diffusion policy conditioned on 3D observations that jointly predicts actions and forces.
+\item \textbf{RDP}~\cite{xue2025reactive}: a reactive diffusion policy with a slow diffusion planner and a fast tactile-based reactive controller.
+\item \textbf{OmniVTA (ours)}: our method with a visuo-tactile world model and a dual-system manipulation policy consisting of a diffusion planner and a reflexive tactile controller.
+\item \textbf{OmniVTA w/o RLTC}: our method without the reflexive controller, executing diffusion-planned action chunks in a open-loop manner.
+\end{itemize}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.75\linewidth]{fig/object.pdf}
+\caption{\textbf{Objects used in the manipulation tasks.}}
+\label{fig:object}
+\vspace{-3mm}
+\end{figure}
+
+\subsection{Overall Performance}
+
+We evaluate the real-world manipulation performance of OmniVTA from three perspectives: object diversity, generalization, and perturbation robustness.
+
+\noindent \textbf{Object diversity.}
+For each category, we evaluate the policy on 2--4 different objects, as summarized in Table~\ref{tab:object} and Fig.~\ref{fig:object}. 
+Before each trial, the object is placed at a random position and fixed during manipulation. 
+For each object, we perform 10 trials and report the average success rate.
+
+\noindent \textbf{Generalization.}
+We evaluate two types of generalization.
+
+(1) \emph{Position generalization.}
+For the wipe, peel, assembly, and adjustment tasks, objects are placed at two additional unseen heights during evaluation. 
+For each object and each height, we conduct 5 trials and report the average success rate.
+
+(2) \emph{Tool generalization.}
+For the cut task, we replace the training knife with a previously unseen knife (shown in Fig.~\ref{fig:object}). 
+Each object is tested 10 times using the new tool.
+
+
+\noindent \textbf{Perturbation robustness.}
+For the wipe, peel, cut, and assembly tasks, we introduce controlled perturbations during execution to disrupt the current contact state. 
+Specifically, the target object is suddenly displaced upward or downward along the vertical direction during the interaction phase. 
+This perturbation breaks the existing contact state and requires the policy to re-establish stable contact. 
+For each task, one representative object is selected and evaluated over 10 trials.
+
+\noindent \textbf{Evaluation metric.}
+The primary evaluation metric is task success rate. 
+A trial is considered successful if the task objective is completed and no damage occurs to the tactile sensors during execution. For wiping, peeling, and cutting tasks, we measure task completion using the ratio of the successfully processed length (e.g., the proportion of removed peel, erased marks, or completed cuts). For assembly and grasping tasks, a trial is considered successful only if the object is fully inserted or grasped without damage. For adjustment tasks, success is defined as achieving a pose change that exceeds a predefined angular threshold (60°).
+
+\noindent \textbf{Results.}
+The overall real-robot manipulation results are visualized in Fig.~\ref{fig:manipulation}, and the corresponding overall success rates are reported in Table~\ref{tab:full_comparison_final_scaled}.
+In the object diversity evaluation, OmniVTA achieves the best performance across all six tasks, demonstrating the effectiveness of the proposed framework. 
+Adding the closed-loop controller further improves performance compared with the open-loop variant (OmniVTA w/o RLTC), highlighting the importance of feedback control in contact-rich manipulation.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig/manipulation.pdf}
+\caption{\textbf{Real-robot manipulation results.} We visualize the manipulation process across six task categories.}
+\label{fig:manipulation}
+\end{figure*}
+
+\input{tables/result}
+
+We also observe that, for contact-rich tasks involving strong physical interactions (e.g., wiping, peeling, cutting), the performance gain from the reactive policy in RDP (compared with DP+tactile) is smaller than the improvement brought by our reflexive controller.
+This is because our controller leverages predicted tactile signals as targets to regulate the robot's motion, enabling reliable contact while preventing excessive contact forces. 
+During the contact phase, the average tangential deformation measured by our tactile sensors is 0.35 with a maximum of 0.72. 
+In contrast, the reactive policy in RDP often produces overly strong contacts that damage the sensors, with an average deformation of 0.56 and a maximum of 1.1. In the unseen-height evaluation, the performance of RDP drops moderately, while other baselines degrade significantly. 
+In contrast, OmniVTA without the closed-loop controller already surpasses RDP, indicating stronger robustness to geometric variations. In the tool generalization experiment, replacing the knife with a smaller, unseen tool has little impact on our performance in the cut task. 
+This suggests that the policy relies on tactile feedback rather than memorizing demonstration trajectories. Finally, in the perturbation experiments, OmniVTA consistently achieves the highest success rates. 
+Moreover, the closed-loop controller significantly improves performance compared with the open-loop variant, demonstrating its ability to quickly recover stable contact during perturbations.
+
+\vspace{-3mm}
+\subsection{Component Analysis}
+\subsubsection{TactileVAE}
+We evaluate TactileVAE from two aspects: reconstruction accuracy and latent representation quality.
+
+\noindent \textbf{Reconstruction evaluation.}
+We compare TactileVAE with baseline methods across six categories of tactile interaction patterns. 
+Reconstruction performance is evaluated using the $L_2$ distance and cosine similarity, which measure the magnitude and directional consistency of the reconstructed 3D deformation, respectively. 
+The $L_2$ metric is computed over the entire deformation field, while cosine similarity is computed over non-zero deformation regions only. 
+As shown in Table~\ref{tab:vae}, the proposed TactileVAE consistently achieves the best performance across all six categories, demonstrating its effectiveness in modeling tactile deformation.
+
+\input{tables/vae_exp}
+
+\noindent \textbf{Latent representation analysis.}
+To further evaluate the learned tactile representations, we conduct experiments on three unseen objects under three types of force patterns (press, twist, and slide) using three tactile sensors, two of which are unseen during training, as shown in Fig.~\ref{fig:vae_tsne}(a) and (b). 
+We record the tactile signals and extract their features using several variants of TactileVAE, including:
+\begin{itemize}
+    \item \textbf{w/o implicit decoder:} decodes the latent feature map without query-based sampling and query points input.
+    \item \textbf{w/ position embedding:} incorporates positional encoding during decoding.
+    \item \textbf{w/o spatial feature map:} represents the latent as a single token and decodes it with an implicit decoder.
+    \item \textbf{w/ implicit decoder:} decodes the latent feature map via an implicit decoder.
+\end{itemize}
+All models are trained using only 5\% of the tactile dataset.
+
+For visualization, the spatio-temporal tactile features are aggregated via max pooling to obtain sequence-level embeddings, which are then visualized using t-SNE. 
+As shown in Fig.~\ref{fig:vae_tsne}(c), the learned representations exhibit clear clustering across different force patterns, even under cross-sensor settings. 
+In contrast, marker-based encoding and variants without positional information fail to produce well-separated clusters, highlighting the importance of implicit neural representations for learning discriminative tactile features.
+
+Finally, we compare two forms of tactile feature representations: local feature maps (patch-based features) and a global token obtained via max pooling. 
+As shown in Fig.~\ref{fig:vae_tsne}(c) and Table~\ref{tab:vae_ablation}, local feature maps achieve better reconstruction accuracy and yield more informative tactile embeddings than the global token representation.
+
+\input{tables/vae_ablation}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{fig/tsne.pdf}
+\caption{\textbf{Ablation study of TactileVAE.}\textbf{(a)} shows the sensors and objects for testing. \textbf{(b)} represents the three types of force loaded on the sensors. \textbf{(c)} visualizes the t-SNE of the tactile latent feature maps extracted by different models.}
+\label{fig:vae_tsne}
+\vspace{-3mm}
+\end{figure}
+
+\subsubsection{Visuo-Tactile World Model}
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=\linewidth]{fig/wm.pdf}
+\caption{\textbf{Visuo-tactile generation visualization across six task categories.} Red arrows indicate predicted tangential deformation, while blue arrows denote ground truth. Normal deformation in the grasp task is visualized using heatmaps. }
+\label{fig:wm}
+\end{figure*}
+
+\input{tables/wm_exp}
+\input{tables/ablation_wm}
+
+In this section, we evaluate the proposed Visuo-Tactile World Model in terms of prediction accuracy, module effectiveness, and robustness to observation perturbations.
+We measure tactile prediction accuracy using the $L_2$ distance and cosine similarity between the predicted and ground-truth tactile signals, following the evaluation
+protocol of TactileVAE.
+To better illustrate prediction performance over different horizons, we report both the $L_2$ distance and cosine similarity at the 2nd, 4th, and 6th prediction latent frames,
+corresponding to the 8th, 16th, and 24th decoded tactile frames, respectively, as well as the metrics averaged over all 24 predicted frames.
+
+
+% measuring magnitude accuracy and directional consistency of the predicted deformation, respectively. The $L_2$ metric is computed over the full deformation field, while cosine similarity is computed on flattened deformation vectors. All metrics are averaged over all time steps and trajectories.
+
+\noindent \textbf{Prediction accuracy.}
+We first compare our method with four baselines from three representative paradigms: unified multimodal generation, joint trajectory diffusion, and conditional tactile prediction. 
+As shown in Table~\ref{tab:wm_exp} and Fig.~\ref{fig:wm}, our model consistently outperforms all baselines in both short-term and long-term tactile prediction. These results demonstrate that our method effectively models the cross-modal dynamics between vision and tactile signals, enabling accurate and consistent generation across both modalities.
+
+\noindent \textbf{Ablation study.}
+We further analyze the contribution of several key components in the proposed model.
+
+(1) \emph{Joint visual–tactile generation.} 
+Table~\ref{tab:ablation_wm} shows that jointly generating future visual features together with tactile features improves tactile prediction accuracy. 
+This indicates that visual prediction provides complementary global dynamic cues that help the model better capture interaction dynamics.
+
+(2) \emph{Action representation.}
+We compare three types of action conditioning in the world model: projected 2D actions, 3D absolute actions, and 3D relative actions. 
+As shown in Table~\ref{tab:ablation_wm}, the 2D action representation achieves the best generalization performance on unseen object positions, followed by relative actions. 
+This result suggests that the action condition primarily conveys motion intent and that 2D actions align more naturally with visual observations.
+
+(3) \emph{Dynamic weighting.}
+The results in Table~\ref{tab:ablation_wm} show that the proposed dynamic weighting strategy improves tactile prediction performance. 
+This weighting mechanism explicitly emphasizes regions with rapid dynamics and strong contact responses during optimization, enabling the model to better capture high-frequency tactile patterns, local contact variations, and fine-grained temporal structures.
+
+\noindent \textbf{Perturbation robustness.}
+Finally, we evaluate the robustness of the Visuo-Tactile World Model in the wipe-vase task. 
+After contact occurs, the visual and tactile observations are replaced with non-contact observations corresponding to the object being moved downward. 
+As shown in Fig.~\ref{fig:wm_disturb}, the model exhibits a certain level of recovery capability under observation perturbations.
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=0.95\linewidth]{fig/wm_disturb.pdf}
+\caption{\textbf{Perturbation and recovery.} The first row shows a contact break due to downward perturbation, with tactile signals transitioning to a no-contact state. The second row shows recovery to the contact state within one generation chunk. In tactile visualization, red arrows denote tactile prediction while blue arrows denote ground truth.}
+\label{fig:wm_disturb}
+\vspace{-3mm}
+\end{figure*}
+
+\subsubsection{Adaptive Visuo-Tactile Fusion Policy}
+
+In this section, we analyze the key components of the proposed Adaptive Visuo-Tactile Fusion Policy through a series of experiments and address the following questions:
+(1) Does predicted future tactile information improve action planning?
+(2) Is the proposed Latent Tactile Differential (LTD) Encoder more effective than simple feature concatenation?
+(3) Is the gating mechanism necessary for adaptive visuo-tactile fusion, and do modality weights correlate with contact states?
+(4) Does the Visuo-Tactile Diffusion Policy depend on the accuracy of tactile prediction?
+(5) Do generated visual features further improve policy performance?
+(6) What role does the Reflexive Latent Tactile Controller play during execution?
+
+\noindent \textbf{Effect of predicted tactile signals.}
+We first investigate whether predicted tactile information improves action planning. As shown in Table~\ref{tab:ablation_components_scaled}, we compare two tactile representations:
+(1) using only the current tactile observation, and
+(2) concatenating the current tactile observation with predicted tactile features at future horizons of 2, 4, and 6 steps.
+To eliminate the influence of feature dimensionality, the concatenated tactile features are projected to the same dimension as the current tactile representation through a linear layer, ensuring consistent policy input size across settings. 
+In this experiment, the gating mechanism is retained while the controller is disabled.
+Results show that incorporating predicted tactile information consistently improves policy success rates, and longer prediction horizons (6 steps) outperform shorter ones (4 steps and 2 steps). This indicates that future tactile prediction provides richer contact dynamics that benefit action planning.
+
+\input{tables/ablation_policy}
+\input{tables/policy_detail}
+
+\noindent \textbf{Comparison of tactile representations.}
+We further compare different tactile representation strategies:
+(1) direct concatenation of current and predicted tactile features, and
+(2) the proposed LTD Encoder applied to both signals.
+For fair comparison, the resulting tactile features are projected to the same dimensionality before being fed into the policy network.
+As shown in Table~\ref{tab:ablation_components_scaled}, the LTD-based representation achieves higher success rates across multiple tasks. This suggests that the LTD Encoder effectively captures the dynamic relationship between current and predicted tactile, producing a more informative tactile representation for policy learning.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig/gate_weight.pdf}
+\caption{G\textbf{Gating Fusion Mechanism.} We visualize the temporal evolution of the predicted contact probability (purple), together with the corresponding visual (blue) and tactile (red) weights over the course of task execution.}
+\label{fig:gate_weight}
+\vspace{-3mm}
+\end{figure*}
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=0.95\linewidth]{fig/mp_disturb.pdf}
+\caption{\textbf{Perturbation experiments.} We break contact by abruptly lowering the object and demonstrate how the policy rapidly restores contact via the RLTC.}
+\label{fig:mp_disturb}
+\vspace{-3mm}
+\end{figure*}
+
+
+\noindent \textbf{Necessity of the gating fusion mechanism.}
+Next, we evaluate the effectiveness of the gating mechanism for visuo-tactile fusion by comparing two input configurations:
+(1) direct concatenation of visual features and LTD-encoded tactile features, and
+(2) adaptive fusion using the proposed gating mechanism.
+As shown in Table~\ref{tab:ablation_components_scaled}, the gating mechanism improves the average task success rate by approximately 7\% compared to direct concatenation.
+We further visualize the predicted contact probability and the modality weights in Fig.~\ref{fig:gate_weight}.
+The results show a strong correlation between modality weights and contact states: when no contact occurs, the tactile weight remains close to zero, while it increases significantly as the predicted contact probability rises, indicating that action planning increasingly relies on tactile information during contact.
+
+\noindent \textbf{Effect of tactile prediction.}
+To evaluate how policy performance depends on tactile prediction quality, we introduce controlled prediction errors by using world model checkpoints with varying tactile prediction accuracies, corresponding to 80\%, 60\%, 40\%, and 20\% of the performance of the best-performing model.
+As shown in Fig.~\ref{fig:prediction}, as prediction accuracy decreases, the policy gradually loses its ability to correctly infer contact states and adjust modality weights, leading to degraded action planning performance. This proves that accurate tactile prediction plays a critical role in our policy.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{fig/prediction.pdf}
+\caption{\textbf{Effect of tactile prediction accuracy.} \textbf{Left:} At 60\% prediction performance, the model fails to estimate future contact probability, resulting in improper modality weighting. \textbf{Right:} Lower prediction performance leads to a significant drop in success rate.}
+\label{fig:prediction}
+\vspace{-5mm}
+\end{figure}
+
+\noindent \textbf{Effect of generated visual features.}
+We also investigate whether incorporating generated visual features improves policy performance.
+Experimental results show that adding generated visual features to the policy input does not yield significant performance gains, as shown in Table~\ref{tab:ablation_components_scaled}. Moreover, introducing a visual generation branch significantly reduces inference frequency, as shown in Table~\ref{tab:policy_time}. Therefore, the final policy design relies only on current visual observations rather than on the generation.
+
+\noindent \textbf{Effectiveness of the Reflexive Latent Tactile Controller.}
+Finally, we evaluate the contribution of the Reflexive Latent Tactile Controller.
+The controller enables high-frequency closed-loop control, allowing the robot to execute actions more stably and improving overall task success rates.
+In perturbation experiments, shown in Table~\ref{tab:full_comparison_final_scaled} and Fig.~\ref{fig:mp_disturb}, the controller rapidly responds to environmental perturbations. When perturbations disrupt the current contact state, the high-frequency controller adjusts robot actions to re-establish stable contact.
+In tasks requiring strong interaction forces, the controller also adaptively modulates the action magnitude to prevent excessive contact forces.
+

@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UVA - Thesis Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Unified Video Action Model</h1>
+<div class="meta">
+<p><strong>arXiv ID: </strong>2503.00200v3</p>
+<p><strong>Authors: </strong>Shuang Li, Yihuai Gao, Dorsa Sadigh, Shuran Song</p>
+<p><strong>Organization: </strong>Stanford University</p>
+<p><strong>Meeting/Status: </strong>RSS 2025; arXiv first version 2025-02-28, v3 revised 2025-04-24</p>
+<p><strong>Source: </strong><a href="https://arxiv.org/abs/2503.00200">arXiv abs</a> · <a href="https://arxiv.org/pdf/2503.00200">PDF</a> · <a href="https://unified-video-action-model.github.io/">Project home page</a> · <a href="https://github.com/ShuangLI59/unified_video_action">Official GitHub</a> · Local LaTeX source code analysis</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Reading orientation and group meeting guide</a></li>
+<li><a href="#sec2">2. Background: Why should we unify video and action?</a></li>
+<li><a href="#sec3">3. Detailed explanation of method: joint latent + decoupled diffusion + masked training</a></li>
+<li><a href="#sec4">4. Experimental results: policy, video, forward/inverse dynamics</a></li>
+<li><a href="#sec5">5. Intensive reading of charts</a></li>
+<li><a href="#sec6">6. reproducibility list and project details</a></li>
+<li><a href="#sec7">7. Critical discussion and group meeting questions</a></li>
+</ul>
+</nav>
+<div class="tldr">
+<strong>One-sentence summary: </strong>UVA attempts to combine the video generation model and the robot policy model into a unified framework: it learns future videos and actions at the same time during training, allowing the Transformer latent to understand visual dynamics and control at the same time; it skips video decoding when reasoning and doing policy, and only runs a lightweight action diffusion head, so it not only utilizes video supervision, but also approaches the speed of action-only policy.
+ </div>
+<section id="sec1">
+<h2>1. Reading orientation and group meeting guide</h2>
+<table>
+<thead>
+<tr>
+<th>Introductory items</th>
+<th>What does this paper answer?</th>
+<th>Where do you focus on when reading?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Research object</strong></td>
+<td>A unified model supports robot policy, video generation, forward dynamics, inverse dynamics, and policy + planner simultaneously.</td>
+<td>Don't just think of it as a video generation policy; its core selling point is "same latent + different mask/objective".</td>
+</tr>
+<tr>
+<td><strong>core contradiction</strong></td>
+<td>Action prediction requires high temporal frequency and low latency; video generation requires high spatial quality and heavy computation.</td>
+<td>See how decoupled video-action diffusion unpacks these two requirements between training and inference.</td>
+</tr>
+<tr>
+<td><strong>Main contributions</strong></td>
+<td>Unified video-action latent, two lightweight diffusion heads, and masked training support multi-tasking capabilities.</td>
+<td>Focus on "UVA-action" ablation, speed decomposition, and action-free human video supplementary experiments.</td>
+</tr>
+<tr>
+<td><strong>Relationship with CoVAR</strong></td>
+<td>UVA is one of the methods often used as joint-model baseline in CoVAR papers.</td>
+<td>UVA emphasizes sharing latent and decoupling heads; CoVAR emphasizes retaining pre-trained video DiT and paralleling action DiT.</td>
+</tr>
+</tbody>
+</table>
+<div class="bluebox">
+<strong>Recommended reading by the group: </strong>First look at Fig. 1 to understand why UVA can serve five types of tasks, and then look at the token/latent flow in Fig. 2. The most critical part of the method is: how historical images, historical actions, and masked future observations enter the same Transformer, and why policy inference can not generate videos.
+ </div>
+<p>
+ This paper is suitable to be placed in the discussion of "Can the video world model be turned into an efficient robot policy?" The author's position is not that "video generation replaces policy learning", but that "video generation serves as additional supervision to help latent learn dynamics; when the action is actually executed, the action head can independently and quickly decode". This is different from many two-stage methods that first generate the video and then obtain the action through inverse dynamics.
+ </p>
+</section>
+<section id="sec2">
+<h2>2. Background: Why should we unify video and action?</h2>
+<h3>2.1 Problems with action-only policy</h3>
+<p>
+ Action-only or VLA policies such as Diffusion Policy and OpenVLA can directly derive actions from observations, with fast reasoning and clear goals. However, the paper points out that this type of model is prone to overfitting the action history or local visual cues in the training data; when visual disturbances, long histories, and multi-task sharing dynamics occur, additional video prediction supervision may help the model understand scene changes instead of just remembering action patterns.
+ </p>
+<h3>2.2 Problems with video-generation policy</h3>
+<p>
+ Methods like UniPi first generate a future video and then drive actions from the video. It has two obvious costs: first, generating high-resolution video is inherently slow; second, video errors are passed on to motion prediction. Real robot control requires frequent output of fine-grained actions, so full video generation cannot be on the main path of policy inference.
+ </p>
+<h3>2.3 UVA trade-off</h3>
+<p>
+ During UVA training, videos and actions are jointly optimized, allowing latent representation to learn the relationship between visual dynamics and actions; when reasoning is used as policy, the video diffusion head is skipped and only the action diffusion head is run. This way the video still provides training supervision but does not slow down slow-motion inference.
+ </p>
+<div class="figure">
+<img alt="UVA overview" src="figures/overview_v6.png"/>
+<div class="caption">Figure 1: UVA overview. (a) joint video-action latent representation + decoupled decoding; (b) masked training supports multiple input and output combinations such as policy, video generation, forward dynamics, inverse dynamics, policy + planner, etc.</div>
+</div>
+</section>
+<section id="sec3">
+<h2>3. Detailed explanation of method: joint latent + decoupled diffusion + masked training</h2>
+<h3>3.1 Problem definition</h3>
+<p>
+ Given historical image observation $\{\mathbf{O}_{t-h+1}, \ldots, \mathbf{O}_t\}$ and historical action chunk
+ $\{\mathbf{A}_{t-h}, \ldots, \mathbf{A}_{t-1}\}$, the goal is to predict future actions
+ $\{\mathbf{A}_t, \ldots, \mathbf{A}_{t+h-1}\}$ and future observations
+ $\{\mathbf{O}_{t+1}, \ldots, \mathbf{O}_{t+h}\}$. Each action chunk
+ $\mathbf{A}_t\in\mathbb{R}^{L\times m}$ contains $L$ high-frequency actions, and each action has a dimension of $m$. In the experiments of this paper, the historical horizon and the future horizon are assumed to be the same.
+ </p>
+<table class="symbol-table">
+<tbody>
+<tr><td>$h$</td><td>History/future horizon, the paper makes them the same for simplicity.</td></tr>
+<tr><td>$\mathbf{O}_t$</td><td>Image observation $t$.</td></tr>
+<tr><td>$\mathbf{A}_t$</td><td>The $t$ action chunk contains $L$ high-frequency actions.</td></tr>
+<tr><td>$N$</td><td>The number of visual tokens encoded for each image.</td></tr>
+<tr><td>$\mathbf{Z}_{t+i}$</td><td>The joint video-action latent tokens output by the Transformer are used to decode future images and actions.</td></tr>
+</tbody>
+</table>
+<h3>3.2 Encode History: Align image token with action token</h3>
+<p>
+ Historical images are first pre-trained VAE encoder (paper writing kl-f16) to obtain latent map
+ $\mathbb{R}^{w\times h\times c}$ is then flattened and projected into $N$ $d$ dimensional visual tokens through the FC layer. The action frequency is usually higher than the camera frame rate, so each image corresponds to an action chunk. UVA repeats the action chunk $M$ times to match the number of visual tokens, and then obtains $N$ $d$-dimensional action tokens through the FC layer.
+ </p>
+<div class="warn">
+<strong>Key to implementation: </strong>Instead of simply putting a sequence of actions behind the Transformer, the action chunk is repeated/projected into a sequence of tokens aligned with the visual token. This step determines how the video token and action information are integrated in the same Transformer latent.
+ </div>
+<h3>3.3 Masked Autoencoder for Observation Prediction</h3>
+<p>
+ Future observations are also first converted into tokens through the VAE encoder and FC layer. During training, part of future observation tokens are randomly masked, and the model learns to reconstruct these tokens. To reduce cross-frame leakage, the paper uses the same mask position on all future video frames. Subsequently, historical visual tokens, historical action tokens and masked future observation tokens are combined into a sequence, input to Transformer, and output
+ $\{\mathbf{Z}_{t+1}, \ldots, \mathbf{Z}_{t+h}\}$.
+ </p>
+<p>
+ For language tasks such as Libero10, UVA uses CLIP text encoder to encode language instructions into $d$-dimensional tokens, and repeatedly attaches them to $N\times h$ video-action tokens $M$ times before sending them to the Transformer. The first $N\times h$ tokens output by Transformer are used as joint video-action latent.
+ </p>
+<div class="figure">
+<img alt="UVA network architecture" src="figures/model7.png"/>
+<div class="caption">Figure 2: UVA network structure. Historical images, historical action chunks and masked future observations enter the Transformer; after outputting the joint latent, they are decoded by the video diffusion head and action diffusion head respectively.</div>
+</div>
+<h3>3.4 Decoupled Video and Action Diffusions</h3>
+<p>
+ Decoupling of UVA occurs during the decoding phase. After sharing the Transformer latent $\mathbf{Z}$, video and motion each went into two lightweight diffusion heads. During training, both heads are supervised; during policy inference, only the action head can be run; during video generation, only the video head can be run, and more autoregressive steps can be used to improve visual quality.
+ </p>
+<div class="formula-block">
+<p><strong>Action diffusion loss: </strong></p>
+ $$
+ \mathcal{L}_{\text{action}}(\mathbf{Z}, \mathbf{A})
+ =
+ \mathbb{E}_{\epsilon, k}
+ \left[
+ \|\epsilon-\epsilon_\theta(\mathbf{A}^{(k)}\mid k, \mathbf{Z})\|^2
+ \right].
+ $$
+ <p class="intuition">Meaning: </p>
+<p>The action head predicts noise on noisy action chunks; $\mathbf{Z}$ is the condition and $k$ is the diffusion timestep.</p>
+</div>
+<div class="formula-block">
+<p><strong>Video diffusion loss: </strong></p>
+ $$
+ \mathcal{L}_{\text{video}}(\mathbf{Z}, \mathbf{O})
+ =
+ \mathbb{E}_{\epsilon, k}
+ \left[
+ \frac{1}{N}\sum_{i=1}^{N}
+ \|\epsilon_i-\epsilon_\phi(\mathbf{O}^{i, (k)}\mid k, z_i)\|^2
+ \right].
+ $$
+ <p class="intuition">Meaning: </p>
+<p>The video head is denoised by visual token/patch; each latent token $z_i$ is conditioned on the diffusion decoder of the corresponding patch, and then the image is restored through the VAE decoder.</p>
+</div>
+<p>
+ The total loss is $\mathcal{L}=\mathcal{L}_{\text{action}}+\mathcal{L}_{\text{video}}$ and summed over time horizon $h$. This design has a very practical benefit: diffusion iteration only occurs in the lightweight head, rather than repeated denoise on the entire large network like a partial diffusion policy.
+ </p>
+<h3>3.5 Autoregressive Video Generation</h3>
+<p>
+ Supplementary material explains that UVA's video generation draws on MaskGIT and MAR: starting from an empty mask, it gradually generates visual tokens according to several autoregressive steps. If step=1, the entire video is generated at once; if there are more steps, subsequent tokens are conditionalized with the already generated tokens, which usually improves the details. UVA is built on the MAR-B pre-trained model, but has been significantly modified for video-action joint modeling.
+ </p>
+<div class="figure">
+<img alt="Autoregressive video generation" src="figures/video_mae.png"/>
+<div class="caption">Figure 3: Autoregressive video generation in Supplementary Material. The model starts from an empty mask and gradually generates video tokens according to the set number of steps; 1 step is the fastest version, and 8 steps usually has better quality.</div>
+</div>
+<h3>3.6 Five types of functions of Masked Training</h3>
+<p>
+ UVA not only trains the task of "history to future actions/videos", but trains a unified model through different input and output masks. The paper uses it for five categories of functions: </p>
+<ol>
+<li><strong>Robot policy: </strong>Given historical observations/actions, predict future actions; skip video generation during inference.</li>
+<li><strong>Video model: </strong>Given historical observations, generate future videos; multi-step autoregressive generation can be used.</li>
+<li><strong>Forward dynamics: </strong>Given observations and actions, predict future observations.</li>
+<li><strong>Inverse dynamics: </strong>Given adjacent/future observations, predict actions that will cause visual changes.</li>
+<li><strong>Policy + planner: </strong>Simultaneously predict actions and videos, and use video results to assist in planning/screening actions.</li>
+</ol>
+<pre class="pseudocode"><code>训练阶段：
+for each trajectory:
+    encode history images with VAE + FC into visual tokens
+    encode history action chunks into action tokens aligned with visual tokens
+    encode future images, randomly mask future visual tokens
+    optionally append repeated CLIP language tokens
+    Transformer produces joint latent Z
+    video diffusion head predicts future visual-token noise
+    action diffusion head predicts future action-chunk noise
+    apply video/action losses according to the current masked objective
+
+policy 推理阶段：
+    encode current history images/actions
+    use Transformer to obtain Z
+    skip video diffusion
+    run lightweight action diffusion head
+    output 16 action steps and execute the first chunk</code></pre>
+</section>
+<section id="sec4">
+<h2>4. Experimental results: policy, video, forward/inverse dynamics</h2>
+<h3>4.1 Policy: simulation task</h3>
+<p>
+ The simulation experiments cover single-task PushT and Toolhang, as well as multi-task PushT-M and Libero10. Most methods reason about 16 actions at a time and execute the first 8, except OpenVLA; OpenVLA outputs one action at a time and therefore runs 8 times to align the number of executed actions.
+ </p>
+<div class="figure">
+<img alt="Simulation environments" src="figures/sim-Task2.png"/>
+<div class="caption">Figure 4: Simulation environment. PushT/Toolhang is single-tasking, PushT-M/Libero10 is multi-tasking; multi-tasking goals can be specified by images or languages.</div>
+</div>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>PushT ↑</th>
+<th>Tool ↑</th>
+<th>PushT-M ↑</th>
+<th>Libero10 ↑</th>
+<th>Speed ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>DP-C</td><td>0.91</td><td><strong>0.95</strong></td><td>0.68</td><td>0.53</td><td>0.50s</td></tr>
+<tr><td>DP-T</td><td>0.78</td><td>0.76</td><td>0.63</td><td>0.58</td><td>0.36s</td></tr>
+<tr><td>OpenVLA</td><td>0.35</td><td>0.18</td><td>0.22</td><td>0.54</td><td>1.52s</td></tr>
+<tr><td>UniPi</td><td>0.42</td><td>0.00</td><td>0.19</td><td>0.00</td><td>24.07s</td></tr>
+<tr><td>$\pi_0$</td><td>-</td><td>-</td><td>-</td><td>0.85</td><td><strong>0.09s</strong></td></tr>
+<tr><td>$\pi_0$-FAST</td><td>-</td><td>-</td><td>-</td><td>0.60</td><td><strong>0.09s</strong></td></tr>
+<tr><td>UVA-action</td><td>0.45</td><td>0.62</td><td>0.46</td><td>0.86</td><td><strong>0.22s</strong></td></tr>
+<tr><td><strong>UVA</strong></td><td><strong>0.98</strong></td><td>0.88</td><td><strong>0.88</strong></td><td><strong>0.90</strong></td><td>0.23s</td></tr>
+</tbody>
+</table>
+<p>
+ The most critical comparison is UVA vs. UVA-action. UVA-action removes video generation supervision and only retains action policy; it degrades significantly on PushT, Tool, and PushT-M, indicating that joint video-action training does play a role in policy learning, rather than just adding additional model complexity.
+ </p>
+<h3>4.2 Policy: Real UMI OOD multitasking</h3>
+<p>
+ The real experiment uses public UMI data and does not collect additional training data. The training tasks include Cup Arrangement, Towel Folding, and Mouse Arrangement, and the test is performed on the ARX X5 robotic arm. Multi-task testing is OOD: includes unseen environments, objects, backgrounds, robot/gripper colors, etc.
+ </p>
+<div class="figure">
+<img alt="Real-world OOD evaluation" src="figures/RealExperiments7.png"/>
+<div class="caption">Figure 5: Real OOD evaluation setup. The test included different initial poses, distractors, background textures, and no green grippers.</div>
+</div>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>Single Task Cup ↑</th>
+<th>OOD Cup ↑</th>
+<th>OOD Towel ↑</th>
+<th>OOD Mouse ↑</th>
+<th>Speed ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>DP-UMI</td><td><strong>0.95</strong></td><td>0.50</td><td><strong>0.70</strong></td><td>0.40</td><td><strong>70ms</strong></td></tr>
+<tr><td><strong>UVA</strong></td><td>0.85</td><td><strong>0.65</strong></td><td><strong>0.70</strong></td><td><strong>0.80</strong></td><td>95ms</td></tr>
+</tbody>
+</table>
+<p>
+ DP-UMI is stronger on single-task Cup. The author explains that there are many failure recovery fragments in the data, which is more suitable for short history recovery policies. UVA is stronger under multi-task OOD, especially Mouse, which improves from 0.40 to 0.80, supporting the claim that "video supervision learns a more shared dynamic structure".
+ </p>
+<h3>4.3 Visual disturbance and history length</h3>
+<p>
+ In PushT's visual perturbation experiments, video generation methods such as UVA and UniPi were more stable than action-only baselines. UVA reaches 0.64 when goal color changes, while DP-C only has 0.17 and OpenVLA is 0.32. This supports the authors' argument that video supervision enhances visual robustness.
+ </p>
+<div class="figure">
+<img alt="Visual disturbances" src="figures/env_pusht2.png"/>
+<div class="caption">Figure 6: PushT visual perturbations, including background color, background object, and target color changes.</div>
+</div>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>Normal ↑</th>
+<th>BgColor ↑</th>
+<th>BgObject ↑</th>
+<th>GoalColor ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>DP-C</td><td>0.91</td><td>0.12</td><td>0.21</td><td>0.17</td></tr>
+<tr><td>DP-T</td><td>0.78</td><td>0.22</td><td>0.17</td><td>0.28</td></tr>
+<tr><td>OpenVLA</td><td>0.35</td><td>0.17</td><td>0.13</td><td>0.32</td></tr>
+<tr><td>UniPi</td><td>0.42</td><td>0.31</td><td><strong>0.36</strong></td><td>0.40</td></tr>
+<tr><td><strong>UVA</strong></td><td><strong>0.98</strong></td><td><strong>0.35</strong></td><td>0.31</td><td><strong>0.64</strong></td></tr>
+</tbody>
+</table>
+<div class="figure">
+<img alt="Robustness to history length" src="figures/different_proprioception_len_narrow_text3.png"/>
+<div class="caption">Figure 7: History length robustness on PushT-M. The paper emphasizes that DP-C's performance degrades as the history length increases, while UVA is more stable.</div>
+</div>
+<h3>4.4 Video Generator</h3>
+<p>
+ UVA skips action head when acting as a video generator. FVD is reported in the table, lower is better. The 1-step UVA on Libero10 is worse than UniPi, but the 8-step UVA is the best; even the 1-step UVA on Cup Arrangement is significantly better than UniPi, and the 8-step is further improved.
+ </p>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>Libero10 FVD ↓</th>
+<th>CupArrange FVD ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>UniPi</td><td>56.55</td><td>71.37</td></tr>
+<tr><td>UVA (1 step)</td><td>89.36</td><td>51.34</td></tr>
+<tr><td><strong>UVA (8 steps)</strong></td><td><strong>51.10</strong></td><td><strong>29.72</strong></td></tr>
+</tbody>
+</table>
+<div class="figure">
+<img alt="Video generation results" src="figures/Video_result2.png"/>
+<div class="caption">Figure 8: Video generation visualization. UVA's 8-step results are more detailed than 1-step; UniPi suffers from blurring, object mismatches, or missing objects in some samples.</div>
+</div>
+<h3>4.5 Forward Dynamics for Planning</h3>
+<p>
+ The forward dynamics experiment is conducted in a block pushing environment: DP-C samples 100 16-step action trajectories, UVA predicts future images based on the actions, then calculates rewards based on the predicted images, and selects the trajectory with the highest reward to execute the first 6 steps. The success rate of DP-C alone is 0.38; after using UVA future observations for trajectory selection, it increases to 0.60; the upper bound of the ground-truth simulator is 0.75.
+ </p>
+<div class="figure">
+<img alt="Forward dynamics planning" src="figures/forward_result2.png"/>
+<div class="caption">Figure 9: Forward dynamics usage. UVA predicts future images of candidate actions and is used for model predictive control-style trajectory screening.</div>
+</div>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>R-R ↑</th>
+<th>R-G ↑</th>
+<th>G-R ↑</th>
+<th>G-G ↑</th>
+<th>Avg. ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>DP-C</td><td>0.20</td><td>0.50</td><td>0.60</td><td>0.20</td><td>0.38</td></tr>
+<tr><td><strong>UVA-guided</strong></td><td><strong>0.80</strong></td><td><strong>0.70</strong></td><td>0.50</td><td><strong>0.40</strong></td><td><strong>0.60</strong></td></tr>
+<tr><td>GT-Dynamics</td><td>0.80</td><td>0.80</td><td>0.70</td><td>0.70</td><td>0.75</td></tr>
+</tbody>
+</table>
+<h3>4.6 Inverse Dynamics</h3>
+<p>
+ The Inverse dynamics task uses UMI Cup Arrangement data to predict camera/robot motion from observation changes and compare with Mocap ground truth. UVA has a position error of 0.75 cm and a rotation error of 1.11 degrees, which is significantly better than UniPi inverse dynamics; SLAM is still the most accurate, but requires additional mapping and calibration.
+ </p>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>Position ↓</th>
+<th>Rotation ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>UniPi Inverse Dynamics</td><td>1.92 cm</td><td>2.21°</td></tr>
+<tr><td><strong>UVA</strong></td><td><strong>0.75 cm</strong></td><td><strong>1.11°</strong></td></tr>
+<tr><td>Visual Inertial SLAM</td><td>0.41 cm</td><td>0.30°</td></tr>
+</tbody>
+</table>
+<h3>4.7 Additional experiments: action-free video and mask strategies</h3>
+<p>
+ In the supplementary material, the author tried to use 3, 175 human-only videos of the Human Video data set: first do video generation pre-training, and then combine finetune with LIBERO-10 through masked training. On Libero10, the 30-test increased from 0.93 to 0.97, and the 500-test increased from 0.90 to 0.91. This is the most direct evidence in the paper that supports "action-free video can help robot strategies", but the scale is still small.
+ </p>
+<table class="compact">
+<thead>
+<tr>
+<th>model</th>
+<th>30 test ↑</th>
+<th>500 test ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>UVA</td><td>0.93</td><td>0.90</td></tr>
+<tr><td>UVA + Human Data</td><td><strong>0.97</strong></td><td><strong>0.91</strong></td></tr>
+</tbody>
+</table>
+<p>
+ Masking strategy experiments show that different task preferences have different masking strategies: application-dependent 25% is better for video generation and forward dynamics; application-independent 50% is better for policy and inverse dynamics. This reminds us that masked training is not a mindless trick. Mask proportion and semantics will significantly affect the trade-off of multi-functional models.
+ </p>
+</section>
+<section id="sec5">
+<h2>5. Intensive reading of charts</h2>
+<h3>5.1 Fig. 1: The "unification" of UVA is actually latent unification, not output unification.</h3>
+<p>
+ Figure 1 can easily be misinterpreted as a model that outputs video and action simultaneously every time. More precisely, UVA unifies the intermediate latent and training framework; the output end is selectively enabled through mask/objective and diffusion head. This distinction is important because it explains why UVA can be used as a fast policy: policy inference does not require video pixels.
+ </p>
+<h3>5.2 Fig. 2: Aligning action chunks with visual tokens is the key point for reproducibility</h3>
+<p>
+ The architecture diagram shows how action chunks and image tokens enter the same Transformer. If you only use the action as a global condition when reproducing, you may not be able to get the token-level video-action latent claimed in the paper. The report recommends focusing on checking the repeat, FC projection, temporal concatenation and conv+MLP aggregation of action tokens in the official code.
+ </p>
+<h3>5.3 Table 1: UVA-action is the most valuable ablation</h3>
+<p>
+ In Table 1, UVA-action still has a score of 0.86 in Libero10, indicating that the action-only version is not weak; but it degrades significantly on PushT/Tool/PushT-M, supporting "video prediction supervision does help certain policy scenarios". This illustrates the design gain of UVA better than simply comparing it to UniPi or OpenVLA.
+ </p>
+<h3>5.4 Speed decomposition: Fastness comes from "diffusion only on the head"</h3>
+<table class="compact">
+<thead>
+<tr>
+<th>Module/Task</th>
+<th>Time ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>VAE Image Encoder</td><td>40 ms</td></tr>
+<tr><td>Transformer Attention</td><td>40 ms</td></tr>
+<tr><td>Transformer Flash Attention</td><td>30 ms</td></tr>
+<tr><td>Action Diffusion (16 steps)</td><td>15 ms</td></tr>
+<tr><td>Action Diffusion (100 steps)</td><td>93 ms</td></tr>
+<tr><td>Video Diffusion (16 steps)</td><td>100 ms</td></tr>
+<tr><td>Video Diffusion (100 steps)</td><td>625 ms</td></tr>
+<tr><td><strong>UVA policy (16 steps)</strong></td><td><strong>95 ms</strong></td></tr>
+<tr><td>Policy + Planner (16 steps)</td><td>195 ms</td></tr>
+</tbody>
+</table>
+<p>
+ The most important thing to remember here is: video diffusion is much more expensive than action diffusion. UVA's policy speed is not because video generation is fast, but because the policy path bypasses video generation.
+ </p>
+</section>
+<section id="sec6">
+<h2>6. reproducibility list and project details</h2>
+<h3>6.1 Direct reproducibility clues given by the official code</h3>
+<p>
+ The official GitHub provides PyTorch implementation, installation environment, pre-training checkpoints, PushT Colab, and simulation/real evaluation scripts. The README states that the environment consists of <code>conda_environment.yml</code> Create, simulation test script includes <code>eval_sim.py</code>, the real test script includes <code>eval_real.py</code>. It is recommended to use at least 4 GPUs for training; the project page adds that the UMI task uses 500 trajectories per data set, and the video generation phase on 8 H100 takes about 2 days, and the joint video-action training takes another 2 days.
+ </p>
+<table>
+<thead>
+<tr>
+<th>Recurring items</th>
+<th>Information given by the paper/code</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>base model</td><td>Pretrained VAE encoder (kl-f16) and MAR-B related pretrained models.</td></tr>
+<tr><td>training phase</td><td>Two stages are better: video generation first, then joint video-action finetune.</td></tr>
+<tr><td>action output</td><td>Predict 16 action steps at a time; simulation usually executes the first 8 steps, and the real task is expressed as a single 16-action trajectory.</td></tr>
+<tr><td>Diffusion steps</td><td>The simulation action prediction uses 100 denoise steps; the real policy uses 16 steps for real-time deployment.</td></tr>
+<tr><td>language conditions</td><td>Libero10 uses a CLIP text encoder, where text tokens are repeated and appended to a sequence of video-action tokens.</td></tr>
+<tr><td>real data</td><td>Cup/Towel/Mouse three public UMI data sets; multi-task training collects 500 episodes each, totaling 1500 episodes.</td></tr>
+<tr><td>Hardware speed test</td><td>Simulation speeds are on NVIDIA L40; real deployment speeds are measured on RTX 3080.</td></tr>
+</tbody>
+</table>
+<h3>6.2 Code locations that should be checked first when reproducing</h3>
+<ul>
+<li><strong>tokenization: </strong>The specific value of $w, h, c, N, d$ of VAE latent, and the implementation of action chunk repeated $M$ times.</li>
+<li><strong>masking: </strong>Whether future frames have the same position mask; how to configure the mask pattern of different applications.</li>
+<li><strong>Transformer input: </strong>The splicing dimensions and order of historical vision, historical actions, masked future obs, and language tokens.</li>
+<li><strong>decoders: </strong>Whether the video head diffuses patch/token one by one; how the conv+MLP aggregation of the action head combines $N$ latent tokens into action conditions.</li>
+<li><strong>Training schedule: </strong>Checkpoint transfer, learning rate, selected_training_mode, and predict_action switches of video-only stage and joint stage.</li>
+<li><strong>Real deployment: </strong>UMI/ARX X5 controls interface, safety limiting, action normalization and execution chunk length.</li>
+</ul>
+<h3>6.3 Differences from CoVAR/other joint models</h3>
+<p>
+ UVA learns a joint video-action latent and uses two lightweight diffusion heads for decoding; CoVAR retains the pre-trained video DiT, then connects the Action DiT in parallel, and uses Bridge Attention for cross-modal communication. The strength of UVA is a unified model that is versatile and can skip videos during inference; the strength of CoVAR is to more explicitly protect the pre-trained video backbone and handle the video/action generation process as two dedicated DiT branches.
+ </p>
+<div class="warn">
+<strong>Recurrence risk: </strong>The official code of UVA has been made public, and the reproducibility conditions are much better than those of no-code papers. However, complete real-life robot reproducibility still relies on UMI/ARX hardware, public data processing, checkpoint download, robot safe deployment and environmental calibration. Paper-level numbers do not mean that they can be directly reproduced on any robot arm.
+ </div>
+</section>
+<section id="sec7">
+<h2>7. Critical discussion and group meeting questions</h2>
+<h3>7.1 Strong points of the paper</h3>
+<ul>
+<li><strong>The problem is clearly defined: </strong>Address the contradiction of "video generation is useful but policy inference cannot be too slow" head-on.</li>
+<li><strong>Very practical in engineering: </strong>Skip video generation during inference and only diffuse on the lightweight action head. This is a deployable design.</li>
+<li><strong>Wide functional coverage: </strong>The same framework shows policy, video generation, forward dynamics, and inverse dynamics.</li>
+<li><strong>There are real OOD reviews: </strong>Testing includes unseen environment/object/background/gripper colors using public UMI data.</li>
+<li><strong>Code disclosure: </strong>The reproducibility entry is more complete than many embodied video models.</li>
+</ul>
+<h3>7.2 Points to be cautious about</h3>
+<ul>
+<li><strong>The trade-off brought about by "unification" has not been fully unfolded: </strong>Different tasks may prefer different mask strategies and diffusion steps, and a unified model may not always be optimal.</li>
+<li><strong>Real single tasking is no better than dedicated policy: </strong>Cup single-task DP-UMI is 0.95 and UVA is 0.85, indicating that dedicated data and dedicated architecture may still prevail.</li>
+<li><strong>Evidence for action-free video is still limited: </strong>Human Video only brings a small improvement to Libero10, and web-scale video has not been proven to steadily improve real robot generalization.</li>
+<li><strong>The relationship between video quality and action success rate is still non-linear: </strong>Better FVD does not necessarily lead to better action. The value of UVA mainly comes from latent supervision rather than just generating pictures.</li>
+<li><strong>Hardware closed loop details are limited: </strong>The actual deployment speed and success rate strongly depend on the control interface, delay, security policy and data distribution.</li>
+</ul>
+<h3>7.3 Group meeting discussion question 1: What exactly does video supervision help?</h3>
+<div class="card">
+<p>
+ UVA-action ablation shows that removing video generation supervision will reduce some task performance, but it does not fully answer whether video supervision helps visual robustness, dynamic prediction, regularization, or multi-task shared representation. A stronger follow-up is to put the video loss weight, video generation quality, latent probing, and visual perturbation success rate in the same analysis table to observe whether they are really related.
+ </p>
+</div>
+<h3>7.4 Group meeting discussion question 2: Should the unified model unify all tasks?</h3>
+<div class="card">
+<p>
+ Mask strategy experiments imply that the optimal mask strategies are different for different functions. So is UVA's "five functions in one model" a long-term direction, or is it just proof that the same architecture can be adapted to multiple functions? If the goal is the strongest policy, perhaps it is better to specifically adjust the policy mask/objective; if the goal is a general robotics foundation model, multi-functional unification is more valuable. This question can lead to discussions of model size, task sampling ratio, and objective balancing.
+ </p>
+</div>
+<h3>7.5 Follow-up research directions</h3>
+<ol>
+<li><strong>Expanded action-free video pretraining: </strong>Verify whether web-scale or egocentric human video can significantly improve real robot OOD.</li>
+<li><strong>Stronger task balancing Affiliations: </strong>Automatically adjust the loss weight and task sampling of video/action/forward/inverse objectives.</li>
+<li><strong>Faster inference module: </strong>Flash Attention, fewer-step diffusion, flow matching head or consistency head.</li>
+<li><strong>More detailed latent analysis: </strong>Demonstrate which dimensions/attention heads in the joint latent are responsible for encoding geometry, contact, and motion direction.</li>
+<li><strong>Combined with 3D/force/audio modal: </strong>The author also mentions that it can be extended to sound and force; it is especially worth doing for contact-rich tasks.</li>
+</ol>
+<div class="good">
+<strong>Final verdict: </strong>UVA is a "bridge paper" that is very suitable for group meetings to read in depth: it does not move video generation directly into the main control loop, but uses video as training supervision and optional function, and action reasoning remains lightweight. For junior PhDs, the most valuable thing to learn is how it breaks down a seemingly contradictory goal into two levels: shared latent and decoupled head.
+ </div>
+</section>
+</main>
+</body>
+</html>

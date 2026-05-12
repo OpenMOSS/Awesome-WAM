@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VLA-JEPA - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model</h1>
+<div class="meta">
+<p><strong>Method name: </strong>VLA-JEPA</p>
+<p><strong>Authors: </strong>Jingwen Sun, Wenyao Zhang, Zekun Qi, Shaojie Ren, Zezhi Liu, Hanxin Zhu, Guangzhong Sun, Xin Jin, Zhibo Chen</p>
+<p><strong>Organization: </strong>University of Science and Technology of China; Zhongguancun Academy; Shanghai Jiao Tong University; Tsinghua University; Eastern Institute of Technology, Ningbo; University of Chinese Academy of Sciences; Nankai University</p>
+<p><strong>arXiv: </strong>v1 submitted on 2026-02-10, v2 updated on 2026-02-14</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2602.10098">arXiv: 2602.10098</a> | <a href="https://arxiv.org/pdf/2602.10098">PDF</a> | <a href="https://ginwind.github.io/VLA-JEPA/">Project page</a> | <a href="https://github.com/ginwind/VLA-JEPA">official code</a> | <a href="https://huggingface.co/ginwind/VLA-JEPA">Hugging Face</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents: </strong>
+<a href="#quick">1. Quick overview</a>
+<a href="#motivation">2. Motivation</a>
+<a href="#related">3. Related work</a>
+<a href="#method">4. Detailed explanation of method</a>
+<a href="#experiments">5. Experiment</a>
+<a href="#reproduce">6. Reproducible auditing</a>
+<a href="#discussion">7. Analysis, Limitations and Boundaries</a>
+</nav>
+<section id="quick">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>VLA-JEPA uses a JEPA-style latent world model to replace the pixel reconstruction latent-action pre-training, allowing VLA to predict future latent states from current observations and language, and strictly avoid future frames from entering the student pathway, thereby learning latent actions that are closer to controllable state transitions.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>Internet videos are large-scale but do not have robot action labels; existing latent-action pre-training easily learns pixel differences, camera movements, and background changes, rather than state transfer semantics useful for control.</td></tr>
+<tr><th>The author's approach</th><td>Use leakage-free state prediction: the future frame only passes through the target encoder to generate supervised targets, and the student only looks at the current observation and language; the predicted targets are aligned in the latent space instead of reconstructing pixels.</td></tr>
+<tr><th>most important results</th><td>LIBERO's average success rate is 97.2; LIBERO-Plus is the best in 5 of 7 types of perturbations, with an average of 79.5; SimplerEnv averages 65.2 on Google Robot and 57.3 on WidowX; both real robot ID and object-layout OOD are better than $\pi_0$ and $\pi_{0.5}$.</td></tr>
+<tr><th>Things to note when reading</th><td>The core of this article is not to "add a future prediction head", but to limit the future information to the target, forcing the latent action token to carry the explanatory variables from the current state to the future latent state; at the same time, the action head uses conditional flow matching to generate continuous action trajectories.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand VLA, latent action, JEPA/V-JEPA2, world model, causal attention, conditional flow matching, and robot evaluation such as LIBERO/SimplerEnv.</p>
+<p><strong>Keywords: </strong>Vision-Language-Action, JEPA, latent world model, latent action, human video pretraining, flow matching, LIBERO, SimplerEnv. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Point out the source of mismatch in latent-action pretraining: </strong>Pixel targets, real video noise motion, future information leakage, and multi-stage training complexity can cause latent actions to deviate from control semantics.</li>
+<li><strong>Proposed VLA-JEPA: </strong>Use latent predictive alignment to learn action-relevant transition semantics, avoid pixel reconstruction and future leakage, and form a simpler pre-training process.</li>
+<li><strong>Verify robustness in simulation and real robots: </strong>Covers LIBERO, LIBERO-Plus, SimplerEnv and real Franka desktop operations, and includes human-video ablation, attention map and future horizon analysis.</li>
+</ul>
+<div class="figure">
+<img alt="VLA-JEPA architecture" src="figures/architecture.png"/>
+<div class="caption"><strong>Figure 1.</strong> VLA-JEPA architecture: target encoder generates latent target from future frames; student pathway only looks at the current observation and language, and predicts future latent state through latent action and predictor.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>VLA models require a large amount of visual, language, and action data, but action-labeled robot data is expensive to collect and has narrow coverage. In comparison, human videos and Internet videos are much larger and contain rich temporal variations. Therefore, many recent works hope to learn latent actions from videos without action tags and then migrate them to robot control.</p>
+<p>The paper believes that the problem is that many latent-action objectives learn "compressed representations of visual changes" rather than "how controllable states evolve under interaction." For robots, the value of action does not lie in explaining how each pixel changes, but in explaining the task-related state transitions of objects, hands, tools, robots, etc.</p>
+<h3>2.2 Four failure modes of existing methods</h3>
+<ol>
+<li><strong>Pixel-level objective favors appearance: </strong>Future pixel prediction or frame-difference compression is easily dominated by high variance but low control factors such as texture, lighting, background, viewing angle, etc.</li>
+<li><strong>Real-world video amplified noise motion: </strong>In human videos and in-the-wild footage, camera motion and non-causal background changes may outweigh state changes caused by interactions.</li>
+<li><strong>Information leakage causes latent action to become shortcut: </strong>If the latent action module sees both the current frame and future frames when training, it may encode future images directly instead of learning variables that explain state transitions.</li>
+<li><strong>Multi-stage pipelines are fragile: </strong>Multi-stage processes such as representation pre-training, latent-action learning/alignment, and policy learning will introduce engineering complexity and inconsistencies between stages.</li>
+</ol>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The principle of VLA-JEPA is to predict the future latent state that reflects the action-relevant transition structure, while prohibiting future information from leaking into the predictor. The advantage of JEPA fits this perfectly: it does not reconstruct pixels, but aligns them at the latent representation level, thus naturally reducing the dominance of low-level noise on the target.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Representation in the paper</th><th>Positioning of VLA-JEPA</th></tr>
+<tr><td>Vision-Language-Action models</td><td>RT series, OpenVLA, $\pi_0$, $\pi_{0.5}$, SpatialVLA, CoT-VLA, etc.</td><td>These methods have pushed VLA into the mainstream of robot learning, but often rely on large-scale action-labeled robot data; VLA-JEPA attempts to reduce the reliance on explicit action supervision.</td></tr>
+<tr><td>Multimodal CoT / future prediction</td><td>hierarchical planning, subgoal/rollout prediction, object-centric conditioning, latent future embeddings/actions</td><td>These methods may still rely on motion data or future reconstruction; VLA-JEPA chooses latent state alignment and does not do pixel reconstruction.</td></tr>
+<tr><td>Latent action learning</td><td>ILPO, LAPO, Genie, LAPA, UniVLA, MotoGPT, villa-X, XR-1, CLAP, VITA, etc.</td><td>Previous works often extract discrete/continuous motion tokens from adjacent frames and then map them to real actions; VLA-JEPA focuses on avoiding delta-frame information leakage and pixel shortcuts.</td></tr>
+</table>
+<div class="figure">
+<img alt="VLA-JEPA cross-domain training" src="figures/cross_domain.png"/>
+<div class="caption"><strong>Figure 2.</strong> VLA-JEPA supports both action-free human videos and action-labeled robot data: the former trains latent world modeling alignment, and the latter combines alignment and robot action prediction.</div>
+</div>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall framework</h3>
+<p>VLA-JEPA consists of three main parts: Qwen3-VL-2B VLM backbone, V-JEPA2-based latent world model, and conditional flow-matching action head. The pre-training phase learns latent actions from Something-Something-v2 human videos and Droid robot data; the post-training/fine-tuning phase trains downstream controls on LIBERO, SimplerEnv, or real robot data.</p>
+<p>The paper states in the text that Qwen3-VL is used as the core VLM, and the visual encoder is SigLIP-2; the appendix clearly implements the use of Qwen3-VL-2B. The world state target comes from the frozen V-JEPA2 encoder, and the predictor is randomly initialized and trained.<span class="appendix-ref">Appendix Implementation Details</span></p>
+<h3>4.2 Model Backbone and latent tokens</h3>
+<p>In order to allow VLM to output time-aware latent action and embodied action, the author added two types of special tokens to the Qwen3-VL vocabulary: $\langle latent_i \rangle$ and $\langle action \rangle$. Among them, $\langle latent_0 \rangle$ represents the state transition from $s_0$ to $s_1$; $\langle action \rangle$ serves as the condition of the action head on the robot data.</p>
+<p>When actually generating latent action tokens, the same $\langle latent_i \rangle$ will be repeated $K$ times to enhance the model's attention to latent action tokens; the appendix gives $K = 24/T$, where $T$ is the future video horizon and 24 is the empirical optimal value.<span class="appendix-ref">Appendix VLA-JEPA Architecture</span></p>
+<h3>4.3 Learn latent world model from human videos</h3>
+<p>For human videos without action tags, the data is written as $D=\{(O_0, O_1, \dots, O_v, \ell)\}$, $\ell$ is the language description, and $O_v$ is the video frame sequence of the $v$th perspective. The world state encoder first uses V-JEPA2 encoder $F(\cdot)$ for each perspective to obtain a representation, and then splices the multi-view representation into a unified world state: </p>
+<div class="formula-block">
+<p class="intuition">What this formula does: combine the visual states of different perspectives at the same time into a world-state latent.</p>
+ $$s_{t_i}=\Vert_v F(I_{v, t_i})$$
+ <table>
+<tr><td>$F(\cdot)$</td><td>Single-view video encoder, the paper uses V-JEPA2.</td></tr>
+<tr><td>$I_{v, t_i}$</td><td>The image frame of the $v$th view at time $t_i$.</td></tr>
+<tr><td>$\Vert_v$</td><td>Splice representations along the view dimension.</td></tr>
+</table>
+</div>
+<p>The student pathway of VLM only inputs multi-view images and language at the initial moment, and does not input future frames. It maps learnable latent tokens into state transition representations: </p>
+<div class="formula-block">
+ $$z_{t_i}=p_\theta^{VLM}\left(\langle latent_i\rangle \mid \{I_{j, t_0}\}_{j=0}^{v}, \ell\right)$$
+ <p>Here $z_{t_i}$ is the latent representation corresponding to the $i$ latent action token. The key is that there are no future frames on the right, and future frames only appear in the supervision targets generated by the target encoder.</p>
+</div>
+<p>The world model then uses historical world states and corresponding latent action representations to predict future state chunks: </p>
+<div class="formula-block">
+ $$\hat{s}_{t_{1: i+1}} = p_\theta^{WM}(s_{t_{0: i}}, z_{t_{0: i}})$$
+ <p>The world model uses time-causal attention: two-way full attention on latent action tokens and image latent tokens within the same time step; strict causality across time steps, and can only look at the present and the past.</p>
+</div>
+<h3>4.4 JEPA Objectives and Information Leakage Control</h3>
+<p>The paper interprets the training target as the ELBO of predictive log-likelihood in semantic space. Since the frozen V-JEPA2 encoder $F(\cdot)$ produces deterministic embeddings, the KL term disappears in practice and the target degrades to latent-space reconstruction/alignment loss.</p>
+<div class="formula-block">
+ $$\mathcal{L}_{WM}=\sum_{k=1}^{T}\mathbb{E}_{s_{t_k}\sim F(\cdot)}(\hat{s}_{t_k}-s_{t_k})$$
+ <p>The original formula of the paper does not write the norm. Combined with the context, it can be understood as aligning the predicted world state and the target world state in the latent space. The report does not assume additional specific distance patterns that are not stated.</p>
+</div>
+<p>This design avoids two common shortcuts: first, it does not allow the model to directly reconstruct pixels, thereby reducing the dominance of background and camera motion; second, it does not feed future frames to the student, so the latent action will not degenerate into future image compression codes.</p>
+<h3>4.5 Action prediction on robot data</h3>
+<p>On action-labeled robot data, VLA-JEPA also retains world modeling loss and appends embodied action token. VLM outputs a global action-conditioning representation: </p>
+<div class="formula-block">
+ $$z_a=p_\theta^{VLM}\left(\langle action\rangle\mid \{I_{i, t_0}\}_{i=0}^{v}, \ell, \langle latent_i\rangle\right)$$
+ <p>$z_a$ serves as a conditional flow-matching action head condition, constraining action generation together with initial observation, language, and latent action.</p>
+</div>
+<p>The action head uses a DiT-B style Transformer to model the distribution of continuous action trajectories. Given the real action sequence $a_{0: H}$ and Gaussian noise $\epsilon$, define linear interpolation: </p>
+<div class="formula-block">
+ $$a_t=(1-t)\epsilon+t a_{0: H}, \quad t\sim\mathcal{U}(0, 1)$$
+ $$\mathcal{L}_{FM}=\mathbb{E}_{a_{0: H}, \epsilon, t}\left[\left\|v_\theta(a_t, t\mid z_a)-(a_{0: H}-\epsilon)\right\|_2^2\right]$$
+ <p>The training goal is to let the model predict the velocity field flowing from noise to the real action sequence; during inference, from noise integration to action space, $\hat{a}_{0: H}$ is obtained.</p>
+</div>
+<p>The overall goal on the robot data is: </p>
+<div class="formula-block">
+ $$\mathcal{L}=\mathcal{L}_{FM}+\beta \mathcal{L}_{WM}$$
+ </div>
+<h3>4.6 Architecture and training hyperparameters</h3>
+<div class="scroll">
+<table>
+<tr><th>Latent World Model Configuration</th><th>value</th></tr>
+<tr><td>Transformer Layers</td><td>12</td></tr>
+<tr><td>Attention heads</td><td>8</td></tr>
+<tr><td>Image token dimension</td><td>2048</td></tr>
+<tr><td>Number of image tokens per time step</td><td>256</td></tr>
+<tr><td>Action token dimension</td><td>2048</td></tr>
+<tr><td>Number of action tokens per time step</td><td>3</td></tr>
+<tr><td>Number of views</td><td>2</td></tr>
+<tr><td>Future video horizon</td><td>8</td></tr>
+</table>
+</div>
+<div class="scroll">
+<table>
+<tr><th>Action Head Configuration</th><th>value</th></tr>
+<tr><td>Transformer Layers</td><td>16</td></tr>
+<tr><td>Attention heads</td><td>12</td></tr>
+<tr><td>Token dimension</td><td>1024</td></tr>
+<tr><td>State dimension</td><td>8</td></tr>
+<tr><td>Action dimension</td><td>7</td></tr>
+<tr><td>Future action horizon</td><td>7</td></tr>
+<tr><td>Positional encoding</td><td>Learnable</td></tr>
+<tr><td>Denoising timesteps</td><td>4</td></tr>
+</table>
+</div>
+<table>
+<tr><th>training details</th><th>Paper/Appendix Information</th></tr>
+<tr><td>Image size</td><td>VLM input resize to 224x224; world-state encoder video clips resize to 256x256.</td></tr>
+<tr><td>action normalization</td><td>Use joint-space delta positions for joint-position control; use delta positions and delta axis-angle for end-effector control; both min-max to [0, 1]; gripper binarized to {0, 1}.</td></tr>
+<tr><td>Multi-view processing</td><td>When there are less than two camera views, copy the world-state representation; when there are more than two views, select two for world-state representation.</td></tr>
+<tr><td>Training hardware and batch</td><td>8 GPUs parallel, batch size 32, global batch size 256.</td></tr>
+<tr><td>learning rate</td><td>cosine schedule + linear warmup; VLM and latent world model peak LR 1e-5; action head peak LR 1e-4.</td></tr>
+<tr><td>Number of training steps</td><td>SSv2+Droid pre-trains for 50K steps; simulated data continues to train for 30K steps; real data continues to fine-tune for 20K steps.</td></tr>
+</table>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<p>The paper uses three types of simulation benchmarks and a real robot environment: LIBERO evaluates simulation in-distribution manipulation; SimplerEnv evaluates real-to-sim gap; LIBERO-Plus evaluates multi-dimensional perturbation robustness; the real robot uses Franka Research 3 desktop pick-and-place. The authors compare the latest VLA baselines, including latent-action VLA, future-prediction VLA and open source VLA.</p>
+<div class="figure">
+<img alt="Experiment setup" src="figures/experiment_setup.png"/>
+<div class="caption"><strong>Figure 3.</strong> Experiments cover LIBERO, LIBERO-Plus, SimplerEnv and the real Franka robot.</div>
+</div>
+<table>
+<tr><th>data/stage</th><th>Usage</th></tr>
+<tr><td>Something-Something-v2</td><td>220K human videos; used for action-free human video latent world modeling pretraining.</td></tr>
+<tr><td>Droid</td><td>76K high-quality demonstration trajectories; used for action-labeled robot data pretraining.</td></tr>
+<tr><td>LIBERO / LIBERO-Plus</td><td>Only the original LIBERO about 2K expert demonstrations are used for fine-tuning, and the LIBERO-Plus augmented dataset is not used.</td></tr>
+<tr><td>SimplerEnv</td><td>Use Fractal and BridgeV2 to correspond to two embodiments of SimplerEnv post-training respectively.</td></tr>
+<tr><td>Real-world</td><td>100 demonstrations, covering 3 picking-and-placing tasks.</td></tr>
+</table>
+<h3>5.2 LIBERO main results</h3>
+<p>LIBERO evaluates 50 episodes per task in each task suite, 500 episodes per suite, and reports success rate. VLA-JEPA ranks first in 2 out of 4 suites, with the highest average success rate.</p>
+<div class="scroll">
+<table>
+<tr><th>method</th><th>Spatial</th><th>Object</th><th>Goal</th><th>LIBERO-10</th><th>Avg</th></tr>
+<tr><td>LAPA</td><td>73.8</td><td>74.6</td><td>58.8</td><td>55.4</td><td>65.7</td></tr>
+<tr><td>UniVLA</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+<tr><td>OpenVLA-OFT</td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+<tr><td>$\pi_0$</td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+<tr><td>$\pi_{0.5}$</td><td><strong>98.8</strong></td><td>98.2</td><td><strong>98.0</strong></td><td>92.4</td><td>96.9</td></tr>
+<tr><td><strong>VLA-JEPA</strong></td><td>96.2</td><td><strong>99.6</strong></td><td>97.2</td><td><strong>95.8</strong></td><td><strong>97.2</strong></td></tr>
+<tr><td>VLA-JEPA w/o human videos</td><td>94.8</td><td><strong>99.6</strong></td><td>95.8</td><td>94.0</td><td>96.1</td></tr>
+</table>
+</div>
+<p>The author specifically points out that strong baselines such as OpenVLA-OFT and $\pi_{0.5}$ rely on a large number of robot datasets pretraining; VLA-JEPA uses less data to achieve higher averages. Compared with latent-action / human-video methods such as LAPA, UniVLA, villa-X, and CoT-VLA, the results of VLA-JEPA support its judgment of pixel shortcut and leakage problems.</p>
+<h3>5.3 SimplerEnv results</h3>
+<p>SimplerEnv contains two sets of visual matching settings for Google Robot and WidowX Robot. VLA-JEPA averages 65.2 on Google Robot, which is the highest among all listed methods; it averages 57.3 on WidowX Robot, which is the same as LAPA.</p>
+<div class="scroll">
+<table>
+<tr><th>method</th><th>Google Pick</th><th>Google Move</th><th>Google Drawer</th><th>Google Place</th><th>Google Avg</th><th>WidowX Spoon</th><th>Carrot</th><th>Block</th><th>Eggplant</th><th>WidowX Avg</th></tr>
+<tr><td>LAPA*</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>70.8</td><td>45.8</td><td>54.2</td><td>58.3</td><td>57.3</td></tr>
+<tr><td>villa-X</td><td>81.7</td><td>55.4</td><td>38.4</td><td>4.2</td><td>44.9</td><td>48.3</td><td>24.2</td><td>19.2</td><td>71.7</td><td>40.8</td></tr>
+<tr><td>RoboVLMs</td><td>77.3</td><td>61.7</td><td>43.5</td><td>24.1</td><td>51.7</td><td>45.8</td><td>20.8</td><td>4.2</td><td>79.2</td><td>37.5</td></tr>
+<tr><td>$\pi_0$</td><td>72.7</td><td>65.3</td><td>38.3</td><td>-</td><td>-</td><td>29.1</td><td>0</td><td>16.6</td><td>62.5</td><td>40.1</td></tr>
+<tr><td><strong>VLA-JEPA</strong></td><td><strong>88.3</strong></td><td>64.1</td><td>59.3</td><td>49.1</td><td>65.2</td><td><strong>75.0</strong></td><td><strong>70.8</strong></td><td>12.5</td><td>70.8</td><td><strong>57.3</strong></td></tr>
+<tr><td>VLA-JEPA w/o human videos</td><td>85.3</td><td>66.7</td><td><strong>75.5</strong></td><td><strong>86.1</strong></td><td><strong>78.4</strong></td><td><strong>75.0</strong></td><td>54.2</td><td>20.8</td><td><strong>79.2</strong></td><td><strong>57.3</strong></td></tr>
+</table>
+</div>
+<p>This table also hints at an important boundary: w/o human videos have a higher Google Avg in SimplerEnv. The author explains that in real-to-sim gap and ID scenarios, the impact of high-quality expert demonstrations may be greater than that of human video.</p>
+<h3>5.4 LIBERO-Plus Robustness</h3>
+<p>LIBERO-Plus puts the four original LIBERO suites into seven types of disturbances: Camera, Robot, Language, Light, Background, Noise, and Layout. VLA-JEPA ranks first in the five categories of Robot, Language, Light, Background, and Layout, with an average score of 79.5.</p>
+<div class="scroll">
+<table>
+<tr><th>method</th><th>Camera</th><th>Robot</th><th>Language</th><th>Light</th><th>Background</th><th>Noise</th><th>Layout</th><th>Avg</th></tr>
+<tr><td>UniVLA</td><td>1.8</td><td>46.2</td><td>69.6</td><td>69.0</td><td>81.0</td><td>21.2</td><td>31.9</td><td>42.9</td></tr>
+<tr><td>OpenVLA-OFT</td><td>56.4</td><td>31.9</td><td>79.5</td><td>88.7</td><td>93.3</td><td>75.8</td><td>74.2</td><td>69.6</td></tr>
+<tr><td>$\pi_0$</td><td>13.8</td><td>6.0</td><td>58.8</td><td>85.0</td><td>81.4</td><td><strong>79.0</strong></td><td>68.9</td><td>53.6</td></tr>
+<tr><td>$\pi_0$-Fast</td><td><strong>65.1</strong></td><td>21.6</td><td>61.0</td><td>73.2</td><td>73.2</td><td>74.4</td><td>68.8</td><td>61.6</td></tr>
+<tr><td><strong>VLA-JEPA</strong></td><td>63.3</td><td><strong>67.1</strong></td><td><strong>85.4</strong></td><td><strong>95.6</strong></td><td><strong>93.6</strong></td><td>66.3</td><td><strong>85.1</strong></td><td><strong>79.5</strong></td></tr>
+<tr><td>VLA-JEPA w/o human videos</td><td>40.3</td><td>55.7</td><td>72.9</td><td>88.2</td><td>70.5</td><td>38.2</td><td>74.6</td><td>62.9</td></tr>
+</table>
+</div>
+<p>This table is one of the clearest evidences of the value of human video: VLA-JEPA full model has improved from 62.9 w/o human videos to 79.5, especially in Background, Noise, Language, and Layout. The gap is obvious.</p>
+<h3>5.5 Real Robot Experiment</h3>
+<p>The real setup uses a Franka Research 3, Robotiq 2F-85 gripper, three Intel RealSense D435 cameras, two in third person view and one in wrist-mounted view. Training expert demonstrations include placing grapes, apples, mangoes, and oranges from the table into a plate or bowl. Each task was performed 10 independent trials and the average success rate is reported.<span class="appendix-ref">Appendix Real-world Experiments Details</span></p>
+<div class="figure">
+<img alt="Real-world experimental results" src="figures/realworld_figure.png"/>
+<div class="caption"><strong>Figure 4.</strong> Real robot ID, task OOD and object-layout OOD results; the paper shows that VLA-JEPA is the best in ID and layout OOD, and second in task OOD.</div>
+</div>
+<p>task-level OOD includes: putting bananas in a bowl, peaches on a plate, and grapes on the top shelf. The author observed that: in the banana task, $\pi_{0.5}$ and VLA-JEPA were about 50% successful; in the peach task, the robot often violated the safety boundary due to its irregular shape; in the shelf task, no model successfully placed the end on the top floor, but VLA-JEPA would approach and lift the end from the back of the shelf, while $\pi_0$ and $\pi_{0.5}$ directly collided with the shelf.</p>
+<p>In layout OOD, $\pi_0$ and $\pi_{0.5}$ will not reopen the gripper and try again after failing to capture; VLA-JEPA will immediately open the gripper and try again. The author attributes this to the large number of repeated grasping behaviors in human videos.<span class="appendix-ref">Appendix Real-world Experiments Details</span></p>
+<div class="figure">
+<img alt="Real-world frames under object-layout OOD" src="figures/real_world_frames.png"/>
+<div class="caption"><strong>Figure 7.</strong> Comparison of execution of $\pi_0$, $\pi_{0.5}$ and VLA-JEPA under object-layout OOD.</div>
+</div>
+<h3>5.6 Further analysis and ablation</h3>
+<h4>The impact of human video</h4>
+<p>The analysis of the paper is very restrained: human videos may not necessarily bring significant improvement on LIBERO and SimplerEnv, and even w/o human videos are stronger in some settings of SimplerEnv; but in perturbation robustness scenarios such as LIBERO-Plus, human videos significantly improve stability. The author believes that human videos mainly enhance the robustness/stability of existing skills rather than directly introducing new action execution capabilities.</p>
+<div class="figure">
+<img alt="Human video proportion effect" src="figures/human_video_proportion.png"/>
+<div class="caption"><strong>Figure 5.</strong> As the human video proportion increases, the success rate of LIBERO-Plus under multi-type perturbations changes; based on this, the author supports that human videos mainly improve robustness.</div>
+</div>
+<h4>The impact of Unified pretraining</h4>
+<p>The author visualizes the attention from latent action token to image token of LAPA, UniVLA, and VLA-JEPA. Paper explanation: LAPA focuses on overly dense visual information and irrelevant desktop objects, which may come from information leakage; UniVLA uses textual semantics to alleviate but will focus on irrelevant semantic backgrounds such as stationary pens and tablecloth textures; VLA-JEPA focuses more on robotic arm, hand and manipulated objects.</p>
+<div class="figure">
+<img alt="Attention map" src="figures/attention_map.png"/>
+<div class="caption"><strong>Figure 6.</strong> The attention weight matrix of latent action tokens versus image tokens.</div>
+</div>
+<h4>Future video horizon</h4>
+<table>
+<tr><th>$T$</th><th>Spatial</th><th>Object</th><th>Goal</th><th>LIBERO-10</th><th>Avg</th></tr>
+<tr><td>4</td><td><strong>95.0</strong></td><td>99.2</td><td>95.8</td><td>89.0</td><td>94.8</td></tr>
+<tr><td>8</td><td>94.8</td><td><strong>99.8</strong></td><td>95.8</td><td><strong>94.0</strong></td><td><strong>96.1</strong></td></tr>
+<tr><td>16</td><td>92.8</td><td>98.8</td><td><strong>98.0</strong></td><td>92.2</td><td>95.5</td></tr>
+</table>
+<p>The author hopes that latent action captures the dynamics between adjacent frames, and the number of latent action tokens is always equal to the number of frames minus one. $T=8$ is the best on average, and the paper explains that it is close to the predefined action horizon; $T$ is too small and lacks information, and $T$ is too large to introduce redundancy.</p>
+</section>
+<section id="reproduce">
+<h2>6. Reproducible auditing</h2>
+<div class="audit-card">
+<h4>Code and models</h4>
+<p><span class="pass">There is official code and model entrance: </span>GitHub README shows that partial training code, LIBERO/LIBERO-Plus/SimplerEnv evaluation code, and custom dataset training code have been released; Hugging Face provides checkpoints. README also lists Qwen3-VL-2B, V-JEPA2 encoder, SSv2, Droid, LIBERO, BridgeV2, Fractal and other dependent resources.</p>
+</div>
+<table>
+<tr><th>Recurring items</th><th>Information given</th><th>Status</th></tr>
+<tr><td>Model structure</td><td>Qwen3-VL-2B; V-JEPA2 encoder; latent world model and action head configuration tables are complete.</td><td><span class="pass">fully</span></td></tr>
+<tr><td>Training hyperparameters</td><td>Image size, batch, number of GPUs, learning rate, schedule, number of training steps, action normalization, and multi-view processing are all given in the appendix.</td><td><span class="pass">relatively sufficient</span></td></tr>
+<tr><td>data</td><td>SSv2, Droid, LIBERO, BridgeV2, and Fractal provide download links in the README; there is no public complete data description for the 100 demos of real robots.</td><td><span class="warn">The simulation is sufficient, but the real experiments are limited.</span></td></tr>
+<tr><td>Review</td><td>README gives LIBERO, LIBERO-Plus, SimplerEnv environment preparation, checkpoint configuration and eval script.</td><td><span class="pass">fully</span></td></tr>
+<tr><td>Hardware</td><td>The paper training uses 8 NVIDIA A100 GPUs; README description LIBERO 4 GPUs parallel, LIBERO-Plus/SimplerEnv 8 GPUs parallel, can be modified according to the number of GPUs.</td><td><span class="warn">higher cost</span></td></tr>
+</table>
+<div class="pseudocode">Repository setup skeleton: git clone https: //github.com/ginwind/VLA-JEPA
+conda create -n VLA_JEPA python=3.10 -y
+conda activate VLA_JEPA
+pip install -r requirements.txt
+pip install flash-attn --no-build-isolation
+pip install -e.
+
+Required checkpoints: - Qwen3-VL-2B
+- V-JEPA2 encoder
+- VLA-JEPA checkpoints from Hugging Face</div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own evidence, the most valuable point is to change the learning goal of the latent action from "explaining pixel differences" to "explaining the future latent state under no leakage conditions". This makes the role of human-video pretraining closer to "improving the robustness and temporal stability of existing skills" rather than mistaking human videos for directly executable robot action supervision. Repeated grasping observations of LIBERO-Plus and real robots are the most direct support for this point.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The paper does not just report an average value, but tests on four types of settings: LIBERO, SimplerEnv, LIBERO-Plus and real robots, and disassembles human videos, future horizon, and attention map. In particular, the gap between full model and w/o human videos in LIBERO-Plus, and the fact that w/o human videos in SimplerEnv are better, together illustrate that the author does not generalize human videos to universal gain, but positions the gain boundary at robustness/stability.</p>
+<h3>7.3 Failure phenomena clearly written in the paper</h3>
+<ul>
+<li>In real task OOD, the generalization of VLA-JEPA is not as robust as $\pi_{0.5}$; it lacks fine-grained textual instruction reasoning and may grab objects that do not match the instructions.</li>
+<li>$\pi_{0.5}$ contacts the target object more accurately, but position control often violates the safety boundary of the robot and causes failure; VLA-JEPA rarely triggers the safety boundary.</li>
+<li>In the shelf task, all models failed to successfully place the end on the top layer; VLA-JEPA only showed different approach behaviors and did not complete the task.</li>
+<li>Human video does not necessarily bring benefits to ID and real-to-sim gap scenarios; high-quality expert demonstrations may be more critical in these scenarios.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<ul>
+<li>VLA-JEPA is suitable for manipulation settings that elicit useful latent dynamics from visual timing; it has not been shown to be effective for all fine-force control, long-range planning, or high-verbal reasoning tasks.</li>
+<li>The method relies on strong VLM, V-JEPA2 encoder, A100-level training resources and multiple large data sets; the cost of completely reproducing the experiment from scratch is high.</li>
+<li>Real robots only cover 100 demonstrations and a small number of desktop tasks; the paper mainly uses real results as evidence of physical deployment, rather than large-scale real-world generalization proof.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoVLA - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>VideoVLA: Video Generators Can Be Generalizable Robot Manipulators</h1>
+    <div class="meta">
+      <p><strong>方法名：</strong>VideoVLA</p>
+      <p><strong>作者：</strong>Yichao Shen, Fangyun Wei, Zhiying Du, Yaobo Liang, Yan Lu, Jiaolong Yang, Nanning Zheng, Baining Guo</p>
+      <p><strong>机构：</strong>IAIR, Xi'an Jiaotong University；Microsoft Research Asia；Fudan University</p>
+      <p><strong>发表：</strong>NeurIPS 2025；arXiv v1 提交于 2025-12-07</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2512.06963">arXiv:2512.06963</a> | <a href="https://arxiv.org/pdf/2512.06963">PDF</a> | <a href="https://videovla-nips2025.github.io/">项目页</a> | <a href="https://github.com/VideoVLA-Project/VideoVLA">官方代码</a> | <a href="https://huggingface.co/VideoVLA/VideoVLA_Cogvideobase_Pretrained">模型</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录：</strong>
+    <a href="#quick">1. 速览</a>
+    <a href="#motivation">2. 动机</a>
+    <a href="#related">3. 相关工作</a>
+    <a href="#method">4. 方法详解</a>
+    <a href="#experiments">5. 实验</a>
+    <a href="#reproduce">6. 可复现审计</a>
+    <a href="#discussion">7. 分析、局限与边界</a>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>VideoVLA 把 CogVideoX-5B 这类预训练视频生成器改造成 VLA 机器人策略：给定语言和当前图像，用一个多模态 Diffusion Transformer 同时预测未来动作 chunk 和执行这些动作后的未来视觉结果。
+    </div>
+    <table>
+      <tr><th>论文要解决什么</th><td>现有 VLA 多依赖预训练理解模型，能完成训练分布内任务，但对新任务、新物体、新 embodiment skill 的泛化仍有限；作者尝试把视频生成器的物理想象和未来状态预测能力迁移到机器人操作。</td></tr>
+      <tr><th>作者的方法抓手</th><td>把视频生成和动作生成统一为一个 diffusion denoising 问题：语言 token 与当前图像 latent 作为条件，未来视频 latent 和 7-D action sequence 作为共同去噪目标。</td></tr>
+      <tr><th>最重要的结果</th><td>SIMPLER in-domain 全任务平均 63.0，略高于 CogACT 62.6；SIMPLER novel objects 平均 65.2，new skills 平均 48.6；真实 Realman in-domain 平均 64.6，novel objects 50.6，cross-embodiment skills 58.0，均为表中最佳。</td></tr>
+      <tr><th>阅读时要注意的点</th><td>核心不是额外生成一段视频做展示，而是用 video-action dual prediction 作为训练约束。消融显示去掉 video loss 或只预测 action，会让 in-domain 与泛化性能大幅下降。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 VLA、Diffusion Transformer、CogVideoX/causal video VAE、action chunking、SIMPLER 评测、机器人跨 embodiment 泛化。</p>
+    <p><strong>关键词：</strong>VideoVLA, video generation, VLA, Diffusion Transformer, visual imagination, action chunk, CogVideoX, SIMPLER, Realman robot。</p>
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>范式转移：</strong>从“用视觉语言理解模型做 VLA backbone”转向“用视频生成模型做 VLA manipulator”。</li>
+      <li><strong>统一建模：</strong>将语言、当前视觉 latent、未来视觉 latent、动作向量放入同一个 DiT 序列，联合预测动作和视觉后果。</li>
+      <li><strong>泛化证据：</strong>在 novel objects 和 unseen skills 中展示比 OpenVLA、SpatialVLA、$\pi_0$、CogACT 更强的平均性能。</li>
+      <li><strong>想象-执行相关性分析：</strong>用 motion similarity 和人工判断说明更好的 visual imagination 与更高执行成功率相关。</li>
+    </ul>
+    <div class="figure">
+      <img src="figures/teaser.png" alt="VideoVLA illustration">
+      <div class="caption"><strong>Figure 1.</strong> VideoVLA 给定语言指令和当前视觉观测，同时预测下一段动作以及这些动作对环境交互的未来视觉影响。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决什么问题</h3>
+    <p>机器人操作的长期目标是泛化到训练时未见的任务、物体和环境。现有 VLA 通过大规模视觉、语言或视觉语言理解模型减少任务特定机器人数据需求，但作者认为这种路线仍难充分实现 true generalization，尤其是在 novel objects 与 unseen skills 上。</p>
+    <p>视频生成模型则在 novel text / image condition 下表现出强泛化，并生成具有物理合理性的未来视频。作者观察到这与机器人操作高度对齐：机器人也需要从新指令和新视觉观测中预测物理后果，并据此组织动作。</p>
+
+    <h3>2.2 关键假设</h3>
+    <p>如果模型能生成与真实执行结果一致的“视觉想象”，那么它更可能预测出能完成任务的动作。换句话说，未来视觉结果不是额外副产物，而是动作可靠性的隐式监督和诊断信号。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的代表</th><th>VideoVLA 的定位</th></tr>
+      <tr><td>Vision-Language-Action Models</td><td>Octo、Open X-Embodiment、OpenVLA、CogACT、HPT、GR-2、RDT 等</td><td>前作多依赖 understanding-oriented foundation models；VideoVLA 改用 generation-oriented video model，并同时预测动作和视觉后果。</td></tr>
+      <tr><td>Video Generation Models</td><td>SVD、OpenSora、CogVideoX、HunyuanVideo、Wan 等</td><td>VideoVLA 基于 CogVideoX，沿用 video VAE + DiT 的两阶段生成范式，但把 action 加入同一 diffusion 序列。</td></tr>
+      <tr><td>Video Generation for Robot Manipulation</td><td>UniPi、UniSim、RoboDreamer、Gen2Act、VidMan、GR-1、GR-2 等</td><td>多数方法把视频生成作为模块化视觉规划或辅助特征；VideoVLA 是端到端统一 VLA，直接从预训练视频生成器改造。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 问题形式化</h3>
+    <p>输入为文本指令 $\mathcal{T}$ 和当前视觉观测 $\mathcal{O}$，输出两类未来量：</p>
+    <div class="formula-block">
+      <p class="intuition">动作输出：未来 $K$ 步可顺序执行的 action chunk。</p>
+      $$\mathcal{A}=\{\boldsymbol{a}_i\in \mathbb{R}^{7}\}_{i=1}^{K}$$
+      <table>
+        <tr><td>$\boldsymbol{a}_i[1:3]$</td><td>wrist rotation。</td></tr>
+        <tr><td>$\boldsymbol{a}_i[4:6]$</td><td>wrist translation。</td></tr>
+        <tr><td>$\boldsymbol{a}_i[7]$</td><td>gripper state，0 为 closed，1 为 open。</td></tr>
+      </table>
+    </div>
+    <div class="formula-block">
+      <p class="intuition">视觉输出：执行动作后预期出现的未来视频帧，但实现中预测的是 latent。</p>
+      $$\mathcal{F}=\{\boldsymbol{F}_j\}_{j=1}^{N}$$
+      <p>动作频率和视频帧频率不要求相同：每个 action 可能对应多个 future frames。执行一个 action chunk 后，机器人获得新观测，再重复预测下一段 action chunk。</p>
+    </div>
+
+    <h3>4.2 总体架构</h3>
+    <p>VideoVLA 主要包含两个 encoder 和一个 DiT backbone。T5 text encoder 将语言指令转为固定长度 226 个 tokens；CogVideoX 的 3D-causal VAE encoder 将视频 clip 编码成 frame latents。由于 VAE 是 causal，第一帧 latent $\boldsymbol{V}_1$ 只编码第一帧，即当前观测。</p>
+    <div class="figure">
+      <img src="figures/overview.png" alt="VideoVLA overview">
+      <div class="caption"><strong>Figure 2.</strong> 语言和视频先被编码成 tokens/latents；DiT 以语言 tokens 和当前帧 latent 为条件，联合预测未来 action chunk 与 future frame latents。粉色 video decoder 只在可视化想象未来时使用。</div>
+    </div>
+    <p>训练时，完整视频 clip 进入 video encoder，因此模型可以获得当前 latent $\boldsymbol{V}_1$ 与未来目标 latents $\{\boldsymbol{V}_j\}_{j=2}^{n}$；推理时只编码当前观测得到 $\boldsymbol{V}_1$。</p>
+
+    <h3>4.3 数据预处理与 token 序列</h3>
+    <p>对每个视觉 latent，VideoVLA 按 raster order flatten 空间维度。设 $\boldsymbol{V}'_1$ 是当前观测 latent 的 flattened 版本，$\{\boldsymbol{V}'_j\}_{j=2}^{n}$ 是未来 frame latents 的 flattened 版本。多模态序列由以下部分拼接：</p>
+    <div class="pseudocode">Input/target sequence:
+T5 language tokens T
++ current observation latent V'_1
++ noisy future frame latents {V'_j}_{j=2..n}
++ noisy action chunk A
+
+Condition: T and V'_1
+Diffusion targets: future visual latents and action chunk</div>
+    <p>所有模态先投影到共同 embedding dimension；future video latents 和 actions 都加高斯噪声，模型用 DDPM diffusion loss 学习 denoise。噪声 timestep embedding 按 DiT 方式通过 adaptive LayerNorm 注入。backbone 初始化自预训练 CogVideoX。</p>
+
+    <h3>4.4 Unified Future Modeling</h3>
+    <p>VideoVLA 的 unified future modeling 指将“未来动作”和“未来视觉后果”视为同一未来过程的两个模态，在一个 transformer 中同步建模。与模块化视频规划不同，VideoVLA 不先生成视频再通过 inverse dynamics 取动作，而是让动作 token 与视觉 token 在 denoising 中直接交互。</p>
+    <div class="formula-block">
+      <p class="intuition">训练目标：对 action 和 future video latent 同时施加 diffusion denoising loss。</p>
+      $$\mathcal{L}_{dual}=\mathcal{L}_{video\ denoise}+\mathcal{L}_{action\ denoise}$$
+      <p>论文正文没有把总损失写成单独公式，但在 dual-prediction 消融中明确说明 default 同时对两种模态使用 denoising losses。</p>
+    </div>
+    <p>附录进一步比较了 attention 方向和 diffusion schedule：默认 bidirectional interaction 与同步 diffusion schedule 都比 causal mask 或 asynchronous schedule 更好。<span class="appendix-ref">附录 More Analysis</span></p>
+
+    <h3>4.5 训练和推理细节</h3>
+    <table>
+      <tr><th>项目</th><th>论文给出的设置</th></tr>
+      <tr><td>预训练数据</td><td>Open X-Embodiment subset，22.5M frames；OXE 原始包含 60 个 datasets、22 个 robot embodiments、超过 1M real-world robot trajectories。</td></tr>
+      <tr><td>真实机器人微调数据</td><td>Realman robot teleoperation，5824 samples，覆盖 pick、stack、place 三类任务。</td></tr>
+      <tr><td>backbone</td><td>CogVideoX-5B。</td></tr>
+      <tr><td>默认 horizon</td><td>推理每步预测 13 个 future frame latents，即 49 frames，并预测 6 个 future actions。</td></tr>
+      <tr><td>部署执行</td><td>每次预测 6 个 actions，但只执行前 3 个。</td></tr>
+      <tr><td>训练</td><td>预训练 100K iterations；真实微调 15K iterations；32 AMD MI300X GPUs；batch size 256。</td></tr>
+      <tr><td>优化器</td><td>AdamW，learning rate 1e-5，weight decay 1e-4。</td></tr>
+      <tr><td>采样</td><td>DDIM sampling；正文写 inference 使用 50 denoising steps；附录真实部署限制中写 10 denoising steps，1.1s/H100，约 3Hz。</td></tr>
+      <tr><td>效率设置</td><td>仿真预测 13 latents/49 frames；真实实验为效率预测 4 latents/13 frames。</td></tr>
+    </table>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <h3>5.1 实验范围和评测协议</h3>
+    <p>论文同时做 simulation 和 real-world，且分别包含 in-domain 与 generalization。泛化重点是两类能力：novel objects 上执行已学技能，以及把其他 embodiment 学到、目标 embodiment 没见过的 skill transfer 到目标机器人。</p>
+    <table>
+      <tr><th>评测类别</th><th>任务/试验次数</th></tr>
+      <tr><td>Google Robot SIMPLER-VM</td><td>Pick Up Coke Can 300；Move Near 240；Open/Close Drawer 216；Open Top Drawer and Place Apple 108。</td></tr>
+      <tr><td>Google Robot SIMPLER-VA</td><td>Pick Up Coke Can 825；Move Near 600；Open/Close Drawer 378；Open Top Drawer and Place Apple 189。</td></tr>
+      <tr><td>WidowX SIMPLER-VM</td><td>四个任务各 24 trials。</td></tr>
+      <tr><td>Novel objects / new skills simulation</td><td>每个 novel object 25 trials；每个 new skill 20 trials。</td></tr>
+      <tr><td>Real-world</td><td>Pick Up 24；Stack 48；Place 24；每个 novel object 12；每个 new skill 16。</td></tr>
+    </table>
+
+    <h3>5.2 SIMPLER in-domain</h3>
+    <p>SIMPLER 中 Google robot 有 Visual Matching (VM) 和 Variant Aggregation (VA)，WidowX 只有 VM。VideoVLA 在 WidowX VM 平均、Google VA 平均和所有 12 个任务全局平均上最高，Google VM 平均为第二。</p>
+    <div class="scroll">
+      <table>
+        <tr><th>方法</th><th>WidowX VM Avg</th><th>Google VM Avg</th><th>Google VA Avg</th><th>Avg All</th></tr>
+        <tr><td>RT-1-X</td><td>1.1</td><td>42.7</td><td>30.5</td><td>24.8</td></tr>
+        <tr><td>OpenVLA</td><td>4.2</td><td>34.3</td><td>39.4</td><td>26.0</td></tr>
+        <tr><td>SpatialVLA</td><td>34.4</td><td>54.6</td><td>52.4</td><td>47.1</td></tr>
+        <tr><td>$\pi_0$</td><td><strong>53.1</strong></td><td>53.5</td><td>43.4</td><td>50.0</td></tr>
+        <tr><td>CogACT</td><td>51.3</td><td><strong>75.2</strong></td><td>61.4</td><td>62.6</td></tr>
+        <tr><td><strong>VideoVLA</strong></td><td><strong>53.1</strong></td><td>73.1</td><td><strong>62.8</strong></td><td><strong>63.0</strong></td></tr>
+      </table>
+    </div>
+
+    <h3>5.3 SIMPLER novel objects</h3>
+    <p>Google robot 的 Pick Up skill 在 10 个未见物体上评测，物体来自 YCB 和 GSO。VideoVLA 平均 65.2，明显高于 SpatialVLA 50.8 和 CogACT 42.4，并在 8/10 个物体上最佳。</p>
+    <table>
+      <tr><th>方法</th><th>Avg</th><th>要点</th></tr>
+      <tr><td>OpenVLA</td><td>6.4</td><td>多个物体接近 0。</td></tr>
+      <tr><td>SpatialVLA</td><td>50.8</td><td>第二高；cleaner bottle 上最高 56.0。</td></tr>
+      <tr><td>$\pi_0$</td><td>28.8</td><td>中等，但 toy airplane 为 0。</td></tr>
+      <tr><td>CogACT</td><td>42.4</td><td>green cube 84.0、carrot 72.0，但多个物体较低。</td></tr>
+      <tr><td><strong>VideoVLA</strong></td><td><strong>65.2</strong></td><td>green cube 96.0、carrot 84.0、eggplant 88.0、plum 80.0、tennis ball 68.0。</td></tr>
+    </table>
+
+    <h3>5.4 SIMPLER new skills / cross-embodiment transfer</h3>
+    <p>新技能来自 WidowX robot 训练数据，但 Google robot 训练集中没有。VideoVLA 在所有技能上最佳，平均 48.6，比第二名 CogACT 20.4 高 28.2 points。</p>
+    <table>
+      <tr><th>方法</th><th>Put Spoon</th><th>Put Carrot</th><th>Stack Block</th><th>Take Out Apple</th><th>Flip Cup</th><th>Pour Coke</th><th>Slide</th><th>Avg</th></tr>
+      <tr><td>OpenVLA</td><td>0.0</td><td>12.5</td><td>0.0</td><td>26.7</td><td>0.0</td><td>4.0</td><td>0.0</td><td>6.2</td></tr>
+      <tr><td>CogACT</td><td>20.8</td><td>41.7</td><td>5.0</td><td>43.8</td><td>4.0</td><td>20.0</td><td>8.0</td><td>20.4</td></tr>
+      <tr><td><strong>VideoVLA</strong></td><td><strong>56.3</strong></td><td><strong>58.3</strong></td><td><strong>20.0</strong></td><td><strong>93.8</strong></td><td><strong>20.0</strong></td><td><strong>52.0</strong></td><td><strong>40.0</strong></td><td><strong>48.6</strong></td></tr>
+    </table>
+
+    <h3>5.5 真实 Realman 实验</h3>
+    <p>真实机器人是 Realman 7-DoF arm + gripper。所有模型先在 OXE 预训练，再用作者收集的 Realman 数据微调。in-domain 包括 pick、stack、place，其中 place 需要先 pick up 再 place，因此分别报两个阶段成功率。</p>
+    <table>
+      <tr><th>方法</th><th>Pick Up Avg</th><th>Stack Avg</th><th>Place Avg</th><th>Task Avg</th></tr>
+      <tr><td>OpenVLA</td><td>8.3</td><td>6.3</td><td>14.6</td><td>9.7</td></tr>
+      <tr><td>SpatialVLA</td><td>37.5</td><td>20.8</td><td>10.4</td><td>22.9</td></tr>
+      <tr><td>$\pi_0$</td><td>66.7</td><td>54.2</td><td>31.3</td><td>50.7</td></tr>
+      <tr><td>CogACT</td><td><strong>75.0</strong></td><td>64.6</td><td>35.5</td><td>58.4</td></tr>
+      <tr><td><strong>VideoVLA</strong></td><td>70.8</td><td><strong>66.7</strong></td><td><strong>56.3</strong></td><td><strong>64.6</strong></td></tr>
+    </table>
+    <p>真实 novel objects 中，VideoVLA 对 12 个未见物体全部有非零成功率，平均 50.6；CogACT 第二，平均 26.9。真实 cross-embodiment skill transfer 中，VideoVLA 平均 58.0，明显高于 CogACT 35.1。</p>
+    <table>
+      <tr><th>真实泛化设置</th><th>OpenVLA</th><th>SpatialVLA</th><th>$\pi_0$</th><th>CogACT</th><th>VideoVLA</th></tr>
+      <tr><td>Novel objects Avg</td><td>9.6</td><td>14.1</td><td>21.8</td><td>26.9</td><td><strong>50.6</strong></td></tr>
+      <tr><td>New skills Avg</td><td>8.3</td><td>13.5</td><td>28.5</td><td>35.1</td><td><strong>58.0</strong></td></tr>
+    </table>
+
+    <h3>5.6 消融实验</h3>
+    <table>
+      <tr><th>Backbone</th><th>Pick Up Coke Can</th><th>Move Near</th><th>Open/Close Drawer</th><th>Avg</th></tr>
+      <tr><td>OpenSora-1.1</td><td>67.7</td><td>57.1</td><td>25.9</td><td>50.2</td></tr>
+      <tr><td>CogVideoX-5B trained from scratch</td><td>18.6</td><td>10.8</td><td>9.2</td><td>12.6</td></tr>
+      <tr><td><strong>CogVideoX-5B pretrained</strong></td><td><strong>92.3</strong></td><td><strong>82.9</strong></td><td><strong>66.2</strong></td><td><strong>80.4</strong></td></tr>
+    </table>
+    <table>
+      <tr><th>Future frames</th><th>Pick Up Coke Can</th><th>Move Near</th><th>Open/Close Drawer</th><th>Avg</th></tr>
+      <tr><td>13 frames</td><td>88.7</td><td>75.4</td><td>61.6</td><td>75.2</td></tr>
+      <tr><td>25 frames</td><td>90.0</td><td>79.2</td><td>63.0</td><td>77.4</td></tr>
+      <tr><td><strong>49 frames</strong></td><td><strong>92.3</strong></td><td><strong>82.9</strong></td><td><strong>66.2</strong></td><td><strong>80.4</strong></td></tr>
+    </table>
+    <table>
+      <tr><th>Dual-prediction variant</th><th>In-domain Avg</th><th>Novel Objects</th><th>New Skills</th></tr>
+      <tr><td>Default</td><td><strong>80.4</strong></td><td><strong>65.2</strong></td><td><strong>48.6</strong></td></tr>
+      <tr><td>No video loss</td><td>27.0</td><td>12.7</td><td>4.4</td></tr>
+      <tr><td>Action only</td><td>25.5</td><td>11.3</td><td>2.1</td></tr>
+    </table>
+    <table>
+      <tr><th>附录消融</th><th>Pick Up</th><th>Move</th><th>Open/Close</th><th>Avg</th></tr>
+      <tr><td>Default bidirectional</td><td>92.3</td><td>82.9</td><td>66.2</td><td><strong>80.4</strong></td></tr>
+      <tr><td>Causal mask</td><td>89.3</td><td>76.2</td><td>61.1</td><td>75.5</td></tr>
+      <tr><td>Async train, sync inference</td><td>87.3</td><td>74.1</td><td>60.2</td><td>73.8</td></tr>
+      <tr><td>Async train, async inference</td><td>84.7</td><td>70.8</td><td>57.4</td><td>71.0</td></tr>
+    </table>
+    <p>这些消融支持三点：预训练视频生成 backbone 很关键；更长未来视频 horizon 有利于动作后果推理；动作和视频的双向、同步联合 denoising 比分阶段或单向信息流更好。<span class="appendix-ref">附录 More Analysis</span></p>
+
+    <h3>5.7 Imagination-Execution Correlation</h3>
+    <p>作者记录执行预测动作时的真实视频帧，并将预测 video latents 经 VAE decoder 得到 imagination frames。然后用 SIFT 在首帧抽 keypoints，用 SAM 分割 foreground，只保留机器人和物体区域，再用 SAM-PT 跟踪关键点轨迹。通过 Hungarian matching 对齐 imagination 与 execution 轨迹后，计算 trajectory vectors 的 normalized cosine similarity，平均后得到 robot motion similarity。</p>
+    <div class="figure">
+      <img src="figures/SIM_google.png" alt="Google robot similarity">
+      <div class="caption"><strong>Figure 3a.</strong> Google robot 中，visual imagination 与真实执行的 motion similarity 越高，成功执行概率越高。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/SIM_WINX.png" alt="WidowX robot similarity">
+      <div class="caption"><strong>Figure 3b.</strong> WidowX robot 中也观察到相同趋势。</div>
+    </div>
+    <table>
+      <tr><th>Metric</th><th>Novel Objects</th><th>New Skills</th></tr>
+      <tr><td>Visual Imagination Success Rate</td><td>84.0</td><td>63.4</td></tr>
+      <tr><td>Actual Execution Success Rate</td><td>65.2</td><td>48.6</td></tr>
+    </table>
+    <p>视觉想象由人工判断：成功需满足语义跟随指令，且没有显著几何畸变或物理合理性违背。实际执行低于想象成功率，作者归因于精确 physical grounding、actuation noise 和 perception errors 的额外难度。</p>
+    <div class="figure">
+      <img src="figures/visualization.png" alt="VideoVLA visualization">
+      <div class="caption"><strong>Figure 4.</strong> VideoVLA 预测的视觉想象与真实执行过程示例。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/visualization_real_supp.png" alt="Real-world supplementary visualization">
+      <div class="caption"><strong>Figure 5.</strong> 附录真实机器人可视化。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/visualization_sim_supp.png" alt="Simulation supplementary visualization">
+      <div class="caption"><strong>Figure 6.</strong> 附录仿真可视化。</div>
+    </div>
+  </section>
+
+  <section id="reproduce">
+    <h2>6. 可复现审计</h2>
+    <div class="audit-card">
+      <h4>代码与模型</h4>
+      <p><span class="pass">有官方代码入口：</span><a href="https://github.com/VideoVLA-Project/VideoVLA">VideoVLA-Project/VideoVLA</a>。README 提供 `build.sh` 环境准备、CogVideo T5/VAE checkpoint 配置，以及 `sample_video_action.py` 推理命令。项目页提供模型链接到 Hugging Face。</p>
+    </div>
+    <table>
+      <tr><th>复现项</th><th>论文/项目给出的信息</th><th>状态</th></tr>
+      <tr><td>模型结构</td><td>CogVideoX-5B backbone；T5 text encoder 226 tokens；3D-causal VAE video encoder；7-D action vector；DiT unified token sequence。</td><td><span class="pass">较充分</span></td></tr>
+      <tr><td>训练超参</td><td>100K pretraining、15K finetuning、32 AMD MI300X、batch 256、AdamW、LR 1e-5、WD 1e-4、DDIM sampling。</td><td><span class="pass">较充分</span></td></tr>
+      <tr><td>数据</td><td>OXE subset 22.5M frames；真实 Realman 5824 samples。真实数据是否公开未在 README 中明确给出。</td><td><span class="warn">公开复现受限</span></td></tr>
+      <tr><td>评测协议</td><td>正文和附录给出 SIMPLER / real-world trial counts，任务列表和主要结果。</td><td><span class="pass">充分</span></td></tr>
+      <tr><td>完整训练成本</td><td>32 AMD MI300X 和大型 CogVideoX backbone。</td><td><span class="warn">成本高</span></td></tr>
+    </table>
+    <div class="pseudocode">Official inference skeleton:
+bash build.sh
+
+# Download CogVideo T5 and VAE checkpoints.
+# Update paths in:
+config_use/action_config/videovla_config.yaml
+
+python sample_video_action.py \
+  --base config_use/action_config/videovla_config.yaml \
+         config_use/action_config/inference_config/inference.yaml</div>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>基于论文自己的证据，最有价值之处在于把“视频生成器的未来视觉建模能力”转成机器人策略训练信号，而不是把视频生成器当作外部 planner。dual-prediction 消融显示：只保留 action 或去掉 video loss，in-domain 和泛化都大幅下降，这直接支持“视觉想象参与训练”是核心因素。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果横跨仿真和真实、in-domain 和 generalization，并且在 novel objects 与 cross-embodiment skill transfer 中都报告了强对比。backbone 消融、future frames 消融、dual-prediction 消融、causal mask 消融、diffusion schedule 消融共同约束了替代解释：不是单纯模型大，也不是单纯 action diffusion，而是预训练视频生成 backbone 加联合未来建模共同起作用。</p>
+
+    <h3>7.3 作者明确写出的限制</h3>
+    <p>附录指出主要限制是推理速度。真实部署中，VideoVLA 预测 4 个 future latents（13 frames）和 6 个 future actions（执行前 3 个），使用 10 个 DDIM denoising steps，在单张 H100 上约 1.1 秒，因此有效控制频率约 3 Hz。作者认为瓶颈来自大型预训练视频生成器 CogVideoX-5B，并提出未来可通过机器人定向小型视频生成器、one-step denoising（如 ShortCut）和蒸馏加速。<span class="appendix-ref">附录 Limitations and Broader Impacts</span></p>
+
+    <h3>7.4 适用边界</h3>
+    <ul>
+      <li>方法适合需要预测视觉后果的桌面操作任务；对高频闭环、快速接触、精细力控任务，当前 3 Hz 控制频率可能不足。</li>
+      <li>完整训练依赖大规模 OXE 数据、CogVideoX-5B 和 32 张 MI300X，普通实验室更可能复现推理或小规模微调。</li>
+      <li>真实机器人数据集规模为 5824 samples，且任务集中在 pick、stack、place；真实开放世界泛化仍需要更大范围验证。</li>
+      <li>imagination success 依赖人工判断，说明视觉想象质量目前尚缺少完全自动化、标准化的评测指标。</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

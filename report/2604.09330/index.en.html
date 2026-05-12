@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VAG - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis</h1>
+<div class="meta">
+<p><strong>arXiv ID: </strong>2604.09330v1</p>
+<p><strong>Authors: </strong>Xiaolei Lang, Yang Wang, Yukun Zhou, Chaojun Ni, Kerui Li, Jiagang Zhu, Tianze Liu, Jiajun Lv, Xingxing Zuo, Yun Ye, Guan Huang, Xiaofeng Wang, Zheng Zhu</p>
+<p><strong>Organization: </strong>GigaAI; Zhejiang University; Peking University; Institute of Automation, Chinese Academy of Sciences; Mohamed bin Zayed University of Artificial Intelligence</p>
+<p><strong>Submission time: </strong>2026-04-10</p>
+<p><strong>Source: </strong><a href="https://arxiv.org/abs/2604.09330">arXiv abs</a> · <a href="https://arxiv.org/pdf/2604.09330">PDF</a> · Local LaTeX source code analysis</p>
+<p><strong>Code/project page: </strong>No official public code or project homepage link was found on the arXiv page, source code text, and limited web searches.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Reading orientation and group meeting guide</a></li>
+<li><a href="#sec2">2. Background: Why can't World Model directly train policy?</a></li>
+<li><a href="#sec3">3. Detailed explanation of methods: flow matching, dual-stream simultaneous denoising and 3D pooling</a></li>
+<li><a href="#sec4">4. Experimental results: generation quality, trajectory replay, VLA pre-training</a></li>
+<li><a href="#sec5">5. Intensive reading of charts</a></li>
+<li><a href="#sec6">6. reproducibility list and project details</a></li>
+<li><a href="#sec7">7. Critical discussion and group meeting questions</a></li>
+</ul>
+</nav>
+<div class="tldr">
+<strong>One-sentence summary: </strong>VAG is a dual-stream World-Action generation model oriented to embodied data synthesis: the video branch is based on Cosmos-Predict2 for flow matching video generation, the action branch uses 1D U-Net to synchronously denoise, and obtains global conditions from the current clean video latent through adaptive 3D pooling to generate aligned video-action pairs for training VLA or direct replay.
+ </div>
+<section id="sec1">
+<h2>1. Reading orientation and group meeting guide</h2>
+<table>
+<thead>
+<tr>
+<th>Introductory items</th>
+<th>What does this paper answer?</th>
+<th>Where do you focus on when reading?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Research object</strong></td>
+<td>Given an initial image and language instructions, about 10 seconds of robot video and corresponding action trajectories are simultaneously generated.</td>
+<td>It is not mainly about online closed-loop policy, but a data synthesis engine that can be used for policy training.</td>
+</tr>
+<tr>
+<td><strong>core issues</strong></td>
+<td>World Model can generate videos but no actions; two-stage video-to-action will produce error accumulation and cross-modal inconsistency.</td>
+<td>See how VAG allows the action generation process to read the video latent at each denoising step.</td>
+</tr>
+<tr>
+<td><strong>Main contributions</strong></td>
+<td>Unified flow-matching dual-stream framework, simultaneous video/action denoising, adaptive 3D pooling bridging, synthetic data to enhance VLA generalization.</td>
+<td>Focus on the directionality of the method: the video latent guides the action, but the action does not have the reverse guidance video.</td>
+</tr>
+<tr>
+<td><strong>Relationship with UVA/CoVAR</strong></td>
+<td>UVA tends to unify latent and multi-functional policies; CoVAR tends to preserve video DiT and parallel action DiT; VAG tends to synthesize long video-action data.</td>
+<td>VAG is positioned closer to a "data engine" rather than using the generative model directly as a high-frequency controller.</td>
+</tr>
+</tbody>
+</table>
+<div class="bluebox">
+<strong>Recommended reading by the group: </strong>Let's first look at the architectural differences of the five types of embodied models in Fig. 2, and then look at the pipeline in Fig. 3. The thesis statement is condensed into one sentence: do not generate the video first and then guess the action, but let the action branch read the clean latent of the video branch in the same flow matching time step.
+ </div>
+<div class="figure">
+<img alt="VAG capabilities" src="figures/1_teaser.png"/>
+<div class="caption">Figure 1: Schematic of VAG's capabilities. The model learns from teleoperation trajectories and generates aligned video-action pairs after inputting initial frames and instructions; synthetic data can be used to train policies, and actions can also be replayed on real robots.</div>
+</div>
+</section>
+<section id="sec2">
+<h2>2. Background: Why can't World Model directly train policy?</h2>
+<h3>2.1 VLA/VA policy: Can be implemented, but data is expensive</h3>
+<p>
+ Vision-Language-Action models typically operate in a closed-loop fashion: observe the current image and state, predict an action for 1 to 2 seconds, and predict again using new observations after execution. They can already complete complex tasks, but training requires large amounts of human teleoperation data. Demonstrations must be collected for each new scenario and task, which is the data bottleneck this article aims to alleviate.
+ </p>
+<h3>2.2 World Model: Rich videos, but no action tags</h3>
+<p>
+ Modern video generation/World Model can generate rich visual rollout and provide diverse scenes. However, if the generated result is only video without paired action trajectory, it cannot be directly used as robot policy training data. For robots, there is a layer of motion alignment issues between "what looks like happening" in the video and the actual motor control signals.
+ </p>
+<h3>2.3 Two-stage World-Action: Can supplement actions, but is easy to misplace</h3>
+<p>
+ The two-stage solution first uses World Model to generate video, and then uses methods such as IDM and AnyPos to return actions from the video. This can get longer video-action pairs, but it will introduce error propagation between heterogeneous models: the video generation is a little wrong, and the action regression is a little wrong again; more troublesome is that the video and the action are not determined synchronously in the same generation process, so cross-modal inconsistencies are prone to occur.
+ </p>
+<h3>2.4 Positioning of VAG</h3>
+<p>
+ The goal of VAG is to serve as a World-Action data synthesis engine: instead of just using future videos as auxiliary supervision for action prediction, it directly outputs video-action pairs that can be used for policy training. The paper highlights that this generated data can also improve OOD generalization of downstream VLAs.
+ </p>
+<div class="figure">
+<img alt="Architecture comparison" src="figures/2_design.png"/>
+<div class="caption">Figure 2: Comparison of five types of embodied models. (a) VLA policy, (b) WM video generation, (c) WA model as policy auxiliary action prediction, (d) WM + IDM two-stage data synthesis, (e) VAG's synchronous video-action generation.</div>
+</div>
+</section>
+<section id="sec3">
+<h2>3. Detailed explanation of methods: flow matching, dual-stream simultaneous denoising and 3D pooling</h2>
+<h3>3.1 Flow Matching Basics</h3>
+<p>
+ VAG uses flow matching instead of traditional diffusion loss to describe the path from data to noise. Given data sample $\mathbf{x}$, Gaussian noise $\boldsymbol{\epsilon}\sim\mathcal{N}(0, I)$ and timestep $t\in[0, 1]$, the interpolated latent is: </p>
+<div class="formula-block">
+ $$\mathbf{x}_t=(1-t)\mathbf{x}+t\boldsymbol{\epsilon}.$$
+ <p class="intuition">Intuition: </p>
+<p>When $t=0$ it is clean data, when $t=1$ it is pure noise, and the middle is straight line interpolation.</p>
+</div>
+<p>The corresponding ground-truth velocity is: </p>
+<div class="formula-block">
+ $$\mathbf{v}_t=\boldsymbol{\epsilon}-\mathbf{x}.$$
+ </div>
+<p>The model predicts velocity and is trained with MSE: </p>
+<div class="formula-block">
+ $$\mathcal{L}(\theta)=\left\|\mathbf{u}(\mathbf{x}_t, t, \mathbf{c}; \theta)-\mathbf{v}_t\right\|^2.$$
+ <p class="intuition">Reading reminder: </p>
+<p>$\mathbf{c}$ includes text, reference images and other conditions. Both the video branch and the action branch of VAG apply this velocity matching idea, but the data spaces are different.</p>
+</div>
+<h3>3.2 Video branch: video flow of Cosmos-Predict2</h3>
+<p>
+ The video branch inherits Cosmos-Predict2 (2B-Video2World). The input includes the first frame image and language instructions, and the output is the future video $\mathbf{V}\in\mathbb{R}^{C\times T\times H\times W}$. In the experiment, $T=93$, the video frequency is 10 Hz, which is approximately equal to 10 seconds; the image is resized to $H=432, W=768$, RGB so $C=3$.
+ </p>
+<p>
+ The original video is compressed by VAE tokenizer, and the time/height/width compression rates are $4\times 8\times 8$ respectively, and we get: $\mathbf{z}\in\mathbb{R}^{C'\times((T-1)/4+1)\times\lfloor H/8\rfloor\times\lfloor W/8\rfloor}$.
+ Paper setting $C'=16$. The noise latent is concatenated with the latent prefix of the first frame and then input into DiT; the text is encoded by T5-XXL and injected through cross-attention; classifier-free guidance is used during inference.
+ </p>
+<h3>3.3 Action branch: simultaneous denoising + global video conditions</h3>
+<p>
+ Action branch prediction $\mathbf{A}\in\mathbb{R}^{T\times D}$. $D=16$ in AgiBot G1 dual-arm data; $D=7$ in LIBERO single-arm simulation; $D=14$ in self-collected Agilex dual-arm data. The action branch starts from Gaussian noise $\boldsymbol{\epsilon}_a\in\mathbb{R}^{T\times D}$, which is denoised with 1D U-Net adapted from Diffusion Policy.
+ </p>
+<p>
+ The key design is: the action branch receives the current clean latent $\mathbf{z}_0$ predicted by the video branch at each denoising step. VAG first performs adaptive 3D pooling on $\mathbf{z}_0$, compresses the entire space-time latent into $\mathbb{R}^{C'\times1\times1\times1}$, reshapes it into $\mathbb{R}^{1\times C'}$, and then repeats/expands it into $\mathbf{e}\in\mathbb{R}^{1\times C''}$. Paper setting $C''=132$. This $\mathbf{e}$ is used together with timestep embedding as a condition for U-Net.
+ </p>
+<div class="warn">
+<strong>Core implementation points: </strong>Adaptive 3D pooling is a non-learning module with no additional linear layers. It compresses the global spatiotemporal semantics currently considered by the video branch into action conditions. The advantage is that it is simple and stable, but the disadvantage is that local contact information and fine-grained spatial correspondence may be lost.
+ </div>
+<div class="figure">
+<img alt="VAG pipeline" src="figures/3_pipeline.png"/>
+<div class="caption">Figure 3: VAG training and inference pipeline. Both the video branch and the action branch are based on flow matching and synchronous denoising; the action branch reads the current clean video latent through adaptive 3D pooling.</div>
+</div>
+<h3>3.4 Training loss</h3>
+<p>
+ When training, VAG uses video trajectories with actions and text instructions. For each ground-truth video, the paper uses Qwen2.5-VL to automatically extract text instructions describing the robot's behavior, and then encodes them with T5-XXL. The model is initialized from the underlying video generation model to preserve visual priors.
+ </p>
+<div class="formula-block">
+<p><strong>Video branch loss: </strong></p>
+ $$
+ \mathcal{L}(\theta_1)=\left\|\phi_1(\mathbf{D}(\mathbf{z}'; \theta_1))-\mathbf{z}\right\|^2.
+ $$
+ <p class="intuition">Meaning: </p>
+<p>$\mathbf{D}$ is DiT, $\mathbf{z}'$ is noisy video latent, and $\phi_1$ represents the process of reconstructing clean latent from DiT output.</p>
+</div>
+<div class="formula-block">
+<p><strong>Action branch loss: </strong></p>
+ $$
+ \mathcal{L}(\theta_2)=\left\|\phi_2(\mathbf{U}(\mathbf{A}'; \theta_2))-\mathbf{A}\right\|^2.
+ $$
+ <p class="intuition">Meaning: </p>
+<p>$\mathbf{U}$ is 1D U-Net, and $\mathbf{A}'$ is the action after perturbation with the same noise intensity. The action branch condition comes from detached clean video latent, which means that the action loss during training does not reversely drive the video branch.</p>
+</div>
+<h3>3.5 Training/inference pseudocode</h3>
+<pre class="pseudocode"><code>训练阶段：
+for each video-action trajectory:
+    use Qwen2.5-VL to obtain text instruction
+    encode text with T5-XXL
+    encode video V with VAE into latent z
+    add flow-matching noise to z -&gt; z'
+    video DiT predicts clean latent from z', first-frame prefix, text
+    adaptive 3D pool predicted clean video latent into global embedding e
+    add matched noise to action sequence A -&gt; A'
+    action 1D U-Net predicts clean action from A', timestep, e
+    optimize video latent MSE + action MSE
+
+推理阶段：
+given initial image and instruction:
+    initialize video noise and action noise
+    for N = 35 synchronized denoising steps:
+        video branch predicts current clean video latent z0
+        pool z0 into global condition e
+        action branch denoises action with e
+    decode final video latent into video
+    output synchronized video V and action A</code></pre>
+</section>
+<section id="sec4">
+<h2>4. Experimental results: generation quality, trajectory replay, VLA pre-training</h2>
+<h3>4.1 Experimental setup</h3>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>settings</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Video basic model</td><td>Cosmos-Predict2 (2B-Video2World), generates 480P, 10 Hz video.</td></tr>
+<tr><td>generate horizon</td><td>$T=93$ video-action frames, about 10 seconds.</td></tr>
+<tr><td>input resolution</td><td>Video resize to $432\times768$.</td></tr>
+<tr><td>latent channel</td><td>$C'=16$. </td></tr>
+<tr><td>action condition embedding</td><td>$C''=132$. </td></tr>
+<tr><td>reasoning denoising steps</td><td>$N=35$. </td></tr>
+<tr><td>training resources</td><td>8 NVIDIA H20 GPUs, batch size 1 per GPU, training 40, 000 iterations.</td></tr>
+</tbody>
+</table>
+<h3>4.2 Dataset</h3>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Scale and mission</th>
+<th>How to use VAG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AgiBot</td>
+<td>Large real robot data set, 1M trajectories, 217 tasks, five types of deployment scenarios.</td>
+<td>Only using AgiBot G1 dual-arm humanoid data, 1794 training video-action pairs, 200 testing, action dimension $D=16$.</td>
+</tr>
+<tr>
+<td>LIBERO</td>
+<td>Simulation manipulation benchmark, including Spatial/Object/Goal/Long subset.</td>
+<td>Select 400 training pairs and 50 test pairs; single-arm robot action dimension $D=7$; use head and wrist cameras to splice videos.</td>
+</tr>
+<tr>
+<td>Self-collected</td>
+<td>Agilex Cobot Magic dual-arm robot data.</td>
+<td>Action dimension $D=14$; 131 samples are used for VAG training and 20 samples are used for VLA training.</td>
+</tr>
+</tbody>
+</table>
+<h3>4.3 Video generation quality</h3>
+<p>
+ VAG compares video generation quality on AgiBot with SVD, Wan2.2, Cosmos-Predict2 (CP2). VAG is the best in FVD, LPIPS, PSNR, FID is close to Wan2.2, SSIM is not as good as Wan2.2 but better than SVD/CP2. This result shows that after post-training on robot data, VAG does not sacrifice video quality by adding action branches.
+ </p>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>FVD ↓</th>
+<th>FID ↓</th>
+<th>LPIPS ↓</th>
+<th>SSIM ↑</th>
+<th>PSNR ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>SVD</td><td>1311</td><td>150</td><td>0.421</td><td>0.339</td><td>12.7</td></tr>
+<tr><td>Wan2.2</td><td>1152</td><td><strong>129</strong></td><td>0.325</td><td><strong>0.612</strong></td><td>14.5</td></tr>
+<tr><td>CP2</td><td>988</td><td>135</td><td>0.352</td><td>0.427</td><td>14.2</td></tr>
+<tr><td><strong>VAG</strong></td><td><strong>965</strong></td><td>130</td><td><strong>0.320</strong></td><td>0.512</td><td><strong>15.1</strong></td></tr>
+</tbody>
+</table>
+<div class="figure">
+<img alt="Qualitative video generation" src="figures/5_videogen.png"/>
+<div class="caption">Figure 4: Visualization of video generation for different methods. The prompt is "Use the right hand to pour the water from the gray teapot into the cup."</div>
+</div>
+<h3>4.4 Action Generation: Comparing Two-Stage Regression</h3>
+<p>
+ Action baselines are a two-stage solution: first use VAG-Video to generate video, and then use ResNet or AnyPos to return actions from the video. The synchronous generation of VAG achieves the lowest Euclidean Distance and the highest Success Rate on both AgiBot and LIBERO. The definition of Success Rate is that the error in each dimension is less than 0.2 to be considered successful.
+ </p>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>AgiBot ED ↓</th>
+<th>AgiBot SR ↑</th>
+<th>LIBERO ED ↓</th>
+<th>LIBERO SR ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>VAG-Video + ResNet</td><td>1.54</td><td>8%</td><td>0.87</td><td>37%</td></tr>
+<tr><td>VAG-Video + AnyPos</td><td>0.98</td><td>29%</td><td>0.55</td><td>66%</td></tr>
+<tr><td><strong>VAG</strong></td><td><strong>0.81</strong></td><td><strong>45%</strong></td><td><strong>0.38</strong></td><td><strong>79%</strong></td></tr>
+</tbody>
+</table>
+<div class="grid-2">
+<div class="figure">
+<img alt="AgiBot action curves" src="figures/6_action_compare_agibot_color.png"/>
+<div class="caption">Figure 5: 16-dimensional action curve of AgiBot grasping task. The predicted actions generally fit the ground truth.</div>
+</div>
+<div class="figure">
+<img alt="LIBERO action curves" src="figures/9_action_compare_libero_color.png"/>
+<div class="caption">Figure 6: 7-dimensional action curve of LIBERO spatial task. Blue is GT, yellow is prediction.</div>
+</div>
+</div>
+<h3>4.5 LIBERO trajectory replay</h3>
+<p>
+ On the LIBERO benchmark, VAG not only compares action errors, but also replays the generated actions into the simulation to see the task success rate. VAG outperforms the two-stage method in the four subsets of Spatial/Object/Goal/Long, and the average replay success increases from 54% of AnyPos to 62%.
+ </p>
+<table class="compact">
+<thead>
+<tr>
+<th>method</th>
+<th>Spatial ↑</th>
+<th>Object ↑</th>
+<th>Goal ↑</th>
+<th>Long ↑</th>
+<th>Avg ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>VAG-Video + ResNet</td><td>33</td><td>34</td><td>23</td><td>10</td><td>25</td></tr>
+<tr><td>VAG-Video + AnyPos</td><td>59</td><td>62</td><td>56</td><td>39</td><td>54</td></tr>
+<tr><td><strong>VAG</strong></td><td><strong>70</strong></td><td><strong>72</strong></td><td><strong>64</strong></td><td><strong>42</strong></td><td><strong>62</strong></td></tr>
+</tbody>
+</table>
+<div class="figure">
+<img alt="LIBERO video and replay" src="figures/7_sim_libera_pred_and_replay.png"/>
+<div class="caption">Figure 7: Visualization of head-view/wrist-view video generation in LIBERO and replay using generated actions.</div>
+</div>
+<h3>4.6 Improving VLA generalization with synthetic data</h3>
+<p>
+ The most valuable experiment in the paper is VLA pretraining. The author first used 131 samples to train VAG on self-collected data, and then generated synthetic video-action pairs from the first frame and text prompt to form $\mathcal{X}_{syn}$. The downstream VLA is $\pi_{0.5}$: the baseline only uses 20 real samples $\mathcal{X}_b$ to train for 10, 000 iterations; the enhanced version first pretrains on the VAG synthetic data to convergence, and then uses the same $\mathcal{X}_b$ finetune for 10, 000 iterations.
+ </p>
+<p>
+ In real robot tableware pick-and-place, baseline $\pi_{0.5}$ succeeded 7 times out of 20 trials, or 35%; $\pi_{0.5}$-w-VAG-pretrain succeeded 11 times, or 55%, an absolute improvement of 20%. The author pointed out that the enhanced model generalizes better when the object position or color changes, and there is no problem that baseline training loss decreases but deployment overfitting occurs.
+ </p>
+<div class="grid-2">
+<div class="figure">
+<img alt="VLA demonstrations" src="figures/10_vla_compare_demo_v3.png"/>
+<div class="caption">Figure 8: Real VLA demonstration. The VAG-pretrain version is more stable under position or color changes.</div>
+</div>
+<div class="figure">
+<img alt="VLA success rate" src="figures/11_piper_logs_loss_success_side_by_side_recolor.png"/>
+<div class="caption">Figure 9: VAG synthetic data improves $\pi_{0.5}$ success rate from 35% to 55%.</div>
+</div>
+</div>
+<h3>4.7 Direct replay as World-Action policy</h3>
+<p>
+ VAG is also used to directly generate actions "like a policy" and deploy them to Agilex robots. The input is head camera images and text instructions, and the output is video and actions; the action trajectories are replayed to the real robot. The paper shows three types of manipulation: left arm, right arm, and both arms, indicating that VAG's movements are not only suitable for offline training, but also have certain executability.
+ </p>
+<div class="figure">
+<img alt="Agilex replay" src="figures/12_Deployment_giga_replay.png"/>
+<div class="caption">Figure 10: Example of VAG-generated video and action replay on the Agilex robot, including left-arm, right-arm and double-arm operations.</div>
+</div>
+</section>
+<section id="sec5">
+<h2>5. Intensive reading of charts</h2>
+<h3>5.1 Fig. 2: The position of this paper is very clear</h3>
+<p>
+ Fig. 2 distinguishes VAG from four routes: VLA is policy, WM is video generation, WA-policy uses future video to assist actions, and WM+IDM is two-stage synthetic data. VAG's unique positioning is to "directly synthesize training data", that is, the video-action pair itself is used as the output target.
+ </p>
+<h3>5.2 Fig. 3: The action branch depends on clean latent, not the final video</h3>
+<p>
+ The most important difference between VAG and the two-stage method is in Fig. 3: the action is not to regress from the decoded RGB video, but to read the currently predicted clean latent of the video branch in each denoising step. This avoids the lag and error accumulation of first generating a complete video and then reversing the action.
+ </p>
+<h3>5.3 Table 2: AnyPos is already strong, but synchronous generation is still better</h3>
+<p>
+ In the action table, VAG-Video + AnyPos is already much stronger than ResNet, indicating that the strong visual regressor can alleviate the two-stage problem. However, VAG still reduces ED and improves SR on both AgiBot and LIBERO, supporting the claim that "cross-modal synchronization generation is more consistent than posterior action regression".
+ </p>
+<h3>5.4 Fig. 9: The VLA pre-training experiment is very tempting, but the number of samples is still small</h3>
+<p>
+ The 35% to 55% improvement is one of the most eye-catching results of the paper. However, this experiment used 131 VAG training samples and 20 VLA real training samples, and the total number of trials was 20. It demonstrates that the direction is feasible, but does not yet illustrate stable gains on larger task libraries, longer horizons, or multiple robots.
+ </p>
+<h3>5.5 Training loss curve</h3>
+<div class="grid-2">
+<div class="figure">
+<img alt="AgiBot training loss" src="figures/4_loss_agibot_g1.png"/>
+<div class="caption">Figure 11: Training loss on AgiBot for 40, 000 iterations.</div>
+</div>
+<div class="figure">
+<img alt="LIBERO training loss" src="figures/8_loss_libero_franka.png"/>
+<div class="caption">Figure 12: Training loss on LIBERO for 20, 000 iterations. The paper claims that LIBERO scenes and action patterns are more monotonous and the convergence is more stable.</div>
+</div>
+</div>
+</section>
+<section id="sec6">
+<h2>6. reproducibility list and project details</h2>
+<h3>6.1 Hyperparameters that can be extracted directly</h3>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Basic video model</td><td>Cosmos-Predict2 (2B-Video2World)</td></tr>
+<tr><td>Number of video frames</td><td>$T=93$</td></tr>
+<tr><td>video frequency</td><td>10 Hz</td></tr>
+<tr><td>Generation duration</td><td>about 10 seconds</td></tr>
+<tr><td>video resize</td><td>$432\times768$</td></tr>
+<tr><td>VAE compression ratio</td><td>time/height/width = $4\times8\times8$</td></tr>
+<tr><td>video latent channel</td><td>$C'=16$</td></tr>
+<tr><td>action condition embedding</td><td>$C''=132$</td></tr>
+<tr><td>Reasoning steps</td><td>$N=35$ denoising steps</td></tr>
+<tr><td>text generation</td><td>Qwen2.5-VL extracts instruction from ground-truth video</td></tr>
+<tr><td>text encoding</td><td>T5-XXL</td></tr>
+<tr><td>action denoiser</td><td>1D U-Net modified from Diffusion Policy</td></tr>
+<tr><td>training resources</td><td>8 NVIDIA H20 GPUs, batch size 1/GPU, 40, 000 iterations</td></tr>
+</tbody>
+</table>
+<h3>6.2 Recurring gaps</h3>
+<ul>
+<li><strong>Official code is missing: </strong>Currently, arXiv/source does not provide an official VAG repo, so the training schedule, optimizer, learning rate, CFG scale, etc. cannot be fully confirmed.</li>
+<li><strong>Cosmos-Predict2 transformation details: </strong>Video DiT requires code-level instructions on how to post-train, which layers to finetune, and how to splice prefix frames.</li>
+<li><strong>Action normalization: </strong>The action scale, joint/terminal posture format, and arm splicing sequence of AgiBot/Agilex/LIBERO are not fully detailed in the text.</li>
+<li><strong>Success Rate Threshold: </strong>The text states that an error of less than 0.2 per dimension is considered successful, but the action units of different data sets are different, and the physical meaning of the threshold needs to be supplemented.</li>
+<li><strong>Synthetic data size: </strong>The specific number of samples, prompt sampling, and diversity enhancement methods of $\mathcal{X}_{syn}$ are not listed in detail.</li>
+<li><strong>Real replay security policy: </strong>Whether there is filtering, interpolation, limiting, and collision protection when directly executing the generated action, there are no details in the text.</li>
+</ul>
+<h3>6.3 Technical differences with UVA/CoVAR</h3>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>core structure</th>
+<th>main goal</th>
+<th>Key trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UVA</td>
+<td>Shared video-action latent, decoupled video/action diffusion heads.</td>
+<td>One model supports policy, video, forward/inverse dynamics.</td>
+<td>The unification function is strong, but different tasks mask/objective may conflict.</td>
+</tr>
+<tr>
+<td>CoVAR</td>
+<td>Keep the pre-trained video DiT, parallel the Action DiT, and interact with Bridge Attention.</td>
+<td>Jointly generate video-action, directly as policy or data source.</td>
+<td>More protective of the video prior, but more complex parameter and synchronization communication.</td>
+</tr>
+<tr>
+<td>VAG</td>
+<td>Cosmos-Predict2 video branch + 1D U-Net action branch, synchronous flow matching.</td>
+<td>Generate long horizon-aligned video-action pairs for data synthesis and replay.</td>
+<td>The video guides the action, but the action is not yet back-constrained to the video.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sec7">
+<h2>7. Critical discussion and group meeting questions</h2>
+<h3>7.1 Strong points of the paper</h3>
+<ul>
+<li><strong>Problem location is good: </strong>Directly target the video-action in robot data synthesis to align this critical gap.</li>
+<li><strong>Simple design: </strong>The video branch retains a strong foundation model, the action branch uses lightweight 1D U-Net, and the bridge uses non-learning 3D pooling.</li>
+<li><strong>The experimental chain is complete: </strong>Not only video/action indicators, but also LIBERO replay, VLA pretraining, and real robot replay.</li>
+<li><strong>Generate horizon length: </strong>93 frames, about 10 seconds, is more attractive for training data synthesis than short horizon policies.</li>
+</ul>
+<h3>7.2 Points to be cautious about</h3>
+<ul>
+<li><strong>Action to video is a one-way coupling: </strong>The paper itself admits that the current video generation is not affected by the action branch and may waste control signals.</li>
+<li><strong>The information bottleneck of adaptive 3D pooling is obvious: </strong>Averaging the entire video latent into global embedding may lose local contact, hand-eye spatial relationship and key moment information.</li>
+<li><strong>The VLA boost experiment was smaller: </strong>20 trials from 35% to 55% are valuable, but statistical robustness and task coverage still need to be expanded.</li>
+<li><strong>No official code: </strong>It is currently difficult to reproduce key training configurations and real replay details.</li>
+<li><strong>Real replay is not closed-loop control: </strong>The fact that actions can be replayed does not mean that the model has robust closed-loop policy capabilities.</li>
+</ul>
+<h3>7.3 Group meeting discussion question 1: Is 3D pooling an advantage or a bottleneck?</h3>
+<div class="card">
+<p>
+ VAG's adaptive 3D pooling is very simple, so the training is stable and has few parameters. However, it compresses the latent spatiotemporal structure of the video into a global vector, which may lose the local contact information most needed for action generation. A follow-up can be discussed: whether using cross-attention, temporal pooling, object-centric tokens or contact-aware pooling instead of global average can improve fine-grained action alignment.
+ </p>
+</div>
+<h3>7.4 Group meeting discussion question 2: How can synthetic data prove that it really improves generalization?</h3>
+<div class="card">
+<p>
+ The paper uses VAG-generated data to increase $\pi_{0.5}$ from 35% to 55%, which is a strong signal. But in order to prove "generalization" rather than "just enhance this set of scenarios", more systematic control is needed: the amount of synthetic data, the amount of real data, prompt diversity, generation failure sample filtering, OOD type splitting, and comparison with direct replication/perturbation of real trajectories.
+ </p>
+</div>
+<h3>7.5 Follow-up research directions</h3>
+<ol>
+<li><strong>Two-way coupling: </strong>Let the action branch also guide the video branch in the opposite direction, making the visual trajectory more constrained by the control signal.</li>
+<li><strong>Stronger action branch: </strong>According to the author's suggestion, DiT is used to replace 1D U-Net to improve action sequence modeling capabilities.</li>
+<li><strong>Local alignment Affiliations: </strong>Replace global average 3D pooling with attention or object/contact tokens.</li>
+<li><strong>Data synthesis closed loop: </strong>Automatically filter synthetic samples with successful replay or high video-action consistency, and then train VLA.</li>
+<li><strong>Large scale review: </strong>Validating synthetic data gains on more robots, more tasks, and more real-life OOD settings.</li>
+</ol>
+<div class="good">
+<strong>Final verdict: </strong>The highlight of VAG is not the highest single indicator, but putting "video generation" and "action trajectory generation" into the same synchronized denoising process, providing a clear and scalable engineering framework for embodied data synthesis. For junior PhDs, the most valuable thing to learn is how it converts the visual prior of the World Model into action annotation data that can be used for policy training.
+ </div>
+</section>
+</main>
+</body>
+</html>

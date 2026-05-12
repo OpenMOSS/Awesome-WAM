@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>dWorldEval - Reading Report</title>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head><body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model</h1><div class="meta">
+<p><strong>Authors: </strong>Yaxuan Li, Zhongyi Zhou, Yefei Chen, Yaokai Xue, Yichen Zhu</p>
+<p><strong>Organization: </strong>Current Robotics; University of Toronto</p>
+<p><strong>Publication: </strong>arXiv preprint, source code version 2026-04-27</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2604.22152">2604.22152</a> | <strong>PDF: </strong><a href="https://arxiv.org/pdf/2604.22152">Download</a> | <strong>Project Page: </strong><a href="https://dworldeval.github.io/">dworldeval.github.io</a></p>
+</div></header>
+<nav class="toc"><strong>Contents</strong><ul><li><a href="#s1">1. Quick overview of the paper</a></li><li><a href="#s2">2. Motivation</a></li><li><a href="#s3">3. Related work</a></li><li><a href="#s4">4. Detailed explanation of method</a></li><li><a href="#s5">5. Experiment</a></li><li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li></ul></nav>
+<h2 id="s1">1. Quick overview of the paper</h2>
+<div class="tldr"><strong>One-sentence summary: </strong>dWorldEval uses Masked Discrete Diffusion to build a world model for robot strategy evaluation, unifying vision, language, action and progress scores into a token sequence, making the generated rollout more action-controlled and consistent over a longer period of time, and can directly output the task completion progress as an automatic success determination.</div>
+<table><tr><th>Reading positioning</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>The evaluation cost of real robot rollout and high-fidelity simulation is high; existing video world models as policy evaluation agents often ignore wrong actions, hallucination success, or object drift/disappearance.</td></tr>
+<tr><td>The author's approach</td><td>Instead of injecting action as a weak condition into the video denoiser, the action chunk, image, language, and progress score are all discretized into a unified token, allowing self-attention to model the causal relationship between the action and future vision.</td></tr>
+<tr><td>most important results</td><td>The strategy evaluation success rate of dWorldEval has a high correlation with real execution on LIBERO, RoboTwin and Real Two-Arm platforms: LIBERO multi-view $r=0.910$, RoboTwin $r=0.927$, Real World $r=0.918$.</td></tr>
+<tr><td>Things to note when reading</td><td>The key indicator is not ordinary LPIPS, but $\Delta$-LPIPS that measures the fidelity of state changes; the appendix action shuffling is used to verify that the model indeed relies on future actions.</td></tr></table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand discrete diffusion / masked token denoising, robot action chunk tokenization, world model policy evaluation, LPIPS class perception indicators and VLM progress annotation.</p>
+<p><strong>Keywords: </strong>World Model; Policy Evaluation; Masked Discrete Diffusion; Action Controllability; Sparse Keyframe Memory; Progress-as-text. </p>
+<h3>Core contribution list</h3><ul>
+<li><strong>Discrete diffusion world model: </strong>dWorldEval is proposed to incorporate actions into a unified sequence as the main token to improve action controllability.</li>
+<li><strong>Sparse keyframe memory: </strong>Anchor long-range spatial layout with low-resolution history keyframes to mitigate rollout drift.</li>
+<li><strong>Discrete progress token: </strong>Jointly generate future vision and task progress scores so that the world model can automatically determine success.</li>
+<li><strong>System evaluation: </strong>Validated on LIBERO, RoboTwin and real robotic tasks, reporting $\Delta$-LPIPS, round-trip LPIPS and real/imagined success rate correlations.</li>
+</ul>
+<div class="figure"><img alt="teaser" src="figures/head.png"/><div class="caption">Teaser: The goal of dWorldEval is to simultaneously satisfy action controllability, spatiotemporal consistency, policy compatibility, and faithful progress scoring.</div></div>
+<h2 id="s2">2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper addresses the scalability problem of robot strategy evaluation: real robot execution is expensive and slow, and simulation requires a large number of assets and physical modeling. The generative world model seems to work as an evaluation proxy, but to be a reliable evaluator, the generated results must faithfully reflect the actions given by the policy, rather than just generating successful videos that "look reasonable".</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul><li><strong>OOD action has poor generalization: </strong>World models are often trained on successful demonstrations, so when faced with undertrained policies or incorrect actions, it is easy to ignore actions and hallucinate successful results.</li><li><strong>Physical inconsistency: </strong>Spatiotemporal inconsistencies such as rigid body deformation, object disappearance upon contact, scene layout drift, etc. may occur in long-range rollout.</li><li><strong>Structural bottleneck: </strong>Video evaluators such as WorldEval, Ctrl-World, WorldGym, etc. usually inject actions into the visual denoiser through cross-attention or AdaLN as auxiliary conditions; strong video priors may cover weak action signals.</li><li><strong>Successfully detected external: </strong>If an external VLM/reward function is required to determine success after generating the video, the score may be inconsistent with the generated content and increase the evaluation overhead.</li></ul>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The core idea of ​​dWorldEval is to rewrite the "visual generation problem" into "the masked denoising problem of unifying discrete token sequences". Actions, languages, historical keyframes, current multi-view observations, and target future visual/progress scores all enter the same transformer, allowing visual tokens to directly read action tokens through self-attention. In this way, actions are no longer weak conditions for the video model, but first-class citizens in the generated sequence.</p>
+<h2 id="s3">3. Summary of related work</h2>
+<table><tr><th>Related work lines</th><th>Thesis content</th><th>Positioning of dWorldEval</th></tr>
+<tr><td>World models for policy evaluation</td><td>Realistic rollout, AutoEval, physics simulation, WorldEval, Ctrl-World, WorldGym, etc. are used to extend policy assessment.</td><td>It is believed that the reliability of the existing video evaluator is limited because the action is only an auxiliary condition for the visual denoiser.</td></tr>
+<tr><td>Discrete diffusion in robotics</td><td>Discrete diffusion models such as DLM / LLaDA / LaViDa / MMaDA can perform flexible sampling and controllable generation; dVLA and others use discrete diffusion for policy learning.</td><td>This article does not use discrete diffusion policy, but learns evaluator world model, and jointly predicts visual observation and progress score.</td></tr>
+</table>
+<h3>direct comparison</h3>
+<table><tr><th>Dimensions</th><th>WorldEval / Ctrl-World</th><th>WorldGym</th><th><strong>dWorldEval</strong></th></tr>
+<tr><td>action injection</td><td>It mainly enters the video denoiser through the cross-attention type condition mechanism.</td><td>Inject action conditions via AdaLN modulation.</td><td>The action chunk is FAST tokenized and used as a unified sequence token, self-attend with the visual token.</td></tr>
+<tr><td>Main risks</td><td>Strong visual priors may override actions, generating transitions that are not faithful to the action.</td><td>There are also weak action conditions and long-range drift problems.</td><td>Structurally enhance the controllability of actions, and use keyframe memory to control drift.</td></tr>
+<tr><td>successful detection</td><td>Often rely on external discriminator / VLM / reward.</td><td>Reliance on external evaluation.</td><td>A progress token is generated, and the final state $\hat v_T=1$ is determined to be successful.</td></tr>
+<tr><td>Experimental indicators</td><td>The correlation is weaker and the rank violation is higher. The article mentions MMRV up to 0.039.</td><td>The long-range consistency error increases significantly with horizon.</td><td>LIBERO single-view MMRV=0.013; multi-domain correlation is about $r\approx0.9$.</td></tr></table>
+<h2 id="s4">4. Detailed explanation of method</h2>
+<h3>4.1 Method overview</h3>
+<div class="figure"><img alt="model" src="figures/model.png"/><div class="caption">Figure 1: dWorldEval's unified architecture, sparse keyframe memory, and discrete progress tokens.</div></div>
+<p>The input includes language instructions $l$, current observation $o_t$, history $h_t$ and future action sequence $\mathbf a_t$. The output is the future visual result $\hat o_{t+\Delta}$ at horizon $\Delta$ and the task progress score $\hat v_{t+\Delta}\in[0, 1]$. During policy evaluation, the policy $\pi$ is rolled out in a closed loop in the world model to generate an imagined trajectory, and then the success function is used to estimate the imagined success rate.</p>
+<h3>4.2 Method evolution</h3>
+<div class="note">Video evaluator: $o_t, l, \mathbf a_t$ is entered into the video denoiser as a condition, and the action is easily covered by strong visual priors.</div>
+<div class="note">Failure-augmented evaluator: Adding failure tracks can alleviate hallucinated success, but action coverage cannot be exhaustive. The author believes that the bottleneck is still the architecture.</div>
+<div class="note">dWorldEval: All modalities are discretized into a unified token, and movement and vision interact directly within self-attention; keyframe memory and progress token are then used to support long-term consistent evaluation and automatic scoring.</div>
+<h3>4.3 Core design and mathematical derivation</h3>
+<h4>4.3.1 World Model Formulation</h4>
+<div class="formula-block"><p class="intuition">This formula shows that the world model does not only predict videos, but also predicts future images and task completion progress.</p>
+$$(\hat o_{t+\Delta}, \hat v_{t+\Delta})\sim \mathcal W_\theta(\cdot\mid o_t, \mathbf a_t, h_t, l)$$
+<table><tr><td>$o_t$</td><td>Current multi-view observations.</td></tr><tr><td>$h_t$</td><td>Historical context, subsequently implemented by sparse keyframe memory.</td></tr><tr><td>$\mathbf a_t$</td><td>The future action chunk is the policy output to be evaluated.</td></tr><tr><td>$\hat v_{t+\Delta}$</td><td>Completion progress after decoding of discrete progress token, range $[0, 1]$.</td></tr></table></div>
+<div class="formula-block"><p class="intuition">When evaluating the strategy, the real robot is not run, but the closed-loop imagination is performed in the world model.</p>
+$$J=\frac{1}{N}\sum_{i=1}^N \mathcal S(\tau_i), \qquad \tau=\{\hat o_0, \hat o_\Delta, \dots, \hat o_T\}$$
+<p>$\mathcal S(\cdot)$ is the success indicator. In the automatic version of this article, success is determined when the final progress token reaches 1.</p></div>
+<h4>4.3.2 Unified Token Sequence</h4>
+<p>dWorldEval uses MAGVIT-v2 tokenizer to encode RGB observations, LLaDA tokenizer to encode language, and FAST to encode continuous action chunks. Different modal tokens are mapped to a single index space through fixed offsets, and then flattened into a sequence. Due to the use of unified self-attention, visual tokens can directly attend action tokens at each layer, allowing the generation of changes to be fine-grained and controlled by actions.</p>
+<div class="pseudocode">Unified sequence construction
+1. z_img = MAGVIT-v2(o_t, history keyframes)
+2. z_lang = LLaDA(l and absolute frame-index text)
+3. z_act = FAST(action chunk a_t)
+4. c_t = concat(z_lang, z_history, z_current_obs, z_act)
+5. y_{t+Delta} = concat(future visual tokens, progress text token)</div>
+<h4>4.3.3 Sparse Keyframe Memory</h4>
+<p>To avoid long-range rollout drift, the model maintains a sliding window that samples $K$ keyframes at a fixed stride of $\Delta$ from the recent history. Historical frames are encoded at low resolution and only use a fixed global view (e.g. top-down) to save tokens; current observations retain all viewing angles and full resolution to capture contact details. Absolute frame indexes are prepended as text tokens to corresponding historical keyframes, helping the model maintain chronological order.</p>
+<h4>4.3.4 Progress-as-text</h4>
+<p>During training, the authors define milestones for the task and use SEED-1.5VL few-shot ICL to estimate the task completion progress of the visual state. The score is converted into a discrete text token (e.g. "1.0") and appended to the target sequence. During inference, the model directly generates progress tokens, and the final state token is used to automatically calculate the success rate.</p>
+<h4>4.3.5 Masked Discrete Diffusion Objective</h4>
+<div class="formula-block"><p class="intuition">During training, future target tokens are randomly masked, and the model learns to recover clean tokens under context and noisy targets.</p>
+$$\mathcal L_{\text{WM}}=\mathbb E_{\tau, \lambda, \tilde{\mathbf y}}\left[-\frac{1}{m(\lambda)}\sum_{j\in\Omega_\lambda}w_j\log p_\theta(y_j\mid \mathbf c_t, \tilde{\mathbf y}_{t+\Delta}, \lambda)\right]$$
+<table><tr><td>$\lambda\sim\mathcal U(0, 1)$</td><td>Diffusion level, determines mask strength.</td></tr><tr><td>$q_\lambda$</td><td>mask-based forward corruption process. </td></tr><tr><td>$\Omega_\lambda$</td><td>The set of masked target token subscripts.</td></tr><tr><td>$m(\lambda)$</td><td>The masking probability at this level is used for normalization.</td></tr><tr><td>$w_j$</td><td>Modal reweighting; in the experiment, progress tokens were set to 2 and visual tokens were set to 1.</td></tr></table>
+<details><summary>derived intuition</summary><div>If the cross entropy is directly calculated for all tokens, there will be fewer loss items for low-proportion masks and more loss items for high-proportion masks. The training gradient scale will change with the mask level. Dividing by $m(\lambda)$ is equivalent to normalizing by the desired mask number, making the contributions of different diffusion levels more balanced. $w_j$ compensates for the problem that the number of progress tokens is small but critical to evaluation.</div></details></div>
+<h4>4.3.6 $\Delta$-LPIPS</h4>
+<div class="formula-block"><p class="intuition">Ordinary LPIPS looks at "image likeness", $\Delta$-LPIPS looks at "changes caused by motion likeness".</p>
+$$\Delta\mathrm{LPIPS}=\mathbb E_t\left[d_{\mathrm{lpips}}(\mathrm{norm}(\Delta\hat o_t), \mathrm{norm}(\Delta o_t))\right], \quad \Delta o_t=o_{t+\Delta}-o_t$$
+<p>$\mathrm{norm}(\cdot)$ is per-sample RMS normalization. This metric is used to evaluate action-conditioned dynamic fidelity and is particularly suitable for detecting whether the model ignores erroneous actions.</p></div>
+<h3>4.4 Implementation points</h3>
+<ul><li><strong>Tokenizer: </strong>MAGVIT-v2 for RGB, LLaDA for language, FAST for continuous action chunks. </li><li><strong>Input resolution: </strong>All models predict $256^2$ multi-view results; historical keyframes use $128^2$.</li><li><strong>Historical memory: </strong>Use $K=4$ sparse keyframes, stride aligned with action chunk length $\Delta$.</li><li><strong>Forecast horizon: </strong>$\Delta$ is aligned with action chunk length, selected from $[2, 8]$.</li><li><strong>Sampling: </strong>Inference uses 16-step iterative parallel decoding.</li><li><strong>loss weight: </strong>progress token $w_j=2$, visual token $w_j=1$. </li><li><strong>Appendix implementation supplement: </strong>Appendix A.2 mentions that the model is initialized based on LLaDA-8B-Instruct, and the training follows LLaDA + MMaDA setup; multi-views are spliced using RGB, and each view is first resized to $256\times256$ and then horizontally concatenate.</li></ul>
+<h2 id="s5">5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<table><tr><th>Project</th><th>settings</th><th>Source</th></tr>
+<tr><td>LIBERO</td><td>LIBERO-Object / Spatial / Goal / 100; synchronized third-person and wrist views; 5.5k official expert demonstrations + 1k suboptimal policy failed rollouts.</td><td>Text §Experiments; Appendix A.1</td></tr>
+<tr><td>RoboTwin</td><td>ARX arm configuration, 10 contact-intensive tableware manipulation tasks, 5.5k trajectories.</td><td>Text §Experimental Setup</td></tr>
+<tr><td>Real World</td><td>AgileX dual 6-DoF robotic arms, three RealSense 457s; 5.2k trajectories with 1k human-collected failures; five tasks.</td><td>Text §Experimental Setup; Fig. setup</td></tr>
+<tr><td>Baselines</td><td>WorldEval, WorldGym, Ctrl-World; policy includes $\pi_0$ multi-checkpoints, DexVLA, Diffusion Policy, etc.</td><td>Text §Experimental Setup</td></tr>
+<tr><td>indicator</td><td>LPIPS, $\Delta$-LPIPS, round-trip LPIPS, Pearson correlation $r$, MMRV, imagined success rate. </td><td>Text §Experiments</td></tr>
+<tr><td>Code/Project Page</td><td>The project page is https: //dworldeval.github.io/; arXiv. The source code does not contain a link to the code warehouse.</td><td>main.tex</td></tr></table>
+<div class="figure"><img alt="setup" src="figures/setup.png"/><div class="caption">Figure 2: Failure / success rollout visualization of real-arm AgileX platform and Clean the Table task.</div></div>
+<h3>5.2 Main results: Can the World Model act faithfully?</h3>
+<table><tr><th>Method</th><th>LPIPS ↓</th><th>$\Delta$LPIPS Expert ↓</th><th>$\Delta$LPIPS Failure ↓</th></tr><tr><td>WorldEval</td><td>0.262</td><td>0.423</td><td>0.701</td></tr><tr><td>WorldGym</td><td>0.218</td><td>0.347</td><td>0.650</td></tr><tr><td>Ctrl-World</td><td>0.220</td><td>0.334</td><td>0.416</td></tr><tr><td><strong>dWorldEval</strong></td><td><strong>0.215</strong></td><td><strong>0.315</strong></td><td><strong>0.352</strong></td></tr></table>
+<p>The key comparison in this table is the Failure subset: WorldGym degrades from expert 0.347 to failure 0.650, WorldEval to 0.701; dWorldEval is 0.352 on failure, indicating that the dynamic changes caused by wrong actions are still better modeled.</p>
+<div class="figure"><img alt="consistency" src="figures/consistency.png"/><div class="caption">Figure 3: Qualitative results for action controllability and spatiotemporal consistency.</div></div>
+<h3>5.3 Long-range consistency and memory ablation</h3>
+<table><tr><th>Method</th><th>H=5</th><th>H=10</th><th>H=15</th><th>H=20</th></tr><tr><td>Ours w/o Memory</td><td>0.177</td><td>0.186</td><td>0.302</td><td>0.411</td></tr><tr><td><strong>Ours Full</strong></td><td><strong>0.130</strong></td><td><strong>0.145</strong></td><td><strong>0.193</strong></td><td><strong>0.243</strong></td></tr></table>
+<p>The round-trip protocol first rolls out $H$ steps, then appends inverse actions to $2H$, and uses LPIPS between the initial frame and the final generated frame to measure drift. Without memory, H=20 reaches 0.411; the complete model is 0.243, indicating that sparse keyframe memory has a direct contribution to long-range layout stability.</p>
+<h3>5.4 Automatic visual scoring and policy evaluation agents</h3>
+<p>The progress token evaluates multiple $\pi_0$ checkpoints and compares Real, Human imagined grading and Auto imagined grading. The authors report that automatic scoring can track real execution, including non-monotonic performance degradation in later checkpoints, indicating that the model does not simply assume that "the later the time, the higher the progress."</p>
+<div class="figure"><img alt="score curve" src="figures/score_curve.png"/><div class="caption">Figure 4: Mutation of progress score and real policy performance tracking.</div></div>
+<table><tr><th>Domain</th><th>Report results</th><th>meaning</th></tr><tr><td>LIBERO single-view</td><td>dWorldEval MMRV=0.013; baselines MMRV up to 0.039. </td><td>There are fewer rank violations and the policy ranking is more stable.</td></tr><tr><td>LIBERO multi-view</td><td>$r=0.910$; w/o-history ablation in multi-view $r$ drops to 0.786.</td><td>History memory is especially important for multi-perspective evaluation.</td></tr><tr><td>RoboTwin</td><td>$r=0.927$. </td><td>Maintain strong correlation on heterogeneous strategies and simulated robot tasks.</td></tr><tr><td>Real World</td><td>$r=0.918$. </td><td>The imagined success rate in a real robot environment is still highly correlated with the actual success rate.</td></tr></table>
+<div class="figure"><img alt="policy correlation" src="figures/policy_corr.png"/><div class="caption">Figure 5: Correlation between true execution success rate and world-model estimated success rate.</div></div>
+<h3>5.5 Supplementary experiments (including appendices)</h3>
+<table><tr><th>Supplementary experiments</th><th>key results</th><th>Source</th></tr>
+<tr><td>Universal multi-view fidelity</td><td>LIBERO third-person / wrist $\Delta$LPIPS is 0.324 / 0.303; RoboTwin top-down / wrist is 0.317 / 0.345; Real World top-down / wrist is 0.365 / 0.336.</td><td>Text §More Experiments</td></tr>
+<tr><td>Baseline long-horizon consistency</td><td>When H=20, WorldEval 0.531, WorldGym 0.482, Ctrl-World 0.370, Ours 0.243.</td><td>Text Table 2; Appendix D</td></tr>
+<tr><td>Action-shuffle sanity check</td><td>Aligned actions: LPIPS 0.215, $\Delta$LPIPS 0.324; Shuffled actions: LPIPS 0.461, $\Delta$LPIPS 0.697. </td><td>Appendix B</td></tr>
+<tr><td>Action corruption probability</td><td>The appendix describes that as the action chunks exchange probability $p$ increases, $\Delta$LPIPS increases approximately linearly, which is used to verify that this indicator is sensitive to action mismatch.</td><td>Appendix B; Fig. ablate_action_corruption</td></tr>
+<tr><td>VLM progress supervision</td><td>SEED-1.5VL uses few-shot ICL and divides pick-and-place into six stages: 0.0/0.2/0.4/0.6/0.8/1.0.</td><td>Appendix C</td></tr></table>
+<div class="figure"><img alt="action corruption" src="figures/ablate_action_corruption.png"/><div class="caption">Appendix Figure: action corruption tests are used to verify the $\Delta$-LPIPS diagnostic function.</div></div>
+<div class="figure"><img alt="baseline consistency" src="figures/baseline_consistency_vis.png"/><div class="caption">Appendix Figure: Baseline round-trip consistency visualization showing the visual drift of WorldEval / WorldGym.</div></div>
+<h2 id="s7">7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own argument, the value of dWorldEval lies in breaking down the reliability of the policy evaluation world model into three measurable conditions: action controllability, spatiotemporal consistency and discriminative task completion. The methods correspond to unified action tokens, sparse keyframe memory and progress-as-text respectively; the experiments correspond to $\Delta$LPIPS, round-trip LPIPS and success-rate correlation respectively.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The paper provides a chain of evidence that supports each other: $\Delta$LPIPS of the Failure subset shows that the model can reflect wrong actions; the action shuffling/corruption appendix verifies that the indicators and model do depend on actions; memory ablation proves that long-range consistency does not appear automatically; policy correlation shows that these world-model properties are ultimately transformed into more reliable policy ranking.</p>
+<h3>7.3 Analysis and explanation of the results given in the paper</h3>
+<ul><li>The authors attribute the degradation of baselines on failure data to actions being covered by visual priors as weak conditions.</li><li>The authors believe that sparse keyframe memory reduces long-range drift, and drift can lead to false negatives and destroy correlation with real performance.</li><li>The author uses the sharp transition of progress score and non-monotonic checkpoint tracking to illustrate that automatic scoring is based on visual changes rather than time priors.</li><li>Appendix baseline consistency visualization explains high LPIPS from compound failures: both spatiotemporal drift and the inability to strictly follow an inverse action sequence.</li></ul>
+<h3>7.4 Limitations of the author's statement</h3>
+<p>There are no separate limitations paragraphs for the main text and Conclusion. The boundaries can be objectively defined from the scope of the original experiment: the model requires robot data to be trained from scratch; progress labels rely on SEED-1.5VL few-shot ICL generation; the real-world experiment covers five dual-arm tasks; hyperparameters such as optimizer, batch size, total number of training steps, hardware and complete sampling configuration are not fully given in the source code text/appendix.</p>
+<h3>7.5 Applicable boundaries and discussion</h3>
+<ul><li><strong>Applicable: </strong>Scenarios where large-scale comparison of robot policies is required, and real execution costs are high, but multi-view rollout data and action chunks are available.</li><li><strong>Key prerequisites: </strong>The action tokenizer, visual tokenizer and language/progress token must be stably mapped to a unified discrete space.</li><li><strong>Prerequisites for evaluation: </strong>$\Delta$-LPIPS is suitable for measuring visual changes caused by actions, but it is still a visual perception indicator and does not mean that the physical state is completely correct.</li><li><strong>Appendix supplement: </strong>The appendix provides task details, implementation details, action shuffling, VLM prompt, progress visualization, baseline consistency and more visualizations, which have been integrated into the Methods and Experiments chapter.</li></ul>
+<h2>Acceptance record</h2><ul><li>Chapter coverage: Introduction, Related Work, Methodology, Experiments, Conclusion, Appendix A-E are all mapped to reporting locations.</li><li>Chart coverage: The main PDF figures in the source code have been converted to PNG and key figures are embedded; supplementary figures are placed in the corresponding positions of experiments and discussions.</li><li>Appendix integration: Implementation details, action shuffling, VLM prompt, progress visualization, baseline consistency and more visualization have been integrated into methods/experiments/discussion.</li><li>Objectivity: The analysis and boundaries are based only on the original text, tables, figures and appendices, without adding suggestions for improvement.</li></ul>
+</main>
+</body></html>

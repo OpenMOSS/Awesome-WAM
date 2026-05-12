@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>World Action Models are Zero-shot Policies - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<div class="page">
+<article class="card">
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="eyebrow">read-paper-phd / junior PhD group meeting for intensive reading</div>
+<h1>World Action Models are Zero-shot Policies</h1>
+<div class="meta">
+<p><strong>Author</strong>: Seonghyeon Ye, Yunhao Ge, Kaiyuan Zheng, Shenyuan Gao, Sihyun Yu, George Kurian, etc.</p>
+<p><strong>institution</strong>: NVIDIA</p>
+<p><strong>arXiv</strong>: <a href="https://arxiv.org/abs/2602.15922">2602.15922</a></p>
+<p><strong>Project page / code</strong>: <a href="https://dreamzero0.github.io">dreamzero0.github.io</a>; <a href="https://github.com/dreamzero0/dreamzero">github.com/dreamzero0/dreamzero</a></p>
+</div>
+</header>
+<div class="toc">
+<h2 style="margin-top:0">Contents</h2>
+<div class="toc-grid">
+<div>
+<div><a href="#sec1">1. Quick overview of the paper</a></div>
+<div><a href="#sec2">2. Motivation</a></div>
+<div><a href="#sec3">3. Summary of related work</a></div>
+</div>
+<div>
+<div><a href="#sec5">4. Detailed explanation of method</a></div>
+<div><a href="#sec6">5. Experiment</a></div>
+<div><a href="#sec7">6. Analysis and Discussion</a></div>
+</div>
+</div>
+</div>
+<section id="sec1">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary</strong>: This paper proposes <code>DreamZero</code>, transforming the pre-trained video diffusion model into simultaneously predicting future videos and actions <code>World Action Model</code>, and claimed that this "video world modeling + action joint generation" route is better than existing VLA at learning generalizable physical skills from heterogeneous, non-repetitive robot data, and can even achieve significant gains in zero-shot tasks and cross-embodiment transfer.
+ </div>
+<div class="grid-2">
+<div class="panel">
+<p><strong>difficulty rating</strong>: ★★★★☆</p>
+<p class="small">Requires familiarity with video diffusion models, flow matching, inverse dynamics, closed-loop control system optimization, and VLA/WAM modeling differences.</p>
+<p><strong>keywords</strong></p>
+<div class="chip-list">
+<span class="chip">World Action Model</span>
+<span class="chip">Video Diffusion</span>
+<span class="chip">Zero-shot Robotics</span>
+<span class="chip">Cross-embodiment Transfer</span>
+<span class="chip">Real-time Inference</span>
+</div>
+</div>
+<div class="panel audit-card">
+<p><strong>Core contribution list</strong></p>
+<ul>
+<li>propose <code>DreamZero</code>: A 14B WAM that jointly predicts future videos and actions, emphasizing its ability to learn a wide range of skills from heterogeneous, non-repetitive real robot data.</li>
+<li>Propose a methodological claim: The advantage of WAM over VLA is not just "one more video branch", but the implicit inverse dynamics of converting action learning into "recovering actions from future visual plans".</li>
+<li>A complete set of real-time inference optimizations is proposed: system-level, implementation-level and model-level acceleration, which reduces the 14B video diffusion control model from 5.7 seconds/block to about 150ms/block, giving 38x acceleration and 7Hz closed-loop control.</li>
+<li>Demonstrates two types of cross-embodiment migration: only 10-20 minutes of video demonstration for robot-to-robot / human-to-robot transfer, and 30 minutes of play data for few-shot new embodiment adaptation.</li>
+</ul>
+</div>
+</div>
+<div class="figure">
+<object class="pdf-frame" data="figure/dreamzero-header-v2.png" type="image/png">
+<a href="figure/dreamzero-header-v2.png">Figure 1 PNG</a>
+</object>
+<div class="caption">Figure 1. The overview diagram directly gives four propositions: learning from heterogeneous data, open world generalization, cross-embodiment video migration, and few-shot embodiment adaptation. The entire paper revolves around these four items.</div>
+</div>
+</section>
+<section id="sec2">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The author believes that the current mainstream route for robot foundation models is VLA: extending pre-trained VLM to action output. This route is very good at semantic generalization, such as understanding complex language, identifying new objects, and aligning "what to do" to language knowledge; but it is not good at "how to do", that is, new physical actions, environmental changes, and fine motor control. The typical counterexample given at the beginning of the paper is: VLA can understand "move the Coke can to Taylor Swift" because it knows who and where Taylor Swift is; but if "untie the shoelace" has never been in the robot data, VLA will often not grow this new action on its own.</p>
+<p>Therefore, what the paper wants to solve is not simply "multi-task robot control", but a more acute problem: whether the basic robot model can learn new skills from a data distribution more like the real world without specifically collecting a large number of repeated demonstrations, and generalize it to zero samples on new tasks, new environments, and even new embodiments.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li><strong>Pre-trained partial static semantics of VLA</strong>: What VLM learns from static graphics and text are semantic concepts, not precise spatiotemporal dynamics. The authors explicitly state that this leaves them lacking geometric, dynamic, and motor control representations of action execution.</li>
+<li><strong>VLA often relies on large, repetitive, mission-centric data</strong>: To perform stably on robots, existing VLAs often require a lot of embodiment-specific robot data, and these data are usually a large number of repeated demonstrations.</li>
+<li><strong>The old WAM has not fully exploited the generalization potential.</strong>: Existing video-action joint models have proven that the world modeling goal is helpful, but many works are still verified in repeated demonstration scenarios, or do not systematically study data diversity, architectural form, and real-time reasoning.</li>
+<li><strong>It is very slow to directly use the video model for closed-loop control</strong>: Video diffusion itself requires multi-step denoising and has a large number of parameters, so it is naturally not suitable for millisecond-level reactive control. The authors single this out as one of the three core challenges.</li>
+</ul>
+<h3>2.3 Solution ideas of this article (high level)</h3>
+<p>DreamZero's proposition is: Instead of letting the model directly clone the "observed actions", it is better to let it predict future world states and actions at the same time, turning action learning into an implicit inverse dynamics guided by the visual future. Intuitively, if the model already has a good idea of ​​what the world should look like next, then translating this future visual plan into actions should generalize more easily than directly regressing actions from current observations.</p>
+<p>To this end, the author uses a pre-trained video diffusion model as the backbone, allowing the model to jointly generate future videos and actions given language, visual history, and ontology status. At the same time, autoregressive video generation, teacher forcing, KV cache, and real observations are used to replace the closed-loop reasoning of predicted frames to avoid the common error accumulation problem in pure video AR.</p>
+</section>
+<section id="sec3">
+<h2>3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3>
+<ul>
+<li><strong>Vision-Language-Action Models</strong>: The paper puts RT series, OpenVLA, GR00T, π series, etc. into this line. They put language semantics and action output in the same end-to-end model, but the pre-training priors mainly come from static images and text.</li>
+<li><strong>Video Model-based Robot Policies</strong>: One type is to generate a video first and then use inverse dynamics/optical flow/planning to extract actions; the other type is to directly generate video-action jointly. The authors collectively refer to the latter as WAM.</li>
+<li><strong>Alternative world model architecture</strong>: In the appendix, the author also specifically compares latent-space world model and 3D point-cloud world model. The author believes that most of these solutions learn from $p(s_{t+1}\mid s_t, a_t)$, and are deployed with inverse dynamics or explicit search; WAM directly learns joint distribution and outputs action trajectories.</li>
+</ul>
+<h3>3.2 Direct comparison with previous works</h3>
+<table>
+<tr>
+<th>Dimensions</th>
+<th>VLA</th>
+<th>traditional world model / latent world model</th>
+<th>Already have WAM</th>
+<th>DreamZero</th>
+</tr>
+<tr>
+<td>Pre-training prior</td>
+<td>Static graphics VLM</td>
+<td>Often learn dynamics from scratch</td>
+<td>Part of the work has used video diffusion</td>
+<td>Wan2.1 I2V-14B pre-training video diffusion</td>
+</tr>
+<tr>
+<td>learning objectives</td>
+<td>Mostly direct action prediction</td>
+<td>Learn forward dynamics, and then plan/reverse actions</td>
+<td>Video and action combined or coupled</td>
+<td>Combine video and action to emphasize implicit inverse dynamics</td>
+</tr>
+<tr>
+<td>Data preferences</td>
+<td>Preference for heavily repetitive, structured presentations</td>
+<td>Varies by task</td>
+<td>Usually still dominated by robot data</td>
+<td>Emphasis on heterogeneous, non-repeating, real long time series data is also available</td>
+</tr>
+<tr>
+<td>Reasoning style</td>
+<td>usually fast</td>
+<td>Frequently required MPC / search</td>
+<td>Speed and closed-loop capabilities vary greatly</td>
+<td>Achieve 7Hz with asynchronous execution + caching + Flash training</td>
+</tr>
+<tr>
+<td>Thesis claims advantages</td>
+<td>Strong semantic generalization</td>
+<td>Strong explicit planning</td>
+<td>Video priors improve generalization</td>
+<td>Stronger to unseen motion / environment / embodiment</td>
+</tr>
+</table>
+</section>
+<section id="sec5">
+<h2>4. Detailed explanation of method</h2>
+<h3>5.1 Method overview</h3>
+<p>DreamZero's calculation graph can be understood at four levels: "input organization, joint modeling, closed-loop execution, and real-time optimization": </p>
+<ul>
+<li>Input: visual history $\mathbf{o}_{0: l}$, current proprioception $\mathbf{q}_l$, language command $\mathbf{c}$.</li>
+<li>Model: pre-trained video diffusion backbone + a small number of new state encoder, action encoder, and action decoder.</li>
+<li>Goal: Jointly predict future video chunk $\mathbf{o}_{l: l+H}$ and action chunk $\mathbf{a}_{l: l+H}$.</li>
+<li>Deployment: The action block is executed asynchronously. After execution, the real observations are rewritten into the KV cache to replace the visual future just generated by the model, thereby preventing video AR errors from snowballing.</li>
+</ul>
+<div class="figure">
+<object class="pdf-frame" data="figure/dreamzero_model.png" type="image/png">
+<a href="figure/dreamzero_model.png">Model Architecture PNG</a>
+</object>
+<div class="caption">Figure 4. Main architecture diagram. The left side is training: clean context + noisy current chunk; the right side is inference: asynchronous execution of actions and feedback of real observations to the KV cache. This operation of "replacing generated frames with GT observations" is key to the author's defense of AR WAM.</div>
+</div>
+<div class="figure">
+<object class="pdf-frame" data="figure/dreamzero_gen.png" type="image/png">
+<a href="figure/dreamzero_gen.png">Joint prediction PNG</a>
+</object>
+<div class="caption">Figure 2. The paper uses the case of a completely unseen task to demonstrate the strong alignment of video and action: the future video generated by the model is consistent with the action style actually performed. The author later even explained failure as "the video thought wrong first, so the action faithfully executed the wrong plan."</div>
+</div>
+<h3>5.2 Method evolution</h3>
+<div class="timeline">
+<div class="tl-item">
+<div class="tl-label">Stage A</div>
+<div>VLA route: Static graphics and text foundation model plus action headers, good at semantic generalization, but insufficient in generalization to new physical actions and new environments.</div>
+</div>
+<div class="tl-item">
+<div class="tl-label">Stage B</div>
+<div>world model / video strategy route: Starting to use future prediction to help action learning, but many methods still either learn dynamics from scratch, or rely on additional search or inverse dynamics when deployed.</div>
+</div>
+<div class="tl-item current">
+<div class="tl-label">Stage C</div>
+<div>DreamZero: Directly use pre-trained video diffusion as backbone, jointly model future videos and actions, and combine it with closed-loop real observation injection, KV cache and Flash training to make WAM a zero-sample strategy that can be deployed in real time.</div>
+</div>
+</div>
+<h3>5.3 Core design and mathematical derivation</h3>
+<div class="formula-block">
+<p class="intuition">Formula 1 shows that DreamZero is actually learning a joint distribution: future videos and future actions are generated together, and this joint distribution can be seen as the product of "video prediction × inverse dynamics".</p>
+<p>$$
+ \pi_0(\mathbf{o}_{l: l+H}, \mathbf{a}_{l: l+H}\mid \mathbf{o}_{0: l}, \mathbf{c}, \mathbf{q}_l)
+ =
+ \pi_0(\mathbf{o}_{l: l+H}\mid \mathbf{o}_{0: l}, \mathbf{c}, \mathbf{q}_l)
+ \cdot
+ \pi_0(\mathbf{a}_{l: l+H}\mid \mathbf{o}_{0: l+H}, \mathbf{q}_l)
+ $$</p>
+<table class="symbol-table">
+<tr><td>$\mathbf{o}_{0: l}$</td><td>A visual history up to the present moment.</td></tr>
+<tr><td>$\mathbf{o}_{l: l+H}$</td><td>Video observations within a horizon in the future.</td></tr>
+<tr><td>$\mathbf{a}_{l: l+H}$</td><td>Corresponds to the action block within the horizon.</td></tr>
+<tr><td>$\mathbf{c}$</td><td>Language instructions.</td></tr>
+<tr><td>$\mathbf{q}_l$</td><td>Current proprioceptive state.</td></tr>
+</table>
+<div>
+<strong>Intuition</strong>: The author does not want to split the model into "video model first, then inverse dynamics model", but uses an end-to-end model to learn together. The reason is that it is easier to align the video and actions.
+ </div>
+</div>
+<div class="formula-block">
+<p class="intuition">Formulas 2 and 3 are standard flow matching training, but made into chunk-wise joint denoising: the video and action are noised together on each chunk and the speed is predicted together.</p>
+<p>$$
+ \mathbf{z}_{t_k}^{k}=t_k\mathbf{z}_{1}^{k}+(1-t_k)\mathbf{z}_{0}^{k}, \qquad
+ \mathbf{a}_{t_k}^{k}=t_k\mathbf{a}_{1}^{k}+(1-t_k)\mathbf{a}_{0}^{k}
+ $$</p>
+<p>$$
+ \mathcal{L}(\theta)=
+ \mathbb{E}_{\mathbf{z}, \mathbf{a}, \{t_k\}}
+ \Bigg[
+ \frac{1}{K}\sum_{k=1}^{K}
+ w(t_k)
+ \left\|
+ \mathbf{u}_{\theta}([\mathbf{z}_{t_k}^{k}, \mathbf{a}_{t_k}^{k}]; \mathcal{C}_k, \mathbf{c}, \mathbf{q}_k, t_k)
+ -\mathbf{v}^{k}
+ \right\|^2
+ \Bigg]
+ $$</p>
+<table class="symbol-table">
+<tr><td>$\mathbf{z}_1^k, \mathbf{a}_1^k$</td><td>The clean video latent and clean actions of the $k$ chunk.</td></tr>
+<tr><td>$\mathbf{z}_0^k, \mathbf{a}_0^k$</td><td>Standard Gaussian noise.</td></tr>
+<tr><td>$\mathcal{C}_k$</td><td>The clean historical context of teacher forcing is the real latent of all previous chunks.</td></tr>
+<tr><td>$\mathbf{u}_\theta$</td><td>Joint video-action DiT, output velocity vector.</td></tr>
+<tr><td>$\mathbf{v}^k$</td><td>Target speed, i.e. clean samples minus noisy samples.</td></tr>
+</table>
+<div>
+<strong>Key points</strong>: DreamZero allows video and action to share the same denoising time step in default training, which is different from many recent WAMs; the author said this is beneficial to faster convergence early in training.<span class="appendix-ref">[Appendix Model Details]</span>
+</div>
+</div>
+<div class="formula-block">
+<p class="intuition">The core of Flash is not as simple as "a few less steps to denoise", but to change the training distribution to: the action must learn to converge to a value close to clean when the video is still dirty.</p>
+<p>Standard DreamZero: $$
+ t_k^{\text{video}} = t_k^{\text{action}} = t_k, \quad t_k\sim\mathcal{U}(0, 1)
+ $$
+ </p>
+<p>DreamZero-Flash: $$
+ t_k^{\text{video}} = 1-\eta, \quad \eta\sim\text{Beta}(\alpha, \beta), \quad
+ t_k^{\text{action}}\sim\mathcal{U}(0, 1)
+ $$
+ </p>
+<table class="symbol-table">
+<tr><td>Standard settings</td><td>Video and action training with noise levels.</td></tr>
+<tr><td>Flash settings</td><td>The video is more noisy and the motion remains at a uniform time step.</td></tr>
+<tr><td>$\alpha=7, \beta=1$</td><td>The sample configuration of the paper corresponds to a video time step average of about 0.125, that is, the videos of most training samples are "dirty".</td></tr>
+</table>
+<div>
+<strong>Intuition</strong>: few-step / single-step When inferencing, actions must become cleaner faster than video. Flash training is to directly move this reasoning condition into training.
+ </div>
+<details>
+<summary>Why does this speed up</summary>
+<div>
+<p>If the training distribution is not changed, the video latent is still in the noise area during 1-step inference, and the quality of the visual conditions relied on by the action branch will be very poor. Flash is exposed to this situation of "dirty visuals and accurate actions first" during training, so that 1-step action generation can still work.</p>
+</div>
+</details>
+</div>
+<div class="figure">
+<img alt="DreamZero Flash noise distribution" src="figure/dreamzero-flash_noise_distribution_comparison.png"/>
+<div class="caption">Figure 11. Flash noise schedule graph. Red is Flash: the video has high noise, but the movements are still uniform; blue is standard DreamZero: the video and movements are scheduled uniformly.</div>
+</div>
+<div class="figure">
+<object class="pdf-frame" data="figure/dreamzero_attention_figure.png" type="image/png">
+<a href="figure/dreamzero_attention_figure.png">Attention mask PNG</a>
+</object>
+<div class="caption">Appendix Figure. Training/inference attention mask. The most important information is: What is stored in the KV cache during inference is not the video generated by the model itself in the previous round, but the newly obtained GT observations after execution.<span class="appendix-ref">[Appendix Model Details]</span></div>
+</div>
+<h3>5.4 Implementation points</h3>
+<ul>
+<li><strong>Multi-view processing is simple</strong>: Multi-view is not about changing the backbone structure, but directly splicing different views into a single frame and sending it to the video model.</li>
+<li><strong>Only the video is AR, the action is not pure AR rollout</strong>: The author said that this can avoid the error propagation of closed-loop action prediction while retaining the speed benefits brought by KV cache.</li>
+<li><strong>Chunk design and control frequency are strongly bound</strong>: AgiBot is 5FPS video, 30Hz motion, 48-step horizon, exactly 1.6 seconds per chunk; DROID is 5FPS video, 15Hz motion, 24-step horizon, also 1.6 seconds. The total context length defaults to 4 chunks, corresponding to 6.6 seconds of visual history.<span class="appendix-ref">[Appendix Model Details]</span></li>
+<li><strong>Training update range</strong>: Update all DiT blocks, state encoder, action encoder, action decoder; freeze text encoder, image encoder and VAE. The author also specifically mentions that LoRA was tried but not very effective.<span class="appendix-ref">[Text §4.1]</span></li>
+<li><strong>Asynchronous execution is a necessary condition</strong>: Not to be faster and better looking, but to change the reactive constraint from "reasoning must precede action" to "reasoning only needs to be completed before the current action chunk expires". The target latency given by the author is less than about 200ms.</li>
+<li><strong>action chunk smoothing</strong>: The generated action blocks are first upsampled by 2x, then filtered with Savitzky-Golay, and finally downsampled back to the original resolution to specifically suppress high-frequency jitter.<span class="appendix-ref">[Appendix Real-time execution]</span></li>
+</ul>
+<div class="figure">
+<object class="pdf-frame" data="figure/bidiraug.png" type="image/png">
+<a href="figure/bidiraug.png">Bidirectional vs AR PNG</a>
+</object>
+<div class="caption">Appendix Figure. Key diagram from the author defending AR architecture: Bidirectional models often need to subsample video in order to align with language, which results in destroying the original FPS and thus hurting video-action alignment.</div>
+</div>
+</section>
+<section id="sec6">
+<h2>5. Experiment</h2>
+<h3>6.1 Experimental setup</h3>
+<h4>Datasets and Platforms</h4>
+<table>
+<tr>
+<th>platform</th>
+<th>data</th>
+<th>scale</th>
+<th>Main features</th>
+</tr>
+<tr>
+<td>AgiBot G1</td>
+<td>Self-collected teleoperation data</td>
+<td>~500 hours, 7.2K episodes, 22 real-life environments</td>
+<td>Emphasis on overall heterogeneity, long timing, and multiple subtasks; a single episode averages 4.4 minutes and approximately 42 subtasks</td>
+</tr>
+<tr>
+<td>DROID / Franka</td>
+<td>DROID public data</td>
+<td>The paper does not give the total number of hours in the text, but only emphasizes its high heterogeneity.</td>
+<td>Used to prove that WAM is also effective on public diverse robot data and support reproducibility</td>
+</tr>
+<tr>
+<td>Cross-embodiment data</td>
+<td>YAM dual-arm robot video; human first-person perspective video</td>
+<td>72 trajectories each; ~20 minutes for YAM, ~12 minutes for humans</td>
+<td>Use only video targets without action tags to test the feasibility of video-only transfer</td>
+</tr>
+</table>
+<div class="figure">
+<object class="pdf-frame" data="figure/agibot_dc_envs.png" type="image/png">
+<a href="figure/agibot_dc_envs.png">AgiBot environments PNG</a>
+</object>
+<div class="caption">Appendix Figure. Data collection environment distribution map. The author's data set is not 1-2 scenes in the laboratory, but covers 22 environments such as offices, restaurants, supermarkets, coffee shops, warehouses, homes, and hotels.<span class="appendix-ref">[Appendix Data Collection]</span></div>
+</div>
+<div class="figure">
+<object class="pdf-frame" data="figure/agibot_stats_1.png" type="image/png">
+<a href="figure/agibot_stats_1.png">Episode duration PNG</a>
+</object>
+<div class="caption">Figure 5(a). episode duration distribution.</div>
+</div>
+<div class="figure">
+<object class="pdf-frame" data="figure/agibot_stats_2.png" type="image/png">
+<a href="figure/agibot_stats_2.png">Subtask count PNG</a>
+</object>
+<div class="caption">Figure 5(b). Distribution of the number of subtasks per episode.</div>
+</div>
+<div class="figure">
+<object class="pdf-frame" data="figure/agibot_stats_3.png" type="image/png">
+<a href="figure/agibot_stats_3.png">Skill distribution PNG</a>
+</object>
+<div class="caption">Figure 5(c). Skill coverage distribution. The three pictures taken together support the author's narrative that "we are not collecting repeated demos, but real long-term, multi-skill episodes."</div>
+</div>
+<h4>training configuration</h4>
+<table>
+<tr>
+<th>settings</th>
+<th>AgiBot pre-training</th>
+<th>DROID pre-training</th>
+<th>post training</th>
+</tr>
+<tr>
+<td>backbone</td>
+<td colspan="2">Wan2.1-I2V-14B-480P</td>
+<td>Continue from pre-trained DreamZero checkpoint</td>
+</tr>
+<tr>
+<td>steps</td>
+<td>100K</td>
+<td>100K</td>
+<td>50K per downstream task</td>
+</tr>
+<tr>
+<td>global batch</td>
+<td>128</td>
+<td>128</td>
+<td>The text is not in separate columns; inherit similar training configurations</td>
+</tr>
+<tr>
+<td>Update parameters</td>
+<td colspan="3">All DiT blocks + state/action encoders/decoder; freeze text encoder, image encoder, VAE</td>
+</tr>
+<tr>
+<td>action expression</td>
+<td colspan="3">Use relative joint positions by default; filter idle actions</td>
+</tr>
+</table>
+<h4>baseline</h4>
+<p>The main baselines are two types of VLA: GR00T N1.6 and π<sub>0.5</sub>. Each baseline is divided into two types of initialization: </p>
+<ul>
+<li><strong>from-scratch</strong>: Only take pre-trained VLM weights, without using robot pre-training checkpoint, and compare "apples to apples" with DreamZero.</li>
+<li><strong>from-pretrained</strong>: Use the official robot pre-training weights, and then continue training on the author's data.</li>
+</ul>
+<h4>Evaluation Agreement</h4>
+<ul>
+<li><strong>AgiBot seen tasks</strong>: 10 seen tasks, 4 robots, 8 rollouts per task, a total of 80 times/checkpoint; divided into three categories: PnP Easy, PnP Hard, and Contact-Rich.<span class="appendix-ref">[Appendix AgiBot Eval]</span></li>
+<li><strong>AgiBot unseen tasks</strong>: 10 tasks outside the training distribution, such as untie shoelaces, ironing, painting, shaking hands, pulling cart, etc., the same 80 times/checkpoint.<span class="appendix-ref">[Appendix AgiBot Eval]</span></li>
+<li><strong>DROID</strong>: 20 seen tasks + 20 unseen-verb tasks, each task has 2 rollouts, a total of 80 times; the indicator looks at both task progress and success rate.<span class="appendix-ref">[Appendix DROID Eval]</span></li>
+<li><strong>post training task</strong>: shirt folding, fruit packing, table bussing; 10 rollouts per task, the indicator is task progress.</li>
+</ul>
+<div class="figure">
+<object class="pdf-frame" data="figure/main_eval_setting.png" type="image/png">
+<a href="figure/main_eval_setting.png">AgiBot evaluation PNG</a>
+</object>
+<div class="caption">Figure 6. AgiBot evaluation scene diagram. The author emphasizes that the default is unseen environment + unseen object, so they define the evaluation as "real OOD generalization", not training distribution interpolation.</div>
+</div>
+<h4>Task list given in appendix</h4>
+<table>
+<tr>
+<th>Evaluation set</th>
+<th>Mission overview</th>
+</tr>
+<tr>
+<td>AgiBot seen</td>
+<td>PnP Fruit, Taking out Fruit, Wipe the Mess, PnP Fork/Spoon, Put Pen in Holder, Put Cup on Coaster, Stack Bowls/Cups, Folding Shirts, Folding Shorts, Stacking Clothes</td>
+</tr>
+<tr>
+<td>AgiBot unseen</td>
+<td>Untie Shoelaces, Remove/Put Hat, Draw Circle, Take out Straw, Cube Stacking, Painting, Ironing, Shake Hands, Folding (Map), Pulling Cart</td>
+</tr>
+<tr>
+<td>DROID seen</td>
+<td>For example, put marker in box, remove gloves from drawer, put bread into toaster, push toaster lever, pick up apple and put in basket, etc. 20 daily operations</td>
+</tr>
+<tr>
+<td>DROID unseen verbs</td>
+<td>Orient, Fan, Slice, Type, Extricate, Reveal, Match, Maneuver, Affix, Combine, Hook, Pinch, Withdraw, Cinch, Dispense, Bake, Fry, Depress, Elevate, Weave</td>
+</tr>
+</table>
+<h3>6.2 Main results</h3>
+<h4>Q1: Can strategies be learned from heterogeneous and non-duplicate data?</h4>
+<p>The authors first look at zero-shot environment generalization on the AgiBot seen task. The core conclusion is: DreamZero's average task progress reaches <strong>62.2%</strong>, while the best pretrained VLA baseline has only <strong>27.4%</strong>; from-scratch VLA is almost zero. The author explains this result as: WAM uses video prediction priors and does not need to hard-learn dynamics from sparse state-action correspondences, so it is better able to digest heterogeneous data.</p>
+<div class="figure">
+<object class="pdf-frame" data="figure/eval_bar_chart.png" type="image/png">
+<a href="figure/eval_bar_chart.png">Seen task evaluation PNG</a>
+</object>
+<div class="caption">Figure 7. seen task histogram. The strongest information is not "How much higher is DreamZero than baseline", but "It is basically impossible to learn from-scratch VLAs", which shows that the data distribution collected by the author is very unfriendly to VLA, but it is effective for WAM.</div>
+</div>
+<h4>Q2: Can zero samples be generalized to unseen tasks?</h4>
+<p>On the AgiBot unseen task, DreamZero achieves an average of <strong>39.5%</strong> task progress, while the pretrained VLA baseline is <strong>16.3%</strong>, the from-scratch VLA is less than 1%. The author specifically mentions Remove Hat from Mannequin with 85.7% and Shake Hands with 59.2%.</p>
+<p>Under the DROID setting, DreamZero is also clearly ahead: <strong>49%</strong> task progress, <strong>22.5%</strong> success rate; GR00T N1.6 is 31% / 12.5%, π<sub>0.5</sub> It's 33% / 7.5%. The author here emphasizes unseen verbs, that is, the verbs in the command themselves do not appear in the training set.</p>
+<div class="figure">
+<object class="pdf-frame" data="figure/unseen_success_rates.png" type="image/png">
+<a href="figure/unseen_success_rates.png">Unseen tasks PNG</a>
+</object>
+<div class="caption">Figure 8. No task results seen. The author regards this section as one of the core results of the entire article: WAM not only generalizes to new environments, but also begins to produce non-trivial zero-sample capabilities for action semantics and physical skills that have never appeared in robot data.</div>
+</div>
+<h4>Q3: Can generalization be retained after task-specific post-training?</h4>
+<p>The author does post-training on three tasks: shirt folding, fruit packing, and table bussing. The paper does not give a precise numerical table of each method in the main text, but the conclusion in the figure is clear: DreamZero at least matches VLA on all three tasks, and is significantly better on fruit packing. The author uses this set of experiments to support that "environmental generalization does not disappear after task-specific post-training".</p>
+<div class="figure">
+<object class="pdf-frame" data="figure/posttrain.png" type="image/png">
+<a href="figure/posttrain.png">Posttraining PNG</a>
+</object>
+<div class="caption">Figure 9. Post-training results. The most noteworthy thing is that the author does not regard post-training as "fitting within the distribution", but still tests it in an unseen environment. Therefore, this picture actually asks "can the environmental generalization ability learned in pre-training survive fine-tuning?"</div>
+</div>
+<h4>Q4: Is video-only cross-embodiment transfer useful?</h4>
+<table>
+<tr>
+<th>method</th>
+<th>average unseen-task progress</th>
+</tr>
+<tr><td>DreamZero</td><td>38.3% ± 7.6%</td></tr>
+<tr><td>DreamZero + Human2Robot transfer</td><td>54.3% ± 10.4%</td></tr>
+<tr class="highlight-row"><td>DreamZero + Robot2Robot transfer</td><td>55.4% ± 9.5%</td></tr>
+</table>
+<p>Just adding 10-20 minutes of video-only demonstration can pull the average progress of unseen tasks from 38.3 to about 54, a relative increase of more than 42%. The author believes that this is a unique extension direction of WAM: it can continue to improve the task understanding of the world model with a large number of human videos without action labels.</p>
+<div class="figure">
+<object class="pdf-frame" data="figure/embodiment_transfer.png" type="image/png">
+<a href="figure/embodiment_transfer.png">Cross embodiment transfer PNG</a>
+</object>
+<div class="caption">Figure 10. Migrate across embodiments. Robot-to-robot is slightly better than human-to-robot. The explanation given by the author is that both YAM and AgiBot have parallel grippers with two arms, and the difference in shape is smaller.</div>
+</div>
+<h4>Q5: Is few-shot new embodiment adaptation feasible?</h4>
+<p>The author uses DreamZero-AgiBot checkpoint <strong>~30 minutes, 55 tracks, 11 tasks</strong> The post-training of YAM play data shows that language following and certain zero-sample capabilities are still retained on the new dual-arm robot. The results here are mainly qualitative display, and there is no numerical table as in the previous sections, but the argument of this part is: if action learning mainly involves inversely understanding actions from future videos, then when migrating to a new embodiment, the model only needs a small amount of data to calibrate the mapping of "visual future to action".</p>
+<div class="figure">
+<object class="pdf-frame" data="figure/yam_transfer.png" type="image/png">
+<a href="figure/yam_transfer.png">Few-shot embodiment adaptation PNG</a>
+</object>
+<div class="caption">Figure 11. Plot of qualitative results of few-shot adaptation of the new embodiment. The authors take this as an early signal that WAM may be a natural fit for sample-efficient embodiment transfer.</div>
+</div>
+<h4>Q6: Can Flash maintain performance when denoising in fewer steps?</h4>
+<table>
+<tr>
+<th>method</th>
+<th>Number of denoising steps</th>
+<th>Task Progress</th>
+<th>Inference Speed</th>
+<th>Speedup ratio</th>
+</tr>
+<tr><td>DreamZero</td><td>4</td><td>83% ± 6.1%</td><td>350ms</td><td>1x</td></tr>
+<tr><td>DreamZero</td><td>1</td><td>52% ± 10.2%</td><td>150ms</td><td>2.33x</td></tr>
+<tr class="highlight-row"><td>DreamZero-Flash</td><td>1</td><td>74% ± 10.1%</td><td>150ms</td><td>2.33x</td></tr>
+</table>
+<p>The key information here is: if you directly push DreamZero from 4 steps to 1 step, the performance will drop a lot; while Flash training can bring back most of the 1-step performance, from 52% to 74%. So the value of Flash is not just to be faster, but to make "very few step reasoning" a trainable work point.</p>
+<h3>6.3 Ablation experiment</h3>
+<table>
+<tr>
+<th>question</th>
+<th>settings</th>
+<th>result</th>
+<th>Author's conclusion</th>
+</tr>
+<tr>
+<td>Data diversity</td>
+<td>Same 500 hours, repetitive vs diverse</td>
+<td>33% → 50%</td>
+<td>For WAM, heterogeneous data is significantly better than duplicate data</td>
+</tr>
+<tr>
+<td>Model size</td>
+<td>DreamZero 5B vs 14B</td>
+<td>21% vs 50%</td>
+<td>WAM obviously increases with the scale of video backbone</td>
+</tr>
+<tr>
+<td>VLA scales up</td>
+<td>VLA 5B / 14B</td>
+<td>Both are about 0%</td>
+<td>Simply increasing VLA capacity cannot solve the problem of heterogeneous data learning.</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>bidirectional vs autoregressive</td>
+<td>task progress is all 50%</td>
+<td>AR is better in terms of smoothness and speed, although the final progress is close</td>
+</tr>
+</table>
+<p>This set of ablations very directly supports the three methodological claims of the paper: <strong>The data must be diverse, the model must be large, and autoregression is more suitable for closed-loop WAM.</strong>. </p>
+<h3>6.4 Supplementary experiments and real-time execution details</h3>
+<h4>Real-time execution speed source</h4>
+<table>
+<tr>
+<th>Optimization items</th>
+<th>H100</th>
+<th>GB200</th>
+</tr>
+<tr><td>Baseline</td><td>1x</td><td>1.1x</td></tr>
+<tr><td>+ CFG Parallelism</td><td>1.9x</td><td>1.8x</td></tr>
+<tr><td>+ DiT Caching</td><td>5.5x</td><td>5.4x</td></tr>
+<tr><td>+ Torch Compile + CUDA Graphs</td><td>8.9x</td><td>10.9x</td></tr>
+<tr><td>+ Kernel &amp; Scheduler Opts</td><td>9.6x</td><td>14.8x</td></tr>
+<tr><td>+ Quantization (NVFP4)</td><td>Not applicable</td><td>16.6x</td></tr>
+<tr class="highlight-row"><td>+ DreamZero-Flash</td><td>Not applicable</td><td>38x</td></tr>
+</table>
+<p>The overall latency narrative given by the author is: naive single GPU DreamZero requires approximately <strong>5.7 seconds/action chunk</strong>, and after superimposing all optimizations on GB200, it can be reduced to about <strong>150ms / chunk</strong>, thus meeting the 7Hz closed-loop control under asynchronous execution.</p>
+<div class="figure">
+<object class="pdf-frame" data="figure/free_form.png" type="image/png">
+<a href="figure/free_form.png">Free-form evaluation PNG</a>
+</object>
+<div class="caption">Figure 3. A qualitative demonstration of free-form prompts. The author uses it to illustrate that the model not only performs the 10 unseen tasks in the benchmark, but also performs non-trivial behaviors under more verbal instructions.</div>
+</div>
+</section>
+<section id="sec7">
+<h2>6. Analysis and Discussion</h2>
+<h3>7.1 Explanations already given in the original text of the paper</h3>
+<ul>
+<li>The authors attribute DreamZero's advantage to "the strong prior provided by the video predictions" rather than the larger size of the simple model. Especially for heterogeneous data, WAM does not need to learn action rules from noisy state-action pairs like VLA.</li>
+<li>The author repeatedly emphasizes that DreamZero's action and video predictions are highly aligned, so failure is often not "the action decoder is wrong" but "the video plan is wrong first". This is why they believe that improving the video backbone can directly improve the quality of the strategy.</li>
+<li>The benefits of cross-embodiment transfer are explained by the author as "the world model learns task dynamics first, and action mapping only needs a small amount of new embodiment data to realign".</li>
+<li>AR and bidirectional are close in task progress, but AR is smoother and faster. The authors therefore argue that the core benefit of WAM is not only the final success rate, but also the engineering usability of video-action-speech alignment.</li>
+</ul>
+<h3>7.2 Limitations of the author's statement</h3>
+<div class="panel warn-card">
+<p><strong>Limitation 1: Inference is still expensive.</strong> Even after optimization, DreamZero still requires two GB200s to achieve 7Hz; compared with VLA that can run above 20Hz on consumer-grade GPUs, the deployment threshold is still high.</p>
+<p><strong>Limitation 2: Long-term memory is still short.</strong> The current available visual context is only about 6.6 seconds, which is far from a truly long-term task.</p>
+<p><strong>Limitation 3: High-precision tasks are still difficult.</strong> The authors admit that tasks such as key insertion and fine assembly that require sub-centimeter precision are still difficult for behavioral cloning methods.</p>
+<p><strong>Limitation 4: The laws of scale are not clear.</strong> The paper only gives limited 5B vs 14B and diverse vs repetitive ablation, which is not enough to support the complete scaling law of WAM.</p>
+</div>
+<h3>7.3 Failure cases and applicable boundaries</h3>
+<div class="figure">
+<object class="pdf-frame" data="figure/generated.png" type="image/png">
+<a href="figure/generated.png">Failure case PNG</a>
+</object>
+<div class="caption">Appendix Figure. Failure case: When AgiBot draws the whiteboard, the video first predicts "handing over the pen between the left and right hands", and the handover is followed; when DROID bakes bread, the video first predicts "grab the bread first and then open the oven", and the execution is faithfully followed. The author uses this picture to prove that most WAM failures come from visual planning errors rather than action extractor disturbances.</div>
+</div>
+<ul>
+<li>DreamZero's strongest boundaries right now are: <strong>Open environment, unseen actions, cross-embodiment</strong>. This is the main battlefield that the paper really wants to prove.</li>
+<li>It is not an explicit planner and does not do test-time MPC/MPPI; it relies on the implicit visual planning brought by the joint video-action generation itself.</li>
+<li>The results of the few-shot adaptation embodiment are still mainly qualitative, indicating that this direction has potential, but it is not yet a fully mature quantitative conclusion.</li>
+<li>The author specifically pointed out that if larger-scale egocentric human video can be accessed in the future, the upper limit of WAM may be much higher than shown in the current experiment, because the scale of video data is naturally much larger than the action annotation robot data.</li>
+</ul>
+</section>
+</article>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,61 @@
+
+
+
+\newcommand{\xpar}[1]{\noindent\textbf{#1}\ \ }
+\newcommand{\vpar}[1]{\vspace{3mm}\noindent\textbf{#1}\ \ }
+
+
+
+\newcommand{\sect}[1]{Section~\ref{#1}}
+\newcommand{\ssect}[1]{\S~\ref{#1}}
+\newcommand{\eqn}[1]{Equation~\ref{#1}}
+\newcommand{\fig}[1]{Figure~\ref{#1}}
+\newcommand{\tbl}[1]{Table~\ref{#1}}
+\newcommand{\myparagraph}[1]{{\bf #1}\quad}
+
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize|\delimsize|\;#2%
+}
+\newcommand{\kldiv}[2]{\ensuremath{\text{KL}\infdivx{#1}{#2}}\xspace}
+
+
+\newcommand{\model}{UniPi\xspace}
+\newcommand{\process}{Unified Predictive Decision Process\xspace}
+\newcommand{\proc}{UPDP\xspace}
+\newcommand{\procs}{UPDPs\xspace}
+\newcommand{\AlgName}{{Imagine to Control}\xspace}
+\newcommand{\algabb}{{ICON}\xspace}
+
+
+
+
+
+
+
+
+\definecolor{MyDarkBlue}{rgb}{0,0.08,1}
+\definecolor{MyDarkGreen}{rgb}{0.02,0.6,0.02}
+\definecolor{MyDarkRed}{rgb}{0.8,0.02,0.02}
+\definecolor{MyDarkOrange}{rgb}{0.40,0.2,0.02}
+\definecolor{MyPurple}{RGB}{111,0,255}
+\definecolor{MyRed}{rgb}{1.0,0.0,0.0}
+\definecolor{MyGold}{rgb}{0.75,0.6,0.12}
+\definecolor{MyDarkgray}{rgb}{0.66, 0.66, 0.66}
+
+\newcommand{\myitem}{\vspace{-5pt}\item}
+\newcommand{\yd}[1]{\textcolor{MyPurple}{[Yilun: #1]}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+
+
+

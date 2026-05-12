@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="hero">
+<h1>RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation</h1>
+<div>
+<span class="tag">arXiv: 2506.22007</span>
+<span class="tag">long-horizon video generation</span>
+<span class="tag">robot manipulation</span>
+<span class="tag">keyframe diffusion</span>
+<span class="tag">policy from video</span>
+</div>
+<div class="meta">
+<div><strong>Authors: </strong>Liudi Yang, Yang Bai, George Eskandar, Fengyi Shen, Mohammad Altillawi, Dong Chen, Soumajit Majumder, Ziyuan Liu, Gitta Kutyniok, Abhinav Valada</div>
+<div><strong>Organization: </strong>University of Freiburg; LMU Munich; Technical University of Munich; Huawei Munich Research Center</div>
+<div><strong>Core keywords: </strong>VLM task decomposition, OpenSora, 3D attention, semantics preserving attention, LHMM</div>
+<div><strong>Source code structure: </strong><code>root.tex</code> Main document; no formal appendix; tables and figures scattered throughout <code>table/</code> with <code>figure/</code></div>
+</div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+<li><a href="#overview">Paper quick overview</a></li>
+<li><a href="#motivation">Motivation and problem definition</a></li>
+<li><a href="#related">Related work context</a></li>
+<li><a href="#method">Detailed explanation of method</a></li>
+<li><a href="#experiments">Experiments and results</a></li>
+<li><a href="#repro">Key points to reproduce</a></li>
+<li><a href="#analysis">Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">Preparation for group meeting Q&amp;A</a></li>
+</ol>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>Existing robot video diffusion methods mostly generate short-duration videos; when performing long-distance tasks, short videos are usually strung together autoregressively, causing the number, shape, position and task semantics of objects in the video to gradually drift, and errors in execution of actions will also accumulate. What the paper wants to solve is: given a high-level long-range instruction and an initial image, how to generate a long-range robot operation video with consistent semantics, stable objects, and usable for action regression in one go.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>RoboEnvision splits long-term tasks into "planned anchor points + local frame complementing + action regression": first use GPT4-o1/DeepSeek/manual to decompose high-level instructions into atomic instructions; keyframe diffusion generates key frames for the end state of each subtask; filling diffusion completes short videos between adjacent key frames; and finally uses a lightweight spatio-temporal Transformer policy model to return the status of robot joints and grippers from the generated video.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>In terms of video quality, RoboEnvision has the best five indicators in the LHMM data set: LPIPS 0.1282, SSIM 0.5820, PSNR 17.27, FVD 205.78, CLIP 23.99; in LanguageTable, four indicators except CLIP are the best. In terms of action execution, the success rate of LHMM's 45 long-range tasks reaches 67.4%, which is significantly higher than UniPi 23.5%, RDT1B 34.1%, and Ours-Autoregressive 27.0%.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>Don't just look at the sentence "long video generation is better", but ask three links: whether the VLM decomposition is reliable; whether keyframe diffusion really generates the corresponding end state for each sub-instruction; whether the success rate improvement of the policy model comes from long-range video distribution, decoder architecture, or MuJoCo/LHMM data settings. Another important point is that this method is still open-loop execution, not closed-loop error correction.</td>
+</tr>
+</tbody>
+</table>
+<div class="note">
+<strong>One sentence version: </strong>RoboEnvision uses VLM to split long-range instructions into subtasks, let the diffusion model first generate subtask key frames, and then complements the videos between key frames in parallel, and uses a lightweight strategy model to convert the long-range video plan into robot joint trajectories.
+ </div>
+<figure>
+<img alt="RoboEnvision teaser" src="figures/figure_RoboEnvission_teaser_with_action.png"/>
+<figcaption>Teaser. The upper part is the paradigm of segment-by-segment concatenation of past short videos; the lower part is RoboEnvision's high-level instruction decomposition, key frame generation, frame complementing and motion regression paradigm.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation and problem definition</h2>
+<h3>2.1 Why short video concatenation is not enough</h3>
+<p>Robotic video generation has been used for planning, verification, policy learning, and simulation data generation, but most work deals with short-term actions, such as a pick or a place. Long-range tasks such as "clear the table" or "make a dish" contain multiple sub-goals, object state changes across stages, operation sequence constraints, and large ranges of motion. If each segment continues to be generated only based on the last frame of the previous segment, errors will accumulate over time: objects may disappear, shape deformation, and quantity change, and subsequent videos will increasingly deviate from the high-level target.</p>
+<p>The author believes that long-range robot video is not just about "more frames", but "the semantic and spatial states of multiple task stages must be stable at the same time." So they introduced keyframes as global anchors instead of segment-by-segment rolling generation.</p>
+<h3>2.2 Problem definition</h3>
+<p>The long-range video generation task inputs an initial image $x^0$ and a high-level instruction $l_{HL}$, which can be decomposed into $K$ atomic instructions $l^i$. The goal is to generate a complete video: </p>
+<div class="formula">$$x = \mathrm{VideoDiff}\left(x^0, l_{HL}=\bigoplus_{i=1}^{K} l^i\right), $$</div>
+<p>Among them $x\in\mathbb{R}^{N\times3\times H\times W}$. The key is not to directly let a model eat a long prompt and generate $N$ frames, but to generate $K$ key frames first: </p>
+<div class="formula">$$x_k=\mathrm{KeyframeDiff}(x^0, (l^1, \ldots, l^K)), \qquad x_k\in\mathbb{R}^{K\times3\times H\times W}, $$</div>
+<p>Then add frames to adjacent keyframes: </p>
+<div class="formula">$$x^{k_{i-1}: k_i}=\mathrm{FillingDiff}(x^{k_{i-1}}, x^{k_i}, l^i).$$</div>
+<h3>2.3 Contribution positioning</h3>
+<ul>
+<li>A hierarchical video generation pipeline for long-range robot operation is proposed, combining VLM, keyframe diffusion, filling diffusion and policy model.</li>
+<li>Design keyframe-instruction cross-attention so that each keyframe only focuses on the corresponding atomic instruction, enhancing instruction-keyframe alignment.</li>
+<li>3D attention and semantics preserving attention are proposed to use the initial image VAE features to enhance the consistency of key frame object shape, position and quantity.</li>
+<li>A lightweight transformer-based policy model is proposed to regress robot joint and gripper states from the generated long-range video, and exceeds baselines such as UniPi and RDT1B in the LHMM long-range task.</li>
+</ul>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<div class="grid-2">
+<div class="mini">
+<h3>3.1 Robotics Video Generation</h3>
+<p>Work such as UniPi, Video Language Planning, This&amp;That, RoboDreamer, GR-2, UniSim, Gen2Act, etc. use video as an intermediate representation for robot planning, simulation, or policy learning. RoboEnvision's judgment is that these methods mostly focus on short-term or short-term tasks, and long-term videos will encounter cross-stage consistency problems.</p>
+</div>
+<div class="mini">
+<h3>3.2 Video-Driven Policy Learning</h3>
+<p>Videos contain action information and can be used for VLA pre-training, Diffusion Policy, AVDC, Track2Act and other policy learning. However, the tracking/flow method is susceptible to occlusion and video quality; large VLA requires huge amounts of pre-training and high-quality fine-tuning data; UniPi's inverse dynamics will deteriorate when the generated video is inconsistent.</p>
+</div>
+<div class="mini">
+<h3>3.3 Long-Horizon Video Generation</h3>
+<p>OpenSora, StreamingT2V, FreeNoise, FreeLong, VDT, etc. handle long video generation, mostly using autoregressive, memory bank, noise rescheduling or temporal mask. Robot scenes are more difficult because there are many small objects, a large range of motion, and more delicate contacts and spatial relationships.</p>
+</div>
+<div class="mini">
+<h3>3.4 Relationship with UniPi</h3>
+<p>RoboEnvision inherits the idea of "video plan to action", but explicitly criticizes the UniPi class method for relying on short-range video and open-loop action execution; it replaces the generation side with long-range key frame anchoring, and trains the policy model on long-range key frames and interpolated frame distribution.</p>
+</div>
+</div>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall framework</h3>
+<p>The process of RoboEnvision is: </p>
+<ol>
+<li>Use VLM or reasoning model to break high-level tasks into low-level atomic instructions.</li>
+<li>Keyframe diffusion generates keyframes based on the initial image and the atomic command chain, and each keyframe corresponds to a subtask end state.</li>
+<li>Filling diffusion generates short videos between each pair of adjacent keyframes, and all segments can be filled in parallel.</li>
+<li>Policy model regresses robot joint states and gripper states from keyframes and partially interpolated frames.</li>
+</ol>
+<figure>
+<img alt="RoboEnvision method" src="figures/figure_RoboEnvision_MethodFixed.png"/>
+<figcaption>Method. A: keyframe diffusion; B: keyframe-instruction cross-attention mask; C: semantics preserving attention; D: video-to-joint policy model. </figcaption>
+</figure>
+<h3>4.2 VLM sub-task decomposition</h3>
+<p>High-level instructions such as "place all objects in the box" or "push all blocks to the left" will first be split into $K$ low-level instructions. The paper says that GPT4-o1 is superior to traditional VLM in spatial reasoning, and can improve stability through in-context template, such as using something like this in LanguageTable <code>pick the {color} {object}</code> or <code>push the {color} {shape} block at the {top,bottom,left,right} of {color} {shape} block</code> template.</p>
+<p>This step is the entry point for task planning of the entire pipeline. If the order or spatial relationship of atomic instructions is wrong, subsequent video generation and motion regression will be wrong.</p>
+<h3>4.3 Keyframe Diffusion</h3>
+<p>Keyframe diffusion receives $B$ batches and $K$ keyframes of video $x_k\in\mathbb{R}^{B\times K\times3\times H\times W}$. VAE compress it to latent: </p>
+<div class="formula">$$z\in\mathbb{R}^{B\times K\times C\times H_z\times W_z}.$$</div>
+<p>forward diffusion adds Gaussian noise: </p>
+<div class="formula">$$z_t=\sqrt{\alpha_t}z+\sqrt{1-\alpha_t}\epsilon, \qquad \epsilon\sim\mathcal{N}(0, I).$$</div>
+<p>The training target is standard noise prediction: </p>
+<div class="formula">$$\min_\theta \mathbb{E}_{t, (z, \tau), \epsilon}\left\|\epsilon-\epsilon_\theta(z_t, t, \bigoplus_{i=1}^{K}\tau^i)\right\|_2^2.$$</div>
+<p>The base architecture is Diffusion Transformer from OpenSora, including spatial attention, temporal attention, text cross-attention and FFN.</p>
+<h3>4.4 Keyframe-Instruction Cross-Attention</h3>
+<p>Ordinary cross-attention will cause all keyframe tokens to view all text tokens at the same time, which is prone to the situation of "the second keyframe being mixed with the third instruction". The author uses diagonal block mask $\mathcal{M}$ to allow the feature of the $i$ keyframe to cross-attend only with the $i$ instruction embedding: </p>
+<div class="formula">$$\mathcal{A}=\mathrm{softmax}(\mathcal{Q}\mathcal{K}^{T}+\mathcal{M})\mathcal{V}.$$</div>
+<p>$\mathcal{M}$ is 0 for diagonal blocks and $-\infty$ for off-diagonal blocks. This makes the keyframe sequence more like a "subtask end status list" rather than a blurry long prompt video.</p>
+<h3>4.5 3D Attention and Semantics Preserving Attention</h3>
+<p>Even with keyframe and instruction alignment, robot videos still suffer from small object disappearance, shape deformation, and positional drift. The author believes that the reason is that the distance between adjacent key frames is large and the object movement is large, which exceeds the training distribution of ordinary short video temporal attention.</p>
+<p><strong>3D attention</strong> Extend attention from only temporal or spatial dimensions to all spatio-temporal tokens: $(B, KH_zW_z, C)$. It's more expensive, but better suited for modeling large movements across frames.</p>
+<p><strong>Semantics Preserving Attention, SPA</strong> Re-inject the VAE feature of the initial image in the spatial attention of each transformer block. Compared with CLIP hidden state, VAE feature retains finer-grained spatial details and is in the same feature space as DiT latent. The formula is: </p>
+<div class="formula">$$\mathrm{feature}=\mathrm{Attention}(\mathcal{Q}_S, \mathcal{K}_S, \mathcal{V}_S)+\mathrm{Attention}(\mathcal{Q}'_S, \mathcal{K}_{z^0}, \mathcal{V}_{z^0}).$$</div>
+<p>Here $z^0$ is the initial image VAE feature. Intuitively, it constantly reminds the model: "What objects are in the initial scene and what do they look like".</p>
+<h3>4.6 Filling Diffusion</h3>
+<p>Filling diffusion takes two adjacent key frames $(x^{k_{i-1}}, x^{k_i})$ and the corresponding atomic instruction $l^i$ as conditions to generate a short video between the two frames: </p>
+<div class="formula">$$x^{k_{i-1}: k_i}\in\mathbb{R}^{F_i\times3\times H\times W}.$$</div>
+<p>Since the conditions of each gap have been determined, phase 2 can run in parallel, which is more conducive to inference acceleration than autoregressive waiting for the previous segment to be generated, and also reduces error propagation.</p>
+<h3>4.7 Robot Policy Model</h3>
+<p>The Policy model is a spatio-temporal transformer-based architecture that generates video regression robot joint states and gripper states. It is trained independently from the video model, and the training data comes from the simulator's ground truth. The author emphasizes that ground-truth keyframes and some interpolated frames are selected during training instead of only short-range continuous frames; the reason is that the robot joints change more between long-range keyframes and are closer to the long-horizon distribution.</p>
+<p>The architecture contains transformer blocks for spatial attention, temporal attention, and FFN; the decoder uses ResNet to downsample to joint space instead of MLP or global average pooling. After generating long-range video during inference, the policy model outputs the joint status and then executes it in open-loop in MuJoCo.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Dataset and training settings</h3>
+<table>
+<thead>
+<tr><th>Project</th><th>settings</th></tr>
+</thead>
+<tbody>
+<tr><td>LanguageTable</td><td>The author combines short-range video clips into long-range videos through optical flow consistency check; the last frame of each clip is used as the keyframe.</td></tr>
+<tr><td>LHMM</td><td>Long-Horizon Manipulation in MuJoCo, create a new simulation data set, including grocery/tool ​​related long-range tasks; keyframe annotation is obtained by grasp detection in the simulator.</td></tr>
+<tr><td>Data size</td><td>LanguageTable 50k; LHMM 90k; number of instructions from 3 to 18.</td></tr>
+<tr><td>training resolution</td><td>LanguageTable: $360\times640$; LHMM: $180\times320$. </td></tr>
+<tr><td>code and models</td><td>Developed based on OpenSora; video diffusion model has about 800M parameters.</td></tr>
+<tr><td>Video evaluation sample</td><td>LanguageTable has 124 generated videos; LHMM has 100 generated videos.</td></tr>
+</tbody>
+</table>
+<h3>5.2 Long-range video quality results</h3>
+<p>Evaluation metrics include LPIPS, SSIM, PSNR, FVD, and CLIP Score. The baseline includes hierarchical, autoregressive, and naive versions of OpenSora, as well as AVDC.</p>
+<table>
+<thead>
+<tr><th>Dataset</th><th>Method</th><th>LPIPS ↓</th><th>SSIM ↑</th><th>PSNR ↑</th><th>FVD ↓</th><th>CLIP ↑</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="5">LanguageTable</td><td>OpenSora Hierarchical</td><td>0.1445</td><td>0.8269</td><td>22.82</td><td>147.37</td><td>24.57</td></tr>
+<tr><td>OpenSora Autoregressive</td><td>0.1795</td><td>0.7839</td><td>21.77</td><td>176.61</td><td>24.15</td></tr>
+<tr><td>OpenSora Naive</td><td>0.1723</td><td>0.8053</td><td>21.77</td><td>138.31</td><td><strong>25.49</strong></td></tr>
+<tr><td>AVDC</td><td>0.1857</td><td>0.7687</td><td>21.32</td><td>189.64</td><td>23.32</td></tr>
+<tr><td><strong>Ours</strong></td><td><strong>0.1324</strong></td><td><strong>0.8273</strong></td><td><strong>23.12</strong></td><td><strong>136.75</strong></td><td>24.45</td></tr>
+<tr><td rowspan="5">LHMM</td><td>OpenSora Hierarchical</td><td>0.1564</td><td>0.5257</td><td>16.61</td><td>231.02</td><td>23.51</td></tr>
+<tr><td>OpenSora Autoregressive</td><td>0.1701</td><td>0.5232</td><td>16.46</td><td>241.35</td><td>23.58</td></tr>
+<tr><td>OpenSora Naive</td><td>0.2086</td><td>0.4983</td><td>15.52</td><td>274.85</td><td>22.55</td></tr>
+<tr><td>AVDC</td><td>0.2343</td><td>0.4729</td><td>15.33</td><td>267.93</td><td>21.37</td></tr>
+<tr><td><strong>Ours</strong></td><td><strong>0.1282</strong></td><td><strong>0.5820</strong></td><td><strong>17.27</strong></td><td><strong>205.78</strong></td><td><strong>23.99</strong></td></tr>
+</tbody>
+</table>
+<p>The results show that hierarchical alone is not enough, and RoboEnvision's attention design further improves consistency; LanguageTable has the highest CLIP of Naive, but its visual quality and consistency are poor, indicating that CLIP cannot alone represent robot video usability.</p>
+<figure>
+<img alt="Qualitative comparison" src="figures/figure_qualitative_2.png"/>
+<figcaption>Qualitative comparison. RoboEnvision maintains object number, shape, position, and instruction-keyframe alignment better than baseline on LanguageTable and LHMM.</figcaption>
+</figure>
+<h3>5.3 Instruction reordering and data enhancement potential</h3>
+<p>The authors show that by changing the order of atomic instructions, keyframe diffusion can generate long-range execution videos in different orders. This is used to support the potential of "data augmentation": based on existing video data, by shuffling the order of tasks, more paired data of visual observations and robot joint states can be generated, extending the VLA pre-trained distribution.</p>
+<figure>
+<img alt="Change order generation" src="figures/figure_change_order_figure.png"/>
+<figcaption>Changing instruction order. After changing the execution order of subtasks, the model can generate long-range videos in the corresponding order.</figcaption>
+</figure>
+<h3>5.4 Policy Model Success Rate</h3>
+<p>The authors evaluate action execution on 45 long-range tasks in LHMM, where the task is to pick/place multiple grocery and tool objects. The long-range video is first generated by the model. The policy model converts the video frame by frame into joint control commands and imports them into MuJoCo for execution.</p>
+<table>
+<thead>
+<tr><th>Method</th><th>Success Rate</th></tr>
+</thead>
+<tbody>
+<tr><td>UniPi</td><td>23.5%</td></tr>
+<tr><td>RDT1B</td><td>34.1%</td></tr>
+<tr><td><strong>Ours</strong></td><td><strong>67.4%</strong></td></tr>
+<tr><td>Ours (short-horizon)</td><td>49.4%</td></tr>
+<tr><td>Ours (Autoregressive)</td><td>27.0%</td></tr>
+</tbody>
+</table>
+<p>Key interpretation: Ours short-horizon is still higher than UniPi/RDT1B, but 18 points lower than the full model, indicating that the policy model needs to be trained on the long-range keyframe distribution; Ours-Autoregressive is only 27.0%, indicating that simply changing to a better decoder cannot solve the long-range problem, and the generation paradigm itself is critical.</p>
+<h3>5.5 VLM long-range planning</h3>
+<p>The paper qualitatively demonstrates the effect of GPT4-o1 as a subtask director. It decomposes high-level instructions based on initial observations and template knowledge, keyframe diffusion and then generates long-range video plans based on the instruction chain.</p>
+<figure>
+<img alt="High-level planning" src="figures/figure_high-level-figure.png"/>
+<figcaption>High-level planning. GPT4-o1 decomposes high-level instructions into executable steps, from which the video model generates long-range plans.</figcaption>
+</figure>
+<h3>5.6 Ablation: 3D Attention and SPA</h3>
+<table>
+<thead>
+<tr><th>Model</th><th>LPIPS ↓</th><th>SSIM ↑</th><th>PSNR ↑</th><th>FVD ↓</th><th>CLIP ↑</th></tr>
+</thead>
+<tbody>
+<tr><td>base</td><td>0.1498</td><td>0.6924</td><td>20.07</td><td>184.71</td><td>24.10</td></tr>
+<tr><td>w/o SPA</td><td>0.1415</td><td>0.7032</td><td>20.36</td><td>169.50</td><td>24.19</td></tr>
+<tr><td>w/o 3D</td><td>0.1430</td><td>0.7102</td><td>20.11</td><td>168.83</td><td>24.21</td></tr>
+<tr><td><strong>ours</strong></td><td><strong>0.1305</strong></td><td><strong>0.7178</strong></td><td><strong>20.51</strong></td><td><strong>167.57</strong></td><td><strong>24.24</strong></td></tr>
+</tbody>
+</table>
+<p>Both quantitative and qualitative support support that the two components are complementary: 3D attention is more conducive to the consistency of the number and location of objects; SPA is more conducive to the preservation of small object shapes and semantic details.</p>
+<figure>
+<img alt="Ablation qualitative results" src="figures/figure_ablation_c.png"/>
+<figcaption>Ablation. After removing SPA or 3D attention, the shape, number, and position of small objects are more likely to drift.</figcaption>
+</figure>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Data preparation</h3>
+<ul>
+<li>LanguageTable: Short-range clips are required and spliced into long-range videos through optical flow consistency check.</li>
+<li>The last frame of each short clip serves as the keyframe, forming the supervision of keyframe diffusion.</li>
+<li>LHMM: requires MuJoCo long-range mission data, keyframe annotation and robot joint states; the paper uses grasp detection to generate keyframe annotation.</li>
+<li>High-level instruction requirements can be broken down into 3 to 18 atomic instructions.</li>
+</ul>
+<h3>6.2 Model training</h3>
+<table>
+<thead>
+<tr><th>module</th><th>Training/Implementation Points</th></tr>
+</thead>
+<tbody>
+<tr><td>Keyframe diffusion</td><td>Based on OpenSora DiT; input initial image and instruction chain; introduce keyframe-instruction cross-attention.</td></tr>
+<tr><td>3D attention</td><td>Replace temporal attention so that attention covers all spatio-temporal tokens.</td></tr>
+<tr><td>SPA</td><td>In each transformer block, the initial image VAE feature is projected into key/value and participates in spatial attention.</td></tr>
+<tr><td>Filling diffusion</td><td>The conditions are adjacent key frames and corresponding low-level instructions; each segment can be supplemented in parallel.</td></tr>
+<tr><td>Policy model</td><td>Independent training; input keyframes and partially interpolated frames; output joint states and gripper states.</td></tr>
+</tbody>
+</table>
+<h3>6.3 Evaluation indicators</h3>
+<ul>
+<li>Video quality: LPIPS, SSIM, PSNR, FVD, CLIP Score.</li>
+<li>Action execution: LHMM 45 long-range mission success rates.</li>
+<li>Qualitative check: whether the number of objects is maintained, whether the shape is deformed, whether key frames are aligned with sub-instructions, and whether changing the order of instructions changes the order of execution.</li>
+</ul>
+<div class="warn">
+<strong>Recurrence risk: </strong>The paper does not have a formal appendix to expand all training hyperparameters; the decomposition behavior and prompt template of GPT4-o1/DeepSeek have an impact on the results; LHMM is a new data set created by the author. If the complete data and script are not disclosed, the success rate of reproducibility will be limited.
+ </div>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part of this paper is that it splits the robot's long-range video generation into an intermediate representation that is more consistent with the task structure: key frames are not uniformly sampled video frames, but semantic anchors of the end status of each subtask. In this way, long-term generation is no longer about "rolling back from the previous frame", but first determines the global structure of the entire task chain, and then partially completes the dynamics.</p>
+<p>The second value point is to test video quality and action executability together. The paper not only reports on LPIPS/FVD/CLIP, but also trains a policy model to regress joints from videos and executes it in MuJoCo. This provides closer control evidence on whether generated videos can be used for robots.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li>The video evaluation covers two data sets, and all five indicators in LHMM are optimal, indicating that it is not an accidental improvement in a single data set.</li>
+<li>Compared with OpenSora naive, hierarchical, and autoregressive, it can distinguish the contributions of "the hierarchical paradigm itself" and "the new attention design of this article".</li>
+<li>The success rate of the policy model includes multiple ablation: short-horizon training and autoregressive inference both drop significantly, and it is important to support long-range training and long-range generation.</li>
+<li>In the Ablation table, base, w/o SPA, w/o 3D, and ours are compared step by step, and there are qualitative diagrams showing the shape/quantity/location issues of small objects.</li>
+<li>Qualitative experiments on changing the instruction order show that the model does not only remember fixed trajectories, but can adjust the generation according to the order of subtasks.</li>
+</ul>
+<h3>7.3 Main limitations</h3>
+<ul>
+<li><strong>Dependent on VLM decomposition: </strong>If high-level instructions are decomposed incorrectly, keyframe generation will deviate from the true goal from the first step. The paper mainly gives qualitative presentation and does not systematically evaluate VLM decomposition accuracy.</li>
+<li><strong>Execution is still open-loop: </strong>After generating the video and joint trajectories, they are executed in MuJoCo in an open loop without online visual feedback for error correction; errors may be more serious in real robot long-range tasks.</li>
+<li><strong>Insufficient verification of real robots: </strong>Action success rates are evaluated on LHMM/MuJoCo, not real hardware long-range execution.</li>
+<li><strong>Dataset construction relies on simulators and rules: </strong>LHMM keyframes are obtained by grasp detection, and LanguageTable is spliced ​​by optical flow. There is still a gap between the real long-range demonstration distribution.</li>
+<li><strong>Physical consistency remains indirect: </strong>LPIPS/FVD/CLIP are not completely equivalent to real executability; policy model success rate provides supplementation, but may still be affected by simulator and training distribution.</li>
+<li><strong>Computational cost and parameter details are incomplete: </strong>The model is about 800M, but the paper does not provide complete training resources, epoch, optimizer and other details, making it difficult to reproduce.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<table>
+<thead>
+<tr><th>Applicable conditions</th><th>Conditions that require caution</th></tr>
+</thead>
+<tbody>
+<tr><td>Tasks can be naturally decomposed into several atomic subtasks, and each subtask has a clear end state.</td><td>The task requires continuous feedback, does not have a clear keyframe, or the intermediate state is difficult to anchor with images.</td></tr>
+<tr><td>Key objects in the scene are visible, and the simulator can provide keyframe/joint supervision.</td><td>Strong occlusion in the real environment, deformable objects, and contact status are not visible.</td></tr>
+<tr><td>The goal is to generate long-range vision plans or simulation training data.</td><td>Real-world robot deployments requiring safe closed-loop execution.</td></tr>
+<tr><td>VLM can be accepted as the upstream planner and prompt/template can be adjusted.</td><td>High-level instruction ambiguity, or error-prone tasks in VLM space reasoning.</td></tr>
+</tbody>
+</table>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the biggest difference between RoboEnvision and autoregressive long video?</h3>
+<p>Autoregressive continues to generate segment by segment using the last frame of the previous segment, and errors will be passed; RoboEnvision first generates all subtask key frames as global anchor points, and then locally fills the frame. It sacrifices some single-segment degrees of freedom in exchange for better long-range structure and object consistency.</p>
+<h3>Q2: What problem does keyframe-instruction cross-attention solve?</h3>
+<p>It allows the $i$ keyframe to only look at the $i$ atomic instruction, preventing all keyframes from paying attention to the entire prompt. This way the keyframes more clearly correspond to the completion status of each subtask.</p>
+<h3>Q3: What do 3D attention and SPA do respectively?</h3>
+<p>3D attention prefers cross-spatial-temporal modeling to help maintain the number and position of objects; SPA uses the initial image VAE feature to provide fine-grained semantic and shape information to help small objects not be deformed or lost. ablation shows that the combination of the two is the best.</p>
+<h3>Q4: Why does the policy model need to be trained on long-range keyframes?</h3>
+<p>The joint changes between long-range keyframes are greater and the distribution is richer than that of short-range consecutive frames. Using only short-horizon frames for training, even using long-range video inference will drop to 49.4%; autoregressive generation and execution is even lower, only 27.0%.</p>
+<h3>Q5: Which is the strongest result?</h3>
+<p>The LHMM success rate of 67.4% is the result closest to robot control; the video indicator is the most convincing LHMM five-item result. The two taken together show that it not only generates more similar images, but also supports joint trajectory regression.</p>
+<h3>Q6: What is the most likely place to be questioned?</h3>
+<p>Insufficient validation on real robots, no systematic quantification of VLM decomposition, and open-loop execution. The paper proves that simulated long-range video planning and action regression are valuable, but there is still a significant distance from real long-range robot closed-loop deployment.</p>
+</section>
+</main>
+</body>
+</html>

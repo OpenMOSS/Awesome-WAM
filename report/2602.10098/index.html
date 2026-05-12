@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLA-JEPA - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model</h1>
+    <div class="meta">
+      <p><strong>方法名：</strong>VLA-JEPA</p>
+      <p><strong>作者：</strong>Jingwen Sun, Wenyao Zhang, Zekun Qi, Shaojie Ren, Zezhi Liu, Hanxin Zhu, Guangzhong Sun, Xin Jin, Zhibo Chen</p>
+      <p><strong>机构：</strong>University of Science and Technology of China；Zhongguancun Academy；Shanghai Jiao Tong University；Tsinghua University；Eastern Institute of Technology, Ningbo；University of Chinese Academy of Sciences；Nankai University</p>
+      <p><strong>arXiv：</strong>v1 提交于 2026-02-10，v2 更新于 2026-02-14</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2602.10098">arXiv:2602.10098</a> | <a href="https://arxiv.org/pdf/2602.10098">PDF</a> | <a href="https://ginwind.github.io/VLA-JEPA/">项目页</a> | <a href="https://github.com/ginwind/VLA-JEPA">官方代码</a> | <a href="https://huggingface.co/ginwind/VLA-JEPA">Hugging Face</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录：</strong>
+    <a href="#quick">1. 速览</a>
+    <a href="#motivation">2. 动机</a>
+    <a href="#related">3. 相关工作</a>
+    <a href="#method">4. 方法详解</a>
+    <a href="#experiments">5. 实验</a>
+    <a href="#reproduce">6. 可复现审计</a>
+    <a href="#discussion">7. 分析、局限与边界</a>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>VLA-JEPA 用 JEPA-style latent world model 替代像素重建式 latent-action 预训练，让 VLA 从当前观测和语言中预测未来 latent state，并严格避免未来帧进入 student pathway，从而学习更接近可控状态转移的 latent action。
+    </div>
+    <table>
+      <tr><th>论文要解决什么</th><td>互联网视频规模大但没有机器人动作标签；已有 latent-action 预训练容易学到像素差异、相机运动和背景变化，而不是对控制有用的状态转移语义。</td></tr>
+      <tr><th>作者的方法抓手</th><td>使用 leakage-free state prediction：future frame 只经过 target encoder 产生监督目标，student 只看当前观测和语言；预测目标在 latent space 中对齐，而不是重建像素。</td></tr>
+      <tr><th>最重要的结果</th><td>LIBERO 平均成功率 97.2；LIBERO-Plus 在 7 类扰动中 5 类最佳，平均 79.5；SimplerEnv 在 Google Robot 上平均 65.2，在 WidowX 上平均 57.3；真实机器人 ID 与 object-layout OOD 均优于 $\pi_0$ 和 $\pi_{0.5}$。</td></tr>
+      <tr><th>阅读时要注意的点</th><td>这篇文章的核心不是“再加一个未来预测头”，而是把未来信息限制为 target，迫使 latent action token 承载从当前状态到未来 latent state 的解释变量；同时 action head 用 conditional flow matching 生成连续动作轨迹。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 VLA、latent action、JEPA/V-JEPA2、world model、causal attention、conditional flow matching，以及 LIBERO/SimplerEnv 等机器人评测。</p>
+    <p><strong>关键词：</strong>Vision-Language-Action, JEPA, latent world model, latent action, human video pretraining, flow matching, LIBERO, SimplerEnv。</p>
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>指出 latent-action 预训练的失配来源：</strong>像素目标、真实视频噪声运动、未来信息泄漏和多阶段训练复杂性，会让 latent action 偏离控制语义。</li>
+      <li><strong>提出 VLA-JEPA：</strong>用 latent predictive alignment 学 action-relevant transition semantics，避免像素重建和 future leakage，并形成较简单的预训练流程。</li>
+      <li><strong>在仿真与真实机器人中验证鲁棒性：</strong>覆盖 LIBERO、LIBERO-Plus、SimplerEnv 和真实 Franka 桌面操作，并包含 human-video ablation、attention map 和 future horizon 分析。</li>
+    </ul>
+    <div class="figure">
+      <img src="figures/architecture.png" alt="VLA-JEPA architecture">
+      <div class="caption"><strong>Figure 1.</strong> VLA-JEPA 架构：target encoder 从未来帧产生 latent target；student pathway 只看当前观测和语言，通过 latent action 与 predictor 预测未来 latent state。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决什么问题</h3>
+    <p>VLA 模型需要大量视觉、语言和动作数据，但 action-labeled robot data 采集昂贵且覆盖窄。相比之下，人类视频和互联网视频规模更大，包含丰富的时间变化。因此近期很多工作希望从无动作标签视频中学习 latent action，再迁移到机器人控制。</p>
+    <p>论文认为，问题在于很多 latent-action objective 学到的是“视觉变化的压缩表示”，而不是“在交互下可控状态如何演化”。对机器人来说，action 的价值不在于解释每个像素怎么变，而在于解释物体、手、工具、机器人等与任务相关的状态转移。</p>
+
+    <h3>2.2 已有方法的四个失败模式</h3>
+    <ol>
+      <li><strong>Pixel-level objective 偏向外观：</strong>未来像素预测或 frame-difference compression 容易被纹理、光照、背景、视角等高方差但低控制因素主导。</li>
+      <li><strong>真实世界视频放大噪声运动：</strong>human videos 和 in-the-wild footage 中，相机运动和非因果背景变化可能强过交互导致的状态变化。</li>
+      <li><strong>信息泄漏导致 latent action 变成 shortcut：</strong>如果训练时 latent action module 同时看到当前帧和未来帧，它可能直接编码未来图像，而不是学习解释状态转移的变量。</li>
+      <li><strong>多阶段 pipeline 脆弱：</strong>表征预训练、latent-action learning/alignment、policy learning 等多阶段流程会引入工程复杂度和阶段间不一致。</li>
+    </ol>
+
+    <h3>2.3 本文的解决思路</h3>
+    <p>VLA-JEPA 的原则是：预测反映 action-relevant transition structure 的未来 latent state，同时禁止 future information 泄漏进 predictor。JEPA 的优势正好契合这一点：不重建像素，而是在 latent representation 层面对齐，从而天然降低低层噪声对目标的支配。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的代表</th><th>VLA-JEPA 的定位</th></tr>
+      <tr><td>Vision-Language-Action models</td><td>RT 系列、OpenVLA、$\pi_0$、$\pi_{0.5}$、SpatialVLA、CoT-VLA 等</td><td>这些方法推动 VLA 成为机器人学习主流，但通常依赖大规模 action-labeled robot data；VLA-JEPA 试图减少显式动作监督依赖。</td></tr>
+      <tr><td>Multimodal CoT / future prediction</td><td>hierarchical planning、subgoal/rollout prediction、object-centric conditioning、latent future embeddings/actions</td><td>这些方法仍可能依赖动作数据或未来重建；VLA-JEPA 选择 latent state alignment，不做 pixel reconstruction。</td></tr>
+      <tr><td>Latent action learning</td><td>ILPO、LAPO、Genie、LAPA、UniVLA、MotoGPT、villa-X、XR-1、CLAP、VITA 等</td><td>前作常从相邻帧抽取离散/连续 motion token，再映射到真实动作；VLA-JEPA 重点避免 delta-frame 信息泄漏和像素 shortcut。</td></tr>
+    </table>
+    <div class="figure">
+      <img src="figures/cross_domain.png" alt="VLA-JEPA cross-domain training">
+      <div class="caption"><strong>Figure 2.</strong> VLA-JEPA 同时支持 action-free human videos 与 action-labeled robot data：前者训练 latent world modeling alignment，后者联合 alignment 与 robot action prediction。</div>
+    </div>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 总体框架</h3>
+    <p>VLA-JEPA 由三个主要部分组成：Qwen3-VL-2B VLM backbone、V-JEPA2-based latent world model、conditional flow-matching action head。预训练阶段从 Something-Something-v2 人类视频和 Droid 机器人数据学习 latent action；后训练/微调阶段在 LIBERO、SimplerEnv 或真实机器人数据上训练下游控制。</p>
+    <p>论文在正文中说采用 Qwen3-VL 作为核心 VLM，视觉编码器是 SigLIP-2；附录明确实现使用 Qwen3-VL-2B。世界状态目标来自 frozen V-JEPA2 encoder，predictor 随机初始化并训练。<span class="appendix-ref">附录 Implementation Details</span></p>
+
+    <h3>4.2 Model Backbone 与 latent tokens</h3>
+    <p>为了让 VLM 输出 time-aware latent action 与 embodied action，作者向 Qwen3-VL 词表加入两类特殊 token：$\langle latent_i \rangle$ 和 $\langle action \rangle$。其中 $\langle latent_0 \rangle$ 表示 $s_0$ 到 $s_1$ 的状态转移；$\langle action \rangle$ 在机器人数据上作为 action head 的条件。</p>
+    <p>实际生成 latent action token 时，同一个 $\langle latent_i \rangle$ 会重复 $K$ 次，以增强模型对 latent action tokens 的注意力；附录给出 $K = 24/T$，其中 $T$ 是未来视频 horizon，24 是经验最优值。<span class="appendix-ref">附录 VLA-JEPA Architecture</span></p>
+
+    <h3>4.3 从 human videos 学 latent world model</h3>
+    <p>对于无动作标签的人类视频，数据写作 $D=\{(O_0,O_1,\dots,O_v,\ell)\}$，$\ell$ 是语言描述，$O_v$ 是第 $v$ 个视角的视频帧序列。世界状态编码器先对每个视角用 V-JEPA2 encoder $F(\cdot)$ 得到表示，再把多视角表示拼接成统一 world state：</p>
+    <div class="formula-block">
+      <p class="intuition">这个公式在做：把同一时刻不同视角的视觉状态合成一个 world-state latent。</p>
+      $$s_{t_i}=\Vert_v F(I_{v,t_i})$$
+      <table>
+        <tr><td>$F(\cdot)$</td><td>单视角视频 encoder，论文采用 V-JEPA2。</td></tr>
+        <tr><td>$I_{v,t_i}$</td><td>第 $v$ 个视角在时间 $t_i$ 的图像帧。</td></tr>
+        <tr><td>$\Vert_v$</td><td>沿视角维度拼接 representation。</td></tr>
+      </table>
+    </div>
+    <p>VLM 的 student pathway 只输入初始时刻多视角图像和语言，不输入未来帧。它把 learnable latent token 映射成状态转移表示：</p>
+    <div class="formula-block">
+      $$z_{t_i}=p_\theta^{VLM}\left(\langle latent_i\rangle \mid \{I_{j,t_0}\}_{j=0}^{v}, \ell\right)$$
+      <p>这里 $z_{t_i}$ 是第 $i$ 个 latent action token 对应的 latent representation。关键是右侧没有未来帧，未来帧只出现在 target encoder 产生的监督目标里。</p>
+    </div>
+    <p>随后 world model 用历史 world states 和对应 latent action representations 预测未来状态 chunk：</p>
+    <div class="formula-block">
+      $$\hat{s}_{t_{1:i+1}} = p_\theta^{WM}(s_{t_{0:i}}, z_{t_{0:i}})$$
+      <p>world model 采用 time-causal attention：同一时间步内 latent action tokens 与 image latent tokens 双向全注意力；跨时间步严格 causal，只能看当前和过去。</p>
+    </div>
+
+    <h3>4.4 JEPA 目标和信息泄漏控制</h3>
+    <p>论文把训练目标解释成 semantic space 中 predictive log-likelihood 的 ELBO。由于 frozen V-JEPA2 encoder $F(\cdot)$ 产生 deterministic embeddings，KL 项在实践中消失，目标退化为 latent-space reconstruction/alignment loss。</p>
+    <div class="formula-block">
+      $$\mathcal{L}_{WM}=\sum_{k=1}^{T}\mathbb{E}_{s_{t_k}\sim F(\cdot)}(\hat{s}_{t_k}-s_{t_k})$$
+      <p>论文原式没有写范数，结合上下文可理解为在 latent space 中对齐 predicted world state 与 target world state。报告中不额外假定未写明的具体距离形式。</p>
+    </div>
+    <p>这个设计避免两种常见 shortcut：一是不让模型直接重建像素，从而降低背景和相机 motion 的支配；二是不把未来帧喂给 student，因此 latent action 不会退化成未来图像压缩码。</p>
+
+    <h3>4.5 机器人数据上的动作预测</h3>
+    <p>在 action-labeled robot data 上，VLA-JEPA 同时保留 world modeling loss，并追加 embodied action token。VLM 输出全局 action-conditioning representation：</p>
+    <div class="formula-block">
+      $$z_a=p_\theta^{VLM}\left(\langle action\rangle\mid \{I_{i,t_0}\}_{i=0}^{v}, \ell, \langle latent_i\rangle\right)$$
+      <p>$z_a$ 作为 conditional flow-matching action head 的条件，和初始观测、语言、latent action 一起约束动作生成。</p>
+    </div>
+    <p>动作头用 DiT-B 风格 Transformer 建模连续动作轨迹分布。给定真实动作序列 $a_{0:H}$ 和高斯噪声 $\epsilon$，定义线性插值：</p>
+    <div class="formula-block">
+      $$a_t=(1-t)\epsilon+t a_{0:H}, \quad t\sim\mathcal{U}(0,1)$$
+      $$\mathcal{L}_{FM}=\mathbb{E}_{a_{0:H},\epsilon,t}\left[\left\|v_\theta(a_t,t\mid z_a)-(a_{0:H}-\epsilon)\right\|_2^2\right]$$
+      <p>训练目标是让模型预测从噪声流向真实动作序列的 velocity field；推理时从噪声积分到动作空间，得到 $\hat{a}_{0:H}$。</p>
+    </div>
+    <p>机器人数据上的总目标为：</p>
+    <div class="formula-block">
+      $$\mathcal{L}=\mathcal{L}_{FM}+\beta \mathcal{L}_{WM}$$
+    </div>
+
+    <h3>4.6 架构与训练超参</h3>
+    <div class="scroll">
+      <table>
+        <tr><th>Latent World Model 配置</th><th>值</th></tr>
+        <tr><td>Transformer Layers</td><td>12</td></tr>
+        <tr><td>Attention heads</td><td>8</td></tr>
+        <tr><td>Image token dimension</td><td>2048</td></tr>
+        <tr><td>Number of image tokens per time step</td><td>256</td></tr>
+        <tr><td>Action token dimension</td><td>2048</td></tr>
+        <tr><td>Number of action tokens per time step</td><td>3</td></tr>
+        <tr><td>Number of views</td><td>2</td></tr>
+        <tr><td>Future video horizon</td><td>8</td></tr>
+      </table>
+    </div>
+    <div class="scroll">
+      <table>
+        <tr><th>Action Head 配置</th><th>值</th></tr>
+        <tr><td>Transformer Layers</td><td>16</td></tr>
+        <tr><td>Attention heads</td><td>12</td></tr>
+        <tr><td>Token dimension</td><td>1024</td></tr>
+        <tr><td>State dimension</td><td>8</td></tr>
+        <tr><td>Action dimension</td><td>7</td></tr>
+        <tr><td>Future action horizon</td><td>7</td></tr>
+        <tr><td>Positional encoding</td><td>Learnable</td></tr>
+        <tr><td>Denoising timesteps</td><td>4</td></tr>
+      </table>
+    </div>
+    <table>
+      <tr><th>训练细节</th><th>论文/附录信息</th></tr>
+      <tr><td>图像尺寸</td><td>VLM 输入 resize 到 224x224；world-state encoder 的 video clips resize 到 256x256。</td></tr>
+      <tr><td>动作归一化</td><td>joint-position control 用 joint-space delta positions；end-effector control 用 delta positions 和 delta axis-angle；均 min-max 到 [0,1]；gripper binarized 到 {0,1}。</td></tr>
+      <tr><td>多视角处理</td><td>少于两个 camera views 时复制 world-state representation；多于两个 views 时选择两个用于 world-state representation。</td></tr>
+      <tr><td>训练硬件与 batch</td><td>8 GPUs 并行，batch size 32，global batch size 256。</td></tr>
+      <tr><td>学习率</td><td>cosine schedule + linear warmup；VLM 与 latent world model peak LR 1e-5；action head peak LR 1e-4。</td></tr>
+      <tr><td>训练步数</td><td>SSv2+Droid 预训练 50K steps；仿真数据继续训练 30K steps；真实数据继续 fine-tune 20K steps。</td></tr>
+    </table>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <h3>5.1 实验设置</h3>
+    <p>论文使用三类仿真 benchmark 和一个真实机器人环境：LIBERO 评估仿真 in-distribution manipulation；SimplerEnv 评估 real-to-sim gap；LIBERO-Plus 评估多维扰动鲁棒性；真实机器人使用 Franka Research 3 桌面 pick-and-place。作者比较最新 VLA baselines，包括 latent-action VLA、future-prediction VLA 和开源 VLA。</p>
+    <div class="figure">
+      <img src="figures/experiment_setup.png" alt="Experiment setup">
+      <div class="caption"><strong>Figure 3.</strong> 实验覆盖 LIBERO、LIBERO-Plus、SimplerEnv 和真实 Franka robot。</div>
+    </div>
+    <table>
+      <tr><th>数据/阶段</th><th>使用方式</th></tr>
+      <tr><td>Something-Something-v2</td><td>220K human videos；用于 action-free human video latent world modeling pretraining。</td></tr>
+      <tr><td>Droid</td><td>76K high-quality demonstration trajectories；用于 action-labeled robot data pretraining。</td></tr>
+      <tr><td>LIBERO / LIBERO-Plus</td><td>只使用 LIBERO 原始约 2K expert demonstrations 微调，不使用 LIBERO-Plus augmented dataset。</td></tr>
+      <tr><td>SimplerEnv</td><td>用 Fractal 与 BridgeV2 分别对应 SimplerEnv 的两种 embodiment post-training。</td></tr>
+      <tr><td>Real-world</td><td>100 demonstrations，覆盖 3 个 picking-and-placing tasks。</td></tr>
+    </table>
+
+    <h3>5.2 LIBERO 主结果</h3>
+    <p>LIBERO 每个 task suite 中每个任务评估 50 episodes，每个 suite 500 episodes，报告 success rate。VLA-JEPA 在 4 个 suites 中有 2 个第一，平均成功率最高。</p>
+    <div class="scroll">
+      <table>
+        <tr><th>方法</th><th>Spatial</th><th>Object</th><th>Goal</th><th>LIBERO-10</th><th>Avg</th></tr>
+        <tr><td>LAPA</td><td>73.8</td><td>74.6</td><td>58.8</td><td>55.4</td><td>65.7</td></tr>
+        <tr><td>UniVLA</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+        <tr><td>OpenVLA-OFT</td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+        <tr><td>$\pi_0$</td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+        <tr><td>$\pi_{0.5}$</td><td><strong>98.8</strong></td><td>98.2</td><td><strong>98.0</strong></td><td>92.4</td><td>96.9</td></tr>
+        <tr><td><strong>VLA-JEPA</strong></td><td>96.2</td><td><strong>99.6</strong></td><td>97.2</td><td><strong>95.8</strong></td><td><strong>97.2</strong></td></tr>
+        <tr><td>VLA-JEPA w/o human videos</td><td>94.8</td><td><strong>99.6</strong></td><td>95.8</td><td>94.0</td><td>96.1</td></tr>
+      </table>
+    </div>
+    <p>作者特别指出，OpenVLA-OFT 和 $\pi_{0.5}$ 等强 baseline 依赖大量 robot datasets pretraining；VLA-JEPA 用更少数据达到更高平均值。与 LAPA、UniVLA、villa-X、CoT-VLA 等 latent-action / human-video 方法相比，VLA-JEPA 的结果支持其对 pixel shortcut 与 leakage 的问题判断。</p>
+
+    <h3>5.3 SimplerEnv 结果</h3>
+    <p>SimplerEnv 包含 Google Robot 与 WidowX Robot 两组 visual matching 设置。VLA-JEPA 在 Google Robot 平均 65.2，为所有列出方法中最高；在 WidowX Robot 平均 57.3，与 LAPA 持平最高。</p>
+    <div class="scroll">
+      <table>
+        <tr><th>方法</th><th>Google Pick</th><th>Google Move</th><th>Google Drawer</th><th>Google Place</th><th>Google Avg</th><th>WidowX Spoon</th><th>Carrot</th><th>Block</th><th>Eggplant</th><th>WidowX Avg</th></tr>
+        <tr><td>LAPA*</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>70.8</td><td>45.8</td><td>54.2</td><td>58.3</td><td>57.3</td></tr>
+        <tr><td>villa-X</td><td>81.7</td><td>55.4</td><td>38.4</td><td>4.2</td><td>44.9</td><td>48.3</td><td>24.2</td><td>19.2</td><td>71.7</td><td>40.8</td></tr>
+        <tr><td>RoboVLMs</td><td>77.3</td><td>61.7</td><td>43.5</td><td>24.1</td><td>51.7</td><td>45.8</td><td>20.8</td><td>4.2</td><td>79.2</td><td>37.5</td></tr>
+        <tr><td>$\pi_0$</td><td>72.7</td><td>65.3</td><td>38.3</td><td>-</td><td>-</td><td>29.1</td><td>0</td><td>16.6</td><td>62.5</td><td>40.1</td></tr>
+        <tr><td><strong>VLA-JEPA</strong></td><td><strong>88.3</strong></td><td>64.1</td><td>59.3</td><td>49.1</td><td>65.2</td><td><strong>75.0</strong></td><td><strong>70.8</strong></td><td>12.5</td><td>70.8</td><td><strong>57.3</strong></td></tr>
+        <tr><td>VLA-JEPA w/o human videos</td><td>85.3</td><td>66.7</td><td><strong>75.5</strong></td><td><strong>86.1</strong></td><td><strong>78.4</strong></td><td><strong>75.0</strong></td><td>54.2</td><td>20.8</td><td><strong>79.2</strong></td><td><strong>57.3</strong></td></tr>
+      </table>
+    </div>
+    <p>这个表也提示一个重要边界：w/o human videos 在 SimplerEnv 的 Google Avg 反而更高。作者解释为 real-to-sim gap 和 ID 场景中，高质量 expert demonstrations 的影响可能大于 human video。</p>
+
+    <h3>5.4 LIBERO-Plus 鲁棒性</h3>
+    <p>LIBERO-Plus 将原 LIBERO 四个 suites 放入七类扰动：Camera、Robot、Language、Light、Background、Noise、Layout。VLA-JEPA 在 Robot、Language、Light、Background、Layout 五类第一，平均 79.5 第一。</p>
+    <div class="scroll">
+      <table>
+        <tr><th>方法</th><th>Camera</th><th>Robot</th><th>Language</th><th>Light</th><th>Background</th><th>Noise</th><th>Layout</th><th>Avg</th></tr>
+        <tr><td>UniVLA</td><td>1.8</td><td>46.2</td><td>69.6</td><td>69.0</td><td>81.0</td><td>21.2</td><td>31.9</td><td>42.9</td></tr>
+        <tr><td>OpenVLA-OFT</td><td>56.4</td><td>31.9</td><td>79.5</td><td>88.7</td><td>93.3</td><td>75.8</td><td>74.2</td><td>69.6</td></tr>
+        <tr><td>$\pi_0$</td><td>13.8</td><td>6.0</td><td>58.8</td><td>85.0</td><td>81.4</td><td><strong>79.0</strong></td><td>68.9</td><td>53.6</td></tr>
+        <tr><td>$\pi_0$-Fast</td><td><strong>65.1</strong></td><td>21.6</td><td>61.0</td><td>73.2</td><td>73.2</td><td>74.4</td><td>68.8</td><td>61.6</td></tr>
+        <tr><td><strong>VLA-JEPA</strong></td><td>63.3</td><td><strong>67.1</strong></td><td><strong>85.4</strong></td><td><strong>95.6</strong></td><td><strong>93.6</strong></td><td>66.3</td><td><strong>85.1</strong></td><td><strong>79.5</strong></td></tr>
+        <tr><td>VLA-JEPA w/o human videos</td><td>40.3</td><td>55.7</td><td>72.9</td><td>88.2</td><td>70.5</td><td>38.2</td><td>74.6</td><td>62.9</td></tr>
+      </table>
+    </div>
+    <p>这张表是 human video 价值最清楚的证据之一：VLA-JEPA full model 从 w/o human videos 的 62.9 提升到 79.5，尤其在 Background、Noise、Language、Layout 上差距明显。</p>
+
+    <h3>5.5 真实机器人实验</h3>
+    <p>真实设置使用 Franka Research 3、Robotiq 2F-85 gripper、三个 Intel RealSense D435 摄像头，其中两个第三人称视角和一个 wrist-mounted view。训练专家演示包括把 grapes、apples、mangoes、oranges 从桌上放入 plate 或 bowl。每个任务执行 10 次独立 trials，报告平均成功率。<span class="appendix-ref">附录 Real-world Experiments Details</span></p>
+    <div class="figure">
+      <img src="figures/realworld_figure.png" alt="Real-world experimental results">
+      <div class="caption"><strong>Figure 4.</strong> 真实机器人 ID、task OOD 与 object-layout OOD 结果；论文说明 VLA-JEPA 在 ID 和 layout OOD 上最佳，在 task OOD 上第二。</div>
+    </div>
+    <p>task-level OOD 包括：香蕉放入碗、桃子放到盘子、葡萄放到架子顶层。作者观察到：香蕉任务中 $\pi_{0.5}$ 与 VLA-JEPA 约 50% 成功；桃子任务因形状不规则，机器人常违反安全边界；架子任务中没有模型成功把末端放到顶层，但 VLA-JEPA 会从架子后侧接近并抬高末端，而 $\pi_0$ 与 $\pi_{0.5}$ 直接碰撞架子。</p>
+    <p>layout OOD 中，$\pi_0$ 与 $\pi_{0.5}$ 在抓取失败后不会重新打开 gripper 再抓；VLA-JEPA 会立即打开 gripper 并再次尝试。作者将其归因于 human videos 中存在大量 repeated grasping 行为。<span class="appendix-ref">附录 Real-world Experiments Details</span></p>
+    <div class="figure">
+      <img src="figures/real_world_frames.png" alt="Real-world frames under object-layout OOD">
+      <div class="caption"><strong>Figure 7.</strong> object-layout OOD 下 $\pi_0$、$\pi_{0.5}$ 与 VLA-JEPA 的执行比较。</div>
+    </div>
+
+    <h3>5.6 进一步分析与消融</h3>
+    <h4>Human video 的影响</h4>
+    <p>论文的分析很克制：human videos 在 LIBERO 和 SimplerEnv 上不一定带来显著提升，甚至 w/o human videos 在 SimplerEnv 某些设置更强；但在 LIBERO-Plus 这类扰动鲁棒性场景中，human videos 明显提升稳定性。作者认为 human videos 主要增强已有技能的 robustness/stability，而不是直接引入新的 action execution capability。</p>
+    <div class="figure">
+      <img src="figures/human_video_proportion.png" alt="Human video proportion effect">
+      <div class="caption"><strong>Figure 5.</strong> 随 human video proportion 增大，LIBERO-Plus 多类扰动下的成功率变化；作者据此支持 human videos 主要提升鲁棒性。</div>
+    </div>
+
+    <h4>Unified pretraining 的影响</h4>
+    <p>作者可视化 LAPA、UniVLA、VLA-JEPA 的 latent action token 到 image token 的 attention。论文解释：LAPA 关注过密视觉信息和无关桌面物体，可能来自信息泄漏；UniVLA 借助文本语义缓解但会关注 stationary pen、tablecloth texture 等无关语义背景；VLA-JEPA 更集中于 robotic arm、hand 与 manipulated objects。</p>
+    <div class="figure">
+      <img src="figures/attention_map.png" alt="Attention map">
+      <div class="caption"><strong>Figure 6.</strong> latent action tokens 对 image tokens 的 attention weight matrix。</div>
+    </div>
+
+    <h4>Future video horizon</h4>
+    <table>
+      <tr><th>$T$</th><th>Spatial</th><th>Object</th><th>Goal</th><th>LIBERO-10</th><th>Avg</th></tr>
+      <tr><td>4</td><td><strong>95.0</strong></td><td>99.2</td><td>95.8</td><td>89.0</td><td>94.8</td></tr>
+      <tr><td>8</td><td>94.8</td><td><strong>99.8</strong></td><td>95.8</td><td><strong>94.0</strong></td><td><strong>96.1</strong></td></tr>
+      <tr><td>16</td><td>92.8</td><td>98.8</td><td><strong>98.0</strong></td><td>92.2</td><td>95.5</td></tr>
+    </table>
+    <p>作者希望 latent action 捕捉相邻帧间动态，latent action token 数始终等于帧数减一。$T=8$ 平均最好，论文解释为它接近预定义 action horizon；$T$ 太小信息不足，$T$ 太大引入冗余。</p>
+  </section>
+
+  <section id="reproduce">
+    <h2>6. 可复现审计</h2>
+    <div class="audit-card">
+      <h4>代码与模型</h4>
+      <p><span class="pass">有官方代码与模型入口：</span>GitHub README 显示 partial training code、LIBERO/LIBERO-Plus/SimplerEnv evaluation code、custom dataset training code 已发布；Hugging Face 提供 checkpoints。README 也列出 Qwen3-VL-2B、V-JEPA2 encoder、SSv2、Droid、LIBERO、BridgeV2、Fractal 等依赖资源。</p>
+    </div>
+    <table>
+      <tr><th>复现项</th><th>已给信息</th><th>状态</th></tr>
+      <tr><td>模型结构</td><td>Qwen3-VL-2B；V-JEPA2 encoder；latent world model 与 action head 配置表完整。</td><td><span class="pass">充分</span></td></tr>
+      <tr><td>训练超参</td><td>图像尺寸、batch、GPU 数、学习率、schedule、训练步数、动作归一化、多视角处理均在附录给出。</td><td><span class="pass">较充分</span></td></tr>
+      <tr><td>数据</td><td>SSv2、Droid、LIBERO、BridgeV2、Fractal 在 README 中给出下载链接；真实机器人 100 demos 无公开完整数据说明。</td><td><span class="warn">仿真较充分，真实实验有限</span></td></tr>
+      <tr><td>评测</td><td>README 给出 LIBERO、LIBERO-Plus、SimplerEnv 环境准备、checkpoint 配置和 eval script。</td><td><span class="pass">充分</span></td></tr>
+      <tr><td>硬件</td><td>论文训练使用 8 NVIDIA A100 GPUs；README 说明 LIBERO 4 GPUs 并行，LIBERO-Plus/SimplerEnv 8 GPUs 并行，可按 GPU 数修改。</td><td><span class="warn">成本较高</span></td></tr>
+    </table>
+    <div class="pseudocode">Repository setup skeleton:
+git clone https://github.com/ginwind/VLA-JEPA
+conda create -n VLA_JEPA python=3.10 -y
+conda activate VLA_JEPA
+pip install -r requirements.txt
+pip install flash-attn --no-build-isolation
+pip install -e .
+
+Required checkpoints:
+- Qwen3-VL-2B
+- V-JEPA2 encoder
+- VLA-JEPA checkpoints from Hugging Face</div>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>基于论文自身证据，最有价值的点是把 latent action 的学习目标从“解释像素差异”改成“在无泄漏条件下解释未来 latent state”。这使 human-video pretraining 的作用更接近“提升已有技能的鲁棒性和时序稳定性”，而不是把人类视频误当成可直接执行的机器人动作监督。LIBERO-Plus 和真实机器人 repeated grasping 观察，是这一点最直接的支撑。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>论文不是只报一个平均值，而是在 LIBERO、SimplerEnv、LIBERO-Plus 和真实机器人四类设置上测试，并且把 human videos、future horizon、attention map 做了拆解。尤其是 LIBERO-Plus 中 full model 与 w/o human videos 的差距，和 SimplerEnv 中 w/o human videos 反而更好的现象共同说明：作者没有把 human videos 泛化为万能增益，而是把收益边界定位在 robustness/stability 上。</p>
+
+    <h3>7.3 论文明确写出的失败现象</h3>
+    <ul>
+      <li>真实 task OOD 中，VLA-JEPA 的 generalization 不如 $\pi_{0.5}$ 稳健；它缺乏细粒度 textual instruction reasoning，可能抓取与指令不匹配的物体。</li>
+      <li>$\pi_{0.5}$ 更准确接触目标物体，但 position control 常违反机器人安全边界导致失败；VLA-JEPA 较少触发安全边界。</li>
+      <li>架子任务中，所有模型都未成功把末端放到顶层；VLA-JEPA 只表现出较不同的接近行为，并未完成任务。</li>
+      <li>human video 对 ID 和 real-to-sim gap 场景不一定带来增益；高质量 expert demonstrations 在这些场景可能更关键。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <ul>
+      <li>VLA-JEPA 适用于能从视觉时序中获得有用 latent dynamics 的 manipulation setting；它没有证明对所有精细力控、长程规划或高语言推理任务都有效。</li>
+      <li>方法依赖强 VLM、V-JEPA2 encoder、A100 级训练资源和多个大数据集；完整从头复现实验成本高。</li>
+      <li>真实机器人只覆盖 100 demonstrations 和少量桌面任务；论文主要将真实结果作为物理部署证据，而不是大规模真实世界泛化证明。</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

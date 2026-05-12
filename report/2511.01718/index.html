@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UD-VLA - 中文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Unified Diffusion VLA: Vision-Language-Action Model via Joint Discrete Denoising Diffusion Process</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Jiayi Chen, Wenxuan Song, Pengxiang Ding, Ziyang Zhou, Han Zhao, Feilong Tang, Donglin Wang, Haoang Li</p>
+      <p><strong>机构：</strong>The Hong Kong University of Science and Technology (Guangzhou), Westlake University, Zhejiang University, Monash University</p>
+      <p><strong>发表形式：</strong>ICLR 2026 conference template / arXiv preprint, 2025</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2511.01718">arXiv:2511.01718</a> | <a href="https://arxiv.org/pdf/2511.01718">PDF</a> | <a href="https://irpn-eai.github.io/UD-VLA.github.io/">Project Page</a> | <a href="https://github.com/OpenHelix-Team/UD-VLA/tree/main">Code</a> | <a href="https://huggingface.co/chenpyyy/UD-VLA_CALVIN_ABCD_D">CALVIN checkpoint</a></p>
+      <p><strong>源码说明：</strong>arXiv 源码含完整 Appendix：LLM usage、future image visualization、real-world setup/tasks、loss formulations、training details、baselines、discrete vs continuous diffusion comparison。</p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#quick">1. 论文速览</a></li>
+      <li><a href="#motivation">2. 动机</a></li>
+      <li><a href="#related">3. 相关工作脉络</a></li>
+      <li><a href="#method">4. 方法详解</a></li>
+      <li><a href="#experiments">5. 实验与结果</a></li>
+      <li><a href="#discussion">6. 论文内分析与讨论</a></li>
+      <li><a href="#boundary">7. 分析、局限与边界</a></li>
+      <li><a href="#repro">8. 可复现性审计</a></li>
+    </ul>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>UD-VLA 把语言、当前图像、未来图像和动作统一到离散 token 空间，用 Joint Discrete Denoising Diffusion Process 在同一个同步去噪轨迹中并行生成未来图像与动作，从而让动作在每一步去噪中持续利用未来视觉信息。
+    </div>
+    <table>
+      <tr><th>阅读定位项</th><th>紧凑结论</th></tr>
+      <tr><td>论文要解决什么</td><td>已有 unified VLA 要么依赖外部视觉/动作专家，要么虽然把视觉和动作 token 化，却在图像生成和动作预测之间保留分离解码，导致未来图像对动作的引导不足且推理慢。</td></tr>
+      <tr><td>作者的方法抓手</td><td>用 VQ visual tokenizer 和 FAST action tokenizer 把图像、动作都转成离散 token；用 hybrid attention 保持跨模态方向性；用 JD3P 让未来图像 token 和动作 token 在同一个离散扩散过程中同步去噪。</td></tr>
+      <tr><td>最重要的结果</td><td>CALVIN ABCD-&gt;D 平均长度 4.64；LIBERO 平均成功率 92.7%；SimplerEnv-WidowX 表格 overall 62.5%；JD3P 解码速度 219.3 tokens/s，相对 AR 的 50.2 tokens/s 约 4.3 倍。</td></tr>
+      <tr><td>阅读时要注意的点</td><td>核心不是“加未来图像”本身，而是让动作 token 在多轮去噪中反复 attend 到中间态未来图像 token；同时注意 SimplerEnv 正文与表格存在数值不一致。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★★。需要熟悉 VLA、visual chain-of-thought、VQ tokenization、FAST action tokenization、discrete diffusion / mask-predict、attention mask 设计和机器人 imitation learning benchmark。</p>
+    <p><strong>关键词：</strong><span class="tag">Vision-Language-Action</span><span class="tag">Discrete Diffusion</span><span class="tag">JD3P</span><span class="tag">Hybrid Attention</span><span class="tag">Future Image Generation</span></p>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>Unified Diffusion VLA。</strong>论文提出把 understanding、generation、acting 统一在一个 transformer 内，而不是通过外部 image/action decoder 或分离过程拼接。</li>
+      <li><strong>JD3P。</strong>Joint Discrete Denoising Diffusion Process 把未来图像和动作放入同一个离散 mask-denoise 轨迹，使动作在每轮都能接收未来图像中间结果的指导。</li>
+      <li><strong>Hybrid attention。</strong>图像块和动作块内部用 bidirectional attention，跨块保持 causal 方向，避免 action-to-vision 信息泄露，同时保留 action 对 future image 的条件依赖。</li>
+      <li><strong>训练和推理配套设计。</strong>两阶段训练先给 VLM 注入未来图像生成能力，再在机器人动作数据上联合训练；推理时使用 prefix KV cache、prefilled special tokens、confidence-guided decoding 和 decoding space mapping。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/main_p1.png" alt="UD-VLA overview">
+      <div class="caption">Figure 1. UD-VLA 总览：架构、两阶段训练和 JD3P 推理。输出端包括固定长度 future image tokens 与可变长度 action tokens。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 要解决的问题</h3>
+    <p>VLA 的任务是读入自然语言指令和视觉观测，并输出能在物理世界中执行的动作。近期 unified VLA 开始把未来图像纳入 understanding-acting loop：先预测未来视觉状态，再把动作预测转化为“怎样达到这个未来状态”的 inverse kinematics 问题。</p>
+    <p>论文认为真正的统一不只是把输出模态放在同一个序列里，而是让视觉生成和动作生成彼此增益。若未来图像只在训练阶段作为辅助任务，或推理时图像生成和动作生成分开执行，动作 token 只能有限地吸收未来视觉信息。</p>
+
+    <h3>2.2 已有方法的局限</h3>
+    <table>
+      <tr><th>范式</th><th>典型做法</th><th>论文指出的问题</th></tr>
+      <tr><td>外部专家统一模态</td><td>GR-1、SEER、DreamVLA、F1、UP-VLA 等使用额外 encoder/decoder 或扩散专家生成视觉/动作。</td><td>模块分离可能带来 misalignment、复杂度更高，以及视觉生成和动作预测弱耦合。</td></tr>
+      <tr><td>统一输入输出 token 空间但分离解码</td><td>CoT-VLA、WorldVLA、UniVLA 等在 token 层统一图像和动作。</td><td>图像与动作仍不是同一个 joint decoding process；一些方法推理时只解码动作，训练中的图像预测价值没有显式保留。</td></tr>
+      <tr><td>AR 生成图像与动作</td><td>按 token 顺序自回归生成 future image/action。</td><td>每个动作 token 通常只经过一次上下文计算，图像对动作的引导不足；图像 token 本身也不天然适合严格 next-token 顺序。</td></tr>
+    </table>
+
+    <h3>2.3 本文高层思路</h3>
+    <p>UD-VLA 的核心假设是：生成未来图像与生成动作应该在同一个同步去噪过程中共同优化。随着未来图像从粗到细被恢复，动作 token 也从 mask/噪声状态逐步恢复；每一步动作都能 attend 到当前去噪阶段的未来图像，从而获得持续、充分的视觉指导。</p>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文中的定位</th><th>UD-VLA 的差异</th></tr>
+      <tr><td>Visual prediction for manipulation</td><td>UniPi、VLP、IPA 等把序列决策分解成视觉预测与动作/逆动力学。</td><td>UD-VLA 不只预测视觉计划，而是在 VLM backbone 内用离散扩散共同生成未来图像和动作。</td></tr>
+      <tr><td>Unified VLA</td><td>GR-1、SEER、DreamVLA、F1、UP-VLA、CoT-VLA、WorldVLA、UniVLA 等探索 future visual state 与 action 的统一。</td><td>论文强调自己的 “single joint decoding process”：future image/action 不再分开解码。</td></tr>
+      <tr><td>Discrete diffusion VLA</td><td>PD-VLA、Discrete Diffusion VLA、LLADA-VLA、CEED-VLA 使用 masked/token denoising 提升动作解码效率。</td><td>这些方法主要聚焦 action prediction；UD-VLA 把 visual tokens 和 action tokens 都纳入联合离散扩散。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 Unified Tokenization</h3>
+    <p>UD-VLA 把语言、视觉、动作转换为离散 token 并拼成单一序列。语言 token 设计跟随 Emu3；当前和未来图像由 VQ tokenizer 离散化；动作由 FAST tokenizer 表示。作者用 <code>&lt;BOI&gt;</code>/<code>&lt;EOI&gt;</code> 标记 image block，用 <code>&lt;BOA&gt;</code>/<code>&lt;EOA&gt;</code> 标记 action block。</p>
+    <div class="formula-block">
+      <p class="intuition">这个序列把输入和输出放在同一 token 空间中：前半部分是条件，后半部分是模型要生成的未来视觉和动作。</p>
+      $$[\;\text{text tokens};\;\text{current image tokens};\;\text{future image tokens};\;\text{action tokens}\;]$$
+      <table class="symbol-table">
+        <tr><td>text tokens</td><td>语言指令，是理解任务意图的输入。</td></tr>
+        <tr><td>current image tokens</td><td>当前观测图像 token，是视觉条件。</td></tr>
+        <tr><td>future image tokens</td><td>模型要生成的未来视觉状态，固定长度。</td></tr>
+        <tr><td>action tokens</td><td>模型要生成的动作序列，可变长度，由 FAST action tokenizer 得到。</td></tr>
+      </table>
+    </div>
+
+    <h3>4.2 Hybrid Attention</h3>
+    <p>Hybrid attention 的基本规则是：text/current image 作为理解输入；future image block 和 action block 是输出。块内允许 bidirectional attention，让图像 token 或动作维度之间充分交互；块间保持 causal direction，让 future image 只能看输入，action 能看输入和 future image，但不允许 action 信息回流到 vision。</p>
+    <div class="figure">
+      <img src="figures/attention_p1.png" alt="hybrid attention">
+      <div class="caption">Figure 2. Hybrid attention。论文强调 action-to-vision 被禁止，以避免粗动作信息泄露和错误累积。</div>
+    </div>
+    <p>直观理解：一张图像内部的 patch/token 没有严格先后因果，动作的不同空间维度也没有严格 token 顺序，因此块内 bidirectional 更合适；但“当前观测 - 未来图像 - 动作”之间存在方向性，所以跨块需要 causal。</p>
+
+    <h3>4.3 Joint Discrete Denoising Diffusion Process</h3>
+    <p>JD3P 把未来图像 tokens $\mathbf{v}_0$ 和动作 tokens $\mathbf{a}_0$ 合成一个序列。前向 noising 不是加高斯噪声，而是以概率 $\beta_t$ 把 token 替换为特殊 mask token $\mathrm{M}$；反向 denoising 则预测被 mask 位置的原始 token。</p>
+    <div class="formula-block">
+      <p class="intuition">离散扩散里的“加噪”就是逐步把 token 遮住；“去噪”就是根据上下文把遮住的图像/动作 token 恢复回来。</p>
+      $$\mathbf{Q}_t\mathbf{e}_{t,r}=(1-\beta_t)\mathbf{e}_{t,r}+\beta_t\mathbf{e}_{\mathrm{M}}$$
+      <table class="symbol-table">
+        <tr><td>$\mathbf{e}_{t,r}$</td><td>位置 $r$ 的 one-hot token，可能来自 future image 或 action。</td></tr>
+        <tr><td>$\beta_t$</td><td>第 $t$ 步被替换成 mask 的概率。</td></tr>
+        <tr><td>$\mathbf{e}_{\mathrm{M}}$</td><td>mask token 的 one-hot basis。</td></tr>
+      </table>
+    </div>
+    <p>反向分解为视觉恢复和动作恢复两部分：</p>
+    <div class="formula-block">
+      $$p_\theta(\mathbf{v}_{t-1},\mathbf{a}_{t-1}\mid\mathbf{v}_t,\mathbf{a}_t,\mathbf{c})
+      =p_\theta(\mathbf{v}_{t-1}\mid\mathbf{v}_t,\mathbf{c})\;
+      p_\theta(\mathbf{a}_{t-1}\mid\mathbf{v}_t,\mathbf{a}_t,\mathbf{c})$$
+      <p>其中 $\mathbf{c}$ 是 text 和 current image。注意动作分布显式以 $\mathbf{v}_t$ 为条件，因此每一步动作恢复都能利用当前阶段的未来视觉 token。</p>
+    </div>
+
+    <h3>4.4 Loss Function</h3>
+    <p>训练时作者不显式展开完整多步 diffusion chain，而采用 single-step mask-predict objective：随机采样 mask ratio $\rho_t$，遮住 clean future image/action token 的一部分，只在被遮住的位置上计算 cross-entropy。</p>
+    <div class="formula-block">
+      <p class="intuition">视觉 token 数量可能远多于动作 token，所以论文用 $\omega$ 降低视觉 loss 权重，避免视觉项支配训练。</p>
+      $$\mathcal{L}_{\text{CE}}(\theta)=
+      -\omega\sum_j^{L_v}\log p_\theta^{(v)}(v_{0,j}\mid\mathbf{v}_t,\mathbf{c})\mathbb{1}\{v_{t,j}=\mathrm{M}\}
+      -\sum_i^{L_a}\log p_\theta^{(a)}(a_{0,i}\mid\mathbf{v}_t,\mathbf{a}_t,\mathbf{c})\mathbb{1}\{a_{t,i}=\mathrm{M}\}$$
+    </div>
+    <p><span class="appendix-ref">附录 Loss Formulations</span> 还定义了表 1 中用于比较不同 VLA 的 MSE、continuous diffusion、discrete diffusion、next-token prediction 四类 loss。报告中最关键的是 $\mathcal{L}_{\mathrm{Diff\text{-}disc}}$：它是有限词表上的 masked-token prediction，而不是连续空间的 noise prediction。</p>
+    <div class="figure">
+      <img src="figures/disvscon_p1.png" alt="discrete vs continuous diffusion">
+      <div class="caption">Figure 3. 附录中的 discrete diffusion 与 continuous diffusion 对比。UD-VLA 选择离散扩散，因为图像 token 和动作 token 都已经被映射到有限 codebook 中。</div>
+    </div>
+
+    <h3>4.5 两阶段训练</h3>
+    <ol>
+      <li><strong>Stage (i): world-model style post-training。</strong>从 pretrained VLM backbone 初始化，在大规模视频数据上训练未来图像预测，序列为 <code>[text; current image; future image]</code>，目标是给 VLA 注入建模未来状态的能力。</li>
+      <li><strong>Stage (ii): robot action fine-tuning。</strong>在下游机器人动作数据上使用完整序列 <code>[text; current image; future image; action]</code>，按 JD3P 联合训练图像生成与动作生成。</li>
+    </ol>
+    <p><span class="appendix-ref">附录 Training Details</span> 给出训练资源：CALVIN-ABCD action chunk 10，8 张 H100 训练约 24 小时；LIBERO 四个 suite 联合训练，action chunk 10，8 张 H100 约 30 小时；SimplerEnv 用 Bridge 数据训练，action chunk 5，8 张 H100 约 30 小时；真实世界实验收集 600+ 轨迹，action chunk 8，8 张 H100 约 8 小时。正文 real-world task 小节还写了另一个配置：4 张 H100 训练 24 小时、9000 steps、batch size 64、learning rate 8e-5、weight decay 0.1。两处 GPU/时长表述存在不完全一致，应复现时以官方代码配置进一步核对。</p>
+
+    <h3>4.6 推理</h3>
+    <p>推理从全部 mask 的 future image/action token 开始，重复少量迭代。每轮并行预测所有 mask 位置的分布，根据 confidence 选择一部分最可靠的位置填入 token，其余继续 mask。mask ratio 用 cosine schedule 从高到低变化。</p>
+    <div class="pseudocode">
+Algorithm: UD-VLA inference with JD3P
+Input:
+  text tokens, current image tokens
+Initialize:
+  future image tokens = [MASK] * Lv
+  action tokens = [MASK] * La
+  prefill &lt;BOI&gt;, &lt;EOI&gt;, &lt;BOA&gt;; cache prefix KV
+
+for t = T ... 1:
+  predict token distribution for masked vision/action positions in parallel
+  restrict vision positions to visual codebook and action positions to action codebook
+  compute confidence = max probability for each masked position
+  fill top (1 - rho_t) masked positions using GumbelMax sampling
+  if &lt;EOA&gt; appears, fix action length and mask later action slots
+
+Output:
+  future image tokens, action tokens
+    </div>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 Benchmarks</h3>
+    <table>
+      <tr><th>Benchmark</th><th>设置</th><th>指标</th></tr>
+      <tr><td>CALVIN</td><td>4 个环境 A/B/C/D，34 个任务，1000 条语言指令；每个模型评估 500 个 rollout，每个 rollout 连续 5 个 sub-task。</td><td>平均完成长度 avg. len.，最大为 5。</td></tr>
+      <tr><td>LIBERO</td><td>Spatial、Object、Goal、Long 四个 suite；每个 suite 10 个任务，每任务 50 次 rollout。</td><td>各 suite 成功率和平均成功率。</td></tr>
+      <tr><td>SimplerEnv-WidowX</td><td>real-to-sim 环境，任务包括 Put Spoon、Put Carrot、Stack Block、Put Eggplant；变化光照、纹理、颜色、视角。</td><td>单任务成功率和 overall。</td></tr>
+      <tr><td>Real-world</td><td>UR5e + Inspire RH56E2 hand + D435i wrist camera + Gemini 336L static camera；三类任务：stacking bowls、putting blocks、flipping towers。</td><td>每个方法每任务评估 30 次，seen/unseen 设置。</td></tr>
+    </table>
+
+    <h3>5.2 Main Results in Simulation</h3>
+    <table>
+      <tr><th>Benchmark</th><th>UD-VLA 结果</th><th>关键对比</th></tr>
+      <tr><td>CALVIN ABCD-&gt;D</td><td>1/2/3/4/5 连任务成功率为 0.992/0.968/0.936/0.904/0.840，Avg. Len. 4.64。</td><td>高于 MDT 4.52、UP-VLA 4.42、MODE 4.39、UniVLA* 4.26、GR-1 4.21。</td></tr>
+      <tr><td>LIBERO</td><td>Spatial 94.1%、Object 95.7%、Goal 91.2%、Long 89.6%、Average 92.7%。</td><td>表格中 Average 高于 DreamVLA 92.6%、FlowVLA 88.1%、$\pi_0$-FAST 85.5%。Long suite 为 89.6%，是表中最高。</td></tr>
+      <tr><td>SimplerEnv-WidowX</td><td>Put Spoon 58.3%、Put Carrot 62.5%、Stack Block 54.1%、Put Eggplant 75.0%、Overall 62.5%。</td><td>表格中 Overall 高于 F1 59.4%、$\pi_0$-FAST 48.3%、SpatialVLA 42.7%。</td></tr>
+    </table>
+    <div class="note">
+      <strong>数值冲突：</strong>SimplerEnv 正文写 “UD-VLA achieves an average success rate of 59.4%”，但表格中 UD-VLA overall 为 62.5%，F1 为 59.4%。本报告按表格汇总，并把正文数字视作潜在笔误。
+    </div>
+
+    <h3>5.3 In-Depth Analysis / Ablation</h3>
+    <table>
+      <tr><th>问题</th><th>设置</th><th>结果</th><th>论文解释</th></tr>
+      <tr><td>Attention 机制是否关键</td><td>Causal / Bidirectional / Hybrid</td><td>Avg. Len. 4.04 / 4.32 / 4.64</td><td>块内 bidirectional 适合图像空间一致性和动作维度相关性；跨模态 full bidirectional 会泄露信息，因此 hybrid 最好。</td></tr>
+      <tr><td>未来图像是否比当前图像重建有用</td><td>Null / Current Image / Future Image</td><td>Avg. Len. 4.21 / 4.39 / 4.64</td><td>当前图像重建增强细粒度感知，但只学静态信息；未来图像提供时序动态和动作规划线索。</td></tr>
+      <tr><td>JD3P 是否比其他解码机制好</td><td>AR / Jacobi / Independent Diffusion / JD3P</td><td>Avg. Len. 4.18 / 4.16 / 4.35 / 4.64；速度 50.2 / 101.6 / 144.4 / 219.3 tokens/s。</td><td>joint denoising 让动作从中间图像去噪状态中反复获益；independent diffusion 信息流有限。</td></tr>
+    </table>
+
+    <h3>5.4 Real-World Experiment</h3>
+    <div class="figure">
+      <img src="figures/real_world_result_p1.png" alt="real world setup and results">
+      <div class="caption">Figure 4. 真实机器人系统：UR5e、Inspire RH56E2 手、D435i wrist camera、Gemini 336L static camera，以及真实任务结果图。</div>
+    </div>
+    <p>真实世界数据包括三类任务：stacking bowls、putting blocks into a box、flipping towers/towels。每类任务包含不同颜色和形状物体，数据在三个背景中采集；正文写每类 200 条轨迹、15 Hz，附录写总计 600+ 轨迹。评估包含 seen 和 unseen；unseen 包括新物体和新背景。</p>
+    <div class="two-col">
+      <div class="figure">
+        <img src="figures/real_scene_p1.png" alt="real scene details">
+        <div class="caption">Figure 5. Appendix 中的 real-world setting：target objects、distractors、seen/unseen object split 和 seen/unseen backgrounds。</div>
+      </div>
+      <div class="figure">
+        <img src="figures/vis_demo_p1.png" alt="real world task demos">
+        <div class="caption">Figure 6. 三类真实任务演示：put block into box、stack bowls、fold towel/tower。</div>
+      </div>
+    </div>
+    <p>论文文字报告 UD-VLA 在所有真实任务上均优于 GR00T N1 和 UniVLA，且各任务成功率超过 80%。作者解释 seen tasks 中 action quantization 改善动作精度，joint denoising 保证动作质量；unseen tasks 中，未来图像生成改善对未见目标和背景的视觉泛化。</p>
+
+    <h3>5.5 Future Image Generation Visualization</h3>
+    <div class="figure">
+      <img src="figures/vis_p1.png" alt="future image generation visualization">
+      <div class="caption">Figure 7. 未来图像生成可视化：CALVIN 和真实世界中比较 GT 与 Generation。作者承认像素级 fidelity 不高，但认为任务进展信息足以指导控制。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/vis_demo_tiny_p1.png" alt="tiny toy demo">
+      <div class="caption">Figure 8. 附录展示半径约 1.5 cm tiny toy 的精细操作示例。</div>
+    </div>
+  </section>
+
+  <section id="discussion">
+    <h2>6. 论文内分析与讨论</h2>
+    <h3>6.1 作者给出的机制解释</h3>
+    <ul>
+      <li><strong>Future image 是视觉 CoT。</strong>CALVIN 结果中，作者把显式未来图像生成视为更有效的 chain-of-thought，因为动作预测能以未来视觉结果为条件。</li>
+      <li><strong>Multi-step diffusion 促进视觉-动作信息交换。</strong>相对单步 filled-token 预测，JD3P 通过多轮中间态让图像与动作持续交互。</li>
+      <li><strong>图像生成需要 bidirectional attention。</strong>论文认为图像 token 之间主要是空间一致性关系，不适合 strict causal next-token；动作不同维度也没有天然因果顺序。</li>
+      <li><strong>离散扩散兼顾效率和性能。</strong>AR 的速度为 50.2 tokens/s；JD3P 为 219.3 tokens/s，同时 Avg. Len. 最高。</li>
+    </ul>
+
+    <h3>6.2 作者自述的生成局限</h3>
+    <p>论文在可视化分析中明确承认：生成未来帧缺少视觉 fidelity，尤其是机械臂和背景等细粒度细节。这被归因于没有大规模 generative pretraining，以及为了效率使用较少 token 的压缩图像。作者的结论是，尽管像素级准确很难，生成结果仍可靠地表达任务进展，足以服务 action planning。</p>
+  </section>
+
+  <section id="boundary">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>按论文自身证据，最有价值的部分是把 future visual reasoning 从“辅助训练目标”推进到“推理时共同优化的中间结构”。JD3P 让 action token 不是一次性读完 future image 后生成，而是在每一步离散去噪中都接收 future image token 的中间态指导。CALVIN 消融中 Future Image 相比 Null 从 4.21 到 4.64，JD3P 相比 AR 从 4.18 到 4.64，同时速度从 50.2 到 219.3 tokens/s，这是论文最直接支撑该设计的证据。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <p>结果由三类仿真 benchmark、真实机器人和多组消融共同支撑：CALVIN 检查长序列语言操作，LIBERO 检查 spatial/object/goal/long 泛化，SimplerEnv 检查 real-to-sim transfer；真实实验又覆盖 seen/unseen 物体和背景。消融没有只比较完整模型与弱 baseline，而是分别拆 attention、visual generation target、decoding mechanism，这让“hybrid attention + future image + JD3P”的因果链条更清楚。</p>
+
+    <h3>7.3 局限</h3>
+    <ul>
+      <li><strong>未来图像质量有限。</strong>作者明确承认预测帧细节不够，尤其是机械臂和背景。若任务需要精确几何、遮挡关系或接触状态，低 fidelity future image 可能不足。</li>
+      <li><strong>真实世界规模仍小。</strong>真实实验为三类任务、600+ 轨迹，虽然包含 unseen 设置，但还不足以证明跨机器人、跨场景、跨技能的大规模通用性。</li>
+      <li><strong>文本与表格存在不一致。</strong>SimplerEnv overall 在正文和表格中冲突；训练资源在正文 real-world 小节和附录 training details 中也有不同描述，复现时需要核对官方代码。</li>
+      <li><strong>依赖离散 tokenization 质量。</strong>视觉和动作都被压缩为离散 token，VQ codebook 和 FAST action tokenizer 的量化误差可能限制细粒度控制。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>论文证据主要覆盖语言条件 manipulation benchmark 和受控真实桌面任务。尚未证明其适用于长时移动操作、复杂力控装配、高速动态操作、开放环境安全约束，或未见机器人形态。真实硬件使用 UR5e + dexterous hand + RGB-D/静态相机；换到其他 embodiment 时 action tokenizer、chunk、camera views 和 controller 可能需要重调。</p>
+  </section>
+
+  <section id="repro">
+    <h2>8. 可复现性审计</h2>
+    <table>
+      <tr><th>复现要素</th><th>论文/项目给出的信息</th><th>审计状态</th></tr>
+      <tr><td>源码与图表</td><td>arXiv 提供 LaTeX 源码，所有图为独立 PDF；本报告已转换为 PNG。</td><td class="ok">可检查</td></tr>
+      <tr><td>代码</td><td>项目页提供官方 GitHub：<a href="https://github.com/OpenHelix-Team/UD-VLA/tree/main">OpenHelix-Team/UD-VLA</a>。</td><td class="ok">已找到</td></tr>
+      <tr><td>Checkpoint</td><td>项目页提供 CALVIN ABCD-D Hugging Face checkpoint：<a href="https://huggingface.co/chenpyyy/UD-VLA_CALVIN_ABCD_D">UD-VLA_CALVIN_ABCD_D</a>。</td><td class="ok">已找到</td></tr>
+      <tr><td>Benchmark 协议</td><td>CALVIN、LIBERO、SimplerEnv 的任务、rollout 和指标在正文给出；基线在附录逐项介绍。</td><td class="ok">较完整</td></tr>
+      <tr><td>训练细节</td><td>action chunk、GPU 数、训练时长、真实实验 batch/lr/weight decay 等信息给出。</td><td class="warn">有局部不一致，需代码核对</td></tr>
+      <tr><td>方法公式</td><td>JD3P forward mask noising、reverse factorization、masked CE loss、confidence-guided decoding 公式完整。</td><td class="ok">较完整</td></tr>
+      <tr><td>真实数据</td><td>真实实验使用自采 600+ 轨迹；论文未说明公开下载。</td><td class="warn">真实实验难完全复现</td></tr>
+    </table>
+    <div class="audit">
+      <strong>报告覆盖自检：</strong>Abstract、Introduction、Related Works、Methods、Experiments、Conclusion、Acknowledgment、Reproducibility statement、Appendix A-G 均已覆盖；Appendix 中的 loss、training、real-world setup/tasks、baselines 与 visualization 已整合进对应章节。
+    </div>
+  </section>
+</main>
+</body>
+</html>

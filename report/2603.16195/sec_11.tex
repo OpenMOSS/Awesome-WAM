@@ -1,0 +1,161 @@
+
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=1\linewidth]{imgs/calvin_32.pdf}
+
+\caption{Qualitative comparison on CALVIN~\cite{mees2022calvin}. VPP~\cite{huvideo} utilizes entangled one-step features, resulting in an erratic attention trajectory that explicitly contradicts the language instruction and leads to failed actuation. In contrast, our S-VAM foresees geometric and semantic representations. This decoupled future blueprint enables the action expert to anchor a coherent attention trajectory that perfectly aligns with the language instruction, thereby ensuring successful execution. \textit{Note: Geometric foresight is visualized as probe-based depth maps}~\cite{li2025spatial,wu2026geometry}\textit{; one-step and semantic features are visualized via PCA computed globally across the entire sequence.}}
+\label{fig:qualitative_viz}
+
+\end{figure}
+
+
+\begin{table}[!t]
+\centering
+\small
+\caption{Quantitative comparison on CALVIN~\cite{mees2022calvin}. We report stage-wise success rates (1-5) and average sequence length (Avg. Len.). \textbf{Best} and \underline{second-best} results are highlighted accordingly.}
+\label{tab:results}
+\renewcommand{\arraystretch}{1.00}
+ % 增加行高优化视觉
+\definecolor{mygray}{gray}{0.95}  % 定义灰色背景
+\scalebox{0.95}{
+\begin{tabular}{c|c|ccccc|c}
+\toprule
+\multirow{2}{*}{\textbf{Category}} & \multirow{2}{*}{\textbf{Method}} & \multicolumn{5}{c|}{\textbf{$i^{th}$ Task Success Rate}} & \multirow{2}{*}{\textbf{Avg. Len.} $\uparrow$} \\
+\cmidrule(lr){3-7} % 绘制中间的短横线，lr表示左右留白
+ &  & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \\
+\midrule
+
+\multirow{4}{*}{\shortstack{Direct Action \\
+Learning Methods}} 
+ & OpenVLA~\cite{kim2025openvla}   & 91.3 & 77.8 & 62.0 & 52.1 & 43.5 & 3.27 \\
+ & CLOVER~\cite{bu2024closedloop}    & \textbf{96.0} & 83.5 & 70.8 & 57.5 & 45.4 & 3.53 \\
+ & $\pi_0$~\cite{black2024pi_0}   & 93.7 & 83.2 & 74.0 & 62.9 & 51.0 & 3.65 \\
+ & Spatial Forcing~\cite{li2025spatial}  &93.6 &85.8 &78.4 &72.0& 64.6& 3.94 \\
+
+
+\midrule
+ & SuSIE~\cite{black2024zeroshot}  & 87.0 & 69.0 & 49.0 & 38.0 & 26.0 & 2.69 \\
+ & VPP~\cite{huvideo}    & 90.9 & 81.5 & 71.3 & 62.0 & 51.8 & 3.58 \\
+
+ &Uni-VLA~\cite{wang2025unified} & 95.5& 85.8& 74.8& 66.9& 56.5& 3.80 \\
+  & HiF-VLA~\cite{lin2025hif}  & 93.5 &\underline{87.4} & \underline{81.4 }& \underline{75.9} & \textbf{69.4} & \underline{4.08} \\
+
+
+\rowcolor{mygray}
+\cellcolor{white} \multirow{-5}{*}{\shortstack{Predictive \\  Methods}} 
+&\textbf{S-VAM(our)}  & \underline{95.8} & \textbf{90.7} & \textbf{83.7} & \textbf{77.0} & \underline{68.9} & \textbf{4.16}\\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\noindent \textbf{Results on CALVIN~\cite{mees2022calvin}.} 
+As demonstrated in \cref{tab:results}, our S-VAM achieves a state-of-the-art average length of \textbf{4.16}, outperforming both direct action learning and predictive baselines. Notably, our S-VAM surpasses our direct baseline, VPP~\cite{huvideo}, by a significant margin of 0.58. As shown in \cref{fig:qualitative_viz}, VPP~\cite{huvideo} relies on entangled one-step features, which leads to an erratic attention center trajectory\footnote{Using head-averaged attention maps from the final cross-attention layer of the token condensation module, we extract this trajectory by tracking the maximum activation (and its 3-pixel neighborhood) across frames.} that explicitly contradicts the language instruction, resulting in imprecise actuation. In contrast, by distilling decoupled geometric and semantic foresight, our S-VAM anchors a coherent attention trajectory that perfectly aligns with the language instruction. Our execution rollouts strictly follow this high-fidelity blueprint, confirming that the action expert successfully translates these future representations into precise manipulation. Furthermore, our S-VAM outperforms Spatial Forcing~\cite{li2025spatial} by distilling future states instead of merely aligning representations on observation frames, enabling the agent to better anticipate complex interactions. Additionally, our S-VAM surpasses other predictive HiF-VLA~\cite{lin2025hif} and Uni-VLA~\cite{wang2025unified}. Although they also employ predictive mechanisms, their underlying VLMs inherently lack the rich spatiotemporal dynamics naturally captured by our video backbone.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=1\linewidth]{imgs/meta_32.pdf}
+\caption{
+Qualitative comparison on MetaWorld~\cite{yu2020meta}.
+VPP~\cite{huvideo} utilizes entangled one-step features, resulting in a diverging attention trajectory that completely misses the target ``nut''. In contrast, our S-VAM foresees explicit geometric and semantic representations. This decoupled future blueprint enables the action expert to anchor a coherent attention trajectory that accurately guides to the instructed target, ensuring successful grasping. \textit{Note: Visualization settings follow~\cref{fig:qualitative_viz}.}
+}
+\label{fig:qualitative_viz_meta}
+\end{figure}
+\begin{table}[!t]
+\centering
+\small
+\caption{Quantitative comparison on Metaworld~\cite{yu2020meta}. We report success rates on easy, middle, and hard tasks, along with the overall average. \textbf{Best} and \underline{second-best} results are highlighted accordingly.}
+\label{tab:metaworld_results}
+
+\definecolor{mygray}{gray}{0.95}
+
+\renewcommand{\arraystretch}{1.00}
+\scalebox{0.95}{
+\begin{tabular}{c|cccc|c}
+
+\toprule
+\multirow{2}{*}{\textbf{Category}} & \multirow{2}{*}{\textbf{Method}} & \textbf{Easy} & \textbf{Middle} & \textbf{Hard} & \textbf{Average} $\uparrow$ \\
+ & & (28 tasks) & (11 tasks) & (11 tasks) & (50 tasks) \\
+\midrule
+
+
+\multirow{3}{*}{\shortstack{Direct Action \\
+Learning Methods}} 
+ & RT-1~\cite{brohan2022rt}           & 0.605  & 0.042 & 0.015  & 0.346 \\
+ & Diffusion Policy~\cite{chi2025diffusion} & 0.442 & 0.062 & 0.095 & 0.279 \\
+ & Spatial Forcing~\cite{li2025spatial} & 0.737 & 0.436 & 0.451 & 0.609 \\
+ 
+\midrule
+
+
+
+ & SuSIE~\cite{black2024zeroshot}  & 0.560 & 0.196 & 0.255 & 0.410 \\
+ & GR-1~\cite{wu2023unleashing}  & 0.725 & 0.327 & 0.451 & 0.574 \\
+ & HiF-VLA~\cite{lin2025hif} & 0.729 & 0.364 & 0.404 & 0.577 \\
+ & VPP~\cite{huvideo} & \textbf{0.818} & \underline{0.493} & \underline{0.526} & \underline{0.682} \\
+
+ 
+
+
+
+
+\rowcolor{mygray}
+\cellcolor{white} \multirow{-5}{*}{\shortstack{Predictive \\  Methods}} 
+& \textbf{S-VAM (our)} & \underline{0.793} & \textbf{0.607} & \textbf{0.684} & \textbf{0.728} \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+\noindent \textbf{Results on MetaWorld~\cite{yu2020meta}.} 
+As shown in~\cref{tab:metaworld_results}, our S-VAM achieves the highest average success rate of \textbf{72.8\%}, surpassing the previous state-of-the-art (SOTA) method VPP~\cite{huvideo} by a clear margin. The advantage of our S-VAM is particularly demonstrated in hard tasks, where it achieves a success rate of 68.4\%, significantly outperforming VPP ($52.6\%$). Hard tasks in MetaWorld often involve complex object interactions and fine-grained geometric constraints, such as the precise assembly visualized in \cref{fig:qualitative_viz_meta}. In this task, the failure of VPP~\cite{huvideo} largely stems from its entangled one-step features, which produce a diverging attention trajectory that completely misses the target ``nut''. In contrast, the decoupled geometric and semantic foresight enables our S-VAM to anchor a coherent attention trajectory that accurately traces a path to the instructed target for a precise grasp. Furthermore, S-VAM surpasses leading non-VAM methods under the 50-demonstration setting, outperforming Spatial Forcing~\cite{li2025spatial} and HiF-VLA~\cite{lin2025hif} by 11.9\% and 15.1\%, respectively. This underscores the profound advantage of leveraging dynamic priors from the video generation model in data-scarce scenarios.
+
+
+
+\begin{table}[!t]
+\centering
+\small
+\caption{Ablation study on key components of our S-VAM.}
+\label{tab:ablation}
+
+\definecolor{mygray}{gray}{0.95}
+
+\renewcommand{\arraystretch}{1.00}
+\scalebox{0.95}{
+\begin{tabular}{l|ccccc|c}
+\toprule
+\multirow{2}{*}{\textbf{Method Variant}} & \multicolumn{5}{c|}{\textbf{$i^{th}$ Task Success Rate}} & \multirow{2}{*}{\textbf{Avg. Len.} $\uparrow$} \\
+\cmidrule(lr){2-6}
+ & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \\
+\midrule
+
+
+w/o Geometric Distillation & 94.1 & 87.1 & 79.3 & 73.5 & 66.5 & 4.01 \\
+
+
+w/o Semantic Distillation & 94.0 & 87.1 & 80.4 & 73.2 & 64.1 & 3.99 \\
+
+w/o Self-Distillation   & 94.2 & 85.2 & 75.9 & 67.8 & 59.0 &  3.82\\
+\midrule
+
+w/o Uni-Perceiver & 94.0 & 84.6 & 74.7 & 65.1 & 53.8 & 3.72\\
+
+
+w/o Original Diffusion Feature & 95.3 & 86.6 & 77.6 & 70.9 & 62.5 & 3.93\\
+
+
+
+
+\midrule
+
+\rowcolor{mygray}
+\textbf{S-VAM (Full)} & \textbf{95.8} & \textbf{90.7} & \textbf{83.7} & \textbf{77.0} & \textbf{68.9} & \textbf{4.16} \\
+
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+

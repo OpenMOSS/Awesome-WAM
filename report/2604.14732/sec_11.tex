@@ -1,0 +1,69 @@
+
+
+\paragraph{Simulation setup.} 
+We evaluate the WAV on the LIBERO benchmark~\citep{liu2023libero}, a comprehensive suite for multi-task and lifelong robotic manipulation.
+LIBERO consists of four task suites designed to probe different aspects of generalization.
+\textbf{Spatial} evaluates spatial reasoning by varying scene layouts while keeping object identities fixed.
+\textbf{Object} tests object-level generalization by changing object instances within a fixed environment.
+\textbf{Goal} assesses goal-conditioned behavior by varying task goals under the same scene configuration.
+Finally, \textbf{Long} includes long-horizon compositional tasks involving diverse objects, layouts, and goals, posing significant challenges for temporal consistency and multi-step reasoning.
+A single WAV model is deployed across four suites.
+\begin{table}[htbp]
+\caption{Performance comparison on the LIBERO benchmark.}
+\label{tab:libero_only}
+\centering
+\small
+\resizebox{0.8\columnwidth}{!}{
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\centering\textbf{Models}} 
+& \multirow{2}{*}{\textbf{Params}}
+& \multicolumn{4}{c}{\textbf{LIBERO}} 
+& \multirow{2}{*}{\textbf{Avg.}} \\
+\cmidrule(lr){3-6}
+& & \textbf{Spatial} & \textbf{Object} & \textbf{Goal} & \textbf{Long} & \\
+\midrule
+Diffusion Policy \citet{chi2023diffusion} & - & 78.3 & 92.5 & 68.3 & 50.5 & 72.4 \\
+Octo \citet{team2024octo} & - & 78.9 & 85.7 & 84.6 & 51.1 & 75.1 \\
+OpenVLA \citet{kim2024openvla} & 7b & 84.9 & 88.4 & 79.2 & 53.7 & 76.5 \\
+SpatialVLA \citet{qu2025spatialvla} & 4b & 88.2 & 89.9 & 78.6 & 55.5 & 78.1 \\
+DiT Policy \citet{hou2024diffusion} & - & 84.2 & 96.3 & 85.4 & 63.8 & 82.4 \\
+$\pi_{0}$-FAST \citet{pertsch2025fast} & 3b & 96.4 & 96.8 & 88.6 & 60.2 & 85.5 \\
+GR00T-N1 \citet{bjorck2025gr00t} & 2b & 94.4 & 97.6 & 93.0 & 90.6 & 93.9 \\
+$\pi_{0}$ \citet{black2024pi_0} & 3b & 96.8 & 98.8 & 95.8 & 85.2 & 94.2 \\
+VLA-0 \citet{goyal2025vla} & 3b & 97.0 & 97.8 & 96.2 & 87.6 & 94.7 \\
+Discrete Diffusion VLA \citet{liang2025discrete} & 7b & 97.2 & 98.6 & 97.4 & 92.0 & 96.3 \\
+MemoryVLA \citet{shi2025memoryvla} & 7b & 98.4 & 98.4 & 96.4 & 93.4 & 96.5 \\
+$\pi_{0.5}$ \citet{intelligence2025pi_} & 3b & 98.8 & 98.2 & 98.0 & 92.4 & 96.8 \\
+OpenVLA-OFT \citet{kim2025fine} & 7b & 97.6 & 98.4 & 97.9 & 94.5 & 97.1 \\
+VLA-Adapter \citet{wang2025vla} & 0.5b & 97.8 & 99.2 & 97.2 & \textbf{95.0} & 97.3 \\
+\midrule
+\rowcolor{gray!15}
+\multicolumn{7}{l}{\textit{World Model}} \\
+WorldVLA \citet{cen2025worldvla} & 7b & 85.6 & 89.0 & 82.6 & 59.0 & 79.1 \\
+CoT-VLA \citet{zhao2025cot} & 7b & 87.5 & 91.6 & 87.6 & 69.0 & 81.1 \\
+FlowVLA \citet{zhong2025flowvla} & 8.5b & 93.2 & 95.0 & 91.6 & 72.6 & 88.1 \\
+DreamVLA \citet{zhang2025dreamvla} & 3b & 97.5 & 94.0 & 89.5 & 89.5 & 92.6 \\
+UD-VLA \citet{chen2025unified} & - & 94.1 & 95.7 & 91.2 & 89.6 & 92.7 \\
+RynnVLA-002-Discrete \citet{cen2025rynnvla} & 7b & 94.2 & 96.8 & 94.6 & 87.6 & 93.3 \\
+UniVLA \citet{bu2025univla} & 7b & 95.4 & 98.8 & 93.5 & 94.0 & 95.5 \\
+$\mathcal{F}_1$\citet{lv2025f1} & 4.5b & 98.2 & 97.8 & 95.4 & 91.3 & 95.7 \\
+GE-ACT \citet{liao2025genie} & 2b & 98.2 & 97.6 & 95.8 & 94.4 & 96.5 \\
+\midrule
+\rowcolor{lightblue}
+\textbf{WAV (Ours)} & 2.2b & \textbf{99.6} & \textbf{100.0} & \textbf{98.6} & 94.4 & \textbf{98.1} \\
+\qquad W/o Latent Trajectory Planning &  & 99.0 & 99.6 & 95.0 & 91.8 & 96.4 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\paragraph{Results.} 
+Tab.~\ref{tab:libero_only} reports results on the LIBERO benchmark. 
+Our method achieves state-of-the-art (or competitive) performance across all task suites, with an overall average score of 98.1. 
+These results highlight its effectiveness in handling long-horizon and compositional tasks, where efficient trajectory-level inference is critical.
+To assess the contribution of implicit planning, we perform an ablation by removing latent trajectory planning. 
+This leads to an average performance drop of 1.7 points, with the largest degradation on the \textbf{Long} suite, decreasing from 94.4 to 91.8. 
+This trend underscores the importance of trajectory-level planning for robust and generalizable task execution.
+Notably, the performance gap widens with increasing task horizon, suggesting that implicit planning is particularly beneficial for mitigating compounding errors in long-horizon scenarios.
+

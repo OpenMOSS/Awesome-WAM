@@ -1,0 +1,202 @@
+
+\label{sec:method}
+We contrast \method with a representative previous world action model as follows. Traditional WAMs either use a two-stage pipeline in which a video model first predicts the future state and then passes it to an action model, or use a one-stage design in which future state prediction and action prediction are conditioned on the same observation stream. In contrast, \method augments the video branch with an explicit value-map prediction pathway, so the action model does not need to infer inverse-dynamics cues directly from dense RGB futures.
+
+\subsection{Model Architecture}
+\noindent\textbf{Tokenization.} \method is built by adapting the pretrained video generation model Wan2.2-TI2V-5B~\cite{wan2025wan} to a world action model setting. To preserve the body of the pretrained video model without redesigning its visual input interface, we follow the multi-view packing strategy used in LingBot-VA~\cite{li2026causal} and merge the three onboard camera views into a single T-pose canvas: the head camera is placed at the top, and the left and right wrist cameras are placed on the corresponding sides. For action representation, we follow the recent trend of improving VLA action token efficiency through structured tokenization design~\cite{pertsch2025fast}. Let $\tilde{x}_t$ denote the packed RGB observation and $\tilde{m}_t$ denote the packed RGB ASVM at time $t$. We encode them with the pretrained Wan2.2 VAE encoder $E_{\mathrm{vae}}$ as
+\begin{equation}
+z_t^{o} = E_{\mathrm{vae}}(\tilde{x}_t), \qquad
+z_t^{m} = E_{\mathrm{vae}}(\tilde{m}_t),
+\end{equation}
+where $z_t^{o}$ are observation tokens and $z_t^{m}$ are value-map tokens. Each ASVM is aligned with the corresponding future frame and uses the same T-pose layout as the RGB observation. At initialization, the value-map input is a pure black image, so the model starts from a null value prior and predicts the task-relevant spatial structure through denoising. Sharing the VAE between RGB and ASVM streams keeps value tokens geometrically aligned with visual tokens without modifying the pretrained tokenizer.
+
+To align robot control with the visual token space, each dual-arm continuous action vector $a_t \in \mathbb{R}^{d_a}$ is projected by a lightweight MLP $E_a$ into an action token, while the text instruction $c$ is encoded by a pretrained T5 encoder~\cite{raffel2020t5} into language tokens:
+\begin{equation}
+z_t^{a} = E_a(a_t), \qquad z^{\ell} = E_{\mathrm{t5}}(c).
+\end{equation}
+
+These language features are injected only into the Video Model through cross-attention, so task semantics shape future world prediction without directly modifying the action branch. We denote the autoregressive prefix by
+\begin{equation}
+\mathcal{H}^{\mathrm{tok}}_t =
+\left[z_{t-k:t}^{o},\, z_{t-k:t-1}^{a},\, z^{\ell}\right],
+\end{equation}
+which contains the current and recent observations, recent action history, and instruction tokens. This prefix provides both an estimate of the agent's physical state and the causal context used for future world action rollout.
+
+\noindent\textbf{Architecture.} \method consists of a \emph{video generation model} for future RGB and value-map generation, and an \emph{action head} for future action generation. The video generation model is initialized from Wan2.2, while the action head uses the same depth but a smaller hidden width. At rollout step $t$, we initialize three future token groups from Gaussian noise,
+\begin{equation}
+\hat{z}_{0}^{x}, \hat{z}_{0}^{m}, \hat{z}_{0}^{a} \sim \mathcal{N}(0, I),
+\end{equation}
+where $\hat{z}_{0}^{x}$ denotes future RGB tokens, $\hat{z}_{0}^{m}$ denotes future value-map tokens, and $\hat{z}_{0}^{a}$ denotes future action tokens. The value stream additionally receives a learned value noise token $n^{m}$, so the actual input to the value branch is $[\hat{z}_{0}^{m}, n^m]$. Future RGB tokens and future value-map tokens are jointly denoised by the video generation model along the same flow-matching trajectory~\cite{lipman2023flowmatching}, while future action tokens are denoised by the action head. Their decoded outputs are
+\begin{equation}
+\hat{X}^{+} = D_x(z^{x}), \qquad
+\hat{M}^{+} = D_m(z^{m}), \qquad
+\hat{A}^{+} = D_a(z^{a}),
+\end{equation}
+where $\hat{X}^{+}$, $\hat{M}^{+}$, and $\hat{A}^{+}$ are the predicted future RGB frames, spatial value maps, and continuous dual-arm actions, respectively.
+
+We adopt a \mot architecture so that action tokens can be tightly coupled with visual tokens while preserving the computational structure of the pretrained backbone. Let $h_s^\ell$ denote the hidden states of stream $s \in \{x,m,a\}$ at transformer layer $\ell$. Each stream computes its own projections
+\begin{equation}
+Q_s^\ell = h_s^\ell W_{Q,s}^\ell,\qquad
+K_s^\ell = h_s^\ell W_{K,s}^\ell,\qquad
+V_s^\ell = h_s^\ell W_{V,s}^\ell,
+\end{equation}
+which preserve stream-specific feature spaces. These stream-specific queries, keys, and values are then projected to a common attention dimension and participate in a shared masked self-attention operation. The resulting attended features are projected back to each stream and added through residual connections, while the feed-forward transformations remain branch-specific. Language features from T5 are injected only into the video generation model through cross-attention,
+\begin{equation}
+h_x^\ell \leftarrow h_x^\ell + \mathrm{CA}(h_x^\ell, z^{\ell}),
+\end{equation}
+where $\mathrm{CA}(\cdot,\cdot)$ denotes cross-attention with the instruction tokens. The action head receives task semantics only through the shared world and value representations rather than through direct language conditioning. The overall objective is a weighted sum of the RGB flow-matching loss, the value-map flow-matching loss, and the inverse-dynamics loss for the action head:
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\mathrm{rgb}} + \lambda_m \mathcal{L}_{\mathrm{map}} + \lambda_a \mathcal{L}_{\mathrm{act}}.
+\end{equation}
+Here $\mathcal{L}_{\mathrm{rgb}}$ and $\mathcal{L}_{\mathrm{map}}$ supervise the flow-matching velocity fields for future RGB and value-map denoising, while $\mathcal{L}_{\mathrm{act}}$ supervises inverse-dynamics action prediction from the action head. At inference time, \method operates autoregressively and naturally supports KV caching. Only newly appended real observations and newly predicted tokens require fresh attention computation, while all earlier history tokens are reused from the cache, substantially improving long-horizon rollout efficiency.
+
+
+
+
+\subsection{Intent-Causal Self-Attention}
+Directly training a generic \mot world action network makes inverse-dynamics learning difficult, because the action head must extract sparse action-relevant cues from dense future RGB appearance generated by the video generation model, especially in cluttered scenes. We address this by jointly modeling future states and their associated value distributions: the video generation model predicts both future RGB frames and future ASVMs, whose value maps provide a more compact and action-relevant representation than raw RGB appearance, making inverse-dynamics learning substantially simpler and more explicit.
+
+
+We implement this idea with \emph{intent-causal self-attention}, a designed visibility mask over the shared self-attention layers. Let $\mathcal{V}_x$, $\mathcal{V}_m$, and $\mathcal{V}_a$ denote the visible token sets for future video, value, and action streams, respectively:
+\begin{equation}
+\begin{aligned}
+\mathcal{V}_x &= \left[z_t^{o},\, z_{t-k:t-1}^{o},\, z_{t-k:t-1}^{a},\, z^{\ell},\, z^{x}\right],\\
+\mathcal{V}_m &= \left[z_t^{o},\, z_{t-k:t-1}^{o},\, z^{x},\, z^{m}\right],\\
+\mathcal{V}_a &= \left[z_t^{o},\, z_{t-k:t-1}^{a},\, z^{m},\, z^{a}\right].
+\end{aligned}
+\end{equation}
+Here $z^{x}$, $z^{m}$, and $z^{a}$ denote the future video, value, and action tokens being denoised at the current rollout step. The shared masked attention update for stream $s$ is
+\begin{equation}
+\tilde{h}_s^\ell
+=
+\mathrm{Attn}\!\bigl(
+Q_s^\ell,\,
+K(\mathcal{V}_s),\,
+V(\mathcal{V}_s)
+\bigr),
+\end{equation}
+followed by the stream-specific residual projection back to the original hidden space.
+
+This mask has a clear semantic effect. Future video tokens can attend to the current observation, instruction tokens, and past observation and action tokens, so the video generation model predicts task-conditioned future world states. Future value tokens can attend to the current observation, past observations, and future video tokens, ensuring that value prediction remains anchored to the sampled future state. Action tokens can attend to historical action tokens, the current observation, and future value tokens, but not future RGB tokens directly. As a result, task semantics enter the video generation model through T5-conditioned cross-attention, future state information is consolidated into the value stream, and the action head accesses future information only through the predicted value representation.
+
+
+\subsection{Self-Distillation RL Post-Training}
+
+Supervised training teaches the action head to imitate the action distribution in the dataset, but it does not fully optimize control success under closed-loop execution. We therefore introduce a reinforcement-learning post-training stage that updates only the action head while keeping the video generator and value-map head frozen. This selective finetuning stabilizes the learned visual world model and avoids catastrophic drift in future frame and value-map prediction.
+
+Let $\pi_\phi(a_t \mid \mathcal{H}_t, m_{t+1:t+h})$ denote the action head after pretraining. During RL post-training, the model samples actions in the environment and receives two reward components:
+\begin{equation}
+\begin{aligned}
+r_t &= \lambda_d r_t^{\mathrm{dense}} + \lambda_s r_t^{\mathrm{sparse}},\\
+r_t^{\mathrm{dense}} &= M_t(\Pi(p_t)),
+\end{aligned}
+\end{equation}
+where $r_t^{\mathrm{sparse}}$ is the environment-level task success or completion signal, $p_t$ is the predicted action landing point or end-effector target, $\Pi(\cdot)$ is the camera projection function, and $M_t$ is the predicted value map at time step $t$. Intuitively, the action head is rewarded when the projected action falls on high-value interaction regions predicted by the frozen value head.
+
+We optimize only the action head with GRPO \cite{shao2024deepseekmath}, of which the objective is
+\begin{equation}
+\begin{aligned}
+\mathcal{L}_{\mathrm{GRPO}}(\phi)
+&=
+\mathbb{E}_t \left[
+\min\!\left(
+\rho_t(\phi)\hat{A}_t,\,
+\mathrm{clip}\!\left(\rho_t(\phi), 1-\epsilon, 1+\epsilon\right)\hat{A}_t
+\right)
+\right],\\
+\rho_t(\phi)
+&=
+\frac{\pi_\phi(a_t \mid \mathcal{H}_t, m_{t+1:t+h})}
+{\pi_{\phi_{\mathrm{old}}}(a_t \mid \mathcal{H}_t, m_{t+1:t+h})},
+\end{aligned}
+\end{equation}
+where $\hat{A}_t$ is the advantage estimated from returns under the combined reward $r_t$, and $\epsilon$ is the clipping coefficient. Because the dense reward is derived from the model's own predicted spatial values, this stage can be viewed as a form of self-distillation: the pretrained value head supervises the action head under online interaction without requiring additional human labels.
+
+\begin{table*}[htbp]
+\centering
+\captionsetup{font=small, labelfont=bf, skip=4pt}
+\caption{Per-task success rates~\textbf{SR} on 50 RoboTwin simulation tasks under \textbf{Easy} and ~\textbf{Hard} settings.}
+\label{tab:stage1-stage2-baselines-final}
+
+\small
+\setlength{\tabcolsep}{3.8pt}
+\renewcommand{\arraystretch}{1.06}
+
+\begin{tabular}{>{\itshape\raggedright\arraybackslash}p{3.35cm}cccccccccc}
+\toprule
+\multirow{2}{*}{Simulation Task}
+& \multicolumn{2}{c}{$\pi_{0.5}$}
+& \multicolumn{2}{c}{X-VLA}
+& \multicolumn{2}{c}{Motus}
+& \multicolumn{2}{c}{Stage1}
+& \multicolumn{2}{c}{\textbf{AIM (Ours)}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+& Easy & Hard
+& Easy & Hard
+& Easy & Hard
+& Easy & Hard
+& Easy & Hard \\
+\midrule
+Adjust Bottle & \bestcell{100\%} & 99\% & \bestcell{100\%} & 99\% & 89\% & 93\% & 98\% & 99\% & \bestcell{100\%} & \bestcell{100\%} \\
+Beat Block Hammer & 96\% & 93\% & 92\% & 88\% & 95\% & 88\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Blocks Ranking RGB & 92\% & 85\% & 83\% & 83\% & \bestcell{99\%} & 97\% & 91\% & 77\% & 92\% & 77\% \\
+Blocks Ranking Size & 49\% & 26\% & 67\% & 74\% & \bestcell{75\%} & 63\% & 47\% & 44\% & 47\% & 43\% \\
+Click Alarmclock & 98\% & 89\% & 99\% & 99\% & \bestcell{100\%} & \bestcell{100\%} & 98\% & 99\% & \bestcell{100\%} & \bestcell{100\%} \\
+Click Bell & 99\% & 66\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & 98\% & 99\% & \bestcell{100\%} & \bestcell{100\%} \\
+Dump Bin Bigbin & 92\% & 97\% & 79\% & 77\% & 95\% & 91\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Grab Roller & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & 98\% & 99\% & \bestcell{100\%} & \bestcell{100\%} \\
+Handover Block & 66\% & 57\% & 73\% & 37\% & 86\% & 73\% & 92\% & 89\% & \bestcell{93\%} & 90\% \\
+Handover Mic & \bestcell{98\%} & 97\% & 0\% & 0\% & 78\% & 63\% & 82\% & 82\% & 83\% & 81\% \\
+Hanging Mug & 18\% & 17\% & 23\% & 27\% & 38\% & 38\% & \bestcell{43\%} & \bestcell{43\%} & \bestcell{43\%} & 42\% \\
+Lift Pot & 96\% & 85\% & 99\% & \bestcell{100\%} & 96\% & 99\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Move Can Pot & 51\% & 55\% & 89\% & 86\% & 34\% & 74\% & 99\% & 97\% & \bestcell{100\%} & 98\% \\
+Move Pillbottle Pad & 84\% & 61\% & 73\% & 71\% & 93\% & 96\% & 97\% & \bestcell{99\%} & 97\% & 98\% \\
+Move Playingcard Away & 96\% & 84\% & 93\% & 98\% & \bestcell{100\%} & 96\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Move Stapler Pad & 56\% & 42\% & 78\% & 73\% & 83\% & 85\% & 91\% & 83\% & \bestcell{92\%} & 84\% \\
+Open Laptop & 90\% & 96\% & 93\% & \bestcell{100\%} & 95\% & 91\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Open Microwave & 34\% & 77\% & 79\% & 71\% & \bestcell{95\%} & 91\% & 83\% & 80\% & 83\% & 79\% \\
+Pick Diverse Bottles & 81\% & 71\% & 58\% & 36\% & 90\% & 91\% & 99\% & 97\% & \bestcell{100\%} & 98\% \\
+Pick Dual Bottles & 93\% & 63\% & 47\% & 36\% & \bestcell{96\%} & 90\% & 92\% & 90\% & 93\% & 91\% \\
+Place A2B Left & 87\% & 82\% & 48\% & 49\% & 82\% & 79\% & 93\% & 91\% & \bestcell{94\%} & 92\% \\
+Place A2B Right & 87\% & 84\% & 36\% & 36\% & \bestcell{90\%} & 87\% & 89\% & 89\% & \bestcell{90\%} & 88\% \\
+Place Bread Basket & 77\% & 64\% & 81\% & 71\% & 91\% & \bestcell{94\%} & 92\% & 90\% & 93\% & 91\% \\
+Place Bread Skillet & 85\% & 66\% & 77\% & 67\% & 86\% & 83\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Place Burger Fries & 94\% & 87\% & 94\% & 94\% & 98\% & 98\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Place Can Basket & 62\% & 62\% & 49\% & 52\% & \bestcell{81\%} & 76\% & 78\% & 77\% & 78\% & 76\% \\
+Place Cans Plasticbox & 94\% & 84\% & 97\% & 98\% & 98\% & 94\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Place Container Plate & 99\% & 95\% & 97\% & 95\% & 98\% & 99\% & \bestcell{100\%} & 96\% & \bestcell{100\%} & 97\% \\
+Place Dual Shoes & 75\% & 75\% & 79\% & 88\% & 93\% & 87\% & \bestcell{100\%} & 99\% & \bestcell{100\%} & 98\% \\
+Place Empty Cup & \bestcell{100\%} & 99\% & \bestcell{100\%} & 98\% & 99\% & 98\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Place Fan & 87\% & 85\% & 80\% & 75\% & 91\% & 87\% & \bestcell{93\%} & 89\% & \bestcell{93\%} & 90\% \\
+Place Mouse Pad & 60\% & 39\% & 70\% & 70\% & 66\% & 68\% & \bestcell{97\%} & 96\% & \bestcell{97\%} & 95\% \\
+Place Object Basket & 80\% & 76\% & 44\% & 39\% & 81\% & 87\% & \bestcell{93\%} & 88\% & \bestcell{93\%} & 89\% \\
+Place Object Scale & 86\% & 80\% & 52\% & 74\% & 88\% & 85\% & \bestcell{100\%} & 97\% & \bestcell{100\%} & 98\% \\
+Place Object Stand & 91\% & 85\% & 86\% & 88\% & 98\% & 97\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Place Phone Stand & 81\% & 81\% & \bestcell{88\%} & 87\% & 87\% & 86\% & 82\% & 81\% & 82\% & 80\% \\
+Place Shoe & 92\% & 93\% & 96\% & 95\% & 99\% & 97\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Press Stapler & 87\% & 83\% & 92\% & \bestcell{98\%} & 93\% & \bestcell{98\%} & 96\% & 95\% & 96\% & 94\% \\
+Put Bottles Dustbin & \bestcell{84\%} & 79\% & 74\% & 77\% & 81\% & 79\% & 80\% & 75\% & 80\% & 74\% \\
+Put Object Cabinet & 80\% & 79\% & 46\% & 48\% & \bestcell{88\%} & 71\% & 81\% & 75\% & 81\% & 74\% \\
+Rotate QRcode & 89\% & 87\% & 34\% & 33\% & 89\% & 73\% & 98\% & 99\% & \bestcell{100\%} & 98\% \\
+Scan Object & 72\% & 65\% & 14\% & 36\% & 67\% & 66\% & 98\% & 97\% & \bestcell{100\%} & 98\% \\
+Shake Bottle Horizontally & 99\% & 99\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & 98\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Shake Bottle & 99\% & 97\% & 99\% & \bestcell{100\%} & \bestcell{100\%} & 97\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Stack Blocks Three & 91\% & 76\% & 6\% & 10\% & 91\% & 95\% & \bestcell{100\%} & 99\% & \bestcell{100\%} & 98\% \\
+Stack Blocks Two & 97\% & \bestcell{100\%} & 92\% & 87\% & \bestcell{100\%} & 98\% & 98\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Stack Bowls Three & 77\% & 71\% & 76\% & 86\% & 79\% & 87\% & \bestcell{100\%} & 99\% & \bestcell{100\%} & 98\% \\
+Stack Bowls Two & 95\% & 96\% & 96\% & 93\% & 98\% & 98\% & \bestcell{100\%} & 97\% & \bestcell{100\%} & 98\% \\
+Stamp Seal & 79\% & 55\% & 76\% & 82\% & 93\% & 92\% & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} & \bestcell{100\%} \\
+Turn Switch & 62\% & 54\% & 40\% & 61\% & 84\% & 78\% & \bestcell{100\%} & 99\% & \bestcell{100\%} & 98\% \\
+
+\midrule
+\multicolumn{1}{l}{\textbf{\upshape Average}}
+& 82.74\% & 76.76\%
+& 72.80\% & 72.84\%
+& 88.66\% & 87.02\%
+& 93.0\% & 92.0\%
+& \bestcell{94.0\%} & \bestcell{92.1\%} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+

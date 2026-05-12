@@ -1,0 +1,127 @@
+[
+  {
+    "env": "figure",
+    "label": "fig:real_world_tasks",
+    "caption": "\nQualitative comparison between WAV model (Ours) and the GE-ACT (Baseline) across different real-world manipulation tasks. \n",
+    "graphics": [
+      "figures/real_world_tasks.pdf"
+    ],
+    "block": "[htbp]\n\\centering\n\\includegraphics[width=\\textwidth]{figures/real_world_tasks.pdf}\n\\caption{\nQualitative comparison between WAV model (Ours) and the GE-ACT (Baseline) across different real-world manipulation tasks. \n}\n  \\label{fig:real_world_tasks}\n"
+  },
+  {
+    "env": "figure",
+    "label": "fig:real_world_bar",
+    "caption": "\n% Quantitative comparison between our method and the baseline on real-world tasks.“Drawer Task” refers to the language instruction: “Open the drawer, place the red plush keychain inside, and then close the drawer.”\n% ",
+    "graphics": [
+      "figures/real_world_bar.png"
+    ],
+    "block": "\n% \\centering\n% \\includegraphics[width=0.45\\textwidth]{figures/real_world_bar.png}\n% \\caption{\n% Quantitative comparison between our method and the baseline on real-world tasks.“Drawer Task” refers to the language instruction: “Open the drawer, place the red plush keychain inside, and then close the drawer.”\n% }\n%   \\label{fig:real_world_bar}\n% "
+  },
+  {
+    "env": "figure",
+    "label": "fig:stage1_main",
+    "caption": "\nWAV performance under varying iteration counts $K$, video latent noise sampling numbers $M$, and trajectory value noise sampling numbers $N$.\n",
+    "graphics": [
+      "figures/stage1_main.png"
+    ],
+    "block": "\n\\centering\n\\includegraphics[width=0.8\\textwidth]{figures/stage1_main.png}\n\\caption{\nWAV performance under varying iteration counts $K$, video latent noise sampling numbers $M$, and trajectory value noise sampling numbers $N$.\n}\n  \\label{fig:stage1_main}\n"
+  },
+  {
+    "env": "figure",
+    "label": "fig:stage2_stage3_vis",
+    "caption": "\n% \\textbf{Left:",
+    "graphics": [
+      "figures/stage2_stage3_vis.png"
+    ],
+    "block": "\n% \\centering\n% \\includegraphics[width=0.95\\textwidth]{figures/stage2_stage3_vis.png}\n% \\caption{\n% \\textbf{Left:}\n% Performance variation trends of the VLA model under different smoothing parameters $\\alpha$ and $\\beta$.\n% \\textbf{Right:} Performance variation trends of the VLA model under different numbers of video exploration elites $K_1$ and trajectory value exploration elites $K_2$.\n% }\n%   \\label{fig:stage2_stage3_vis}\n% "
+  },
+  {
+    "env": "figure",
+    "label": "fig:stage2_vis",
+    "caption": "\n% Performance variation trends of the VLA model under different smoothing parameters $\\alpha$ and $\\beta$.\n% ",
+    "graphics": [
+      "figures/stage2_vis.png"
+    ],
+    "block": "\n% \\centering\n% \\includegraphics[width=0.45\\textwidth]{figures/stage2_vis.png}\n% \\caption{\n% Performance variation trends of the VLA model under different smoothing parameters $\\alpha$ and $\\beta$.\n% }\n%   \\label{fig:stage2_vis}\n% "
+  },
+  {
+    "env": "figure",
+    "label": "fig:speed_acc",
+    "caption": "\n% \\textbf{Left: ",
+    "graphics": [
+      "figures/speed_memory.pdf"
+    ],
+    "block": "\n% \\centering\n% \\includegraphics[width=0.8\\textwidth]{figures/speed_memory.pdf}\n% \\caption{\n% \\textbf{Left: }Comparison of VLA model performance and inference time under different iteration counts $K$ for latent trajectory planning. \n% \\textbf{Right: }GPU memory consumption under different iteration counts $K$.\n% }\n%   \\label{fig:speed_acc}\n% "
+  },
+  {
+    "env": "figure",
+    "label": "app_fig:stage1",
+    "caption": "\nPerformance variation trends of the WAV model under different iteration counts $K$, video latent noise sampling numbers $M$, and trajectory value noise sampling numbers $N$.\n",
+    "graphics": [
+      "figures/stage1_appendix.png"
+    ],
+    "block": "\n\\centering\n\\includegraphics[width=0.95\\textwidth]{figures/stage1_appendix.png}\n\\caption{\nPerformance variation trends of the WAV model under different iteration counts $K$, video latent noise sampling numbers $M$, and trajectory value noise sampling numbers $N$.\n}\n  \\label{app_fig:stage1}\n"
+  },
+  {
+    "env": "figure",
+    "label": "app_fig:value",
+    "caption": "\nComparison of inferred and ground-truth state-value trajectories in real-world robot experiments (left) and LIBERO (right).\n",
+    "graphics": [
+      "figures/value.pdf"
+    ],
+    "block": "\n\\centering\n\\includegraphics[width=0.95\\textwidth]{figures/value.pdf}\n\\caption{\nComparison of inferred and ground-truth state-value trajectories in real-world robot experiments (left) and LIBERO (right).\n}\n  \\label{app_fig:value}\n"
+  },
+  {
+    "env": "figure",
+    "label": "app_fig:gt_pred_libero",
+    "caption": "\nQualitative comparison between predicted videos and ground truth on two LIBERO tasks.\n",
+    "graphics": [
+      "figures/gt_pred_libero.pdf"
+    ],
+    "block": "\n\\centering\n\\includegraphics[width=0.95\\textwidth]{figures/gt_pred_libero.pdf}\n\\caption{\nQualitative comparison between predicted videos and ground truth on two LIBERO tasks.\n}\n  \\label{app_fig:gt_pred_libero}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:libero_only",
+    "caption": "Performance comparison on the LIBERO benchmark.",
+    "graphics": [],
+    "block": "[htbp]\n\\caption{Performance comparison on the LIBERO benchmark.}\n\\label{tab:libero_only}\n\\centering\n\\small\n\\resizebox{0.8\\columnwidth}{!}{\n\\begin{tabular}{lcccccc}\n\\toprule\n\\multirow{2}{*}{\\centering\\textbf{Models}} \n& \\multirow{2}{*}{\\textbf{Params}}\n& \\multicolumn{4}{c}{\\textbf{LIBERO}} \n& \\multirow{2}{*}{\\textbf{Avg.}} \\\\\n\\cmidrule(lr){3-6}\n& & \\textbf{Spatial} & \\textbf{Object} & \\textbf{Goal} & \\textbf{Long} & \\\\\n\\midrule\nDiffusion Policy \\citet{chi2023diffusion} & - & 78.3 & 92.5 & 68.3 & 50.5 & 72.4 \\\\\nOcto \\citet{team2024octo} & - & 78.9 & 85.7 & 84.6 & 51.1 & 75.1 \\\\\nOpenVLA \\citet{kim2024openvla} & 7b & 84.9 & 88.4 & 79.2 & 53.7 & 76.5 \\\\\nSpatialVLA \\citet{qu2025spatialvla} & 4b & 88.2 & 89.9 & 78.6 & 55.5 & 78.1 \\\\\nDiT Policy \\citet{hou2024diffusion} & - & 84.2 & 96.3 & 85.4 & 63.8 & 82.4 \\\\\n$\\pi_{0}$-FAST \\citet{pertsch2025fast} & 3b & 96.4 & 96.8 & 88.6 & 60.2 & 85.5 \\\\\nGR00T-N1 \\citet{bjorck2025gr00t} & 2b & 94.4 & 97.6 & 93.0 & 90.6 & 93.9 \\\\\n$\\pi_{0}$ \\citet{black2024pi_0} & 3b & 96.8 & 98.8 & 95.8 & 85.2 & 94.2 \\\\\nVLA-0 \\citet{goyal2025vla} & 3b & 97.0 & 97.8 & 96.2 & 87.6 & 94.7 \\\\\nDiscrete Diffusion VLA \\citet{liang2025discrete} & 7b & 97.2 & 98.6 & 97.4 & 92.0 & 96.3 \\\\\nMemoryVLA \\citet{shi2025memoryvla} & 7b & 98.4 & 98.4 & 96.4 & 93.4 & 96.5 \\\\\n$\\pi_{0.5}$ \\citet{intelligence2025pi_} & 3b & 98.8 & 98.2 & 98.0 & 92.4 & 96.8 \\\\\nOpenVLA-OFT \\citet{kim2025fine} & 7b & 97.6 & 98.4 & 97.9 & 94.5 & 97.1 \\\\\nVLA-Adapter \\citet{wang2025vla} & 0.5b & 97.8 & 99.2 & 97.2 & \\textbf{95.0} & 97.3 \\\\\n\\midrule\n\\rowcolor{gray!15}\n\\multicolumn{7}{l}{\\textit{World Model}} \\\\\nWorldVLA \\citet{cen2025worldvla} & 7b & 85.6 & 89.0 & 82.6 & 59.0 & 79.1 \\\\\nCoT-VLA \\citet{zhao2025cot} & 7b & 87.5 & 91.6 & 87.6 & 69.0 & 81.1 \\\\\nFlowVLA \\citet{zhong2025flowvla} & 8.5b & 93.2 & 95.0 & 91.6 & 72.6 & 88.1 \\\\\nDreamVLA \\citet{zhang2025dreamvla} & 3b & 97.5 & 94.0 & 89.5 & 89.5 & 92.6 \\\\\nUD-VLA \\citet{chen2025unified} & - & 94.1 & 95.7 & 91.2 & 89.6 & 92.7 \\\\\nRynnVLA-002-Discrete "
+  },
+  {
+    "env": "table",
+    "label": "tab:libero_only",
+    "caption": "Performance comparison on LIBERO.",
+    "graphics": [],
+    "block": "[t]\n% \\caption{Performance comparison on LIBERO.}\n% \\label{tab:libero_only}\n% \\centering\n% \\small\n% \\resizebox{0.8\\columnwidth}{!}{\n% \\begin{tabular}{lccccc}\n% \\toprule\n% \\multirow{2}{*}{\\centering\\textbf{Models}} \n% & \\multicolumn{4}{c}{\\textbf{LIBERO}} \n% & \\multirow{2}{*}{\\textbf{Avg.}} \\\\\n% \\cmidrule(lr){2-5}\n% & \\textbf{Spatial} & \\textbf{Object} & \\textbf{Goal} & \\textbf{Long} \\\\\n% \\midrule\n% Diffusion Policy \\citet{chi2023diffusion} & 78.3 & 92.5 & 68.3 & 50.5 & 72.4 \\\\\n% Octo \\citet{team2024octo} & 78.9 & 85.7 & 84.6 & 51.1 & 75.1 \\\\\n% OpenVLA \\citet{kim2024openvla} & 84.9 & 88.4 & 79.2 & 53.7 & 76.5 \\\\\n% SpatialVLA \\citet{qu2025spatialvla}& 88.2 & 89.9 & 78.6 & 55.5 & 78.1 \\\\\n% DiT Policy\\citet{hou2024diffusion} & 84.2 & 96.3 & 85.4 & 63.8 & 82.4 \\\\\n% $\\pi_{0}$-FAST \\citet{pertsch2025fast}& 96.4 & 96.8 & 88.6 & 60.2 & 85.5 \\\\\n% GR00T-N1 \\citet{bjorck2025gr00t}& 94.4 & 97.6 & 93.0 & 90.6 & 93.9 \\\\\n% $\\pi_{0}$ \\citet{black2024pi_0}& 96.8 & 98.8 & 95.8 & 85.2 & 94.2 \\\\\n% VLA-0 \\citet{goyal2025vla}& 97.0 & 97.8 & 96.2 & 87.6 & 94.7 \\\\\n% Discrete Diffusion VLA \\citet{liang2025discrete}& 97.2 & 98.6 & 97.4 & 92.0 & 96.3 \\\\\n% MemoryVLA \\citet{shi2025memoryvla}& 98.4 & 98.4 & 96.4 & 93.4 & 96.5 \\\\\n% $\\pi_{0.5}$ \\citet{intelligence2025pi_} & 98.8 & 98.2 & 98.0 & 92.4 & 96.8 \\\\\n% OpenVLA-OFT \\citet{kim2025fine}& 97.6 & 98.4 & 97.9 & 94.5 & 97.1 \\\\\n% VLA-Adapter\\citet{wang2025vla} & 97.8 & 99.2 & 97.2 & 95.0 & 97.3 \\\\\n% \\midrule\n% \\rowcolor{gray!15}\n% \\multicolumn{6}{l}{\\textit{World Model}} \\\\\n% WorldVLA \\citet{cen2025worldvla}& 85.6 & 89.0 & 82.6 & 59.0 & 79.1 \\\\\n% CoT-VLA \\citet{zhao2025cot}& 87.5 & 91.6 & 87.6 & 69.0 & 81.1 \\\\\n% FlowVLA \\citet{zhong2025flowvla}& 93.2 & 95.0 & 91.6 & 72.6 & 88.1 \\\\\n% DreamVLA \\citet{zhang2025dreamvla}& 97.5 & 94.0 & 89.5 & 89.5 & 92.6 \\\\\n% UD-VLA \\citet{chen2025unified}& 94.1 & 95.7 & 91.2 & 89.6 & 92.7 \\\\\n% RynnVLA-002-Discrete \\citet{cen2025rynnvla}& 94.2 & 96.8 & 94.6 & 87.6 & 93.3 \\\\\n% UniVLA \\citet{bu2025univla}& 95.4 & 98.8 &"
+  },
+  {
+    "env": "table",
+    "label": "tab:rewards",
+    "caption": "Compact formulation of the dense reward terms in the bimanual setting, where $b\\in\\{L,R\\",
+    "graphics": [],
+    "block": "[htbp]\n\\centering\n\\scriptsize\n\\setlength{\\tabcolsep}{3pt}\n\\renewcommand{\\arraystretch}{1.08}\n\\begin{tabularx}{\\columnwidth}{p{2.9cm}Yp{2cm}}\n\\hline\nReward term & Definition & Weight \\\\\n\\hline\nWrist-view MSE reward\n& $c_{1,t}^b=\\exp\\!\\left(-0.01 \\cdot \\mathrm{MSE}(I_t^b,I_T^b)\\right)$\n& $+\\frac{1}{16}$ each \\\\\n\nWrist-view SSIM reward\n& $c_{2,t}^b=\\exp\\!\\left(\\mathrm{SSIM}(I_t^b,I_T^b)-1\\right)$\n& $+\\frac{1}{16}$ each \\\\\n\nTop-view MSE reward\n& $c_{3,t}=\\exp\\!\\left(-0.01 \\cdot \\mathrm{MSE}(I_t^{\\mathrm{top}},I_T^{\\mathrm{top}})\\right)$\n& $+\\frac{1}{16}$ \\\\\n\nTop-view SSIM reward\n& $c_{4,t}=\\exp\\!\\left(\\mathrm{SSIM}(I_t^{\\mathrm{top}},I_T^{\\mathrm{top}})-1\\right)$\n& $+\\frac{1}{16}$ \\\\\n\nJoint-state proximity reward\n& $c_{5,t}^b=\\exp\\!\\left(-\\|s_t^b-s_T^b\\|_2\\right)$\n& $+\\frac{1}{16}$ each \\\\\n\nJoint velocity penalty\n& $c_{6,t}^b=\\sum_j |\\Delta s_{t,j}^b|$\n& $-\\frac{1}{16}$ each \\\\\n\nJoint acceleration penalty\n& $c_{7,t}^b=\\sum_j |\\Delta^2 s_{t,j}^b|$\n& $-\\frac{1}{16}$ each \\\\\n\nAction velocity penalty\n& $c_{8,t}^b=\\sum_j |\\Delta a_{t,j}^b|$\n& $-\\frac{0.1}{16}$ each \\\\\n\nAction acceleration penalty\n& $c_{9,t}^b=\\sum_j |\\Delta^2 a_{t,j}^b|$\n& $-\\frac{0.1}{16}$ each \\\\\n\\hline\n\\end{tabularx}\n\\caption{Compact formulation of the dense reward terms in the bimanual setting, where $b\\in\\{L,R\\}$ denotes the left and right arms.}\n\\label{tab:rewards}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:trainer1",
+    "caption": " Video Training hyperparameters configuration.",
+    "graphics": [],
+    "block": "[htbp]\n    \\centering\n    \\caption{ Video Training hyperparameters configuration.}\n        \\begin{tabular}{cc}\n            \\toprule\n            \\textbf{Parameter} & \\textbf{Value} \\\\\n            \\hline\n            % {Training hardware} & NVIDIA A100 PCIe 80G $\\times$ 8\\\\ \n            {Gradient clip} & 1.0 \\\\\n            {Steps} & 40000 \\\\\n            {Warm-up steps} & 1000 \\\\\n            {Batch size} & 128 \\\\ \n            {Learning rate} & $3e-4$ \\\\\n            {Weight decay} & $1e-5$ \\\\ \n            {Caption Dropout} & 0.06 \\\\\n            {Optimizer} & Adam ($\\beta_1 = 0.9, \\beta_2 = 0.95, \\beta_3 = 0.999$) \\\\ \n            \\bottomrule\n        \\end{tabular}\n    \\label{tab:trainer1}\n"
+  },
+  {
+    "env": "table",
+    "label": "tab:trainer2",
+    "caption": " Value \\& Action Training hyperparameters configuration.",
+    "graphics": [],
+    "block": "[htbp]\n    \\centering\n    \\caption{ Value \\& Action Training hyperparameters configuration.}\n        \\begin{tabular}{cc}\n            \\toprule\n            \\textbf{Parameter} & \\textbf{Value} \\\\\n            \\hline\n            % {Training hardware} & NVIDIA A100 PCIe 80G $\\times$ 8\\\\ \n            {Gradient clip} & 1.0 \\\\\n            {Steps} & 30000 \\\\\n            {Warm-up steps} & 1000 \\\\\n            {Batch size} & 128 \\\\ \n            {Learning rate} & $5e-5$ \\\\\n            {Weight decay} & $1e-5$ \\\\ \n            {Caption Dropout} & 0 \\\\\n            {Optimizer} & Adam ($\\beta_1 = 0.9, \\beta_2 = 0.95, \\beta_3 = 0.999$) \\\\ \n            \\bottomrule\n        \\end{tabular}\n    \\label{tab:trainer2}\n"
+  },
+  {
+    "env": "figure*",
+    "label": "fig:pipline",
+    "caption": "\n% The proposed WAV model.\n% The model architecture decomposes planning and control into three tightly coupled components:\n% \\textbf{1)",
+    "graphics": [
+      "figures/vla_mpc_overview_1.png"
+    ],
+    "block": "[htbp]\n\\centering\n\\includegraphics[width=0.95\\columnwidth]{figures/vla_mpc_overview_1.png}\n\\caption{\n% The proposed WAV model.\n% The model architecture decomposes planning and control into three tightly coupled components:\n% \\textbf{1)} a language-conditional video generation module for predicting future visual trajectories;\n% \\textbf{2)} a trajectory value module for long-horizon temporal evaluation;\n% and \\textbf{3)} an action module for generating executable robot actions.\n% Based on this, we implement efficient latent trajectory planning and utilize the resulting optimized visual and trajectory value features to predict decision actions.\nThe proposed WAV model decomposes planning and control into three tightly coupled components: \n\\textbf{1)} a language-conditioned video generation module for predicting future visual trajectories; \n\\textbf{2)} a trajectory value module for long-horizon evaluation; \nand \\textbf{3)} an action module for generating executable robot actions. \nTogether, these components enable implicit planning in latent space, where action generation arises from inference over predicted futures guided by trajectory value.\n}\n  \\label{fig:pipline}\n"
+  }
+]

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>This&amp;That - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>This&amp;That: Language-Gesture Controlled Video Generation for Robot Planning</h1>
+<div class="meta">
+<p><strong>Reading Report: </strong>Prepared for junior PhD group meetings, focusing on explaining methods, formulas, implementation and experimental reproducibility details.</p>
+<p><strong>Authors: </strong>Boyang Wang, Nikhil Sridhar, Chao Feng, Mark Van der Merwe, Adam Fishman, Nima Fazeli, Jeong Joon Park</p>
+<p><strong>Organization: </strong>University of Michigan, University of Washington</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2407.05530">2407.05530</a>; Project page: <a href="https://this-and-that-vid.github.io/this-and-that/">this-and-that-vid.github.io/this-and-that</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#formulation">4. Formalization of the problem</a></li>
+<li><a href="#method">5. Detailed explanation of method</a></li>
+<li><a href="#experiments">6. Experiments and results</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#repro">8. Reproducibility Audit</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This&amp;That uses a "language + gesture point" control video diffusion model to generate a robot vision plan, and then uses the DiVA behavioral cloning model to integrate the video plan and real-time observations into actions. The goal is to allow the robot to understand natural human instructions such as "this/that/there" in fuzzy scenes.
+ </div>
+<table>
+<thead>
+<tr><th>quick review questions</th><th>concise answer</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>What should the paper solve?</td>
+<td>Video generation can be used as a robot plan, but language-only instructions are often ambiguous in complex or uncertain scenarios, especially deictic language such as "put this there." What the paper wants to solve is: how to control the video plan unambiguously using simple human language and pointing gestures, and convert the plan into robot actions.</td>
+</tr>
+<tr>
+<td>The author's approach</td>
+<td>Two modules: one is a language-gesture conditioned VDM fine-tuned based on Stable Video Diffusion, which uses the initial frame, text and two 2D gesture points to generate a video plan; the other is DiVA, a video-conditioned behavior cloning Transformer, which uses video plan tokens and real-time observation cross-attention to output action chunks.</td>
+</tr>
+<tr>
+<td>most important results</td>
+<td>In terms of Bridge video quality, Ours reaches FID 17.28, FVD 84.58, PSNR 21.71, SSIM 0.787, LPIPS 0.112, all better than SVD, StreamingT2V, DragAnything and AVDC; in Isaac Gym rollout, the complete Video-based (V.+Lang.+Gesture) reaches Pick in ID/OOD scenes 95/87, Place 93/80, significantly higher than the language-only version.</td>
+</tr>
+<tr>
+<td>Things to note when reading</td>
+<td>This paper is not a long-range planning paper, but an "instruction disambiguation + video conditional execution" paper in single-step/modular tasks. Its real-robot part only evaluates the quality of video generation, and the action execution experiment is currently in Isaac Gym simulation; therefore, it is necessary to distinguish between "video generation aligned with real robot data" and "real robot closed-loop execution".</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Difficulty rating: </strong>★★★☆☆. Need to be familiar with latent video diffusion, ControlNet/FiLM/CLIP conditioning, behavior cloning, ACT/Transformer policy, robot vision data set and rollout evaluation.</p>
+<p><strong>Keywords: </strong>language-gesture conditioning, deictic language, video diffusion model, Stable Video Diffusion, DiVA, video-conditioned behavior cloning, Bridge dataset, Isaac Gym. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Verbal-gestural condition VDM.</strong>Fine-tune the robot video based on SVD and add sparse gesture conditioning so that the model can understand "this/that/there".</li>
+<li><strong>Automatic gesture annotation process.</strong>Automatically recover pick/release gesture points from real data using Bridge metadata, YoloV8 gripper detector and TrackAnything.</li>
+<li><strong>DiVA execution model.</strong>The generated video is used as a dense visual goal sequence, and real-time observation is combined through TokenLearner compression and cross-attention to output action chunks.</li>
+<li><strong>Systematically verifying the value of gestures.</strong>User alignment, video quality, VDM ablation, DiVA ablation and simulation rollout all show that language+gesture is superior to single modality.</li>
+</ul>
+<figure>
+<img alt="This&amp;That teaser" src="figures/figures_Teaser.png"/>
+<figcaption><strong>Teaser.</strong>Under the same initial frame, the model can generate different action sequences based on different languages ​​​​and gesture points. Gestures provide spatial disambiguation information that language cannot express precisely.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 Why language is not enough</h3>
+<p>When humans give instructions, they often say "take this" and "put it there" while pointing with their fingers at the target. Describing the same task using natural language alone can be verbose and prone to ambiguity in complex environments such as real desktops, cabinets, and laundry areas. For example, "pick up the blue cup in the third row" relies on accurate spatial description and object recognition, and pointing gestures can directly complement the spatial reference.</p>
+<h3>2.2 Why video planning is suitable for robots</h3>
+<p>The video plan is denser than a single target image and can describe the intermediate process from the initial state to the target state. For robot execution, these intermediate frames can serve as a dense sequence of visual goals, reducing the ambiguity of single-image goals, and are closer to visual control than predicting actions directly from language.</p>
+<h3>2.3 Gaps in existing video robot methods</h3>
+<p>Methods such as UniPi and UniSim have demonstrated that video generation can simulate robot interaction, but videos are often converted into actions through inverse dynamics. AVDC plans and extracts discrete actions from optical flow with low-resolution video. It is difficult for these methods to accurately specify objects and target positions in fuzzy scenes by relying solely on language. This article uses language + gesture for directional video generation and directly references the video plan through the BC architecture.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<thead>
+<tr><th>direction</th><th>Already have a job</th><th>The difference between This&amp;That</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Imitation Learning / BC</td>
+<td>ACT, Diffusion Policy, RT-1, etc. learn actions directly from state/image and target information.</td>
+<td>This article does not only use language or a single image as a goal, but inputs the multi-frame video plan generated by VDM into DiVA as a dense goal sequence.</td>
+</tr>
+<tr>
+<td>Conditional video diffusion</td>
+<td>Existing VDM can be controlled by text, trajectory, mask, camera pose, etc., but often requires dense spatial or temporal conditions.</td>
+<td>This&amp;That only requires two very sparse 2D gesture points, plus short deictic language to control robot video.</td>
+</tr>
+<tr>
+<td>Video diffusion in robotics</td>
+<td>UniPi/UniSim uses text/image-to-video to generate robot videos; AVDC generates low-resolution video plans and uses optical flow to convert motion.</td>
+<td>This paper simultaneously improves directional video prediction and video condition control: language + gesture resolves ambiguity, and DiVA uses BC cross-attention to perform actions.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="formulation">
+<h2>4. Formalization of the problem</h2>
+<h3>4.1 Video generation goals</h3>
+<p>The model starts from the initial frame $I_0$ and generates $T$ future frames. The conditions include language $C_{\text{text}}$ and gesture $C_{\text{gest}}$: </p>
+<div class="formula-block">
+<p class="intuition">This distribution represents how future videos should change given the current image, text, and pointing gestures.</p>
+ $$p_{\theta}(I_0, \ldots, I_T \mid I_0, C_{\text{text}}, C_{\text{gest}})$$
+ <table class="symbol-table">
+<tr><td>$I_0$</td><td>Initial image, also known as image conditioning.</td></tr>
+<tr><td>$C_{\text{text}}$</td><td>Task text, which can be a regular description or a deictic prompt, such as "put this to there".</td></tr>
+<tr><td>$C_{\text{gest}}$</td><td>Sparse gesture images usually consist of pick points and place/release points.</td></tr>
+<tr><td>$I_{1: T}$</td><td>VDM-generated future vision plan for robots.</td></tr>
+</table>
+</div>
+<h3>4.2 DiVA action condition distribution</h3>
+<p>DiVA learns to predict the next action chunk from real-time observations, robot status, and video plans: </p>
+<div class="formula-block">
+ $$\pi_\theta(a_{t: t+k} \mid o_t, s_t, \tau)$$
+ <table class="symbol-table">
+<tr><td>$a_{t: t+k}$</td><td>The action segment to be executed starting from time $t$. The action chunk size in the experiment is $k=10$.</td></tr>
+<tr><td>$o_t$</td><td>Current live image observation.</td></tr>
+<tr><td>$s_t$</td><td>Robot end-effector pose.</td></tr>
+<tr><td>$\tau$</td><td>A subset of the video plan $\mathcal{I}=[I_0, \ldots, I_T]$ as dense visual goals.</td></tr>
+</table>
+</div>
+</section>
+<section id="method">
+<h2>5. Detailed explanation of method</h2>
+<h3>5.1 System Overview</h3>
+<p>This&amp;That contains two modules: language-gesture conditioned video generation and video-conditioned behavioral cloning. The former generates visual plans using short text and gestures; the latter maps visual plans and real-time observations into robot actions.</p>
+<figure>
+<img alt="Video-based planning qualitative results" src="figures/figures_VDM_comparison.png"/>
+<figcaption><strong>Video-based Planning Qualitative Results.</strong>Compared with AVDC, This&amp;That generates videos that are clearer and more relevant to user intent in deictic language and complex scenes.</figcaption>
+</figure>
+<h3>5.2 Language-conditioned finetuning</h3>
+<p>The author is based on Stable Video Diffusion (SVD). SVD is a latent VDM that uses encoder $\mathcal{E}$ and decoder $\mathcal{D}$ to convert between pixel space and latent space. Since open-domain SVD is not suitable for robot tasks, the author first uses Bridge robot video to do initial finetuning of the core structure of SVD.</p>
+<p>The text $C_{\text{text}}$ and the initial frame $I_0$ extract tokens through CLIP encoder, and then generate modulation parameters through cross-attention and FiLM, which act on the UNet intermediate features. During training, add Gaussian noise to $I_{0: T}$ and optimize noise reconstruction loss.</p>
+<h3>5.3 Gesture-conditioned branch</h3>
+<p>The standard ControlNet-style sparse point condition is not sufficient here, because the two 2D points are too sparse and the direct input is easily ignored by the network. The author inputs three latent levels into channel-wise concatenate before the first convolution layer of the gesture conditioning branch: </p>
+<div class="formula-block">
+ $$[\mathcal{E}(I_0); \epsilon_t; \mathcal{E}(C_{\text{gest}})]$$
+ <p>Among them, $\mathcal{E}(I_0)$ is the initial frame latent, $\epsilon_t$ is the noisy video latent of the denoising step, and $\mathcal{E}(C_{\text{gest}})$ is the gesture image latent. The supplementary material gives the shape: all three are $\mathbb{R}^{(B\times T)\times4\times H\times W}$, and after splicing, they are $\mathbb{R}^{(B\times T)\times12\times H\times W}$.</p>
+</div>
+<p>In the two-stage training, the second stage initializes the conditioning branch and connects to zero convolution; the output of the gesture branch is added to the UNet decoder, similar to ControlNet. Gesture points will be expanded by 2D Gaussian dilation or 10x10 pixel block to reduce sparsity.</p>
+<figure>
+<img alt="VDM architecture" src="figures/figures_Diffusion.png"/>
+<figcaption><strong>Video Diffusion Model Architecture.</strong>Main text VDM architecture diagram: initial frame, language and gesture conditioning jointly control the video diffusion model.</figcaption>
+</figure>
+<h3>5.4 Automatic gesture annotation</h3>
+<p>Bridge data does not have human gesture labels. The author uses robot metadata to find the key moments of gripper close/open, and then locates the pick/release target point. Specific process: </p>
+<ul>
+<li>Use 450 manually annotated images to train the YoloV8 gripper detector to detect gripper bounding boxes.</li>
+<li>Restore the gripper's interaction position with the object based on keyframes.</li>
+<li>Use TrackAnything to track the movement of objects, especially when objects continue to move after being released midway.</li>
+<li>Filter videos that fail to track, are too short, or exceed 5 times the target number of frames.</li>
+</ul>
+<p>This process makes real Bridge data available for self-supervised training of language-gesture VDMs.</p>
+<h3>5.5 DiVA: Diffusion Video to Action</h3>
+<p>DiVA is a Transformer encoder-decoder BC model. Instead of doing inverse dynamics on the video frame by frame, it uses the video plan as a reference target and does cross-attention with live observation.</p>
+<figure>
+<img alt="DiVA architecture" src="figures/figures_DiVA_architecture.png"/>
+<figcaption><strong>DiVA architecture.</strong>DiVA uses ResNet-18 to extract image tokens, TokenLearner compresses each image to 16 tokens, and then the Transformer encoder-decoder outputs the action chunk.</figcaption>
+</figure>
+<p>Key design: </p>
+<ul>
+<li><strong>ResNet-18 embedding. </strong>Each $256\times384\times3$ image becomes $8\times12\times512$ latent embedding.</li>
+<li><strong>TokenLearner compression.</strong>Reduce the 96 spatial tokens of each picture to 16 dynamic tokens to avoid token explosion caused by too many video frames.</li>
+<li><strong>Observation-token and goal-token cross-attention.</strong>The current observation and end-effector pose form $O\in\mathbb{R}^{17\times512}$, and the Transformer encoder references goal tokens through 4 layers of self/cross-attention.</li>
+<li><strong>Decoder output action chunk.</strong>The Transformer decoder uses 7 layers of self/cross-attention to convert fixed positional embeddings into $k=10$ actions.</li>
+<li><strong>Temporal noise. </strong>Target frames are randomly sampled from $N$ consecutive observation groups during training, making DiVA more robust to small temporal misalignments between generated videos and real trajectories.</li>
+</ul>
+<p>The author has tried inverse dynamics, but because VDM has a fixed number of output frames and the length of the real demonstration changes, it is difficult to interpolate from fixed frames to actions; DiVA avoids an additional temporal interpolation diffusion model.</p>
+<h3>5.6 Appendix training details</h3>
+<table>
+<thead>
+<tr><th>module</th><th>Configuration</th><th>Source</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Bridge VDM stage 1</td>
+<td>8 Nvidia L40S GPUs, 48GB each; UNet training 99K iterations; batch size 1/GPU; default SVD 14-frame weights.</td>
+<td><span class="appendix-ref">Supplementary Materials VDM Training Details</span></td>
+</tr>
+<tr>
+<td>Bridge VDM stage 2</td>
+<td>4 GPUs, gesture conditioning training 30K iterations.</td>
+<td><span class="appendix-ref">Supplementary Materials VDM Training Details</span></td>
+</tr>
+<tr>
+<td>Isaac Gym VDM</td>
+<td>Stage 1 uses 8 GPUs to train 30K iterations; stage 2 uses 4 GPUs to train 15K iterations; the initial weights are SVD-XT 25-frame version.</td>
+<td><span class="appendix-ref">Supplementary Materials VDM Training Details</span></td>
+</tr>
+<tr>
+<td>optimizer</td>
+<td>AdamW; the two-stage constant learning rates are $1e^{-5}$ and $5e^{-6}$ respectively; use 8-bit Adam to reduce video memory; no EMA.</td>
+<td><span class="appendix-ref">Supplementary Materials VDM Training Details</span></td>
+</tr>
+<tr>
+<td>DiVA training</td>
+<td>900 training instances, 100 heldout testing; about 75-100 observation-action pairs per demo; single Nvidia RTX 6000 Ada GPU; 2000 epochs; batch size 8; learning rate $1e^{-5}$; weight decay $1e^{-4}$; action chunk size 10.</td>
+<td><span class="appendix-ref">Supplementary Materials DiVA Training Details</span></td>
+</tr>
+<tr>
+<td>data augmentation</td>
+<td>The horizontal flip probability is 0.45; if the prompt contains positional words such as left/right, it will not be flipped.</td>
+<td><span class="appendix-ref">Supplementary Materials VDM Training Details</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="experiments">
+<h2>6. Experiments and results</h2>
+<p>The experiment verifies three things: whether the video is real and aligned with user intent; whether language-gesture conditioning is necessary; and whether the generated video can help downstream robot action learning.</p>
+<h3>6.1 Bridge video quality assessment</h3>
+<p>The author trained on Bridge V1/V2, and the front view data was filtered for length. There are 25, 767 videos for initial finetuning and 14, 735 videos for gesture-conditioned training. The evaluation uses Bridge test videos, in which the main table uses 646 gesture label filtered Bridge V1 videos.</p>
+<table>
+<thead>
+<tr><th>Method</th><th>FID ↓</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+</thead>
+<tbody>
+<tr><td>SVD</td><td>29.49</td><td>657.49</td><td>12.47</td><td>0.334</td><td>0.391</td></tr>
+<tr><td>StreamingT2V</td><td>42.57</td><td>780.81</td><td>11.35</td><td>0.324</td><td>0.504</td></tr>
+<tr><td>DragAnything</td><td>34.38</td><td>764.58</td><td>12.76</td><td>0.364</td><td>0.466</td></tr>
+<tr><td>AVDC</td><td>163.93</td><td>1512.25</td><td>20.23</td><td>0.663</td><td>0.507</td></tr>
+<tr><td>Ours</td><td class="best">17.28</td><td class="best">84.58</td><td class="best">21.71</td><td class="best">0.787</td><td class="best">0.112</td></tr>
+</tbody>
+</table>
+<p>This result shows that the open-domain video model is not enough to be used directly in robotic scenes. Although AVDC is a robotics VDM, its resolution and visual quality are poor; the VDM in this paper is significantly better in visual quality, timing quality and perceptual loss. Supplementary material also compares at AVDC native low resolution $48\times64$, Ours resized to $48\times64$ still outperforms AVDC.</p>
+<h3>6.2 User intention alignment experiment</h3>
+<p>The user study was completed by 3 participants with experience in robotics. The test set has 24 Bridge cases: 8 pick-and-place, 5 stacking, 6 folding, 5 open/close. Participants saw the initial image, non-deictic prompts and gesture points and judged whether the generated video correctly completed the intention. Use the text method to test both regular text and deictic text.</p>
+<table>
+<thead>
+<tr>
+<th rowspan="2">Modality</th>
+<th colspan="2">Pick&amp;Place</th>
+<th colspan="2">Stacking</th>
+<th colspan="2">Folding</th>
+<th colspan="2">Open/Close</th>
+<th colspan="2">Average</th>
+</tr>
+<tr><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th><th>Reg</th><th>Deic</th></tr>
+</thead>
+<tbody>
+<tr><td>Vision</td><td>0.0</td><td>-</td><td>6.6</td><td>-</td><td>11.1</td><td>-</td><td>60.0</td><td>-</td><td>16.7</td><td>-</td></tr>
+<tr><td>AVDC (V.+Lang.)</td><td>8.3</td><td>8.3</td><td>0.0</td><td>0.0</td><td>5.6</td><td>5.6</td><td>40.0</td><td>40.0</td><td>12.5</td><td>12.5</td></tr>
+<tr><td>V.+Lang.</td><td>37.5</td><td>4.2</td><td>26.7</td><td>6.6</td><td>50.0</td><td>33.3</td><td>100.0</td><td>66.7</td><td>51.4</td><td>25.0</td></tr>
+<tr><td>V.+Gesture</td><td>58.3</td><td>-</td><td>66.7</td><td>-</td><td>55.6</td><td>-</td><td>100.0</td><td>-</td><td>68.1</td><td>-</td></tr>
+<tr><td>V.+Lang.+Gesture</td><td class="best">95.8</td><td class="best">91.6</td><td class="best">80.0</td><td class="best">66.7</td><td class="best">88.9</td><td class="best">94.4</td><td class="best">100.0</td><td class="best">93.3</td><td class="best">91.7</td><td class="best">87.5</td></tr>
+</tbody>
+</table>
+<p>The most critical observation is: under deictic text, language-only has an average of only 25.0%, while language+gesture still has an average of 87.5%. This corresponds to the "this/that/there instructions require gesture disambiguation" that the paper wants to solve. Open/Close tasks are less ambiguous, so language-only is also stronger.</p>
+<h3>6.3 Isaac Gym rollout experiment</h3>
+<p>There are four blocks on the desktop in the simulation environment, with cube/cylinder shapes and 8 colors. The task is constructed through two random objects and five relationships: in front of, behind, to the right of, to the left of, and on top of. The action is delta pose under 7D command: end-effector frame, plus a continuous gripper open/close scalar.</p>
+<table>
+<thead>
+<tr><th>Goal Conditioning</th><th>Pick Success ID/OOD (%)</th><th>Place Success ID/OOD (%)</th></tr>
+</thead>
+<tbody>
+<tr><td>ACT (Vision-only)</td><td>5 / 3</td><td>0 / 1</td></tr>
+<tr><td>ACT (V.+Lang.)</td><td>3 / 3</td><td>0 / 0</td></tr>
+<tr><td>ACT (V.+Lang.+Gesture)</td><td>57 / 56</td><td>35 / 35</td></tr>
+<tr><td>AVDC-retrain (V.+Lang.)</td><td>67 / 40</td><td>46 / 14</td></tr>
+<tr><td>Video-based (V.+Lang.)</td><td>93 / 60</td><td>82 / 26</td></tr>
+<tr><td>Video-based (V.+Lang.+Gesture)</td><td class="best">95 / 87</td><td class="best">93 / 80</td></tr>
+</tbody>
+</table>
+<p>This table illustrates two conclusions: first, video-based planning + DiVA is significantly better than direct ACT, that is, video planning is useful as an intermediate representation; second, in the OOD identical blocks scenario, gesture greatly improves place success, from 26% for language-only to 80% for language+gesture.</p>
+<figure>
+<img alt="Simulation rollout comparison" src="figures/figures_Rollout.png"/>
+<figcaption><strong>Simulation Rollout Qualitative Comparison.</strong>AVDC and language-only baselines tend to fail in scenes with complex text and identical objects; This&amp;That uses gesture disambiguation to generate and execute more correct plans.</figcaption>
+</figure>
+<h3>6.4 VDM ablation</h3>
+<table>
+<thead>
+<tr><th>Method</th><th>FID ↓</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+</thead>
+<tbody>
+<tr><td>Regular ControlNet</td><td>22.158</td><td>124.710</td><td>19.975</td><td>0.758</td><td>0.134</td></tr>
+<tr><td>With SAM Segmentation Mask</td><td>17.922</td><td>88.757</td><td>21.554</td><td>0.785</td><td>0.115</td></tr>
+<tr><td>No LayerNorm on CLIP Embeddings</td><td>17.566</td><td>92.527</td><td>21.559</td><td>0.786</td><td>0.114</td></tr>
+<tr><td>Larger Gesture Conditioning</td><td>18.844</td><td>96.794</td><td>21.180</td><td>0.778</td><td>0.122</td></tr>
+<tr><td>Smaller Gesture Conditioning</td><td>19.813</td><td>106.953</td><td>21.506</td><td>0.782</td><td>0.119</td></tr>
+<tr><td>Ours</td><td class="best">17.278</td><td class="best">84.580</td><td class="best">21.716</td><td class="best">0.787</td><td class="best">0.112</td></tr>
+</tbody>
+</table>
+<p>ablation supports three points: ordinary ControlNet conditioning is not suitable for extremely sparse gestures; using SAM mask to increase spatial information is not necessarily better, because segmentation may circle irrelevant areas such as the desktop; gesture areas that are too large or too small will become worse.</p>
+<h3>6.5 DiVA ablation</h3>
+<p>In the supplementary material, DiVA ablation studies the goal frame number $N$ and temporal noise. It is almost impossible to succeed using only the last frame $N=1$; as the number of target frames increases, the performance improves roughly linearly, and tends to a plateau near $N=15$ to $N=25$. After adding temporal noise, DiVA is more accurate and robust.</p>
+<figure>
+<img alt="DiVA ablation" src="figures/figures_supple_DiVA_ablation.png"/>
+<figcaption><strong>DiVA Ablation Studies.</strong>DiVA performs best overall when using 25 goal frames and adding temporal noise, indicating that dense video goals and temporal misalignment robustness are critical.</figcaption>
+</figure>
+<h3>6.6 Supplementary qualitative results</h3>
+<figure>
+<img alt="Supplement VDM comparison" src="figures/figures_supple_VDM_comparison_supplement.png"/>
+<figcaption><strong>Video-based Planning Qualitative Results.</strong>This&amp;That, AVDC and language-only VDM are compared in the supplementary material to show how gesture points help align user intent.</figcaption>
+</figure>
+<figure>
+<img alt="Supplement rollout" src="figures/figures_supple_rollout_supp1.png"/>
+<figcaption><strong>Simulation Rollout Qualitative Comparison.</strong>DiVA performs rollout results after generating video plans, and the full language-gesture method is more accurate than language-only baselines.</figcaption>
+</figure>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable aspect of this paper is the systematic integration of pointing behaviors in "human natural instructions" into video planning. Rather than turning user requirements into increasingly long verbal descriptions, it recognizes that gestures and deictic words in everyday instructions are one and the same: language provides task semantics, and gestures provide spatial reference. This interface design is more direct than simply improving the spatial reasoning ability of the language model.</p>
+<p>The second value is the execution design of DiVA. Many video planning papers leave the video transformation action to inverse dynamics. However, this paper found that fixed frame number videos and variable length demonstrations are not well aligned, so the video planning was put into BC Transformer as dense goal tokens. This design connects video planning and imitation learning more naturally.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>First, the three experimental levels of the paper correspond to three claims: Bridge quantitative metrics prove the quality of video generation, user research proves language + gesture alignment intention, and Isaac Gym rollout proves that video planning can help action execution. It doesn't just look good on one indicator.</p>
+<p>Second, key comparisons cover different alternative routes: open-domain SVD, StreamingT2V, DragAnything, robot VDM AVDC, direct ACT variants, language-only video-based baseline. The complete method is superior to these baselines in video quality, user alignment and rollout. Especially in the OOD identical blocks scenario, the improvement brought by gestures is very obvious.</p>
+<p>Third, supplementary ablation supports specific design choices: regular ControlNet, SAM mask, removing CLIP LayerNorm, and changing gesture area are not as good as the final VDM; there is also a clear trend to add goal frames and temporal noise to DiVA. Therefore, the result is not only "more multi-modal is better", but several implementation details have been disassembled and verified.</p>
+<h3>7.3 Explanation of results clearly given in the paper</h3>
+<ul>
+<li>Language-only is insufficient in spatial ambiguity and identical object scenes, and adding gesture can significantly disambiguate it.</li>
+<li>Video planning as a dense sequence of images is more suitable for downstream policy learning than a single goal image.</li>
+<li>DiVA's success comes from three factors: TokenLearner compression, observation-goal cross-attention, and temporal noise.</li>
+<li>Gesture-only is also not perfect, because 2D gesture points cannot uniquely determine 3D points; simple language cues can complement this 3D ambiguity.</li>
+</ul>
+<h3>7.4 Author's statement of limitations</h3>
+<table>
+<thead>
+<tr><th>limitations</th><th>Explanation in the paper</th><th>Scope of influence</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Object shape changes over time</td>
+<td>The model sometimes produces high-fidelity videos but the object shape changes, which the author believes may be due to missing 3D geometry constraints.</td>
+<td>Perform tasks that require precise geometry, attitude, or contact conditions.</td>
+</tr>
+<tr>
+<td>short modular tasks</td>
+<td>Predictions are currently limited to short, modular tasks; there are still opportunities to expand to long tasks such as cooking.</td>
+<td>Long-term multi-stage tasks, tasks that require memory and replanning.</td>
+</tr>
+<tr>
+<td>Gesture-only 3D ambiguity</td>
+<td>The 2D image-plane coordinate does not completely determine the 3D point. The figure shows that gesture-only may fail, but the language cue can solve it.</td>
+<td>Scenes with depth ambiguity, occlusion, and overlapping objects.</td>
+</tr>
+<tr>
+<td>Real robot execution not tested</td>
+<td>Video generation is evaluated on Bridge real data, but video-based BC rollout is currently limited to simulation due to lack of WidowX 250 arm.</td>
+<td>The conclusion of real closed-loop robot deployment still needs further verification.</td>
+</tr>
+</tbody>
+</table>
+<h3>7.5 Applicable boundaries</h3>
+<p>This&amp;That is best suited for single-step or short modular manipulations, especially in scenarios where the user can clarify the object and target location through pointing gestures, but the verbal description would be lengthy or ambiguous. It is not suitable for simple tasks where pure language is unambiguous, nor is it suitable for tasks that require precise 3D geometry, strong contact physics, long-range multi-stage planning, or tasks that require closed-loop verification of real robots.</p>
+</section>
+<section id="repro">
+<h2>8. Reproducibility Audit</h2>
+<div class="audit-card">
+<h3>8.1 Data</h3>
+<ul>
+<li><span class="best">Given: </span>Bridge V1/V2 front view data; initial finetuning 25, 767 videos; gesture-conditioned training 14, 735 videos; test split uses 10% data, and the main VDM table uses 646 Bridge V1 videos.</li>
+<li><span class="best">Given: </span>Isaac Gym data generation method: four blocks, 2 shapes, 8 colors, 5 spatial relations, scripted policy collection demos.</li>
+<li><span class="warn">Parts are missing: </span>Full training/test sample IDs, auto-filter threshold details, and all prompt scripts are not fully listed in the report source code.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.2 Model and training</h3>
+<ul>
+<li>VDM uses SVD/SVD-XT as the initial weight and is trained in two stages. The number of GPUs, number of iterations, learning rate, optimizer and batch size are given.</li>
+<li>DiVA gives ResNet-18 embedding shape, TokenLearner tokens, Transformer encoder/decoder layer number, action chunk size, training sample size, epoch, batch size, learning rate, and weight decay.</li>
+<li>Gesture automatic annotation given YoloV8 gripper detector, 450 manual images, TrackAnything tracking and filtering rules.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.3 Evaluation</h3>
+<ul>
+<li>Video quality metrics include FID, FVD, PSNR, SSIM, LPIPS; FID randomly samples 9000 images from generated/GT frames.</li>
+<li>The user study included 3 participants with robotics experience, 24 cases, regular/deictic prompts, and multiple modality conditions.</li>
+<li>The rollout evaluation gives a pick/place success rule, 250 timesteps, termination after 5 timesteps of success, and a block diameter of 5cm.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.4 Minimum recurrence path</h3>
+<p>The most realistic reproducibility can start from Isaac Gym: build four building blocks pick-place data, train a low-cost language-only and language-gesture VDM initialized with SVD-XT, and then train DiVA. The core validation is whether gestures in OOD identical blocks significantly improve generated video and rollout success; it is not necessary to replicate the full Bridge training and user research at the beginning.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

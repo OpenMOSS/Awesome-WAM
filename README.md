@@ -10,7 +10,7 @@
 **写一下 introduction, Reading Skill 提一嘴**
 
 <p align="center">
-  <img src="Figure/roadmap.svg" alt="Temporal evolution and taxonomy of representative works on World Action Models (WAMs). " width="100%">
+  <img src="figs/roadmap.svg" alt="Temporal evolution and taxonomy of representative works on World Action Models (WAMs). " width="100%">
 </p>
 
 ## Contents

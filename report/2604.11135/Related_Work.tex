@@ -1,0 +1,17 @@
+
+\noindent\textbf{Video Generation Model for Robot Learning.}
+Recent advances in video generation have made pretrained visual dynamics models attractive for robot learning, as they provide transferable priors over motion and long-horizon scene evolution that are difficult to obtain from robot-only data. Following this trend, recent methods increasingly build robot policies on top of pretrained video generators rather than learning world models from scratch~\cite{hu2024vpp,liang2025videogenerators,dreamzero}. Our work follows this paradigm and adopts Wan2.2-TI2V-5B~\cite{wan2025wan} as the video-generation backbone.
+
+\noindent\textbf{Unified World Action Model.}
+A growing line of work jointly models future observations and actions within a unified architecture~\cite{unified_wm,li2026causal,pertsch2025fast,gigaworld,dreamzero}. LingBot-VA~\cite{li2026causal} learns video prediction and action generation in a shared latent space, while GigaWorld-Policy~\cite{gigaworld} emphasizes action-centered world-action modeling for efficient control. Fast-WAM~\cite{pertsch2025fast} further shows that the benefit of world-action modeling may come more from video co-training than explicit future imagination at test time. Our method differs from this line by introducing an explicit spatial intermediate interface between future prediction and action decoding.
+
+\noindent\textbf{Spatially Grounded Intermediate Representations.}
+Spatially grounded representations are useful in robotic manipulation~\cite{3dgs} because they localize where interaction should occur. Prior work has studied actionable regions and voxel-aligned action spaces~\cite{mo2021where2act,shridhar2023peract}, while CLIPort~\cite{shridhar2022cliport} and CALAMARI~\cite{wi2023calamari} further demonstrate the importance of spatial grounding for object-centric and contact-rich manipulation. In contrast, we integrate spatial value prediction directly into a unified generative world-action model rather than using it as a standalone policy head or auxiliary perception module.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\linewidth]{pictures/typicalvsaim.png}
+  \caption{ (a) A typical unified world action model decodes actions directly from shared future visual representations. (b) \textbf{AIM (Ours)} introduces a spatial value-map interface for action decoding.}
+  \label{fig:typical-vs-aim}
+\end{figure}
+

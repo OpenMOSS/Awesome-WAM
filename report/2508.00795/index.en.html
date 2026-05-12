@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Video Generators are Robot Policies - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Video Generators are Robot Policies</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Junbang Liang, Pavel Tokmakov, Ruoshi Liu, Sruthi Sudhakar, Paarth Shah, Rares Ambrus, Carl Vondrick</p>
+<p><strong>Organization: </strong>Columbia University; Toyota Research Institute</p>
+<p><strong>Paper: </strong><a href="https://arxiv.org/abs/2508.00795">arXiv: 2508.00795</a> | <a href="https://arxiv.org/pdf/2508.00795">PDF</a> | <a href="https://videopolicy.cs.columbia.edu/">Project home page</a></p>
+<p><strong>Keywords: </strong><span class="tag">Behavior Cloning</span><span class="tag">Video Generation</span><span class="tag">Diffusion Policy</span><span class="tag">Robot Manipulation</span><span class="tag">Action-free Video</span></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Quick overview of the paper</a></li>
+<li><a href="#sec2">2. Background and problem setting</a></li>
+<li><a href="#sec3">3. Related work context</a></li>
+<li><a href="#sec4">4. Method details</a></li>
+<li><a href="#sec5">5. Experiments and results</a></li>
+<li><a href="#sec6">6. Key points of reproducibility and implementation</a></li>
+<li><a href="#sec7">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper proposes Video Policy, which uses the pre-trained video generation model as the "behavioral imagination" backbone of the robot strategy, and then uses the action diffusion head to decode executable actions from the intermediate features of the generated video, thereby improving the generalization of the robot operation strategy in scenarios with a small amount of action teaching and distribution deviation.
+ </div>
+<section id="sec1">
+<h2>1. Quick overview of the paper</h2>
+<table>
+<tr><th>Reading positioning</th><th>content</th></tr>
+<tr>
+<td><strong>What should the paper solve?</strong></td>
+<td>The current visuomotor policy is insufficiently generalized under shifts in perception or behavior distribution such as new objects, new backgrounds, and new tasks, and teaching real robot actions is expensive. The paper hopes to use the dynamic world prior learned in large-scale video generation models to reduce reliance on teaching data with action tags.</td>
+</tr>
+<tr>
+<td><strong>The author's approach</strong></td>
+<td>Let the video generation model first generate future multi-view videos of the robot completing the task, and then send the video U-Net intermediate layer features to the action U-Net to predict future robot actions. The key training choice is two-stage training: first adjust the video generation, then freeze the video U-Net training action head, and block the action loss from being passed back to the video network.</td>
+</tr>
+<tr>
+<td><strong>most important results</strong></td>
+<td>On RoboCasa, Video Policy uses 50 demos to achieve an average success rate of 0.63, which is higher than DP-VLA 0.57, GR00T 0.50, and UVA 0.50; it reaches 0.66 when using 300 demos. The average success rate on Libero10 is 0.94, which is higher than UVA 0.90 and $\pi_0$ 0.85. The ablation is 0.63 for two-stage training, 0.57 for joint training, and only 0.09 for the untuned video model.</td>
+</tr>
+<tr>
+<td><strong>Things to note when reading</strong></td>
+<td>Don't simply understand it as "the video model directly controls the robot". Actions are still output by a dedicated action diffusion head, and the video generation model mainly provides intermediate representations for future dynamics. Also note its high computational cost: the appendix gives about two weeks of training for 8 A100s, and a 25-frame video generation on the A100 takes about 9 seconds at a time.</td>
+</tr>
+</table>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Propose the Video Policy framework: </strong>Transform Image-to-Video Stable Video Diffusion into a closed-loop robotic strategy to jointly generate future videos and actions.</li>
+<li><strong>The system analyzes the relationship between video targets and action targets: </strong>Ablation shows that first learning to generate robot execution videos and then training the action decoding head is better than end-to-end joint training.</li>
+<li><strong>Verify the value of action-free video: </strong>The video generation model can be trained on videos from all tasks, while the action head is trained on only half of the tasks and can still transfer to tasks where action supervision is not provided.</li>
+<li><strong>Covering simulated and real robots: </strong>The experiments include RoboCasa, Libero10 and 5 real tasks. The real tasks test the generalization of object location, unseen objects and unseen backgrounds.</li>
+</ul>
+<div class="figure">
+<img alt="Video Policy teaser" src="figures/teaser_cropped.png"/>
+<div class="caption">Figure 1: Given an initial observation and a language task, the model simultaneously generates a video and action sequence of the robot performing the task. This figure is the entrance to understanding the paper's claim: video generation is not a side-channel visualization, but the core source of policy representation.</div>
+</div>
+</section>
+<section id="sec2">
+<h2>2. Background and problem setting</h2>
+<h3>2.1 Core contradictions to be resolved</h3>
+<p>Robot behavior cloning can already work on many operating tasks, but a common weakness is distribution shift: the objects, backgrounds, locations, and task combinations seen during training are limited, and they may fail if they are slightly changed during testing. Computer vision and NLP can cover the long tail with larger data sets, but the collection cost of robot action teaching is high, especially real-world demonstrations are more expensive.</p>
+<p>The author regards the video generation model as an exploitable intermediate resource: there are a large number of videos without action labels in the Internet and robot videos, which can help the model learn dynamic priors "from the current scene to the future task execution process". The problem of the paper is not to simply improve video quality, but to prove whether this kind of pixel-level future prediction can stably serve action generation.</p>
+<h3>2.2 Where did the previous game get stuck?</h3>
+<ul>
+<li><strong>Pure behavioral cloning: </strong>Directly from images to actions, strongly relies on demonstrations with action labels, and has limited generalization to new objects and new backgrounds.</li>
+<li><strong>Use the video model as a world simulator: </strong>Future scenes can be generated, but if you rely on manual tracking or post-processing to turn videos into actions, your expressive capabilities are limited.</li>
+<li><strong>Learn action decoder: </strong>If the action decoder takes on too much policy learning, it will be limited by the size of the action teaching data.</li>
+<li><strong>Parallel work for joint video-action generation: </strong>The author believes that existing work lacks consistent benchmarks and detailed ablation, and it is difficult to judge whether success comes from video targets, action targets, or architectural details.</li>
+</ul>
+<h3>2.3 High-level ideas of this article</h3>
+<p>This article splits the strategy into two roles: the video generator $f$ is responsible for "imagining" the task execution process, and the action model $g$ is responsible for decoding the intermediate features of $f$ into robot actions. The author's core hypothesis is that as long as the video generation model can accurately synthesize future videos of the robot performing the task, then the action decoder can be smaller and mainly responsible for interface conversion, rather than relearning the complete task strategy.</p>
+</section>
+<section id="sec3">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Positioning in the paper</th><th>Differences from this article</th></tr>
+<tr>
+<td>Behavior Cloning</td>
+<td>Supervised learning actions from demonstrations. In recent years, diffusion policy has been commonly used to deal with multi-modal actions.</td>
+<td>Instead of just encoding from vision to action, this paper explicitly trains a video diffusion model to predict future pixels and then decodes it using an action diffusion head.</td>
+</tr>
+<tr>
+<td>Visual Pretraining for Policy Learning</td>
+<td>Video prediction, contrastive learning, MAE, etc. are used to obtain more robust visual representations.</td>
+<td>This paper takes video prediction as the proxy goal of policy learning, and verifies its effect through success rate, prediction horizon, and action-free video ablation.</td>
+</tr>
+<tr>
+<td>Video Models for Decision-Making</td>
+<td>Video generative models can be used for world simulation, long-range planning, or joint pixel-action generation.</td>
+<td>This article emphasizes the systematic comparison of video/action training objectives within the same framework, and provides RoboCasa, Libero10, and real robot evaluations.</td>
+</tr>
+</table>
+</section>
+<section id="sec4">
+<h2>4. Method details</h2>
+<h3>4.1 Overall formalization</h3>
+<p>The input is an initial scene image $v_0$ and a language task description $c$. The model needs to output a segment of robot end motion $a_t \in \mathbb{R}^k$. The paper writes the strategy as: </p>
+<div class="formula-block">
+<p class="intuition">Intuition: First generate a future execution video, and then read the action from the intermediate representation of the video generator.</p>
+ $$
+ \{\hat v_t\}=f(v_0, c), \qquad
+ \{a_t\}=g(\psi_0, \ldots, \psi_i), \quad \psi_i=f_i(v_0, c)
+ $$
+ <p>Among them, $f$ is the video generator, $f_i$ represents the hidden features of the $i$ layer of the video generator; $g$ is the action decoding model. The key here is not the final pixels themselves, but the spatiotemporal features formed during the video generation process.</p>
+</div>
+<h3>4.2 Architecture: Video U-Net + Action U-Net</h3>
+<p>The author is based on Image-to-Video Stable Video Diffusion. Video U-Net $\mu_\theta$ receives two types of conditions: one is the CLIP embedding $\phi(c)$ of the task text $c$, injected through cross-attention; the other is the latent $z_0=\mathrm{VAE}(v_0)$ of the input image $v_0$ obtained by SVD freezing VAE, and the latent of future noisy frames by channel Splicing.</p>
+<p>The action end is a 1D CNN U-Net $\alpha_\theta$ adapted Diffusion Policy. In each denoising step $i$, hidden features are taken from the five layers of the video U-Net decoder. The paper gives the layer numbers as 9, 14, 17, 20, and 23; these spatiotemporal features are compressed into vector $h_i$ by the CNN adapter, which serves as the global conditioning of the action U-Net.</p>
+<div class="formula-block">
+<p class="intuition">Rather than looking at the final video frame and then doing post-processing, action generation happens simultaneously with video generation at each denoising step.</p>
+ $$
+ \{a_t\}=\alpha_\theta(a_i, i, h_i)
+ $$
+ <p>$a_i$ is the noisy action, $i$ is the diffusion denoising step, and $h_i$ is the intermediate feature of video U-Net. This design makes the action head rely on the future dynamic representation being built by the video model.</p>
+</div>
+<div class="figure">
+<img alt="Video Policy method" src="figures/method_figure_v2_cropped.png"/>
+<div class="caption">Figure 2: Method structure. The initial image, future frame noise, and action noise enter the system together; the video U-Net generates the future video, and the action U-Net uses the video U-Net intermediate representation to denoise the action.</div>
+</div>
+<h3>4.3 Training objectives</h3>
+<p>In the training data $D=\{d_1, \ldots, d_n\}$, each demonstration contains video observation $\{v_t\}$, task text $c$ and action $\{a_t\}$. The video model training target is standard diffusion noise prediction: </p>
+<div class="formula-block">
+ $$
+ L_{\mathrm{video}}=\mathbb{E}_{z_0, \epsilon, i}
+ \left[\left\|\epsilon-\mu_\theta(z_i, i, \phi(c), z_{i, 0})\right\|^2\right]
+ $$
+ <p>$z_i$ is the noisy video latent, and $z_{i, 0}$ is the noisy latent embedding corresponding to the first frame. The goal is to let the video U-Net predict the noise $\epsilon$.</p>
+</div>
+<div class="formula-block">
+ $$
+ L_{\mathrm{action}}=\mathbb{E}_{a_0, \epsilon, i}
+ \left[\left\|\epsilon-\alpha_\theta(a_i, i, h_i)\right\|^2\right]
+ $$
+ <p>The action head is also trained with diffusion noise prediction. The author explicitly blocks the gradient backpropagation of $L_{\mathrm{action}}$ to the video U-Net $\mu_\theta$, allowing the video network to be primarily driven by the pixel future prediction goal.</p>
+</div>
+<h3>4.4 Why is two-stage training important?</h3>
+<p>The paper compares joint training and 2-stage training. The two-stage version first uses the RoboCasa training set to fine-tune SVD for video generation, then freezes the video diffusion U-Net and trains the action denoising head. Experiments show that the average success rate of the two stages is 0.63, which is higher than 0.57 of joint; when the video model is not fine-tuned and only vanilla SVD features are used, it is only 0.09. This supports the author's explanation: the future video generation goal in pixel space is more general than the action generation goal, and the video model needs to first complete the task domain adaptation of "video of the robot executing the strategy".</p>
+</section>
+<section id="sec5">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<p>The simulation experiment covers RoboCasa and Libero10, with a total of 34 operation tasks. Both benchmarks provide 50 human demonstrations for each task. RoboCasa follows the official protocol of evaluating 50 rollouts per task in 5 RoboCasa scenes; Libero10 follows the evaluation protocol used by UVA.</p>
+<p>The action space is $a_i\in\mathbb{R}^7$, including a 6-DoF gripper pose and an opening and closing scalar. The input vision includes three cameras: gripper-mounted camera and left and right cameras. During training, each camera predicts 8 frames, for a total of 24 frames; in order to adapt to the 25-frame input format of SVD, a pad frame is added at the beginning of the sequence.</p>
+<h3>5.2 RoboCasa main results</h3>
+<table>
+<tr><th>method</th><th>average task success rate</th><th>Remarks</th></tr>
+<tr><td>3DA</td><td>0.06</td><td>Explicit 3D characterization baseline</td></tr>
+<tr><td>DP3</td><td>0.23</td><td>3D diffusion policy related baselines</td></tr>
+<tr><td>DP-ResNet</td><td>0.41</td><td>This article reproduces the experiment, ImageNet pre-training ResNet</td></tr>
+<tr><td>DP-CLIP</td><td>0.43</td><td>CLIP Visual Language Representation Variants</td></tr>
+<tr><td>GR00T</td><td>0.50</td><td>Use 300 demos</td></tr>
+<tr><td>FPV</td><td>0.51</td><td>Front view/3D-like strong baseline</td></tr>
+<tr><td>DP-VLA</td><td>0.57</td><td>Automated demonstrations using 3000 MimicGen</td></tr>
+<tr><td>UVA</td><td>0.50</td><td>Joint video action generation parallel work</td></tr>
+<tr><td><strong>Video Policy, 50 demos</strong></td><td><strong>0.63</strong></td><td>The main model of this article, 50 demos/task</td></tr>
+<tr><td><strong>Video Policy, 300 demos</strong></td><td><strong>0.66</strong></td><td>Further improvements after more MimicGen demonstrations</td></tr>
+</table>
+<p>The most interesting details to read are the Pick and Place tasks. The author pointed out that there is a significant shift in object location/category distribution between training and testing of this type of task, and Video Policy's improvement in this type of task is particularly obvious. For example, PnPStoveToCounter is 0.64 under 50 demos, and PnPSinkToCounter is 0.64, which is significantly higher than the 0.29 and 0.33 of GR00T 300 demos.</p>
+<h3>5.3 Libero10 Main Results</h3>
+<table>
+<tr><th>model</th><th>DP-C</th><th>DP-T</th><th>OpenVLA</th><th>UniPi</th><th>$\pi_0$</th><th>$\pi_0$-FAST</th><th>UVA</th><th>Ours</th></tr>
+<tr><td>average success rate</td><td>0.53</td><td>0.58</td><td>0.54</td><td>0.00</td><td>0.85</td><td>0.60</td><td>0.90</td><td><strong>0.94</strong></td></tr>
+</table>
+<p>The appendix gives task-by-task results, with Video Policy averaging 0.94 across 10 Libero10 tasks, with 4 tasks at or near 1.00, and the lowest being 0.80 on the KITCHEN SCENE8 task.</p>
+<h3>5.4 Ablation: Are video targets useful?</h3>
+<table>
+<tr><th>Variants</th><th>RoboCasa average success rate</th><th>explain</th></tr>
+<tr><td>Joint</td><td>0.57</td><td>End-to-end joint training of video and action targets</td></tr>
+<tr><td><strong>2-Stage</strong></td><td><strong>0.63</strong></td><td>First train the video generation, then freeze the video U-Net training action head</td></tr>
+<tr><td>No Video Tuning</td><td>0.09</td><td>Do not fine-tune SVD to robot execution videos, only train action heads</td></tr>
+<tr><td>Half Tasks</td><td>0.41</td><td>The action head is only trained on half of the tasks, but the video model can watch all task videos</td></tr>
+<tr><td>DP Half Tasks</td><td>0.21</td><td>ResNet Diffusion Policy is only trained on half of the tasks</td></tr>
+</table>
+<p>This table is the key to the argument chain of the paper. No Video Tuning's 0.09 shows that "directly taking pre-trained SVD features" is not enough; 2-Stage's 0.63 shows that the video model must first be adapted to the robot execution trajectory, and the action head is best used as a decoder on the frozen video representation.</p>
+<h3>5.5 Prediction horizon and action-free video</h3>
+<p>The authors fixed the action prediction to 1.6 seconds in the future and changed the video prediction horizon. The protocol used for horizon analysis in the appendix differs from standard RoboCasa: the authors sample the MimicGen environment to isolate distribution shift effects. The task-by-task table shows that the average 32-step video horizon is 0.67, 16-step is 0.55, and 0-step is 0.30; the difference is more obvious on distribution shift tasks such as pick-and-place.</p>
+<div class="figure">
+<img alt="Prediction horizon plot" src="figures/video_horizon_plot_v2.png"/>
+<div class="caption">Figure 3: The longer the video prediction horizon, the higher the success rate; for tasks with distribution shifts, the improvement is more obvious. This supports the conclusion that learning environment dynamics contributes to generalization.</div>
+</div>
+<div class="figure">
+<img alt="Unseen tasks with action-free videos" src="figures/12_tasks_unseen_v3.png"/>
+<div class="caption">Figure 4: The action head is only trained on the left 12 tasks, but the video generation model can use videos from all 24 tasks. On the unseen action supervision task on the right, Video Policy significantly outperforms DP-ResNet trained on only 12 tasks.</div>
+</div>
+<h3>5.6 Real robot results</h3>
+<p>The real experiment consists of 5 tasks: Open Drawer, Pick and Place, M&amp;Ms to Cup, Upright Object, and Stack Cups. Each task collects 200 demonstrations and tests three categories of generalization: object position changes, unseen objects, and unseen backgrounds. The success rate is calculated using 10 rollouts for each condition.</p>
+<table>
+<tr><th>Task</th><th>Vary Object Location</th><th>Unseen Objects</th><th>Unseen Background</th></tr>
+<tr><td>Open Drawer</td><td>0.8</td><td>1.0</td><td>0.9</td></tr>
+<tr><td>Pick and Place</td><td>1.0</td><td>0.9</td><td>0.8</td></tr>
+<tr><td>M&amp;Ms to Cup</td><td>0.8</td><td>0.9</td><td>0.2</td></tr>
+<tr><td>Upright Object</td><td>0.3</td><td>0.7</td><td>0.8</td></tr>
+<tr><td>Stack Cups</td><td>0.3</td><td>0.2</td><td>0.2</td></tr>
+</table>
+<p>The failure of real experiments is also very informative. The authors explicitly point out that failures of Upright Object and Stack Cups often come from unrealistic video predictions, such as failing to generate correct upright placement, or generating gripper trajectories that cause cups to tip over. M&amp;Ms to Cup dropped to 0.2 on the unseen background because the background color change affected the precise positioning of small objects.</p>
+<div class="figure">
+<img alt="Real-world qualitative results" src="figures/real_qualitative_figure_cropped.png"/>
+<div class="caption">Figure 5: Qualitative results for real Pick and Place, covering position, object appearance, and background color changes.</div>
+</div>
+</section>
+<section id="sec6">
+<h2>6. Key points of reproducibility and implementation</h2>
+<h3>6.1 Video model implementation</h3>
+<ul>
+<li>Basic model: pre-trained Image-to-Video Stable Video Diffusion, generating a 25-frame video sequence.</li>
+<li>Multi-view coding: In RoboCasa, frame 1 is padded frame, frames 2-9 are gripper view, frames 10-17 are left camera, and frames 18-25 are right camera; the author modified the per-frame image embedding to represent the camera perspective.</li>
+<li>Action horizon: generates 8 frames per view by default and represents a 32-step prediction horizon; video subsamples at stride 4.</li>
+<li>Inference settings: 30 denoising steps, classifier-free guidance scale of 2.0; 256×256, 25 frames, 30 diffusion steps on A100, about 9 seconds.</li>
+</ul>
+<h3>6.2 Training hyperparameters</h3>
+<table>
+<tr><th>model</th><th>resolution</th><th>learning rate</th><th>Batch</th><th>Steps</th><th>Precision</th></tr>
+<tr><td>Joint Training</td><td>256×256</td><td>1e-5</td><td>32</td><td>368866</td><td>16-mixed</td></tr>
+<tr><td>2-Stage Training</td><td>256×256</td><td>1e-5</td><td>32</td><td>368866×2</td><td>16-mixed</td></tr>
+<tr><td>No Video Tuning</td><td>256×256</td><td>1e-5</td><td>32</td><td>368866</td><td>16-mixed</td></tr>
+<tr><td>2-Stage Libero10</td><td>256×256</td><td>1e-5</td><td>32</td><td>170000+140000</td><td>16-mixed</td></tr>
+<tr><td>Real World</td><td>256×192 → 448×320</td><td>1e-5</td><td>32</td><td>331500+92960</td><td>16-mixed</td></tr>
+</table>
+<div class="impl-note">The appendix states that the RoboCasa model was fine-tuned on 8 A100 images for about two weeks, and continued training did not bring performance improvement. The real model first accelerates training at low resolution, and then improves the effect at high resolution.</div>
+<h3>6.3 Baseline reproducibility details</h3>
+<ul>
+<li>UVA baseline: Initialize using the pre-trained VAE and MAR image generation model, modify it to three image conditional inputs, and generate a 256×256 video from three camera perspectives.</li>
+<li>Diffusion Policy baseline: Implemented using UMI, training two variants of ResNet18 and CLIP-Base; the task name is encoded with the same CLIP text encoder and spliced with image embedding to form a global context.</li>
+<li>DP baseline also uses three cameras to encode separately. The ResNet input is 256×256, the CLIP input is 224×224, the batch size is 768, 32 steps are predicted in the future, and 16 steps are rolled out in the simulation.</li>
+</ul>
+<h3>6.4 Real robot setup</h3>
+<p>Real demonstrations collected by humans using modified handheld grippers. The left and right side cameras are Intel RealSense D435, the gripper-mounted camera is a Basler fisheye camera; the gripper pose is tracked by a RealSense T265, the opening is estimated by an ArUco marker, and the clamping force is measured by a single-axis force sensor, all sensors running at 30 Hz.</p>
+<p>The model inputs three-channel RGB images and predicts the relative gripper pose, relative gripper position and absolute grip force in the next 32 steps. When deployed, the robot uses impedance control to perform 24/32 of the steps. If the predicted gripping force is more than 300g higher than the actual measured value, the system will add a small gripper closing correction to prevent insufficient gripping force.</p>
+<div class="figure">
+<img alt="Real robot setup" src="figures/appendix_experiment_setup_cropped.png"/>
+<div class="caption">Appendix Figure: Data collection and real robot experimental setup. This figure shows that the real data in this article is not collected directly by the teleoperated robot, but human teaching is collected using a handheld gripper consistent with the end of the robot.</div>
+</div>
+</section>
+<section id="sec7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is that it turns "whether video generation can be used as a policy learning agent target" into a testable engineering problem, rather than just giving a qualitative demonstration. The paper uses the same architecture to simultaneously compare joint, 2-stage, no video tuning, half tasks, and different video horizons, and concludes on the success rate: 2-stage is higher than joint, the non-tuned video model is almost invalid, long video horizon is better, and action-free videos can help unseen action supervision tasks. These ablations directly serve the core proposition.</p>
+<h3>7.2 Why the results hold up</h3>
+<div class="check">
+<ul>
+<li><strong>Multiple benchmarks: </strong>The simulation experiment covers RoboCasa and Libero10, with a total of 34 tasks, not just one or two demos.</li>
+<li><strong>Strong comparison objects: </strong>RoboCasa neutralizes DP-ResNet, DP-CLIP, GR00T, DP-VLA, UVA, etc.; Libero10 neutralizes $\pi_0$, $\pi_0$-FAST, UVA, etc.</li>
+<li><strong>Dissolve around causal chains: </strong>No Video Tuning 0.09 eliminates the explanation of "just taking SVD features is enough"; 2-Stage 0.63 is higher than Joint 0.57, supporting the design of "let the video target dominate the representation"; 32-step horizon 0.67 is higher than 16-step 0.55 and 0-step 0.30, indicating that the future dynamic prediction length is related to policy generalization.</li>
+<li><strong>Real robot verification boundary: </strong>Real experiments not only show successful cases, but also give failed tasks and failure reasons. For example, Stack Cups and M&amp;Ms to Cup failed under certain distribution shifts.</li>
+</ul>
+</div>
+<h3>7.3 Limitations given by the author</h3>
+<ul>
+<li><strong>Scale boundaries: </strong>The authors acknowledge that the research is limited to limited-scale simulation benchmarks and a single real robot embodiment. A wider range of tasks, environments and robot morphologies still need to be verified.</li>
+<li><strong>Model family boundaries: </strong>This article only explores Stable Video Diffusion, an example of a video generation model. Whether the conclusion is stable for other video model families requires wider testing.</li>
+<li><strong>Calculate the cost: </strong>Video diffusion models are expensive to infer and train. The A100 training time and single video generation time in the appendix show that it is still far from real-time low-cost deployment.</li>
+<li><strong>Inadequate prior knowledge of real physics: </strong>The failure of Upright Object and Stack Cups in real experiments has been attributed to unrealistic video predictions, indicating that SVD pre-training does not automatically have strong enough priors on real contact physics.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>Judging from the paper evidence, Video Policy is more suitable for operational tasks where the visual distribution shift is obvious, but the task can still be expressed through short-term future videos, such as pick-and-place, opening and closing doors, pressing buttons, etc. For scenarios that require extremely precise small object localization, strong contact physics, real-time response, or cross-embodiment migration, the paper's current evidence is weak.</p>
+<h3>7.5 Group meeting reading reminder</h3>
+<ul>
+<li>When reading the method, pay attention to the technical meaning of the sentence "The video model is the policy": it does not output actions, but provides future dynamic representations on which action decoding depends.</li>
+<li>When reading the experiment, first look at Table 1, Table 3, Figure 3, and Figure 4, which correspond to the main results, training target ablation, prediction horizon, and action-free video respectively.</li>
+<li>Don't ignore computational costs and real failure cases when reading limitations. The claim of the paper is that video generation can significantly regularize policy learning, and it does not already solve real-time robot control.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

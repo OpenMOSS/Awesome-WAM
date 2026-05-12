@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mimic-video - 精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>mimic-video: Video-Action Models for Generalizable Robot Control Beyond VLAs</h1>
+    <div class="meta">
+      <p><strong>作者：</strong>Jonas Pai, Liam Achenbach, Victoriano Montesinos, Benedek Forrai, Oier Mees, Elvis Nava</p>
+      <p><strong>机构：</strong>mimic robotics; Microsoft Zurich; ETH Zurich; ETH AI Center; UC Berkeley</p>
+      <p><strong>论文：</strong><a href="https://arxiv.org/abs/2512.15692">arXiv:2512.15692</a> | <a href="https://arxiv.org/pdf/2512.15692">PDF</a> | <a href="https://mimic-video.github.io">项目主页</a></p>
+      <p><strong>关键词：</strong><span class="tag">Video-Action Model</span><span class="tag">VLA</span><span class="tag">Flow Matching</span><span class="tag">Inverse Dynamics Model</span><span class="tag">Robot Control</span></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录</strong>
+    <ul>
+      <li><a href="#sec1">1. 论文速览</a></li>
+      <li><a href="#sec2">2. 背景与问题设定</a></li>
+      <li><a href="#sec3">3. 相关工作脉络</a></li>
+      <li><a href="#sec4">4. 方法细节</a></li>
+      <li><a href="#sec5">5. 实验与结果</a></li>
+      <li><a href="#sec6">6. 复现与实现要点</a></li>
+      <li><a href="#sec7">7. 分析、局限与边界</a></li>
+    </ul>
+  </nav>
+<div class="tldr">
+    <strong>一句话总结：</strong>这篇论文提出 mimic-video，把互联网规模预训练视频模型的 latent visual plan 作为机器人策略的动态先验，再用 flow matching 动作解码器做逆动力学，从而在 SIMPLER、LIBERO 和真实双臂灵巧手任务上，比对应的 VLA 表征更省动作数据、收敛更快。
+  </div>
+
+  
+
+  <section id="sec1">
+    <h2>1. 论文速览</h2>
+    <table>
+      <tr><th>阅读定位</th><th>内容</th></tr>
+      <tr>
+        <td><strong>论文要解决什么</strong></td>
+        <td>主流 VLA 依赖静态图文预训练，语义知识强，但物理动态、时序因果和操作过程仍要从昂贵机器人 demonstrations 中学习。论文要解决的是：如何把视频预训练中的动态先验直接用于机器人控制，降低动作数据需求。</td>
+      </tr>
+      <tr>
+        <td><strong>作者的方法抓手</strong></td>
+        <td>用 Cosmos-Predict2 这类 flow matching 视频模型作为 frozen video backbone，经 partial denoising 得到 noisy latent visual plan；动作解码器作为 Inverse Dynamics Model，cross-attend 到视频模型中间层表示，输出 action chunk。</td>
+      </tr>
+      <tr>
+        <td><strong>最重要的结果</strong></td>
+        <td>SIMPLER-Bridge 平均成功率：mimic-video scratch 为 46.9%，高于 $\pi_{0.5}$-style VLA scratch 的 35.4%；task-specific $\tau_v$ 调优后为 56.3%。LIBERO 平均为 93.9%，高于 $\pi_{0.5}$-style VLA 的 85.9%。真实双臂灵巧手上，Packing 为 72.0、Package handover 为 93.0，均高于多视角 DiT-Block Policy 的 42.6 和 74.1。</td>
+      </tr>
+      <tr>
+        <td><strong>阅读时要注意的点</strong></td>
+        <td>本文和上一类“先完整生成未来视频再从像素中解动作”的方法不同，重点是 partial denoising 和中间 hidden states；作者甚至发现最佳策略性能常出现在高噪声 $\tau_v=1$ 附近，也就是说高保真视频重建不是必要条件。</td>
+      </tr>
+    </table>
+
+    <h3>核心贡献清单</h3>
+    <ul>
+      <li><strong>提出 Video-Action Model (VAM)：</strong>把预训练视频模型和 flow matching 动作解码器耦合，视频模型承担动态/视觉规划，动作头承担低层控制。</li>
+      <li><strong>提出高效 action sampling：</strong>通过 partial denoising 停在中间 flow time $\tau_v$，避免每个控制步完整生成未来视频。</li>
+      <li><strong>与 VLA 做等价动作头比较：</strong>$\pi_{0.5}$-style baseline 使用 PaliGemma 3B 和相同动作解码器，尽量把差异归因到视频表征 vs. 图文表征。</li>
+      <li><strong>给出数据效率结论：</strong>在 LIBERO 上，视频先验条件下的动作解码器用 10% 数据即可达到 VLM-conditioned decoder 的最高成功率；1 episode/task 时仍有 77% 平均成功率。</li>
+    </ul>
+
+    <div class="figure">
+      <img src="figures/teaser-new.png" alt="mimic-video teaser">
+      <div class="caption">Figure 1：论文总览。作者把 mimic-video 定位为 VLA 之外的一类 Video-Action Model：不让策略从静态图文中重新学物理动态，而是复用视频模型的动态先验。</div>
+    </div>
+  </section>
+
+  <section id="sec2">
+    <h2>2. 背景与问题设定</h2>
+    <h3>2.1 VLA 的瓶颈</h3>
+    <p>VLA 把 VLM 的语义知识迁移到机器人控制中，优势是能理解语言、物体和环境概念；但 VLM 的预训练数据主要是静态图文，缺少“动作导致什么变化”的时间信息。因此，真实物理动态、接触、形变、长程程序性操作，仍要在机器人 post-training 中从示教轨迹里学习。</p>
+    <p>作者认为这带来了不可持续的数据负担：如果 backbone 对物理因果是“盲”的，后续动作数据就必须承担语义、动态和控制三件事。mimic-video 的目标是把动态和视觉动作计划交给视频 backbone，动作 decoder 只做从 latent plan 到 motor command 的转换。</p>
+
+    <h3>2.2 为什么不完整生成视频</h3>
+    <p>已有视频策略方法常学习视频和动作的联合分布，或者先合成未来像素，再通过 tracking/IDM 得到动作。问题是完整视频合成在每个控制步都很贵，而且像素级未来可能有伪影，给动作解码带来分布外输入。本文的做法是直接使用视频模型中间表示，尤其是 partial denoising 后的 latent state。</p>
+
+    <h3>2.3 作者的核心假设</h3>
+    <p>如果视频模型已经学到了“任务会如何在视觉上展开”，那么动作解码器就不需要建模复杂的未来分布，只需要做逆动力学：给定当前 proprioception 和视觉计划，把它翻译成低层动作序列。作者把这种建模称为 Video-Action Model。</p>
+  </section>
+
+  <section id="sec3">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>论文定位</th><th>本文差异</th></tr>
+      <tr>
+        <td>Imitation Learning</td>
+        <td>Diffusion Policy、flow matching decoder、$\pi_0/\pi_{0.5}$ 等用生成式框架建模多模态动作分布。</td>
+        <td>mimic-video 继承 flow matching 动作 decoder，但把条件表示换成视频模型 latent plan。</td>
+      </tr>
+      <tr>
+        <td>Vision-Language-Action Models</td>
+        <td>RT-2、OpenVLA、$\pi_0$ 系列依靠图文预训练语义迁移。</td>
+        <td>作者认为 VLA 的静态图文预训练缺少物理动态，本文用视频预训练补这个缺口。</td>
+      </tr>
+      <tr>
+        <td>Video Models for Policy Learning</td>
+        <td>Dreamitate、Video Policy、world model 等使用视频预测辅助控制或规划。</td>
+        <td>本文不依赖完整像素重建，也不使用 heuristic tracking，而是从中间 noisy video latents 采样 marginal action distribution。</td>
+      </tr>
+    </table>
+  </section>
+
+  <section id="sec4">
+    <h2>4. 方法细节</h2>
+    <h3>4.1 Case Study：控制难点被拆成“预测未来”和“执行未来”</h3>
+    <p>作者先做一个 oracle study：动作 decoder 条件输入可以是预测视频 latents，也可以是 ground-truth future video 的 oracle latents；视频 backbone 可以是标准预训练模型，也可以是机器人视频微调后的模型。结果显示，用 oracle latents 时成功率接近完美，无论 backbone 是否 finetune。这支持一个关键判断：一旦未来视觉计划是对的，低层动作解码相对简单；难点主要转移到视频模型预训练和视频域适配。</p>
+    <div class="figure">
+      <img src="figures/figure2-oier.png" alt="oracle video latent case study">
+      <div class="caption">Figure 2：oracle case study。ground-truth future video latent 条件下接近满分，说明动作 decoder 可以从视频表示中恢复低层动作；正常预测 latent 的性能则受视频预测质量影响。</div>
+    </div>
+
+    <h3>4.2 Flow Matching 基础</h3>
+    <div class="formula-block">
+      <p class="intuition">flow matching 把干净数据和高斯噪声之间的路径学成一个向量场，采样时从噪声积分回数据。</p>
+      $$
+      x^\tau=(1-\tau)x^0+\tau\varepsilon,\quad \tau\in[0,1]
+      $$
+      <p>$\tau=0$ 是干净数据，$\tau=1$ 是纯噪声。条件向量场为：</p>
+      $$
+      u_\tau(x^\tau\mid x^0)=\frac{d}{d\tau}x^\tau=\varepsilon-x^0
+      $$
+      <p>模型 $v_\theta$ 通过回归这个向量场训练：</p>
+      $$
+      \mathcal{L}_{\mathrm{CFM}}=
+      \mathbb{E}\left\|v_\theta(x^\tau,\tau)-u_\tau(x^\tau\mid x^0)\right\|^2
+      $$
+      <p>采样时从 $\tau=1$ 积分到 $\tau=0$。本文利用连续时间参数 $\tau$，故意不走完整条路径，而是停在中间 $\tau_v$，形成 partial denoising。</p>
+    </div>
+
+    <h3>4.3 模型结构</h3>
+    <p>策略目标是预测 action chunk $\mathbf{A}_t=[\mathbf{a}_t,\dots,\mathbf{a}_{t+H_a-1}]$，条件包括多张 RGB 图像、语言指令 $l$ 和 proprioceptive state $\mathbf{q}_t$。模型由两个 flow matching 模块组成：</p>
+    <div class="formula-block">
+      $$
+      v_\phi(\mathbf{z}^0_{\mathrm{past}},\mathbf{z}^{\tau_v}_{\mathrm{future}},l,\tau_v)
+      \Rightarrow p_\phi(\mathbf{z}^0_{\mathrm{future}}\mid \mathbf{z}^0_{\mathrm{past}},l)
+      $$
+      $$
+      \pi_\theta(\mathbf{A}^{\tau_a}_t,\mathbf{q}_t,\mathbf{h}^{\tau_v},\tau_a,\tau_v)
+      \Rightarrow p_\theta(\mathbf{A}^0_t\mid \mathbf{q}_t,\mathbf{h}^{\tau_v}_t,\tau_v)
+      $$
+      <p>其中 $\mathbf{h}^{\tau_v}=v_\phi^{(k)}(\cdot)$ 是视频模型第 $k$ 层的 hidden states，动作 decoder 通过 cross-attention 使用这些表示。</p>
+    </div>
+
+    <p>视频模型实例为 Cosmos-Predict2，一个开源 2B latent Diffusion Transformer，使用 3D-tokenizer 编码视频帧。输入包括 5 帧 clean context prefix 和 noisy future latent patches；每个 transformer layer 包含 full-sequence self-attention、对 T5 语言指令的 cross-attention、以及两层 MLP。</p>
+    <p>动作 decoder 也是 DiT：分别用 MLP 编码 proprioception 和未来动作 token，拼成序列后加入 learned absolute positional encodings。每层包含对视频中间表示的 cross-attention、动作序列 self-attention 和 MLP；模块输出通过 AdaLN 调制，AdaLN 输入包含 $\tau_v$ 和 $\tau_a$ 的低秩 bilinear-affine 编码。</p>
+    <div class="figure">
+      <img src="figures/figure3-oier-new.png" alt="mimic-video architecture">
+      <div class="caption">Figure 3：mimic-video 架构。视频 backbone 走到中间 flow time $\tau_v$ 后取 latent visual plan；动作 decoder 使用 proprioception 和 video hidden states 生成动作。</div>
+    </div>
+
+    <h3>4.4 Action Sampling</h3>
+    <p>推理时先采样 future video noise 和 action noise。视频流从 $\tau=1$ 积分到指定的 $\tau_v$，得到 partially denoised future latent；然后取视频模型前 $k$ 层表示 $\mathbf{h}^{\tau_v}$，动作 decoder 再从 $\tau_a=1$ 完整积分到 0，输出干净 action chunk。</p>
+    <div class="impl-note">特殊情况 $\tau_v=1$ 时，不需要视频流积分，line 3 等价于冗余；只需对重型 video backbone 做一次 forward，就能生成动作条件表示。作者发现 $\tau_v=1$ 是兼顾性能和速度的好默认值。</div>
+
+    <h3>4.5 训练流程</h3>
+    <ul>
+      <li><strong>Stage 1：视频 backbone 适配。</strong>用 LoRA 在机器人视频数据上 finetune 视频模型，使其适应目标视觉域和机器人动态，同时保持预训练时序推理能力。</li>
+      <li><strong>Stage 2：动作 decoder 训练。</strong>冻结视频 backbone，从零训练 $\pi_\theta$ 回归 action flow field，条件是冻结 backbone 提供的 $\mathbf{h}^{\tau_v}$。</li>
+      <li><strong>独立采样 flow times。</strong>每次训练同时采样 $\tau_v$ 和 $\tau_a$，视频端 $\mathcal{T}_v$ 使用匹配视频预训练的 logit-normal，动作端 $\mathcal{T}_a(\tau_a)\propto\sqrt{\tau_a-0.001}$。</li>
+    </ul>
+  </section>
+
+  <section id="sec5">
+    <h2>5. 实验与结果</h2>
+    <h3>5.1 评估设置</h3>
+    <ul>
+      <li><strong>SIMPLER-Bridge：</strong>使用 BridgeDataV2 训练的 Widow-X embodiment，测试现实视觉域偏移下的任务泛化。</li>
+      <li><strong>LIBERO：</strong>聚焦 LIBERO-Goal、Object、Spatial，每个 suite 10 个任务、每任务 50 条 expert demos，用于精密多任务桌面操作。</li>
+      <li><strong>真实双臂灵巧手：</strong>两只 Franka Panda 手臂搭载 16-DoF mimic humanoid hands，观察包含 workspace view、4 个 wrist cameras 和 proprioception；评估 Package Sorting 和 Tape Stowing 相关任务。动作 decoder 的任务数据很少：sorting 为 1h33m/512 episodes，stowing 为 2h14m/480 episodes；视频 backbone 在更广的 200 小时语料上 finetune。</li>
+    </ul>
+
+    <h3>5.2 SIMPLER-Bridge 主结果</h3>
+    <table>
+      <tr><th>模型</th><th>Put Carrot on Plate</th><th>Put Spoon on Towel</th><th>Stack Blocks</th><th>Eggplant</th><th>Average SR</th></tr>
+      <tr><td>OpenVLA finetuned</td><td>4.2</td><td>8.3</td><td>0.0</td><td>45.8</td><td>14.6</td></tr>
+      <tr><td>Octo finetuned</td><td>8.3</td><td>12.5</td><td>0.0</td><td>43.1</td><td>16.0</td></tr>
+      <tr><td>ThinkAct pretrained</td><td>37.5</td><td>58.3</td><td>8.7</td><td>70.8</td><td>43.8</td></tr>
+      <tr><td>FLOWER finetuned</td><td>13.0</td><td>71.0</td><td>8.0</td><td>88.0</td><td>45.0</td></tr>
+      <tr><td>$\pi_{0.5}$-style VLA scratch</td><td>25.0</td><td>29.2</td><td>20.8</td><td>66.7</td><td>35.4</td></tr>
+      <tr><td><strong>mimic-video scratch</strong></td><td><strong>37.5</strong></td><td>37.5</td><td>12.5</td><td><strong>100.0</strong></td><td><strong>46.9</strong></td></tr>
+      <tr><td><strong>mimic-video scratch, per-task $\tau_v$ tuning</strong></td><td>54.2</td><td>41.7</td><td>29.2</td><td>100.0</td><td>56.3</td></tr>
+    </table>
+    <p>这里的关键比较是 scratch vs scratch：mimic-video 和 $\pi_{0.5}$-style VLA 使用等价动作 decoder 和相同目标数据条件，但前者用视频 backbone 表征，平均成功率高 11.5 个百分点。per-task $\tau_v$ 调优进一步把平均值推到 56.3。</p>
+
+    <h3>5.3 LIBERO 主结果</h3>
+    <table>
+      <tr><th>模型</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Avg</th></tr>
+      <tr><td>Diffusion Policy scratch</td><td>78.3</td><td>92.5</td><td>68.3</td><td>79.7</td></tr>
+      <tr><td>Octo finetuned</td><td>78.9</td><td>85.7</td><td>84.6</td><td>83.1</td></tr>
+      <tr><td>DiT Policy finetuned</td><td>84.2</td><td>96.3</td><td>85.4</td><td>88.6</td></tr>
+      <tr><td>OpenVLA finetuned</td><td>84.7</td><td>88.4</td><td>79.2</td><td>84.1</td></tr>
+      <tr><td>OpenVLA-OFT finetuned</td><td>96.2</td><td>98.3</td><td>96.2</td><td>96.9</td></tr>
+      <tr><td>$\pi_{0.5}$-style VLA scratch</td><td>79.2</td><td>94.0</td><td>84.4</td><td>85.9</td></tr>
+      <tr><td><strong>mimic-video scratch</strong></td><td><strong>94.2</strong></td><td><strong>96.8</strong></td><td><strong>90.6</strong></td><td><strong>93.9</strong></td></tr>
+    </table>
+    <p>mimic-video scratch 已超过多数 finetuned generalist baselines，仅低于 OpenVLA-OFT finetuned 的 96.9。相比 $\pi_{0.5}$-style VLA scratch，平均提升 8.0 个百分点，Spatial suite 提升最大。</p>
+
+    <h3>5.4 真实双臂灵巧手结果</h3>
+    <table>
+      <tr><th>模型</th><th>Packing</th><th>Package handover</th></tr>
+      <tr><td>DiT-Block Policy</td><td>11.0</td><td>30.0</td></tr>
+      <tr><td>DiT-Block Policy + wrist cams</td><td>42.6</td><td>74.1</td></tr>
+      <tr><td><strong>mimic-video</strong></td><td><strong>72.0</strong></td><td><strong>93.0</strong></td></tr>
+    </table>
+    <p>这个结果的读法很重要：mimic-video 只条件于单个 workspace camera view，却超过了加入 wrist cams 的 DiT-Block Policy。作者解释为，视频生成先验的预测能力能在一定程度上弥合抓取遮挡带来的视觉不确定性。</p>
+    <div class="figure">
+      <img src="figures/figure4-new-compressed.png" alt="real bimanual mimic setup">
+      <div class="caption">Figure 4：真实双臂 Franka + 16-DoF mimic hands 设置。每个 action chunk 中，mimic-video 使用 $\tau_v=1$ 生成 latent video plan，然后在真实机器人上执行动作。</div>
+    </div>
+
+    <h3>5.5 数据效率和收敛速度</h3>
+    <p>作者在 LIBERO-Goal、Spatial、Object 上改变动作 decoder 训练数据规模。结果显示：mimic-video action decoder 只用 10% 训练数据，就能达到 VLM-conditioned decoder 的最高成功率；即使每个任务只用 1 个 episode，相当于减少 98% 动作数据，仍有 77% 平均成功率，接近 Diffusion Policy baseline。</p>
+    <div class="figure">
+      <img src="figures/data-efficiency-figure.png" alt="data efficiency">
+      <div class="caption">Figure 5：数据效率曲线。视频先验条件下的 action decoder 在极少数据时仍保持较高成功率。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/convergence-figure.png" alt="convergence">
+      <div class="caption">Figure 6：收敛速度。mimic-video decoder 收敛更快，且最终成功率更高；这一优势在 VLA baseline 经过 FAST pretraining 后仍存在。</div>
+    </div>
+
+    <h3>5.6 视频保真度和动作性能的权衡</h3>
+    <p>作者扫 $\tau_v\in[0,1]$，研究完整视频重建是否必要。直觉上，更低 $\tau_v$ 代表更完整、更高保真的视频 latent，应该更好；但 SIMPLER 实验中，最佳 autonomous policy performance 出现在最高 flow time $\tau_v=1$。这说明动作 decoder 并不需要完全去噪的视频，只需要足够有用的中间表示。</p>
+    <div class="figure">
+      <img src="figures/noise_levels.png" alt="noise levels">
+      <div class="caption">Figure 7：SIMPLER-Bridge 上成功率随 $\tau_v$ 变化。性能在较高噪声/中间表示处达到峰值，高保真视频重建不是必要条件。</div>
+    </div>
+    <p>为隔离视频生成错误，作者又用 noisy ground-truth video latents 做 sweep，测 BridgeDataV2 上动作重建 MSE。最低 MSE 出现在 $\tau_v\approx0.4$，而向 $\tau_v=0$ 接近完整重建时误差反而上升。论文将此归因于中间 hidden states 的信息形态：接近 clean target 时，模型层可能趋向近似 identity mapping，反而对下游动作更少信息。</p>
+    <div class="figure">
+      <img src="figures/mse_figure.png" alt="MSE vs tau_v">
+      <div class="caption">Figure 8：用 noisy ground-truth video latents 条件动作 decoder 时，动作重建 MSE 在中间 flow time 最低，接近 clean 和 pure noise 时都变差。</div>
+    </div>
+  </section>
+
+  <section id="sec6">
+    <h2>6. 复现与实现要点</h2>
+    <h3>6.1 训练超参数</h3>
+    <table>
+      <tr><th>超参数</th><th>Video finetuning: BridgeDataV2</th><th>LIBERO</th><th>mimic</th><th>Action decoder: BridgeDataV2</th><th>LIBERO</th><th>mimic</th></tr>
+      <tr><td>Learning Rate</td><td colspan="3">1.778e-4</td><td colspan="3">1e-4</td></tr>
+      <tr><td>Warmup Steps</td><td colspan="6">1000</td></tr>
+      <tr><td>Training Steps</td><td>70043</td><td>7k-8k</td><td>27300</td><td>14112</td><td>50k</td><td>26k</td></tr>
+      <tr><td>LR Scheduler</td><td colspan="3">Constant</td><td colspan="3">Linear</td></tr>
+      <tr><td>Weight Decay</td><td colspan="6">0.1</td></tr>
+      <tr><td>Gradient Clip</td><td colspan="6">10.0</td></tr>
+      <tr><td>Batch Size</td><td>256</td><td>128</td><td>32</td><td>256</td><td>128</td><td>128</td></tr>
+      <tr><td>Optimizer</td><td colspan="6">AdamW</td></tr>
+    </table>
+
+    <h3>6.2 数据预处理</h3>
+    <ul>
+      <li><strong>通用：</strong>所有 orientation 表示为旋转矩阵前两行对应的 6D vector；图像以 480×640 分辨率抽取或渲染。</li>
+      <li><strong>BridgeDataV2：</strong>Observation 是绝对末端位姿和连续 gripper joint state；Action 是未来末端位姿，相对于 proprioceptive pose 表示整个 action chunk，以及连续 gripper action。作者移除 3046 个 non-informative language labels，并删除每个 episode 的第一个 state 和 null-action。</li>
+      <li><strong>LIBERO：</strong>Observation 是绝对末端位姿和连续 gripper joint state；Action 是相对 proprioceptive pose 的末端动作和 binary gripper action。作者按 OpenVLA-OFT 的流程移除 replay 失败 episodes。</li>
+      <li><strong>mimic：</strong>Observation 包括绝对末端位姿、连续 hand joint states、两端执行器相对位姿、前一时刻末端和 hand actions；Action 是相对 proprioceptive pose 的末端位姿动作和绝对 hand joints action。</li>
+    </ul>
+
+    <h3>6.3 附录中的经验结论</h3>
+    <ul>
+      <li><strong>Video model source layer $k$：</strong>中间层 $k=19$ 带来最强策略性能，靠近初始层或最终层时成功率明显下降；作者认为理想情况下这个层选择应当可学习。</li>
+      <li><strong>Video observation horizon $H_o$：</strong>使用 5 帧历史观察优于只使用当前 1 帧。</li>
+      <li><strong>$\pi_{0.5}$-style VLA baseline：</strong>SIMPLER-Bridge 上 cross-attend 到 FAST-pretrained VLM 的第 11 层最好；decoder 训练 2-3 epochs 后继续训练提升不明显。</li>
+    </ul>
+
+    <h3>6.4 复现实验时最容易踩的点</h3>
+    <div class="warn">
+      <ul>
+        <li>不要把视频 backbone 解冻到动作数据上训练。论文的关键设计是 LoRA video finetuning 后冻结 backbone，再训练 action decoder。</li>
+        <li>$\tau_v$ 是推理超参，不是固定必须完整去噪。默认 $\tau_v=1$ 反而可能最快、平均最好。</li>
+        <li>比较 VLA baseline 时，动作 decoder 架构应保持一致，否则无法判断提升来自视频表征还是解码器容量。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="sec7">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>最有价值的地方在于它没有只说“视频模型有物理先验”，而是把这个先验变成一个可控变量：同样的 flow matching action decoder，分别条件在视频 backbone 表征和 VLM backbone 表征上，再比较样本效率、收敛速度和成功率。再加上 oracle latent case study 和 $\tau_v$ sweep，论文把 VAM 的核心机制拆得比较清楚：性能不是来自完整像素生成，而是来自视频模型中间表示对动态和视觉计划的编码。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <div class="check">
+      <ul>
+        <li><strong>比较设计较干净：</strong>$\pi_{0.5}$-style VLA baseline 使用 PaliGemma 3B 和与 mimic-video 相同的动作 decoder，并在等价数据条件下训练，使差异更集中在 conditioning representation 上。</li>
+        <li><strong>任务覆盖多样：</strong>结果覆盖 SIMPLER-Bridge、LIBERO 三个 suite，以及真实双臂灵巧手高维接触任务。</li>
+        <li><strong>机制实验直接：</strong>oracle future video latents 接近完美成功，说明动作解码确实可由视频计划表征支持；数据效率曲线显示 10% 数据达到 VLA decoder 最高成功率；$\tau_v$ 和 MSE 分析解释为什么 partial/noisy denoising 可优于完整重建。</li>
+        <li><strong>附录给出实现细节：</strong>超参数、数据预处理、source layer、observation horizon 和 VLA baseline 调参经验都列出，便于判断复现边界。</li>
+      </ul>
+    </div>
+
+    <h3>7.3 作者明确给出的局限</h3>
+    <ul>
+      <li><strong>单视角 video backbone：</strong>当前依赖 single-view video backbone，把策略限制在固定单 workspace view。作者认为原生 multi-view video architecture 可能改善空间推理和遮挡鲁棒性。</li>
+      <li><strong>尚未形成统一跨 embodiment 大模型：</strong>论文没有把 VAM recipe 扩展到统一的大规模 cross-embodiment 模型，而作者认为这一步是释放视频 foundation model 泛化能力的关键。</li>
+      <li><strong>真实任务范围有限：</strong>真实世界只覆盖聚焦的一组双臂灵巧手任务；更广泛操作行为还需要扩展。</li>
+      <li><strong>$\tau_v$ 仍是敏感推理超参：</strong>虽然 $\tau_v=1$ 是好默认值，但作者也报告 task-optimized $\tau_v$ 可进一步提升 SIMPLER 平均成功率，说明实际部署可能仍需任务级调优。</li>
+    </ul>
+
+    <h3>7.4 适用边界</h3>
+    <p>从论文证据看，mimic-video 适合视觉动态能表达任务意图、而动作数据稀缺的机器人操作设置，尤其是需要泛化到视觉域偏移或遮挡较重的任务。它当前不等价于通用机器人 foundation policy：单视角、非统一跨 embodiment、真实任务范围有限，仍限制了直接外推。</p>
+
+    <h3>7.5 组会阅读提醒</h3>
+    <ul>
+      <li>优先理解 $\tau_v$：它决定视频流停在多“噪”的 latent plan，论文的反直觉点就在于高保真重建不等于好策略。</li>
+      <li>把 Figure 2 和 Figure 7/8 连起来看：前者说明“未来视觉计划足够好时动作好解码”，后者说明“模型预测的完整未来未必是最佳条件”。</li>
+      <li>读主结果时区分 scratch、finetuned、pretrained 数据制度；论文最有力的比较是 mimic-video scratch 对 $\pi_{0.5}$-style VLA scratch。</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

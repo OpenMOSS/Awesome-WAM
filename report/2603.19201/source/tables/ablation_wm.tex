@@ -1,0 +1,24 @@
+\begin{table}[t]
+\centering
+\caption{Performance evaluation under different test cases, action spaces, and dynamic weight settings. Lower $L_2$ and higher cosines indicate better performance.}
+\label{tab:ablation_wm}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2} % 稍微加高，让多行合并的单元格不显得拥挤
+
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Settings} & \textbf{Action} & \textbf{Dyn. Weight} & \textbf{Joint Gen.} & \textbf{L2} $\downarrow$ & \textbf{Cos} $\uparrow$ \\
+\midrule
+\multirow{3}{*}{\makecell[c]{Unseen\\Position}} 
+    & 3D absolute & \checkmark & \checkmark & 0.075 & 0.72 \\
+    & 3D relative & \checkmark & \checkmark & 0.056 & 0.88 \\
+    & 2D          & \checkmark & \checkmark & \textbf{0.042} & \textbf{0.91} \\
+\midrule
+\multirow{3}{*}{\makecell[c]{Seen\\Position}} 
+    & 2D          & $\times$ & $\times$ & 0.041 & 0.90 \\
+    & 2D          & $\times$ & \checkmark & 0.038 & 0.92 \\
+    & 2D          & \checkmark & \checkmark & \textbf{0.035} & \textbf{0.93} \\
+\bottomrule
+\end{tabular}
+\end{table}

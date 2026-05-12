@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Act2Goal - 论文精读报告</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Act2Goal: From World Model To General Goal-conditioned Policy</h1>
+    <div class="meta">
+      <p><strong>方法名：</strong>Act2Goal</p>
+      <p><strong>作者：</strong>Pengfei Zhou, Liliang Chen, Shengcong Chen, Di Chen, Wenzhi Zhao, Rongjun Jin, Guanghui Ren, Jianlan Luo</p>
+      <p><strong>机构：</strong>AgiBot Research</p>
+      <p><strong>arXiv：</strong>2512.23541；v1 提交于 2025-12-29；方向：Robotics, Artificial Intelligence</p>
+      <p><strong>链接：</strong><a href="https://arxiv.org/abs/2512.23541">arXiv 摘要页</a> | <a href="https://arxiv.org/pdf/2512.23541">PDF</a> | <a href="https://arxiv.org/html/2512.23541v1">HTML</a> | <a href="https://act2goal.github.io/">项目页</a></p>
+    </div>
+  </header>
+
+  
+
+<nav class="toc">
+    <strong>目录：</strong>
+    <a href="#quick">1. 速览</a>
+    <a href="#motivation">2. 动机</a>
+    <a href="#related">3. 相关工作</a>
+    <a href="#method">4. 方法详解</a>
+    <a href="#experiments">5. 实验</a>
+    <a href="#reproduce">6. 可复现审计</a>
+    <a href="#discussion">7. 分析、局限与边界</a>
+  </nav>
+<section id="quick">
+    <h2>1. 论文速览</h2>
+    <div class="tldr">
+      <strong>一句话总结：</strong>Act2Goal 把视觉目标条件策略从“当前图像 + 目标图像直接出动作”改成“先用 goal-conditioned world model 想象通往目标的中间视觉状态，再用 Multi-Scale Temporal Hashing 把近端细节和远端目标锚点一起喂给动作专家”，并用 HER + LoRA 做无奖励在线自我改进。
+    </div>
+    <table>
+      <tr><th>论文要解决什么</th><td>视觉目标能比语言更精确地表达物体布局和终态约束，但现有 goal-conditioned policies 常直接做单步动作预测，缺少显式任务进展表示，长时程任务和 OOD 场景容易偏离目标。</td></tr>
+      <tr><th>作者的方法抓手</th><td>Act2Goal 引入 Goal-Conditioned World Model (GCWM) 生成从当前观测到目标图像的中间视觉轨迹；提出 Multi-Scale Temporal Hashing (MSTH)，把轨迹拆成近端密集帧和远端稀疏帧；动作 DiT 通过逐层 cross-attention 使用 world-model features。</td></tr>
+      <tr><th>最重要的结果</th><td>Robotwin 2.0 和真实 AgiBot Genie-01 任务中，Act2Goal 在大多数 ID/OOD 设置上显著高于 DP-GC、$\pi_{0.5}$-GC 和 HyperGoalNet；真实 OOD Plug-In 从离线 0.30 通过在线自改进提升到 0.90；MSTH 在白板写字长词/OOD 长词上从接近失败提升到 0.88-0.90。</td></tr>
+      <tr><th>阅读时要注意的点</th><td>这篇的关键不是“world model 生成视频很好看”，而是 generated visual trajectory 如何被时间抽样成控制可用的 representation：近端帧用于闭环精细控制，远端帧用于保持长程目标一致性。</td></tr>
+    </table>
+    <p><strong>难度评级：</strong>★★★★☆。需要理解 visual goal-conditioned policy、flow matching、Video DiT/3D VAE world model、action expert、hindsight goal relabeling、LoRA finetuning，以及真实机器人评估。</p>
+    <p><strong>关键词：</strong>Goal-conditioned policy, visual world model, Multi-Scale Temporal Hashing, flow matching, action expert, HER, LoRA, online autonomous improvement。</p>
+    <div class="figure">
+      <img src="figures/x1.png" alt="Act2Goal teaser">
+      <div class="caption"><strong>Figure 1.</strong> 方法概览：输入视觉目标，goal-conditioned world model 先生成通向目标的视觉想象轨迹，再由策略在真实世界中执行。</div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2>2. 动机</h2>
+    <h3>2.1 为什么用视觉目标而不是语言目标</h3>
+    <p>机器人操作需要任务描述既灵活又精确。语言能表达多样任务，但在细粒度操作里经常不够具体：比如“把甜点摆成这样”“写出这个词”“把插入件放到孔里”，目标的空间关系、形状、朝向和终态细节很难完全用自然语言无歧义描述。视觉目标图像直接编码物体配置、空间关系和终态约束，因此更适合 goal-conditioned manipulation。</p>
+
+    <h3>2.2 现有 GCP 的核心短板</h3>
+    <p>许多 visual goal-conditioned policies 把当前观察和目标图像直接映射到动作。短时程任务中这可行，但长时程任务要求策略持续知道“我现在离目标进展到哪一步”。如果模型没有中间进展表示，就容易只匹配训练数据中的局部 state-action pattern，在 OOD 物体、布局或长控制链中累积偏差。</p>
+    <p>论文的诊断是：GCP 需要一个显式视觉动力学模型，去预测从当前状态到目标状态之间的 plausible intermediate states。这样 action expert 不只是看终点，而是得到一条粗到细的视觉路线。</p>
+
+    <h3>2.3 为什么还需要 MSTH</h3>
+    <p>只生成一整段未来视频仍不够。长轨迹如果全都密集预测，计算成本高且远端细节未必可靠；如果只看短期，策略会反应灵敏但容易迷失远期目标。MSTH 的作用就是把时间尺度拆开：近端用 dense frames 提供局部闭环控制，远端用 logarithmic sparse frames 维持全局方向。</p>
+    <div class="figure">
+      <img src="figures/x2.png" alt="Act2Goal system overview">
+      <div class="caption"><strong>Figure 2.</strong> 系统概览：离线 imitation learning 后，模型可在 ID/OOD 场景零样本泛化；在线阶段通过 rollout-goal relabel-optimize 循环继续提升。</div>
+    </div>
+  </section>
+
+  <section id="related">
+    <h2>3. 相关工作脉络</h2>
+    <table>
+      <tr><th>技术线</th><th>代表问题/方法</th><th>Act2Goal 的定位</th></tr>
+      <tr><td>Goal-conditioned policy</td><td>视觉目标、tracking points、motion field、GoalGAIL、CoA 等，核心是给策略一个目标表示。</td><td>Act2Goal 认为只给终态目标不够，必须让模型显式预测通往目标的中间视觉状态。</td></tr>
+      <tr><td>World model for control</td><td>Dreamer 系列、GE-Act、WorldVLA、Video Policy 等，用世界模型模拟环境动力学或辅助动作生成。</td><td>本文把 world model 变成 goal-conditioned：不是从语言或动作预测普通未来，而是从当前图像到目标图像生成可执行的视觉过渡轨迹。</td></tr>
+      <tr><td>Online autonomous improvement</td><td>DAgger 需要专家介入；ICL 不更新权重；HER 用 achieved state relabel goal。</td><td>Act2Goal 用 HER-style relabeling 加 LoRA，只更新低秩适配层，尝试在真实机器人部署时无奖励、少人工地自我提升。</td></tr>
+    </table>
+  </section>
+
+  <section id="method">
+    <h2>4. 方法详解</h2>
+    <h3>4.1 总体流程：三阶段学习</h3>
+    <p>Act2Goal 的学习流程分三段：</p>
+    <ol>
+      <li><strong>Stage 1 joint training：</strong>微调预训练 world model，使其在当前观测和目标图像条件下生成 MSTH 分布的多视角过渡视频，同时联合训练动作生成任务。</li>
+      <li><strong>Stage 2 action adaptation：</strong>用行为克隆端到端微调完整模型，只使用 action flow matching loss，让视觉表示更贴合动作规划。</li>
+      <li><strong>Stage 3 online autonomous improvement：</strong>部署后收集自身 rollout，把实际到达的下一观测 relabel 成 goal，只更新 LoRA 层。</li>
+    </ol>
+
+    <h3>4.2 模型架构：GCWM + Action DiT</h3>
+    <div class="figure">
+      <img src="figures/x3.png" alt="Act2Goal architecture">
+      <div class="caption"><strong>Figure 3.</strong> 架构图：左侧 GCWM 使用当前多视角图像和目标图像的 VAE latents 作为条件，经 Video DiT 生成 MSTH latent frames；右侧 Action DiT 接收机器人状态和 world model 多尺度 features，通过 cross-attention 生成 MSTH-structured actions。</div>
+    </div>
+    <p>Goal-Conditioned World Model 基于 Genie Envisioner 改造：保留视频生成能力，移除语言条件，加入视觉目标条件。当前 observation latent 记为 $z_t$，目标图像 latent 记为 $z_g$，随机噪声为 $\epsilon$，world model 生成中间 latent frames：</p>
+    <div class="formula-block">
+      $$z_{\mathrm{pred}} = f_{\theta}(z_t,z_g,\epsilon).$$
+      <p>推理时用 flow matching 的确定性积分更新：</p>
+      $$z^{(n+1)} = z^{(n)} + \frac{1}{N}v_{\theta}(z^{(n)},z_t,z_g).$$
+      <p><span class="intuition">直觉：</span>GCWM 学的是“从当前画面走向目标画面，视觉上应该经过哪些中间状态”。这些中间状态不是直接执行的动作，但会成为动作专家的条件。</p>
+    </div>
+    <p>Action expert 与 world model 架构同构，但宽度更小。它接收 proprioceptive state $c_p$ 和 world model 的层级 transition features $c_w=\{h_{\mathrm{world}}^1,\ldots,h_{\mathrm{world}}^L\}$，生成动作：</p>
+    <div class="formula-block">
+      $$a_{\mathrm{pred}} = g_{\phi}(c_w,c_p,\zeta),$$
+      $$a^{(n+1)} = a^{(n)} + \frac{1}{N}u_{\phi}(a^{(n)},c_w,c_p).$$
+      <p><span class="intuition">直觉：</span>动作不是从目标图像单独解码出来，而是从 world model 的多层中间特征里“读出”可执行控制。</p>
+    </div>
+
+    <h3>4.3 Multi-Scale Temporal Hashing (MSTH)</h3>
+    <p>MSTH 是这篇论文最核心的机制。给定总想象轨迹长度 $K$、近端 horizon $P$、视觉采样 stride $r$，MSTH 把未来视觉状态拆成两段。</p>
+    <div class="formula-block">
+      <p>近端 dense segment：</p>
+      $$\{s_{t+kr}\}_{k=1}^{P/r}.$$
+      <p>远端 sparse segment：</p>
+      $$\{s_{t+d_m}\}_{m=1}^{M},\quad
+      d_m = P + \left\lfloor \frac{K-P}{\log(M+1)}\log(m+1)\right\rfloor.$$
+      <p><span class="intuition">直觉：</span>越靠近当前，越需要高频细节；越接近远端目标，越需要粗粒度目标锚点。log spacing 让远端帧间隔逐渐增大。</p>
+    </div>
+    <p>动作也采用同样的多尺度结构，但有一个关键差异：近端动作是每个时间步都预测，$\{a_{t+1},\ldots,a_{t+P}\}$，用于实际执行；远端动作 $\{a_{t+d_m}\}_{m=1}^M$ 只用于长程指导，不在部署时执行。附录给出具体实现：world model 预测 4 个 latent frames，含 2 个 proximal 和 2 个 distal，经 3D VAE 解码成 9 个 proximal 和 9 个 distal visual frames；action expert 输出 54 个 proximal actions，其中执行 50 个，另输出 9 个 distal actions 仅作 guidance <span class="appendix-ref">附录 A.1</span>。</p>
+    <div class="figure">
+      <img src="figures/x8.png" alt="MSTH generated videos">
+      <div class="caption"><strong>Figure 8.</strong> GCWM 生成的视频示例：proximal frames 更贴近局部动作细节，distal frames 对应更长时间跨度，承担目标一致性约束。</div>
+    </div>
+
+    <h3>4.4 两阶段离线训练目标</h3>
+    <p>Stage 1 联合优化视觉生成和动作生成。视觉部分使用 flow matching loss：</p>
+    <div class="formula-block">
+      $$\mathcal{L}_v =
+      \mathbb{E}_{t,z_0,z_1,z_t,z_g}
+      \left[\left\|v_{\theta}(t,\phi_t(z),z_t,z_g)-(z_1-z_0)\right\|^2\right].$$
+      <p>动作部分为：</p>
+      $$\mathcal{L}_a =
+      \mathbb{E}_{t,a_0,a_1,c_w,c_p}
+      \left[\left\|u_{\phi}(t,\psi_t(a),c_w,c_p)-(a_1-a_0)\right\|^2\right].$$
+      <p>联合目标：</p>
+      $$\mathcal{L}_{\mathrm{stage1}}=\mathcal{L}_v+\lambda\mathcal{L}_a,\quad \lambda=0.1.$$
+      <p>Stage 2 只用 $\mathcal{L}_{\mathrm{stage2}}=\mathcal{L}_a$ 做端到端行为克隆。</p>
+    </div>
+    <p>这种设计的含义是：第一阶段让生成的视觉轨迹“看起来合理且对动作有用”；第二阶段把整个 pipeline 对齐到专家动作。</p>
+
+    <h3>4.5 在线自我改进：HER + LoRA</h3>
+    <p>在线阶段不需要外部 reward，也不需要人工标注成功/失败。机器人执行策略并把每一步 transition 存入 replay buffer：$(o,c_p,a,o')$。随后把实际到达的 $o'$ 作为新的 goal $g'$，构造成“在 $o$ 下执行 $a$ 可以到达 $g'$”的监督样本。buffer 达到阈值后，用这些 relabeled transitions 只微调 LoRA 层，base model 冻结。</p>
+    <pre class="pseudocode">Act2Goal online autonomous improvement:
+1. initialize replay buffer B and LoRA parameters
+2. execute policy for one episode and store transitions (o, c_p, a, o')
+3. for each transition, relabel achieved observation o' as goal g'
+4. when B reaches threshold:
+   sample batches from B
+   optimize action prediction toward stored action a under relabeled goal g'
+   update only LoRA parameters
+   clear B
+5. repeat rollout -> relabel -> optimize until performance converges</pre>
+    <p>附录实现细节：部署在 AgiBot Genie-01 + NVIDIA RTX 4090；LoRA rank 64；replay buffer size 20；每轮 10 epochs，包含 rollout、反传和环境 reset 约 5 分钟；50 个可执行动作的推理延迟约 200 ms <span class="appendix-ref">附录 A.1</span>。</p>
+  </section>
+
+  <section id="experiments">
+    <h2>5. 实验</h2>
+    <h3>5.1 实验问题</h3>
+    <p>实验围绕三个问题展开：离线 imitation training 后能否泛化到 ID/OOD 场景；在线 autonomous improvement 是否有效；MSTH 是否是长时程任务的关键组件。</p>
+
+    <h3>5.2 Robotwin 2.0 仿真泛化</h3>
+    <p>作者从 Robotwin 2.0 选择四个任务：Move Can Pot、Pick Dual Bottles、Place Empty Cup、Place Shoe。Easy mode 是 seen/no-noise 设置，Hard mode 是 unseen/noisy 设置。目标图像通过固定环境 seed，从成功轨迹中提取终态作为 goal condition。</p>
+    <div class="scroll">
+      <table>
+        <tr><th>Mode</th><th>Model</th><th>Move Can</th><th>Pick Bottles</th><th>Place Cup</th><th>Place Shoe</th></tr>
+        <tr><td rowspan="4">Easy</td><td>DP-GC</td><td>0.18</td><td>0.04</td><td>0.03</td><td>0.04</td></tr>
+        <tr><td>$\pi_{0.5}$-GC</td><td>0.54</td><td>0.13</td><td>0.16</td><td>0.30</td></tr>
+        <tr><td>HyperGoalNet</td><td>0.11</td><td>0.08</td><td>0.08</td><td>0.01</td></tr>
+        <tr><td><strong>Act2Goal</strong></td><td><strong>0.62</strong></td><td><strong>0.80</strong></td><td><strong>0.64</strong></td><td><strong>0.52</strong></td></tr>
+        <tr><td rowspan="4">Hard</td><td>DP-GC</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+        <tr><td>$\pi_{0.5}$-GC</td><td><strong>0.42</strong></td><td>0.06</td><td>0.04</td><td>0.06</td></tr>
+        <tr><td>HyperGoalNet</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+        <tr><td><strong>Act2Goal</strong></td><td>0.13</td><td><strong>0.43</strong></td><td><strong>0.13</strong></td><td><strong>0.15</strong></td></tr>
+      </table>
+    </div>
+    <p>Act2Goal 在所有 Easy 任务最佳；Hard mode 中除 Move Can 外都最佳。这个结果支持论文主张：world model + MSTH 对 OOD 长时程场景有帮助，但也显示并非所有 hard scenario 都赢过 $\pi_{0.5}$-GC。</p>
+
+    <h3>5.3 真实机器人泛化</h3>
+    <div class="figure">
+      <img src="figures/x4.png" alt="Real world task configurations">
+      <div class="caption"><strong>Figure 4.</strong> 真实评估任务：Whiteboard Word Writing、Dessert Plating、Plug-In Operation，每个任务都有 ID 和 OOD 配置。</div>
+    </div>
+    <table>
+      <tr><th>Setting</th><th>Model</th><th>Whiteboard Word Writing</th><th>Dessert Plating</th><th>Plug-In Operation</th></tr>
+      <tr><td rowspan="4">ID</td><td>DP-GC</td><td>0.00</td><td>0.10</td><td>0.00</td></tr>
+      <tr><td>$\pi_{0.5}$-GC</td><td>0.23</td><td>0.18</td><td>0.00</td></tr>
+      <tr><td>HyperGoalNet</td><td>0.00</td><td>0.08</td><td>0.00</td></tr>
+      <tr><td><strong>Act2Goal</strong></td><td><strong>0.93</strong></td><td><strong>0.75</strong></td><td><strong>0.45</strong></td></tr>
+      <tr><td rowspan="4">OOD</td><td>DP-GC</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+      <tr><td>$\pi_{0.5}$-GC</td><td>0.20</td><td>0.05</td><td>0.00</td></tr>
+      <tr><td>HyperGoalNet</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+      <tr><td><strong>Act2Goal</strong></td><td><strong>0.90</strong></td><td><strong>0.48</strong></td><td><strong>0.30</strong></td></tr>
+    </table>
+    <p>三类任务分别考察不同能力：白板写字要求长程笔画组合，OOD 是训练未见词；甜点摆盘要求按目标图像进行细粒度空间布置，OOD 引入甜点类型、盘子样式和背景变化；Plug-In ID 是插入训练见过的金属工件，OOD 是把圆柱饮料瓶插入杯架。</p>
+    <p>附录补充真实任务细节：写字/绘画时先人工把 marker 放到夹爪中，长写字 trials 中 marker 会滑动，因此用胶带固定；bearing insertion 中 bearing 超过 2 kg，底部直径约 1 cm，孔直径约 1.5 cm；甜点摆盘使用硅胶玩具甜点以保证可重复性 <span class="appendix-ref">附录 A.2</span>。</p>
+
+    <h3>5.4 在线自我改进</h3>
+    <div class="figure">
+      <img src="figures/x5.png" alt="Online improvement scenarios">
+      <div class="caption"><strong>Figure 5.</strong> Robotwin 2.0 中用于在线自改进的四个 OOD hard scenarios。</div>
+    </div>
+    <div class="figure">
+      <img src="figures/x6.png" alt="Robotwin online training performance">
+      <div class="caption"><strong>Figure 6.</strong> 仿真在线训练：多轮训练后成功率持续提升，约 3 轮后收敛；对 replay buffer 的数据选择策略比较显示，使用所有 rollouts 最好，failed-only rollouts 也能带来提升。</div>
+    </div>
+    <p>仿真中，作者从四个 hard-mode 任务各选一个 scenario 做多轮在线训练。论文正文给出定性结论：约 3 轮后收敛，最大成功率提升可达预训练 baseline 的 8 倍；使用所有 rollouts 优于只用 successful 或 failed rollouts。这个结果与 HER 逻辑一致：失败轨迹也含有可学习的 achieved-goal transition。</p>
+    <div class="figure">
+      <img src="figures/x7.png" alt="Real world online drawing improvement">
+      <div class="caption"><strong>Figure 7.</strong> 真实白板 unseen pattern 在线训练：从较差初始绘制逐步改善。正文还报告 OOD Plug-In 成功率随在线训练从 0.30 提升到 0.90。</div>
+    </div>
+
+    <h3>5.5 MSTH 消融</h3>
+    <table>
+      <tr><th>Setting</th><th>Model</th><th>Short (≤3 letters)</th><th>Medium (4-6 letters)</th><th>Long (≥7 letters)</th></tr>
+      <tr><td rowspan="2">ID</td><td>w/o MSTH</td><td>0.95</td><td>0.35</td><td>0.10</td></tr>
+      <tr><td><strong>w/ MSTH</strong></td><td><strong>0.95</strong></td><td><strong>0.90</strong></td><td><strong>0.90</strong></td></tr>
+      <tr><td rowspan="2">OOD</td><td>w/o MSTH</td><td>0.60</td><td>0.20</td><td>0.00</td></tr>
+      <tr><td><strong>w/ MSTH</strong></td><td><strong>0.93</strong></td><td><strong>0.90</strong></td><td><strong>0.88</strong></td></tr>
+    </table>
+    <p>这个表是支撑 MSTH 的最强证据：短词上固定 horizon chunking 还可以，但词变长后迅速崩溃，尤其 OOD 长词为 0.00；MSTH 则在 ID/OOD 中长词仍保持 0.90/0.88。解释是固定 horizon 更容易随着序列变长发生 goal confusion，而 MSTH 的远端稀疏锚点维持了目标方向。</p>
+  </section>
+
+  <section id="reproduce">
+    <h2>6. 可复现审计</h2>
+    <h3>6.1 数据、训练资源与模型规模</h3>
+    <table>
+      <tr><th>项目</th><th>论文/附录信息</th><th>复现含义</th></tr>
+      <tr><td>训练数据</td><td>AgiBot World dataset + small proprietary dataset。</td><td>核心真实数据不完全公开，严格复现实验难度高。</td></tr>
+      <tr><td>world model 初始化</td><td>预训练 1.6B 参数 Genie Envisioner。</td><td>需要可用的 Genie Envisioner 权重或等价视频 world model。</td></tr>
+      <tr><td>Stage 1</td><td>微调预训练 world model，7×24 hours，16×A800。</td><td>计算量很大，不是单卡可轻松复现。</td></tr>
+      <tr><td>Stage 2</td><td>端到端 behavioral cloning，48 hours，16×A800。</td><td>离线训练资源仍然高。</td></tr>
+      <tr><td>部署</td><td>AgiBot Genie-01 + RTX 4090；50 executable actions 延迟 200 ms。</td><td>推理部署给出较清晰硬件口径。</td></tr>
+      <tr><td>在线学习</td><td>LoRA rank 64，buffer size 20，每轮 10 epochs，约 5 分钟。</td><td>在线阶段相对轻量，可作为最先复现的模块。</td></tr>
+    </table>
+
+    <h3>6.2 评估口径</h3>
+    <ul>
+      <li>真实世界成功率由人工标注，每个实验 40 个 model rollouts。</li>
+      <li>仿真成功率自动计算，每个实验 90 个 rollouts。</li>
+      <li>在线自改进实验中，作者保存每轮训练后的模型权重，在线过程结束后分别评估这些 checkpoints。</li>
+    </ul>
+
+    <h3>6.3 最小复现路线</h3>
+    <ol>
+      <li>先在仿真中实现视觉 goal-conditioned policy baseline：当前图像 + goal image + proprio state → action chunk。</li>
+      <li>接入一个预训练 video/world model，改成 current observation + goal image condition，输出过渡 latent frames。</li>
+      <li>实现 MSTH：近端 dense frames、远端 log-spaced distal frames；动作端预测 dense proximal actions + sparse distal guidance actions。</li>
+      <li>用 Stage 1 的 $\mathcal{L}_v + 0.1\mathcal{L}_a$ 联合训练，再用 Stage 2 的 $\mathcal{L}_a$ 做动作适配。</li>
+      <li>先复现 Robotwin 2.0 的四个任务；真实机复现需要机器人平台、目标图像采集和安全 reset pipeline。</li>
+      <li>最后实现在线 HER + LoRA：buffer 到 20 后训练 10 epochs，只更新 LoRA，比较 all/success/failure rollout 策略。</li>
+    </ol>
+
+    <h3>6.4 主要复现风险</h3>
+    <table>
+      <tr><th>风险</th><th>原因</th><th>建议</th></tr>
+      <tr><td>数据不可完全获得</td><td>训练依赖 AgiBot World 和 proprietary data。</td><td>先用公开仿真数据验证 MSTH/online adaptation，而不是追求绝对数值。</td></tr>
+      <tr><td>world model 成本高</td><td>1.6B Genie Envisioner + 16×A800 训练。</td><td>用更小视频 latent diffusion/world model 做结构复现。</td></tr>
+      <tr><td>真实机 setup 细节影响结果</td><td>marker 固定、bearing 尺寸、硅胶甜点都影响实验可重复性。</td><td>记录 end-effector/tool mounting、物体材质、初始位置和 reset 策略。</td></tr>
+      <tr><td>在线学习安全</td><td>自收集 rollouts 可能产生碰撞或错误动作。</td><td>先在仿真部署 replay relabeling，再迁移到低风险真实任务。</td></tr>
+    </table>
+  </section>
+
+  <section id="discussion">
+    <h2>7. 分析、局限与边界</h2>
+    <h3>7.1 这篇论文最有价值的地方</h3>
+    <p>这篇最有价值的地方在于把视觉目标策略的长时程问题具体化了：不是只让 policy 看 goal image，而是先构造一条“朝 goal 演化”的视觉中间路线，再把这条路线压缩成控制友好的多尺度表示。MSTH 的想法朴素但有效：近处要密，远处要稀；近端动作执行，远端动作只做约束。</p>
+    <p>第二个价值点是在线自我改进流程足够工程化。HER-style relabeling + LoRA 在真实机器人上很实用：不需要 reward function，也不需要每一步人工打标签，失败轨迹也可以通过 achieved-goal relabeling 转为训练信号。</p>
+
+    <h3>7.2 结果为什么站得住</h3>
+    <ul>
+      <li><strong>任务覆盖有层次：</strong>仿真 Robotwin 2.0、真实写字、甜点摆盘、插入操作分别覆盖不同难点。</li>
+      <li><strong>OOD 设置明确：</strong>未见词、视觉变化甜点/盘子/背景、从 bearing 插入迁移到杯架插瓶。</li>
+      <li><strong>MSTH 消融强：</strong>白板写字长词上 w/o MSTH 几乎失败，而 w/ MSTH 保持高成功率，直接支撑方法核心。</li>
+      <li><strong>在线训练证据一致：</strong>仿真多轮提升、真实 unseen drawing 改善、Plug-In OOD 从 0.30 到 0.90，方向一致。</li>
+    </ul>
+
+    <h3>7.3 局限与需要追问的点</h3>
+    <table>
+      <tr><th>问题</th><th>影响</th></tr>
+      <tr><td>训练数据和代码可用性不足</td><td>论文给项目页但 arXiv/项目页未显示公开代码；核心训练数据含 proprietary dataset，完全复现困难。</td></tr>
+      <tr><td>部分源码仍含作者内部注释</td><td>LaTeX 源码里有较多修改意见和注释，说明论文可能仍处于快速迭代状态；读者应以最终 PDF 结果为准。</td></tr>
+      <tr><td>真实世界评估样本量有限</td><td>每个真实实验 40 rollouts，足够展示趋势，但对高方差真实机任务仍需更多统计置信区间。</td></tr>
+      <tr><td>world model 是否真正因果可控仍未完全证明</td><td>生成的中间视觉轨迹看起来合理，但它对动作成功的具体贡献主要通过整体消融体现，缺少更细的 representation/attention 分析。</td></tr>
+      <tr><td>在线自改进依赖环境 reset</td><td>每轮约 5 分钟包含 rollout、反传和 reset；真实开放环境中 reset 成本可能成为瓶颈。</td></tr>
+    </table>
+
+    <h3>7.4 组会可追问的问题</h3>
+    <ol>
+      <li>MSTH 的 $K,P,r,M$ 如何选择？不同任务是否需要自适应时间尺度，而不是固定 log spacing？</li>
+      <li>远端 actions 不执行，只作为 guidance。它们的 supervision 来自哪里，是否可能和近端执行动作产生冲突？</li>
+      <li>Stage 2 只优化 action loss，但梯度也回传到 world model。这会不会降低 world model 生成视频的真实性，只保留 action-useful features？这是优点还是风险？</li>
+      <li>HER relabeling 把 $o'$ 当 goal，但如果动作导致了碰撞或无意义状态，这种 relabeling 是否会强化坏行为？all rollouts 最好说明模型可能能吸收噪声，但边界在哪里？</li>
+      <li>相比直接用 goal image + transformer memory 做长上下文控制，GCWM 的额外生成成本是否在所有任务上都必要？</li>
+    </ol>
+  </section>
+
+  <section id="audit">
+    <h2>附：本报告覆盖检查</h2>
+    <div class="audit-card">
+      <p><span class="pass">已覆盖：</span>Abstract、Introduction、Related Works、Method、Experiments、Conclusion，以及附录中的实现细节、真实任务设置和测试指标。</p>
+      <p><span class="pass">图表处理：</span>使用 arXiv HTML 渲染出的 PNG 图像保存在 <code>figures/</code>；关键表格已重建为 HTML。</p>
+      <p><span class="warn">残余风险：</span>未发现官方代码仓库；训练数据部分为 proprietary，报告中的复现路线是结构级复现建议，不等价于完整数值复现。</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>

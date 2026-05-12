@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>ARDuP: Active Region Video Diffusion for Universal Policies - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>ARDuP: Active Region Video Diffusion for Universal Policies</h1>
+<p><strong>Reading Report</strong>: This paper uses video generation for general robot policy learning, but the key is not to "generate a complete video as real as possible", but to explicitly generate task-related active areas first, so that the video planner and action decoder can pay more attention to the objects/regions that will actually be interacted with.</p>
+<div>
+<span class="tag">arXiv: 2406.13301v2</span>
+<span class="tag">Video Diffusion</span>
+<span class="tag">Robot Policy</span>
+<span class="tag">Active Region</span>
+<span class="tag">CLIPort / BridgeData v2</span>
+</div>
+<div class="meta">
+<div>Authors: Shuaiyi Huang, Mara Levy, Zhenyu Jiang, Anima Anandkumar, Yuke Zhu, Linxi Fan, De-An Huang, Abhinav Shrivastava</div>
+<div>Institution: University of Maryland, UT Austin, Caltech, NVIDIA</div>
+<div>Local output: <code>Report/2406.13301/</code></div>
+<div>Note: The arXiv source code does not contain independent appendices; this report integrates all chapters of the text and all charts in the source code.</div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#problem">2. Background and problem setting</a></li>
+<li><a href="#method">3. Method details</a></li>
+<li><a href="#experiments">4. Experiments and results</a></li>
+<li><a href="#details">5. Key points of implementation and diagrams</a></li>
+<li><a href="#reproduce">6. Key points of reproducibility and implementation</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>There are existing video-as-planner methods that generate future frames from text targets and initial images, and then use inverse dynamics to decode actions. However, these models usually treat all pixels equally, are prone to focus on the wrong objects, and even use visual shortcuts such as "changing colors" to reduce the generation loss but generate the wrong plan. What ARDuP wants to solve is: how to make the video planner more stably focus on the areas where the task really requires interaction, and transform this attention into a higher success rate of robot tasks.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Introduce active region as an explicit condition. During training, use Co-Tracker to find motion points from the demonstration video, and then use SAM to generate a pseudo active region mask without manual annotation; during inference, use latent active region diffusion to predict the active region based on the initial frame and language commands, then input the region as a condition to the latent video diffusion planner, and finally use latent inverse dynamics to directly generate latent sequences to decode actions.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>On the three unseen tasks of CLIPort, ARDuP improved Place Bowl +21.3%, Pack Object +17.2%, and Pack Pair +15.7% respectively compared to UniPi*. The higher the quality of the active region, the higher the success rate; if GT active region is used during testing, the improvement can be +16.6%, +24.4%, +24.8%. On BridgeData v2, ARDuP-generated video plans were qualitatively better at selecting correct objects and placement.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>This article does not directly solve the closed-loop control of real robots, but an offline data-driven video planning + action decoding framework. When reading, you need to distinguish three things: how the active region pseudo-label comes from, how the active region enters latent diffusion, and whether the improvement in mission success rate comes from the active region conditions or the design of latent inverse dynamics.</td>
+</tr>
+</table>
+<figure>
+<img alt="ARDuP teaser" src="figures/figures_teaser.png"/>
+<figcaption>Figure 1: When there is no active region, the model will grasp the wrong purple square; when there is an active region condition, the generation plan expands around the white square.</figcaption>
+</figure>
+</section>
+<section id="problem">
+<h2>2. Background and problem setting</h2>
+<h3>From MDP to UPDP</h3>
+<p>Traditional MDP requires defining states, actions, rewards, and environment dynamics. For cross-task and cross-environment robot strategies, these definitions are difficult to unify. UniPi introduces the Unified Predictive Decision Process (UPDP): changing the state space into video frames, changing the target into language text, and changing planning into conditional video generation.</p>
+<p>UPDP is defined as \(\mathcal{G}=(\mathcal{X}, \mathcal{C}, H, \rho)\). Where \(\mathcal{X}\) is the RGB frame space, \(\mathcal{C}\) is the task text collection, \(H\) is the planning length, and \(\rho(\cdot|x_0, c)\) is the video generator that generates future \(H\) frames based on the initial frame \(x_0\) and task text \(c\). The action prediction algorithm \(\mu(\cdot|\{x_h\}_{h=0}^{H}, c)\) then predicts action sequences from the generated video.</p>
+<h3>Problems with UPDP</h3>
+<p>The quality of UPDP actions depends on the quality of the generated frames. However, if the generative model optimizes all pixels equally, it will produce a very dangerous error in robotic tasks: as long as the image looks "close to the target", it may not actually interact with the correct object. For example, the model can first grasp the wrong object, and then change the color of the object to the color in the text description in subsequent frames.</p>
+<div class="callout">
+ The core judgment of ARDuP is that what is useful for control is not all the pixels in the entire image, but the active regions, that is, the objects/regions that are most likely to be interacted with. Explicitly exposing these regions to the video generator reduces false attention and visual shortcuts.
+ </div>
+</section>
+<section id="method">
+<h2>3. Method details</h2>
+<h3>3.1 LUPDP-AR formalization</h3>
+<p>The author changed UPDP to Latent Unified Predictive Decision Process conditioned on Active Region (LUPDP-AR): </p>
+<p>$$\hat{\mathcal{G}}=(\hat{\mathcal{X}}, \mathcal{C}, \hat{\mathcal{O}}, H, \phi)$$</p>
+<p>\(\hat{\mathcal{X}}\) is the RGB frame latent space, and \(\hat{\mathcal{O}}\) is the active region latent space. Stable Diffusion style encoder \(\mathcal{E}\) maps RGB frame and active region frame to latent. The video generator was changed from the original \(\rho(\cdot|x_0, c)\) to: </p>
+<p>$$\phi(\cdot|\hat{x}_0, c, \hat{o})$$</p>
+<p>That is, not only look at the initial frame and text, but also look at the active region latent \(\hat{o}\). Also define active region generator: </p>
+<p>$$\psi(\hat{o}|\hat{x}_0, c): \hat{\mathcal{X}}\times\mathcal{C}\rightarrow\hat{\mathcal{O}}$$</p>
+<p>The final action prediction is also performed on the latent sequence: \(\pi(\cdot|\{\hat{x}_h\}_{h=0}^{H}, c)\rightarrow \Delta(\mathcal{A}^{H})\). This avoids having to decode each latent back to RGB and do inverse dynamics.</p>
+<figure>
+<img alt="ARDuP overview" src="figures/figures_overview.png"/>
+<figcaption>Figure 2: ARDuP overview. Co-Tracker + SAM generates pseudo active region and trains active region diffusion; the predicted active region is conditioned on latent video diffusion, and then the action is decoded by latent inverse dynamics.</figcaption>
+</figure>
+<h3>3.2 Automatically construct active region supervision from video</h3>
+<p>There is no manual active region annotation during training. The author uses the demonstration video \(\mathbf{V}=\{x_h\}_{h=0}^{H}\) to automatically generate a pseudo mask: </p>
+<ol>
+<li>Use Co-Tracker to place the \(M\times M\) grid point on the initial frame and track all points to subsequent frames to obtain the trajectory set \(\mathcal{P}=\mathcal{F}_p(\mathbf{V})\).</li>
+<li>Calculate the adjacent frame movement amount \(\Delta \mathbf{p}_h=\|\mathbf{p}_h-\mathbf{p}_{h-1}\|_2\) for each point trajectory.</li>
+<li>Calculate the average moving amount \(\Delta\bar{\mathbf{p}}=\frac{1}{H}\sum_{h=1}^{H}\Delta\mathbf{p}_h\).</li>
+<li>Filter for moving point \(\mathcal{P}_m=\{\mathbf{p}\in\mathcal{P}|\Delta\bar{\mathbf{p}}&gt;\tau\}\).</li>
+<li>Enter the positions of these points in the initial frame as prompt into SAM to obtain active region mask \(\mathbf{M}\).</li>
+</ol>
+<p>In order to form an active region frame, the author keeps the original image inside the mask and whitens the outside of the mask: </p>
+<p>$$o=x_0\circ \mathbf{M}+x_b\circ(1-\mathbf{M})$$</p>
+<p>Then use encoder \(\mathcal{E}\) to get \(\hat{o}\).</p>
+<figure>
+<img alt="Pseudo active regions" src="figures/figures_pseudo_bridge.png"/>
+<figcaption>Figure 3: Pseudo active region obtained from point trajectories and SAM in BridgeData v2. It is the supervision signal for training active region generators.</figcaption>
+</figure>
+<h3>3.3 Latent active region diffusion</h3>
+<p>There is no future video during inference, and Co-Tracker can no longer be used to extract active regions from the entire video. Therefore, a conditional latent diffusion model \(\psi(\hat{o}|\hat{x}_0, c; \theta_\psi)\) is trained, inputting the initial frame latent and task text, and outputting the active region latent. The author emphasizes that both are indispensable: without images, we do not know the location of objects, and without text, we do not know which objects to interact with in the task.</p>
+<h3>3.4 Active-region-conditioned latent video planner</h3>
+<p>Video planner \(\phi(\cdot|\hat{x}_0, c, \hat{o}; \theta_\phi)\) generates future latent sequences. In terms of implementation, the author splices the active region latent with the latent of each frame, and also splices it with the latent of the initial frame, so that the denoising process is always constrained by "where to focus". You can use decoder \(\mathcal{R}\) to restore RGB during visualization, but action decoding does not rely on RGB decoding.</p>
+<figure>
+<img alt="CLIPort qualitative comparison" src="figures/figures_vis_cliport.png"/>
+<figcaption>Figure 4: Qualitative comparison of CLIPort. Models without active regions are prone to grasping the wrong object or generating the wrong robot arm position; ARDuP focuses more on the target object.</figcaption>
+</figure>
+<h3>3.5 Latent inverse dynamics and execution</h3>
+<p>Given the adjacent generated frame latents \(\hat{x}_h, \hat{x}_{h+1}\), the latent inverse dynamics module predicts the action \(a_h\). It consists of a convolutional layer with skip connection plus a linear layer, and outputs a 7-dimensional manipulation action. When executing, it starts from \(x_0, c\), first generates \(\hat{o}\), then generates \(H=6\) step latent sequence, and finally decodes \(H\) actions at once and executes them in an open-loop.</p>
+</section>
+<section id="experiments">
+<h2>4. Experiments and results</h2>
+<h3>4.1 Implement settings</h3>
+<ul>
+<li>Co-Tracker grid size \(M=60\), movement threshold \(\tau=2\).</li>
+<li>Perform connected component labeling on the pseudo mask, retain the operated object, and exclude the robotic arm area.</li>
+<li>The image is resized to \(512\times512\), and the VAE encoder outputs \(128\times128\times4\) latent.</li>
+<li>The active region generator uses T5-XXL text encoding and transforms UNet.</li>
+<li>Latent video diffusion uses something like UNet and adds temporal modules to generate \(H=6\) frame latent.</li>
+<li>Diffusion and inverse dynamics are trained from scratch, using 8 A100s; diffusion learning rate \(3\times10^{-4}\), batch 96; inverse dynamics learning rate \(5\times10^{-4}\), batch 3072.</li>
+</ul>
+<h3>4.2 CLIPort multi-environment migration</h3>
+<p>CLIPort is a language-conditional robot manipulation simulation benchmark based on Ravens. The author trained on 11 tasks and 110k demos, tested on 3 unseen tasks, and followed UniPi's multi-environment transfer settings.</p>
+<table>
+<tr><th>Model</th><th>Place Bowl</th><th>Pack Object</th><th>Pack Pair</th></tr>
+<tr><td>State + Transformer BC</td><td>9.8</td><td>21.7</td><td>1.3</td></tr>
+<tr><td>Image + Transformer BC</td><td>5.3</td><td>5.7</td><td>7.8</td></tr>
+<tr><td>Image + TT</td><td>4.9</td><td>19.8</td><td>2.3</td></tr>
+<tr><td>Diffuser</td><td>14.8</td><td>15.9</td><td>10.5</td></tr>
+<tr><td>UniPi*</td><td>65.4</td><td>51.8</td><td>30.9</td></tr>
+<tr><td><strong>ARDuP</strong></td><td><strong>86.7 (+21.3)</strong></td><td><strong>69.0 (+17.2)</strong></td><td><strong>46.6 (+15.7)</strong></td></tr>
+</table>
+<p>This result shows that under the same video planning paradigm, explicit active region conditions significantly help the success rate of unseen tasks.</p>
+<h3>4.3 BridgeData v2 real data migration</h3>
+<p>BridgeData v2 contains 60, 096 real robot trajectories, natural language instructions, and 24 environments. The authors use 95% of the data for training and the rest for evaluation. The paper mainly gives qualitative results: ARDuP can select the correct object and place it in the correct location in complex real scenes, while UniPi* is more likely to select the wrong object or place it in the wrong location.</p>
+<figure>
+<img alt="BridgeData qualitative comparison" src="figures/figures_bridge_vis.png"/>
+<figcaption>Figure 5: BridgeData v2 qualitative results. ARDuP can better select task-related objects such as sushi, cup, and colander; UniPi* often selects or misplaces objects.</figcaption>
+</figure>
+<h3>4.4 Ablation: active region quality</h3>
+<table>
+<tr><th>AR training</th><th>AR test</th><th>Planner</th><th>Place Bowl</th><th>Pack Object</th><th>Pack Pair</th></tr>
+<tr><td>-</td><td>-</td><td>w/o Active Region</td><td>83.4</td><td>67.7</td><td>38.0</td></tr>
+<tr><td>Unsupervised</td><td>Predicted</td><td>+Active Region</td><td>86.7 (+3.3)</td><td>69.0 (+1.3)</td><td>46.6 (+8.6)</td></tr>
+<tr><td>Supervised</td><td>Predicted</td><td>+Active Region</td><td>93.3 (+9.9)</td><td>79.6 (+11.9)</td><td>51.7 (+13.7)</td></tr>
+<tr><td>-</td><td>GT</td><td>+Active Region</td><td>100.0 (+16.6)</td><td>92.1 (+24.4)</td><td>62.8 (+24.8)</td></tr>
+</table>
+<p>This table is very critical: the active region does not only look good on qualitative graphs, its quality is positively correlated with the final mission success rate. The more accurate the prediction of the active area, the easier it is to succeed in the task.</p>
+<h3>4.5 Ablation: task loss</h3>
+<p>The author proposes task loss to measure the quality of video generation in control tasks: input generated video latents into pre-trained latent inverse dynamics, decode the action, and then calculate the L1 error of the action and GT action. The task loss of the model with active region is significantly lower on the CLIPort test set, indicating that the generated video is not only more visually reasonable, but also more in line with the needs of the action decoder.</p>
+<figure>
+<img alt="Task loss ablation" src="figures/figures_ablation_active.png"/>
+<figcaption>Figure 6: The active region condition reduces task loss, indicating that the generated latent is more consistent with the real action sequence.</figcaption>
+</figure>
+</section>
+<section id="details">
+<h2>5. Key points of implementation and diagrams</h2>
+<h3>Source code structure</h3>
+<p>`root.tex` in the arXiv source code is an IEEE template sample. The main file of the actual paper is `iros24_vid_main.tex`, and the text is under `data/`. The source code does not provide a separate appendix. Image resources include `teaser.jpg`, `overview.jpg`, `vis_cliport.jpg`, `bridge_vis.jpg`, `pseudo_bridge.jpg`, `ablation_active.pdf`, etc.</p>
+<h3>Why do it in latent space?</h3>
+<p>The author puts both video planning and action decoding in latent space as much as possible: on the one hand, it reduces the computational cost of RGB video generation, and on the other hand, it allows inverse dynamics to directly consume the internal representation of the generator, avoiding decoding RGB first and then re-encoding/perceiving. The visualization is only for human viewing, and the control itself does not require RGB decoding.</p>
+<h3>Two roles of active region</h3>
+<ul>
+<li><strong>training supervision</strong>: Use Co-Tracker + SAM to automatically extract pseudo masks from real demonstration videos to avoid manual annotation.</li>
+<li><strong>reasoning conditions</strong>: Predict the task-related area through \(\psi(\hat{o}|\hat{x}_0, c)\), as the condition of \(\phi\), to constrain the generation direction of future video latent.</li>
+</ul>
+</section>
+<section id="reproduce">
+<h2>6. Key points of reproducibility and implementation</h2>
+<h3>Minimum recurrence path</h3>
+<ol>
+<li>Prepare datasets with language instructions, image sequences, action sequences, such as CLIPort or BridgeData v2.</li>
+<li>Run Co-Tracker on the training video to obtain the full temporal trajectory of the initial frame grid points.</li>
+<li>Filter moving points according to the average displacement threshold, and use SAM to generate a pseudo active region mask.</li>
+<li>Encode initial frame, active region frame to Stable Diffusion VAE latent.</li>
+<li>Training active region diffusion \(\psi\), input \(\hat{x}_0, c\), output \(\hat{o}\).</li>
+<li>Train latent video diffusion \(\phi\), input \(\hat{x}_0, c, \hat{o}\), and output future latent sequences.</li>
+<li>Train latent inverse dynamics \(\pi\), input adjacent latents, and output 7-dimensional actions.</li>
+<li>During inference, open-loop generates \(H=6\) actions and executes them.</li>
+</ol>
+<h3>An easy place to step into pitfalls</h3>
+<ul>
+<li>Co-Tracker will treat the movement of the robotic arm as active and needs to be filtered by connected component to retain the manipulated object.</li>
+<li>The noise of the active region pseudo-label will be passed to diffusion training; the paper itself also points out that noisy label learning may be the direction of future improvement.</li>
+<li>UniPi* is the author's reproduced version. The training/pre-training data of the original UniPi is not fully public, so the baseline alignment is still uncertain.</li>
+<li>BridgeData v2 is mainly a qualitative visualization and does not give a strict success rate comparison like the CLIPort table.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>The most valuable part of this paper</h3>
+<p>It proposes a very practical correction: do not expect the video generator to naturally learn "what is important for control" at the full-image pixel level, but to explicitly model the interaction area. This idea brings video generation back from "good-looking" to "useful for action". At the same time, the author uses Co-Tracker + SAM to automatically construct pseudo labels, so that the active region does not require manual annotation, which is the key to its expansion to large-scale video data.</p>
+<h3>Why does the result stand?</h3>
+<ul>
+<li>There is a clear improvement in task success rate on CLIPort, and UniPi* is compared with various imitation/diffusion baselines.</li>
+<li>The quality ablation of active region shows a monotonic trend: no active region &lt; pseudo predicted &lt; supervised predicted &lt; GT active region, indicating that there is a corresponding relationship between core variables and task success rate.</li>
+<li>Task loss ablation supports the conclusion from the perspective of action decoding: the active region not only improves the visual quality, but also makes the generated latent more suitable for decoding into correct actions.</li>
+<li>The visualization results of BridgeData v2 are consistent with the paper's proposition: in complex real scenes, active area conditions help the model select the right objects and locations.</li>
+</ul>
+<h3>Main limitations</h3>
+<ul>
+<li><strong>open-loop execution</strong>: The action sequence is generated and executed once during inference, without online re-planning or closed-loop error correction.</li>
+<li><strong>pseudo active region depends on Co-Tracker</strong>: Long-term, complex background, occlusion or camera movement will affect point trajectory quality.</li>
+<li><strong>Real world quantification is insufficient</strong>: BridgeData v2 results are primarily qualitative video plan comparisons and lack system success rate tables.</li>
+<li><strong>High training cost</strong>: 8 A100 trains diffusion and inverse dynamics from scratch, which is easy to reproduce in ordinary laboratories.</li>
+<li><strong>Action space remains mission/platform dependent</strong>: Although the title says universal policies, latent inverse dynamics outputs manipulation actions, and cross-robot forms still need to be re-adapted.</li>
+</ul>
+<h3>Questions to ask while reading</h3>
+<ul>
+<li>Does the active region condition just help with "object selection", or does it also improve contact patterns and fine trajectories?</li>
+<li>If a task requires different active regions for multiple stages, is a single initial active region sufficient?</li>
+<li>Will extending the active region from the initial frame condition to the temporal active region further improve long tasks?</li>
+<li>If real strategy rollout is implemented on BridgeData v2, can the qualitative video advantage be stably transformed into a success rate advantage?</li>
+<li>Can VLM/text-guided segmentation replace the pseudo-label process of Co-Tracker + SAM in the future?</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Geometry-Aware 4D Video Generation for Robot Manipulation - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div>
+<span class="tag">arXiv: 2507.01099</span>
+<span class="tag">4D Video Generation</span>
+<span class="tag">Multi-view RGB-D</span>
+<span class="tag">Robot Manipulation</span>
+</div>
+<h1>Geometry-Aware 4D Video Generation for Robot Manipulation</h1>
+<p>This paper proposes a 4D video generation model for robot operation: given two-channel RGB-D initial observations, future multi-view RGB-D / pointmap sequences are generated, and through cross-view pointmap alignment, the video is temporally continuous and geometrically consistent across views.</p>
+<div class="meta">
+<div><strong>Author</strong>: Zeyi Liu, Shuang Li, Eric Cousineau, Siyuan Feng, Benjamin Burchfiel, Shuran Song</div>
+<div><strong>institution</strong>: Stanford University; Toyota Research Institute</div>
+<div><strong>version</strong>: arXiv v3, 4 Feb 2026</div>
+<div><strong>Project page</strong>: <a href="https://robot4dgen.github.io/">https: //robot4dgen.github.io/</a></div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#s1">1. Quick overview of the paper</a></li>
+<li><a href="#s2">2. Problem setting and motivation</a></li>
+<li><a href="#s3">3. Related job positioning</a></li>
+<li><a href="#s4">4. Intensive reading of methods</a></li>
+<li><a href="#s5">5. Experiments and results</a></li>
+<li><a href="#s6">6. reproducibility and implementation details</a></li>
+<li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#s8">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="s1">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>Solve the "dilemma" of video generation in robot operation: RGB video generation models are usually temporally continuous but lack 3D geometric consistency; 3D-aware generation methods can constrain geometry but are often limited to simple objects or static backgrounds. The authors hope to generate future RGB-D videos that are both temporally smooth and geometrically consistent across camera views and extract robot tip trajectories from them.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Add a pointmap generation branch to the Stable Video Diffusion backbone, and use DUSt3R-style cross-view pointmap alignment for geometric supervision; then add multi-view cross-attention to the U-Net decoder to allow the reference perspective and the second perspective to share geometric information. The generated 4D RGB-D video is converted into robot motion using FoundationPose to track the gripper 6DoF pose.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>In terms of multi-view 4D video generation, this method achieves higher cross-view consistency, better RGB FVD and lower depth error on both simulation and real data sets; in three simulated robot operations, the average success rate reaches 0.64, which is significantly higher than Dreamitate 0.12, Diffusion Policy 0.12 and DP3 0.25.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>This article does not directly train an end-to-end policy, but treats 4D video generation as a world model that can be used for pose extraction. The key is to see clearly: geometric consistency comes from pointmap alignment and cross-view attention; actions come from 6DoF pose tracking on generated RGB-D videos, rather than the model directly outputting actions.</td>
+</tr>
+</table>
+<figure>
+<img alt="Geometry-aware 4D video generation teaser" src="figures/figures_teaser.png"/>
+<figcaption>Figure 1: The model generates future 4D pointmaps from two RGB-D views and projects the second view into a reference view coordinate system to learn a consistent 3D representation across views.</figcaption>
+</figure>
+</section>
+<section id="s2">
+<h2>2. Problem setting and motivation</h2>
+<p>Robots need to predict how the environment will change with interaction when operating, especially dealing with occlusions, long-term object motion, and changes in camera perspective. The video generation model looks like a natural "visual world model", but if the video is inconsistent across perspectives, subsequent tracking of the robot end or object pose from the video will be very unstable.</p>
+<p>The author points out that the core contradiction of existing methods is that temporal coherence and 3D consistency often cannot have both. Pure RGB video models may suffer from problems such as flickering, deformation, and object disappearance; 4D/3D-aware methods are often limited to simple single-object scenes. Robotic manipulation scenarios are more difficult because of multiple objects, robotic arm occlusion, precise grasping, and cross-camera generalization.</p>
+<div class="callout">
+<strong>Motivational intuition: </strong>If the generated video is to be used to control a robot, the video not only "looks like" but also "geometrically can be tracked." This paper puts RGB-D pointmap into the generation target so that future videos can be used by downstream 6DoF trackers.
+ </div>
+</section>
+<section id="s3">
+<h2>3. Related job positioning</h2>
+<h3>3.1 Video Generation</h3>
+<p>Traditional video generation has evolved from RNN and GAN to diffusion and latent diffusion. Models such as Stable Video Diffusion have strong short-term visual prediction capabilities, but they mainly optimize RGB sequences and lack clear 3D spatial constraints. This article inherits the temporal modeling capabilities of SVD and adds the geometric supervision of RGB-D/pointmap.</p>
+<h3>3.2 Multi-view and 4D Video Generation</h3>
+<p>There are already camera-conditioned video generations that improve spatial consistency through camera poses; there are also 4D generation efforts that optimize video models and novel-view synthesis separately. The positioning of this article is to put temporal consistency and spatial consistency into the same video diffusion framework, and directly train multi-view 4D prediction through cross-view pointmap alignment.</p>
+<h3>3.3 Generative Models for Robot Planning</h3>
+<p>Generated models can be used as input to dynamics models, inverse dynamics, policy conditions, or action-video joint models. This article does not train inverse dynamics, nor does it directly generate actions. Instead, it allows the 4D video to generate trackable RGB-D trajectories, and then uses the ready-made 6DoF pose tracker to extract the end effector trajectory.</p>
+</section>
+<section id="s4">
+<h2>4. Intensive reading of methods</h2>
+<h3>4.1 Overall structure</h3>
+<p>The input is RGB-D historical observations from two camera views, and the output is a future RGB video and a future pointmap sequence. Pointmap is a 3D coordinate map corresponding to each pixel, so it carries geometric structure more directly than ordinary depth map. The model generates a pointmap of this perspective in the reference perspective $v_n$, and at the same time predicts the pointmap of another perspective $v_m$ into the coordinate system of $v_n$.</p>
+<figure>
+<img alt="4D video generation method" src="figures/figures_method.png"/>
+<figcaption>Figure 2: Methodological framework. The RGB branch generates videos from each perspective; the pointmap branch uses cross-attention in the U-Net decoder to share cross-view geometric information; after generating the 4D video, the pose tracker is used to extract the gripper 6DoF pose.</figcaption>
+</figure>
+<h3>4.2 RGB video diffusion backbone</h3>
+<p>Model features Stable Video Diffusion. Historical frames are first cast to latent space by the pretrained VAE encoder, U-Net diffusion model predicts future latent, and then decoded into future RGB frames by VAE decoder. Use a target similar to DDPM during training to directly predict clean latent: </p>
+<div class="callout">
+ $$L_{\text{diff}}(t') = \mathbb{E}\left[\|z_{t'}^{(0)} - f_{\theta}(z_{t'}^{(k)}, k)\|^2\right]$$
+ </div>
+<p>This part provides temporal prior: the model can take advantage of the motion smoothness and visual prior brought by large-scale video pre-training.</p>
+<h3>4.3 Geometry-consistent pointmap supervision</h3>
+<p>The core innovation is in 3D pointmap supervision. Given historical pointmaps of perspective $v_n$, Pointmap VAE encodes them into latent space, and then uses diffusion to predict future pointmaps. At the same time, the model also predicts future pointmaps from the second perspective $v_m$, but these points are not expressed in $v_m$'s own coordinate system, but are projected into the coordinate system of the reference perspective $v_n$, denoted as $X^{m \rightarrow n}_{t+1: t+h}$.</p>
+<p>During training, diffusion loss is applied to both the pointmap latent of this perspective and the pointmap latent of the projected perspective. The camera pose is used to define this projection relationship during training; during inference, the model can generate future pointmaps in the reference coordinate system based only on the initial RGB-D observations of each perspective, without the need for camera pose as input.</p>
+<h3>4.4 Multi-view cross-attention</h3>
+<p>RGB video allows each view to be generated in its own coordinate system; however, pointmap predictions must explicitly align the cross-view geometry. To this end, the author uses two independent U-Net decoder branches, and adds cross-attention after each decoder block of the view $v_m$ branch, so that the middle feature of $v_m$ attends to the corresponding feature of the reference view $v_n$.</p>
+<p>Appendix explains that a total of 12 new cross-attention layers have been added. Query comes from the feature map tokens of the decoder block of the $v_m$ branch, and the key/value comes from the feature map tokens of the corresponding block of the $v_n$ branch. This step is the direct cause of the obvious deterioration of "OURS w/o MV attn" in Table 1.</p>
+<h3>4.5 Joint temporal and 3D consistency objective</h3>
+<p>The complete loss is RGB diffusion loss plus pointmap 3D consistency loss over all future time steps and both views: </p>
+<div class="callout">
+ $$L = \sum_{t'=t+1}^{t+h} \left[ L^n_{\text{diff}}(t') + L^m_{\text{diff}}(t') + \lambda L_{\text{3D-diff}}(t') \right]$$
+ </div>
+<p>Experimental $\lambda = 1$. The Appendix also adds gripper-region reweighting: Use the gripper mask to downsample 8 times to latent resolution, weight the gripper region loss, and make the model pay more attention to the most critical regions for subsequent pose tracking.</p>
+<h3>4.6 Recovering robot motion from 4D video</h3>
+<p>After generating the future RGB-D, the author used FoundationPose to do 6DoF pose tracking. The input includes single-view RGB-D, initial frame target object mask, camera intrinsic parameters and gripper CAD model. The gripper pose is estimated from the two perspectives, and the result with a higher confidence score is selected, and then the reference perspective extrinsics is used to transfer to the global frame as the robot execution trajectory.</p>
+<p>Gripper open/close is not output directly by the model, but the left and right gripper fingers are segmented from the generated RGB-D, projected into a 3D point cloud and the distance between the two finger centroids is calculated. Thresholds are set per task: 0.10 m for StoreCerealBoxUnderShelf, 0.06 m for PutSpatulaOnTable, and 0.12 m for PutAppleFromBowlIntoBin.</p>
+</section>
+<section id="s5">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Datasets and tasks</h3>
+<p>The simulation uses Toyota Research Institute's LBM simulation, based on Drake. The three desktop operation tasks are StoreCerealBoxUnderShelf, PutSpatulaOnTable, and PlaceAppleFromBowlIntoBin. There are 25 demonstrations per task, and each demo has RGB-D observations of 16 camera poses, so there are a total of 400 videos per task; 12 viewing angles for training and 4 viewing angles for testing, corresponding to 300 training camera angles and 100 test camera angles.</p>
+<p>The real dataset contains 4 tasks collected by two Franka Panda arms: AddOrangeSlicesToBowl, PutCupOnSaucer, TwistCapOffBottle, PutSpatulaOnTable. 20 teleoperation demonstrations per mission, using two FRAMOS D415e cameras to simultaneously capture RGB-D sequences.</p>
+<figure>
+<img alt="Simulation tasks" src="figures/figures_tasks.png"/>
+<figcaption>Figure 6 / Figure 8: Simulation and real tasks. The simulation includes placing cereal boxes under the shelf, placing spatula, and carrying apples with both arms; real tasks include orange slices, cups and saucers, twisting bottle caps, placing spatula, etc.</figcaption>
+</figure>
+<h3>5.2 4D video generation indicators</h3>
+<table>
+<tr><th>Assessment Dimensions</th><th>indicator</th><th>meaning</th></tr>
+<tr><td>RGB video quality</td><td>FVD-n, FVD-m</td><td>Measure the Fréchet Video Distance of the reference view and second view generated video from the real video respectively, the lower the better.</td></tr>
+<tr><td>Depth quality</td><td>AbsRel-n/m, δ1-n/m</td><td>Take the z value from predicted pointmaps as depth and compare it with the true depth; the lower AbsRel, the better, and the higher δ1, the better.</td></tr>
+<tr><td>Cross-view 3D consistency</td><td>mIoU</td><td>Use SAM2 to track the gripper mask, lift the reference perspective mask to 3D and reproject it to another perspective, and calculate IoU with the original gripper mask box. The higher the IoU, the stronger the cross-view alignment.</td></tr>
+</table>
+<p>Baselines include OURS w/o MV attn, 4D Gaussian, SVD, SVD w/ MV attn. All models are trained on the same multi-view RGB-D video dataset and tested on novel viewpoints.</p>
+<h3>5.3 4D video generation main results</h3>
+<p>Table 1 shows that the method in this article achieves the highest cross-view consistency overall on three simulation tasks and real multi-task data sets, and is overall better than baselines in RGB FVD and depth AbsRel / δ1. Several representative values are as follows: </p>
+<table>
+<tr><th>Setting</th><th>OURS mIoU</th><th>OURS w/o MV attn mIoU</th><th>4D Gaussian mIoU</th><th>Brief interpretation</th></tr>
+<tr><td>StoreCerealBoxUnderShelf</td><td>0.70</td><td>0.41</td><td>0.39</td><td>Cross-view attention is critical for severe occlusion tasks.</td></tr>
+<tr><td>PutSpatulaOnTable</td><td>0.69</td><td>0.44</td><td>0.46</td><td>OURS maintains low FVD and high depth accuracy simultaneously.</td></tr>
+<tr><td>PlaceAppleFromBowlIntoBin</td><td>0.64</td><td>0.26</td><td>0.44</td><td>After removing MV attention in the long-duration dual-arm task, the consistency obviously collapsed.</td></tr>
+<tr><td>Real-world multi-task</td><td>0.56</td><td>0.32</td><td>0.00</td><td>The cross-view consistency of 4D Gaussian in real scenes almost breaks down.</td></tr>
+</table>
+<figure>
+<img alt="Main generation results" src="figures/figures_result-main.png"/>
+<figcaption>Figure 3 / Figure 4: Qualitative results. This method generates more stable RGB-D sequences under novel camera views; baselines often suffer from cross-view misalignment, RGB blur, or depth artifacts.</figcaption>
+</figure>
+<h3>5.4 Robot strategy results</h3>
+<p>Robot strategy evaluation was performed on three simulation tasks. Each task is tested 30 times rollouts, the initial object pose has not been seen, and the camera perspective is also from the novel viewpoints of the test set. The generative model inputs the RGB-D of two novel camera views, generates 10 future frames, and FoundationPose extracts the dual-arm gripper 6DoF trajectory. Execution is a piecewise open-loop: after executing a piece, re-inference with updated RGB-D.</p>
+<table>
+<tr><th>Method</th><th>Task 1</th><th>Task 2</th><th>Task 3</th><th>Avg</th></tr>
+<tr><td>Dreamitate</td><td>0.10</td><td>0.17</td><td>0.10</td><td>0.12</td></tr>
+<tr><td>Diffusion Policy</td><td>0.10</td><td>0.27</td><td>0.00</td><td>0.12</td></tr>
+<tr><td>DP3</td><td>0.23</td><td>0.27</td><td>0.00</td><td>0.25</td></tr>
+<tr><td><strong>OURS</strong></td><td><strong>0.73</strong></td><td><strong>0.67</strong></td><td><strong>0.53</strong></td><td><strong>0.64</strong></td></tr>
+</table>
+<p>Dreamitate does not predict depth and lacks geometric consistency supervision, resulting in poor quality of extracted poses. Even with multi-view training, Diffusion Policy is difficult to generalize to novel viewpoints because it does not explicitly model cross-view geometric correspondence. Task 1 is slightly better after DP3 uses RGB-D point cloud input, but it has limited help in grabbing small objects. The method in this paper generates RGB-D and explicitly tracks the gripper pose, resulting in higher motion accuracy.</p>
+<h3>5.5 Resources and Efficiency</h3>
+<table>
+<tr><th>Method</th><th>Inference Time</th><th>Training Memory</th><th>Trainable Parameters</th></tr>
+<tr><td>OURS</td><td>30.0 s</td><td>47 G</td><td>2.4 B</td></tr>
+<tr><td>OURS w/o MV attn</td><td>29.3 s</td><td>46.5 G</td><td>2.38 B</td></tr>
+<tr><td>4D Gaussian</td><td>2 s</td><td>2813 M</td><td>856, 774</td></tr>
+<tr><td>SVD (Dreamitate)</td><td>13.4 s</td><td>45.8 G</td><td>1.54 B</td></tr>
+<tr><td>SVD w/ MV attn</td><td>15.1 s</td><td>46.3 G</td><td>2.4 B</td></tr>
+</table>
+<p>OURS is significantly slower, but in exchange for RGB-D quality and geometric consistency. The author also admits that generating 10 frames in 30 seconds is still too slow for a closed-loop reactive policy.</p>
+</section>
+<section id="s6">
+<h2>6. reproducibility and implementation details</h2>
+<div class="cols">
+<div class="mini">
+<h3>Model input</h3>
+<p>Actually use the latest observation and repeat $h=10$ times to match the number of future frames to predict. Both RGB VAE and pointmap VAE produce $h \times c \times w' \times h'$ latent, among which $h=10$, $c=4$, $w'=32$, $h'=40$.</p>
+</div>
+<div class="mini">
+<h3>U-Net input</h3>
+<p>The RGB / pointmap condition latent is concatenated with the future noisy latent along the channel to form the $h \times 16 \times 32 \times 40$ input tensor.</p>
+</div>
+<div class="mini">
+<h3>Cross-attention</h3>
+<p>Cross-attention is added after each decoder block of the $v_m$ branch, a total of 12 layers; the query comes from $v_m$, and the key/value comes from the reference perspective $v_n$.</p>
+</div>
+<div class="mini">
+<h3>Gripper reweighting</h3>
+<p>Use simulation segmentation or real scene SAM2 to obtain the gripper mask, downsample 8 times to latent resolution, and weight the gripper area loss to improve the quality of the area required for pose tracking.</p>
+</div>
+<div class="mini">
+<h3>training</h3>
+<p>Each task is trained individually for about 60 epochs, using 4 NVIDIA RTX A6000 48GB. Full U-Net fine-tune, learning rate is $1 \times 10^{-5}$, AdamW, batch size 4; image and pointmap VAE encoders frozen.</p>
+</div>
+<div class="mini">
+<h3>reasoning</h3>
+<p>Using EulerEDMSampler, 25 denoising steps. Generating model and pose tracker in robot deployment ran on a single NVIDIA GeForce RTX 4090; 10 future frames in ~30 seconds.</p>
+</div>
+</div>
+<h3>camera sampling</h3>
+<p>The camera sampling in the Appendix uses a hemispherical shell: the inner radius is $r_1=0.7$m, the outer radius is $r_2=1.2$m, and the center is the desktop world coordinate origin; the limit range is $0.2 \le x \le 0.6$m, $-0.5 \le y \le 0.5$m, and $0.7 \le z \le 1.2$m. Each episode randomly samples 16 camera poses, with separate training and testing perspectives.</p>
+<figure>
+<img alt="Camera sampling visualization" src="figures/figures_camera-vis.png"/>
+<figcaption>Figure 7: Camera sampling visualization. The green camera is used for training, the red camera is used for evaluation, and the novel viewpoint generalization is investigated during testing.</figcaption>
+</figure>
+<div class="callout warn">
+<strong>Source code status: </strong>The arXiv source package mainly contains pictures and a legend in LaTeX. The text LaTeX is not fully provided with the source package. The main text of this report and appendix content are mainly based on <code>tmp/pdf_text_2507.01099.txt</code>, pictures from <code>Report/2507.01099/figures/</code>. 
+ </div>
+</section>
+<section id="s7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable aspect is advancing "robot-usable video generation" from RGB appearance to the geometric consistency of RGB-D/pointmap. Many video world models are successful as long as they look coherent, but robots need to extract executable trajectories from videos; this article explicitly takes cross-view 3D alignment as a training goal and proves that this can improve the success rate of FoundationPose's task after extracting end trajectories.</p>
+<p>The second value is that it gives a very clear robot pipeline: 4D generation is not the end point, followed by pose tracking, gripper state inference and segmented open-loop execution. In this way, the paper can answer the question of "how does the generated video become action", rather than just showing beautiful future frames.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results hold up, first of all because the evaluation is split into two layers: build quality and downstream robot success rate. Table 1 uses FVD, AbsRel, δ1, and mIoU to simultaneously evaluate RGB, depth, and cross-view consistency; Table 2 further verifies whether these improvements can be converted into robot task success rates. Secondly, ablations directly hit the key design: after removing multi-view cross-attention, the mIoU and depth indicators dropped significantly, indicating that the improvement did not simply come from an increase in the number of parameters.</p>
+<p>The robot results are also convincing: baselines include the video generation route Dreamitate, the RGB behavioral cloning route Diffusion Policy, and the RGB-D point cloud route DP3, all tested on novel camera viewpoints. OURS average 0.64 vs. 0.12/0.12/0.25, the difference is large enough, consistent with the argument that "explicitly modeling geometric correspondence can improve perspective generalization".</p>
+<h3>7.3 Limitations</h3>
+<ul>
+<li><strong>High data requirements: </strong>Training requires RGB-D video data with multiple camera views. Easily generated in simulation, real-world acquisition will be limited by hardware, calibration and depth quality.</li>
+<li><strong>True depth quality is the bottleneck: </strong>RGB-D cameras will have noise in reflective, transparent, occlusion, and small object scenes, which directly affects pointmap supervision and pose tracking.</li>
+<li><strong>Reasoning is slow: </strong>The current generation of 10 frames takes about 30 seconds, which is much slower than the end-to-end BC policy and is not suitable for high-frequency closed-loop control.</li>
+<li><strong>Still relies on external pose tracker: </strong>The quality of the motion depends not only on the generated video, but also on FoundationPose's tracking capabilities of the gripper CAD and the quality of the mask.</li>
+<li><strong>Main robot strategy experiments in simulation: </strong>Real data demonstrates 4D generation quality, but downstream robot success rates are mainly reported in simulated tasks, and real closed-loop deployment still needs further validation.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<p>This method is suitable for tasks where multi-view RGB-D data is available, the target geometry can be represented by a pointmap, and the end effector can be stably tracked by a 6DoF tracker. It is not suitable for real-life scenarios that require high-frequency tactile feedback, strong contact dynamics, dynamic camera movements, or without reliable depth/camera calibration.</p>
+</section>
+<section id="s8">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: Why not directly use SVD to generate RGB video and then do pose tracking?</h3>
+<p>SVD only generates RGB, lacking depth and cross-view geometric consistency. Robot end pose tracking requires stable RGB-D and alignable geometries. In the experiment, the average success rate of the Dreamitate/SVD route was only 0.12, indicating that RGB video alone is not enough to support novel-view manipulation.</p>
+<h3>Q2: Why is pointmap more suitable here than depth map?</h3>
+<p>Depth only gives the distance along the camera ray of each pixel; pointmap gives the 3D coordinates of each pixel. When aligning across perspectives, pointmap can directly express "where the point in another perspective is after being projected to the reference coordinate system", and is more suitable for cross-view 3D supervision.</p>
+<h3>Q3: Camera pose is required during training, but why is it not required during inference?</h3>
+<p>During training, the camera pose is used to construct the supervision signal, that is, the pointmap of $v_m$ is projected into the $v_n$ coordinate system. During inference, the model has learned the mapping from RGB-D observations to reference coordinate system pointmaps, so it can predict aligned future pointmaps without taking camera pose as input.</p>
+<h3>Q4: How do robot movements come from generated videos?</h3>
+<p>After generating the RGB-D video, use FoundationPose to perform 6DoF pose tracking on the gripper CAD model. The two perspectives are tracked independently, the result with the highest confidence is taken, and then transferred to the global frame. Gripper opening and closing is judged by the 3D centroid distance threshold of the left and right fingers.</p>
+<h3>Q5: What is the relationship between this article and Dream2Flow/NovaFlow?</h3>
+<p>Dream2Flow / NovaFlow mainly distills the generated video into object flow, using object motion as the control interface; this article focuses more on the multi-view RGB-D geometric consistency of the generated video itself, and tracks the robot gripper pose from the generated video. All three are solving "how video generation becomes robot action", but the interface layer is different: object flow vs. gripper 6DoF pose trajectory.</p>
+</section>
+</main>
+</body>
+</html>

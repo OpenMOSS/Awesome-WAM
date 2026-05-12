@@ -1,0 +1,48 @@
+\section{Introduction}
+While generalist robot manipulation policies have advanced rapidly~\citep{[pi0, rt-2, kim24openvla, hu2023look, liu2025hybridvla, intelligence2025pi_, kim2025openvlaoft, team2025gemini, bjorck2025gr00t, zhao2025cot-vla, zhao2025vlas, zhen20243d}, evaluating their capabilities remains a significant challenge. 
+Consequently, generative world models have emerged as a scalable alternative to costly real-world execution or asset-heavy simulations for evaluating robot policies
+~\cite{li2025worldeval,guo2025ctrl,quevedo2506worldgym,team2025evaluating,ho20251x,huang2025enerverse,jiang2025enerverse,tseng2025scalable}.
+
+However, world models have not yet become reliable evaluation proxies for robotics policies, primarily because they often fail to accurately reflect robot actions and physical interactions. We attribute these failures to two main causes. First, existing models struggle to generalize to out-of-distribution (OOD) actions. Since they are typically trained on successful demonstrations, they tend to ignore erroneous actions and hallucinate successful outcomes due to a distribution shift. Second, physical inconsistency leads to unrealistic artifacts. For instance, rigid objects may visually warp during contact or vanish entirely due to spatiotemporal inconsistencies.
+
+
+
+%training datasets are typically dominated by successful trajectories. Consequently, world models are prone to hallucination—predicting successful outcomes even when the robot's action should have led to failure. Second, these models frequently violate physical laws during object interactions. For instance, rigid objects may visually warp during contact with the robot arm or disappear entirely due to spatiotemporal inconsistencies.
+
+
+%%fail to capture true physical dynamics. Failing to respect physical causality, they frequently hallucinate object deformation or disappearance during interaction, resulting in a breakdown of spatiotemporal consistency.
+
+
+%employing world models as reliable evaluation proxies remains challenging, as they often fail to mirror the faithful physics of real-world execution. First, since training datasets are predominantly composed of successful trajectories, models leveraging pre-trained video backbones inherit a strong bias toward task completion. Consequently, they tend to hallucinate success even when the input policy dictates a failure. Second, these models struggle to generalize to out-of-distribution (OOD) actions. This limitation leads to spatiotemporal drift—such as object warping or disappearance—that corrupt the simulation rollouts~\cite{li2025worldeval,guo2025ctrl,ho20251x}. Fundamentally, both failures stem from a lack of action controllability: the generated future is driven by the video prior rather than being causally governed by the robot's actions.
+
+
+While existing works attempt to mitigate this by incorporating failure trajectories, the effectiveness is limited as action coverage is infeasible~\cite{guo2025ctrl,ho20251x}. We argue that the bottleneck is fundamentally architectural. 
+Most existing approaches adapt architectures originally designed for video generation (e.g., image-to-video models).
+Since these backbones are not natively designed to take robotic actions as input, actions are merely injected as auxiliary conditions (e.g., via cross-attention or adaptive modulation like AdaLN) into the visual denoiser
+~\cite{li2025worldeval,guo2025ctrl,quevedo2506worldgym}.
+Given that these backbones are heavily pre-trained on massive video datasets, they inherit strong visual priors.
+Consequently, action signals act as weak guidance and are frequently overridden by these dominant priors, leading to hallucinated success or spatiotemporal drift.
+
+Motivated by this, we propose dWorldEval, a world model based on Masked Discrete Diffusion (MDD)~\cite{austin2021structured,sahoo2024simple,lou2023discrete,LLaDA,lavida,MMaDA}. 
+Unlike pre-trained video backbones, dWorldEval is trained from scratch on robotic data, treating actions and visual observations as equivalent tokens to ensure action controllability.
+Specifically, We map visual observations, language instructions, and action chunks into a unified token space, modeling them jointly via a self-attention backbone.
+To enable reliable policy evaluation, we incorporate a sparse keyframe memory that maintains spatiotemporal consistency by mitigating long-horizon drift. Additionally, we introduce a discrete progress token to quantify task completion; by jointly predicting this token with future observations, the model automatically determines success when progress reaches 1.
+
+In summary, we make three contributions:
+\begin{itemize}
+    \item We propose dWorldEval, a discrete-diffusion world model that significantly enhances action controllability, utilizing sparse keyframe memory to ensure spatiotemporal consistency.
+    \item We jointly predict visual outcomes and a discrete progress token to enable automatic success detection.
+    \item We conduct a systematic evaluation on LIBERO~\cite{liu2023libero}, RoboTwin~\cite{mu2025robotwin}, and real-world tasks. Extensive experiments confirm that dWorldEval achieves substantially better action controllability measured by our proposed action-sensitive $\Delta$-LPIPS metric. Furthermore, its estimated success rates correlate strongly with actual execution performance (Pearson $r \approx 0.9$), enabling accurate ranking of policies across capabilities.
+\end{itemize}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{figures/model.pdf}
+  \caption{
+    \textbf{Overview of dWorldEval.} 
+    \textbf{(a) Unified architecture:} Diverse modalities are flattened into a single sequence, enabling the model to treat visual, control, and semantic tokens uniformly.
+    \textbf{(b) Sparse keyframe memory:} A history of low-resolution keyframes is used to anchor global spatiotemporal consistency.
+    \textbf{(c) Discrete progress token:} The model jointly predicts visual outcomes and discrete progress tokens to enable automatic success detection.
+  }
+  \label{fig:model}
+\end{figure*}

@@ -1,0 +1,10 @@
+   \begin{figure}[tp]
+    \label{fig:teaser}
+      \centering
+      % \includegraphics[width=0.95\linewidth]{figure/RoboEnvision_Teaser.pdf}
+      \includegraphics[width=0.95\linewidth]{figure/RoboEnvission_teaser_with_action.pdf}
+      % \includegraphics[width=\linewidth]{figure/architecture.pdf}
+      \caption{\textit{Top}: Previous Works~\cite{unipi, avdc} predict short-horizon videos and estimate robot actions from them. Long horizon tasks are executed by cascading this approach sequentially along the time axis. \textit{Bottom}: Our RoboEnvision model, breaks down a high-level instruction into small atomic instructions with a VLM, generates a frame aligned with each one, and interpolates between them. A policy model estimates the robot joints based on the keyframes and a few interpolated frames in between.}
+      \label{teaser}
+      \vspace{-2em}
+   \end{figure}

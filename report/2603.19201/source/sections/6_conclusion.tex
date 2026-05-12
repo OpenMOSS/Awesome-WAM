@@ -1,0 +1,9 @@
+\section{Conclusion}
+In this work, we address two persistent bottlenecks in visuo-tactile manipulation: the scarcity of large-scale, task-diverse training data and the lack of methods that model contact dynamics explicitly while supporting closed-loop tactile control.
+On the data side, OmniViTac comprises $21{,}000+$ temporally aligned trajectories spanning $86$ contact-rich tasks organized into six physics-grounded interaction patterns. Systematic analysis of the dataset identifies two structural properties of tactile signals in manipulation, spatial locality, and contact-driven dynamics, which guided the architectural design of OmniVTA.
+On the methodology side, OmniVTA integrates self-supervised implicit tactile representation learning, short-horizon visuo-tactile world modeling, contact-aware multimodal fusion, and high-frequency reflexive control within a unified framework. Real-robot experiments across all six interaction categories demonstrate that OmniVTA consistently outperforms existing baselines, with clear advantages in generalization to unseen objects and geometric configurations and robustness to external disturbances.
+
+\section{Acknowledgments}
+We want to thank Xiangyu Chen, Yating Feng, Zhijie Yan, Xiang Xiao, Jingxiang Guo, and Yuxing Qin for their efforts in building the OmniViTac dataset.
+% \subsection{Limitation and future work}
+% This work has several limitations. While OmniViTac provides a comprehensive benchmark for single-arm, gripper-based tactile manipulation, it does not currently encompass the dual-arm setting or other end-effector types, such as dexterous hands. Future work will investigate scaling the world model with larger and more diverse data, extending the framework to dexterous hands and dual-arm manipulation, and exploring cross-embodiment transfer of the visuo-tactile representations.

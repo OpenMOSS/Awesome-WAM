@@ -1,0 +1,103 @@
+
+
+We first formalize the difficulty of direct action-space sampling
+by characterizing how the probability mass of feasible trajectories
+shrinks with the planning horizon.
+
+\begin{lemma}[Vanishing Feasible Mass in Trajectory Space]
+\label{lem:vanishing_mass}
+Let $\mathcal{X} = \mathcal{S}^H \times \mathcal{A}^H$ be a bounded trajectory space
+with ambient dimension
+\[
+D = H(\dim \mathcal{S} + \dim \mathcal{A}),
+\]
+equipped with a reference measure $\mu$.
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ be a compact subset
+with intrinsic dimension $d \ll D$.
+Then, for any fixed tolerance $\epsilon \in (0,1)$,
+there exists a constant $c > 0$ such that
+\begin{equation}
+\frac{\mu\big(\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}})\big)}{\mu(\mathcal{X})}
+\le \exp(-cH),
+\end{equation}
+where $\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}})$ denotes the $\epsilon$-neighborhood
+of $\mathcal{M}_{\mathrm{traj}}$.
+\end{lemma}
+
+\begin{proof}
+We work in the bounded trajectory space
+$\mathcal{X} \subset \mathbb{R}^D$
+equipped with the Lebesgue measure $\mu$.
+Let $\mathcal{M}_{\mathrm{traj}} \subset \mathcal{X}$ be compact
+with intrinsic dimension $d$.
+
+Fix any $\epsilon \in (0,1)$ and define
+\[
+\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}})
+=
+\{x \in \mathcal{X} \mid \inf_{y \in \mathcal{M}_{\mathrm{traj}}}
+\|x-y\|_2 \le \epsilon \}.
+\]
+
+By standard covering number arguments for compact sets,
+$\mathcal{M}_{\mathrm{traj}}$ can be covered by at most
+$N_\epsilon \le C_1 \epsilon^{-d}$ Euclidean balls of radius $\epsilon$,
+where $C_1 > 0$ is independent of $H$.
+Thus,
+\[
+\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}})
+\subset
+\bigcup_{i=1}^{N_\epsilon} B(y_i, 2\epsilon).
+\]
+
+Each such ball has $D$-dimensional volume proportional to $\epsilon^D$.
+Up to multiplicative factors that grow at most subexponentially with $D$,
+we obtain
+\[
+\mu(\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}}))
+\;\lesssim\;
+\epsilon^{D-d}.
+\]
+
+Since $\mathcal{X}$ is bounded, $\mu(\mathcal{X}) < \infty$.
+Moreover, the ambient dimension grows linearly with the horizon,
+\[
+D = H(\dim \mathcal{S} + \dim \mathcal{A}),
+\]
+while the intrinsic dimension of feasible trajectories is governed by
+physical and semantic constraints.
+We assume that
+\[
+d \le \lambda H
+\quad \text{for some } \lambda < \dim \mathcal{S} + \dim \mathcal{A},
+\]
+so that there exists $\kappa > 0$ satisfying $D - d \ge \kappa H$.
+
+Since $\log \epsilon < 0$, it follows that
+\[
+\epsilon^{D-d}
+=
+\exp\!\big((D-d)\log \epsilon\big)
+\le
+\exp\!\big(-\kappa H |\log \epsilon|\big).
+\]
+
+Absorbing constant and subexponential terms into the exponent,
+there exists $c>0$ such that
+\[
+\frac{\mu(\mathcal{N}_\epsilon(\mathcal{M}_{\mathrm{traj}}))}{\mu(\mathcal{X})}
+\le \exp(-cH),
+\]
+which completes the proof.
+\end{proof}
+
+\paragraph{Discussion.}
+Lemma~\ref{lem:vanishing_mass} states that,
+under uniform exploration of the trajectory space,
+the probability of encountering even an approximately feasible trajectory
+decays exponentially with the planning horizon.
+This phenomenon arises from the mismatch between the rapidly growing ambient dimension
+and the low intrinsic dimensionality of feasible behaviors,
+and captures a fundamental scaling challenge faced by long-horizon
+action-space planning.
+

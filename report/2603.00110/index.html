@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhysGen - arXiv:2603.00110 精读报告</title>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
+</head>
+<body>
+<main>
+<header>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div class="title-wrap">
+      <h1>Learning Physics from Pretrained Video Models: A Multimodal Continuous and Sequential World Interaction Models for Robotic Manipulation</h1>
+      <p class="subtitle">arXiv:2603.00110 中文精读报告 - PhysGen / 面向 junior PhD 组会准备</p>
+      <div class="meta">
+        <span class="pill">Zijian Song, Qichang Li, Sihan Qin et al.</span>
+        <span class="pill">Sun Yat-sen University / X-Era AI Lab / GDUT</span>
+        <span class="pill">Video Generation as World Interaction Model</span>
+        <span class="pill">Continuous Physical Tokens</span>
+        <span class="pill">732M parameters</span>
+      </div>
+    </div>
+  </header>
+
+<nav class="toc">
+      <a href="#overview">1. 论文速览</a>
+      <a href="#motivation">2. 动机与问题</a>
+      <a href="#related">3. 相关工作定位</a>
+      <a href="#prelim">4. 预备知识</a>
+      <a href="#method">5. 方法详解</a>
+      <a href="#experiments">6. 实验与复现</a>
+      <a href="#discussion">7. 讨论与局限</a>
+      <a href="#questions">8. 组会追问</a>
+      <a href="#repro">9. 复现信息</a>
+    </nav>
+<article>
+      <section id="overview">
+        <h2>1. 论文速览</h2>
+        <p class="lead">PhysGen 的核心想法是：不要只把预训练语言模型当机器人策略的“大脑”，也可以把预训练自回归视频生成模型当作一个隐式物理模拟器。模型把视觉帧和动作块投到同一个连续 physical token 空间，用 causal transformer 预测下一组“视觉+动作”token，再用扩散式 de-tokenizer 还原未来图像和可执行动作。</p>
+
+        <table>
+          <tr><th>论文要解决什么</th><td>机器人操作缺少大规模动作示教数据；VLA 依赖 LLM/VLM 的符号知识，但操作需要连续空间、时间和物理交互。作者希望从视频生成模型中迁移“物体会怎样运动”的物理先验，用较少机器人数据学控制。</td></tr>
+          <tr><th>作者的方法抓手</th><td>基于 NOVA 自回归视频生成 backbone，提出 PhysGen：将视频帧 token 与 action chunk token 拼成 physical token；用连续扩散 de-tokenizer 建模视觉和动作分布；加入 inverse-kinematics causal mask、Lookahead Multi-Token Prediction、LoRA 训练和 KV-cache 推理。</td></tr>
+          <tr><th>最重要的结果</th><td>LIBERO 平均成功率 90.8%，高于 OpenVLA 77%、WorldVLA 82%、Pi0-Fast 86%；ManiSkill 平均 74%，PushCube 达 100%；真实 Franka Panda 四任务平均 75%，与 Pi0 持平，并在透明物体抓取上 75% vs Pi0 70%。</td></tr>
+          <tr><th>阅读时要注意的点</th><td>“视频生成模型当物理模拟器”是强主张，但实现上不是直接拿视频生成结果规划，而是把视频生成 backbone 改成 joint video-action autoregression。核心证据来自连续 token、视频预训练、AR rollout、L-MTP 的消融。</td></tr>
+        </table>
+
+        <div class="grid three">
+          <div class="card"><div class="kpi">90.8%</div><div class="kpi-label">LIBERO 平均成功率</div></div>
+          <div class="card"><div class="kpi">+13.8%</div><div class="kpi-label">相对 OpenVLA 的 LIBERO 绝对提升</div></div>
+          <div class="card"><div class="kpi">60h</div><div class="kpi-label">最长微调约单卡 A100 训练时间</div></div>
+        </div>
+
+        <figure>
+          <img src="figures/world_evolve1_p1.png" alt="PhysGen framework">
+          <figcaption>PhysGen 框架：模型与真实环境同步运行，每一步预测下一段视觉状态与动作，执行动作后再把环境反馈编码回 token 流，形成连续的 perception-planning-execution loop。</figcaption>
+        </figure>
+      </section>
+
+      <section id="motivation">
+        <h2>2. 动机与问题</h2>
+        <h3>2.1 为什么不是继续堆动作数据</h3>
+        <p>论文从机器人数据稀缺出发：大规模 generative pretraining 在 NLP 和视觉里能带来跨任务泛化，但机器人动作示教昂贵、耗时、硬件强相关。VLA 方法把 LLM/VLM 接到 action head 上，能迁移语言和视觉知识，但 text/action 之间存在模态鸿沟：语言是符号描述，机器人动作是连续、几何、时间敏感的控制信号。</p>
+        <p>作者认为视频生成模型更接近机器人需要的知识：视频模型必须从历史帧预测未来帧，因此隐式学习 object permanence、接触后的运动趋势、时间一致性等物理先验。自回归视频生成尤其像控制中的 sequential decision process，因为它一步步滚动预测未来。</p>
+
+        <h3>2.2 传统 tokenization 的问题</h3>
+        <p>许多 autoregressive 模型依赖离散 token。离散化对语言自然，但图像 latent 和动作本质是连续信号，量化会带来 resolution error。对机器人来说，小的动作量化误差可能在长时序中累积成轨迹漂移。PhysGen 因此主张连续 token：视觉和动作都在连续 embedding 空间建模，再用 diffusion loss 学条件分布。</p>
+
+        <div class="note">
+          <strong>一句话版本：</strong>PhysGen 不是让机器人“读懂语言后做动作”，而是让机器人“借用视频生成模型的世界演化先验”，在连续 physical token 空间里同步预测未来画面和动作。
+        </div>
+      </section>
+
+      <section id="related">
+        <h2>3. 相关工作定位</h2>
+        <table>
+          <tr><th>方向</th><th>代表方法</th><th>作者如何定位 PhysGen</th></tr>
+          <tr><td>Vision-Language-Action Models</td><td>RT 系列、OpenVLA、$\pi_0$、GR00T 等</td><td>这些方法多从 LLM/VLM 迁移知识，再接 action head。PhysGen 同样用 autoregressive 架构，但 backbone 来自视频生成模型而不是语言模型。</td></tr>
+          <tr><td>Video-Action Joint Prediction</td><td>WorldVLA、UWM、UniMimic、UVA 等</td><td>已有工作联合预测视觉和动作，但 PhysGen 强调 step-by-step physical autoregression，并用共享连续 token 表征来减小离散化误差。</td></tr>
+          <tr><td>Non-Quantized Autoregressive Models</td><td>MAR、NOVA 等</td><td>MAR 用 denoising process 建模连续 token 条件分布；NOVA 将其扩展到视频生成。PhysGen 在此基础上加入 action token，变成统一视觉-动作自回归。</td></tr>
+        </table>
+        <figure>
+          <img src="figures/phytransformer1a_p1.png" alt="PhysGen architecture main">
+          <figcaption>PhysGen 主架构：从语言 token 开始，用 Causal Transformer 自回归预测 physical tokens；frame diffusion 与 action diffusion 分别估计视觉和动作的连续条件分布。</figcaption>
+        </figure>
+      </section>
+
+      <section id="prelim">
+        <h2>4. 预备知识</h2>
+        <h3>4.1 Diffusion loss 如何作为连续 token 的概率模型</h3>
+        <p>普通扩散模型把干净样本 $x_0$ 逐步加噪：</p>
+        <p>$$q(x_t \mid x_{t-1})=\mathcal{N}(x_t;\sqrt{1-\beta_t}x_{t-1},\beta_t I).$$</p>
+        <p>训练目标是让网络预测注入的噪声：</p>
+        <p>$$L(\theta)=\mathbb{E}_{t,x_0,\epsilon}\left[\left\|\epsilon-\epsilon_\theta(\sqrt{\bar{\alpha}_t}x_0+\sqrt{1-\bar{\alpha}_t}\epsilon,t)\right\|^2\right].$$</p>
+        <p>MAR/NOVA 的关键启发是：给定 autoregressive context $z$，可以不用把连续信号量化成离散词表，而是直接训练 denoiser $\epsilon_\theta(x_t|t,z)$ 学 $p(x|z)$：</p>
+        <p>$$\mathcal{L}(z,x)=\mathbb{E}_{\epsilon,t}\left[\|\epsilon-\epsilon_\theta(x_t|t,z)\|^2\right].$$</p>
+        <p>PhysGen 把这个思想用于 frame token 和 action token 的 de-tokenization。</p>
+
+        <h3>4.2 NOVA 提供了什么</h3>
+        <p>NOVA 是连续、非量化的自回归视频生成模型。它按时间建模：</p>
+        <p>$$p(l,S_1,\dots,S_N)=\prod_{n=1}^{N}p(S_n|l,S_1,\dots,S_{n-1}),$$</p>
+        <p>并在帧内以 token set 的形式自回归生成。PhysGen 保留 NOVA 的语言与视觉 embedding 机制，让它继承视频预训练里的世界动态知识，然后新增动作 token 和动作扩散 de-tokenizer。</p>
+      </section>
+
+      <section id="method">
+        <h2>5. 方法详解</h2>
+        <h3>5.1 输入输出：从历史视觉和动作预测下一步</h3>
+        <p>在第 $n$ 步，PhysGen 输入任务指令 $l$、历史图像 $\{O_0,\dots,O_{N-1}\}$ 与对应动作块 $\{A_1,\dots,A_{N-1}\}$，输出下一帧视觉状态 $O_N$ 和下一段动作块 $A_N$。每个动作块 $A_n$ 包含 $L$ 个连续动作，实验中 $L=8$。</p>
+        <p>这种 formulation 的意义是：模型不是只预测动作，而是预测“动作和环境一起怎样演化”。这让它更像 predictive world interaction model，而不是纯 policy head。</p>
+
+        <h3>5.2 Tokenizer：把语言、视觉、动作放进同一空间</h3>
+        <table>
+          <tr><th>模态</th><th>编码方式</th><th>是否冻结</th><th>输出</th></tr>
+          <tr><td>语言指令</td><td>Phi language model tokenizer/encoder</td><td>冻结</td><td>$E_l\in\mathbb{R}^{K_l\times d}$</td></tr>
+          <tr><td>视觉帧</td><td>NOVA 原有 3D-VAE，flatten 成 frame tokens</td><td>冻结</td><td>$E_{O,n}\in\mathbb{R}^{K_O\times d}$</td></tr>
+          <tr><td>动作块</td><td>MLP action tokenizer</td><td>训练</td><td>$E_{A,n}\in\mathbb{R}^{K_A\times d}$，其中 $K_A=L$</td></tr>
+        </table>
+        <p>每个 physical token 由视觉 token 和动作 token 沿序列维拼接：</p>
+        <p>$$P_n=[E_{O,n};E_{A,n}],\quad P_n\in\mathbb{R}^{(K_O+K_A)\times d}.$$</p>
+        <p>由于观察先于动作，作者在动作序列前加入一个 learnable Begin-of-Action token 来对齐长度。</p>
+
+        <h3>5.3 Physical Autoregression</h3>
+        <p>PhysGen 沿用 LLM 的 token-by-token autoregression，但 token 现在代表视觉和动作的联合物理状态：</p>
+        <p>$$p(E_l,P_0,\dots,P_N)=\prod_{n=0}^{N}p(P_n|E_l,P_0,\dots,P_{n-1}).$$</p>
+        <p>条件分布由复制 NOVA 架构的 Causal Transformer 参数化。Transformer 输出条件向量 $Z_n$：</p>
+        <p>$$Z_n=\mathrm{Transformer}(l,P_0,\dots,P_{n-1}).$$</p>
+
+        <h3>5.4 De-tokenizer：连续扩散还原视觉和动作</h3>
+        <p>给定 $Z_n$，PhysGen 用 DiT-based denoising process 估计 $p(P_n|Z_n)$：</p>
+        <p>$$\mathcal{L}(P_n,Z_n)=\mathbb{E}_{\epsilon,t}\left[\|\epsilon-\epsilon_\theta(P_{n,t}|t,Z_n)\|^2\right].$$</p>
+        <p>反向采样形式为：</p>
+        <p>$$P_{n,t-1}=\frac{1}{\sqrt{\alpha_t}}\left(P_{n,t}-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon_\theta(P_{n,t}|t,Z_n)\right)+\sigma_t\delta.$$</p>
+        <p>视觉和动作的 de-tokenization 分开做：frame token 使用 NOVA 的重建范式；action token 使用轻量 Action-DiT，条件向量通过 cross-attention 注入。</p>
+        <figure>
+          <img src="figures/phytransformer1b_p1.png" alt="Action diffusion network">
+          <figcaption>Action diffusion network：预测 token 作为条件向量，通过 cross-attention 注入动作 denoiser。</figcaption>
+        </figure>
+
+        <h3>5.5 Causal Mask 与隐式逆运动学</h3>
+        <p>PhysGen 的 attention mask 是为“帧+动作”的联合 token 设计的。</p>
+        <ul>
+          <li>frame part 使用 chunk-wise full attention：同一帧内 patch 可以互相注意。</li>
+          <li>action part 使用 temporal causal attention：动作块内早期动作不能看后续动作。</li>
+          <li>action tokens 可以单向 attend 到 frame tokens：动作规划可以条件化于视觉状态，作者称其促进 implicit inverse kinematics。</li>
+          <li>跨 chunk 保持 temporal causality，避免未来信息泄漏。</li>
+        </ul>
+        <figure>
+          <img src="figures/attn_mask1_p1.png" alt="Causal attention mask">
+          <figcaption>因果 attention mask：frame token 在 chunk 内全连接，action token 对时间保持因果，同时单向读取视觉 token 以做 visually conditioned control。</figcaption>
+        </figure>
+
+        <h3>5.6 Lookahead Multi-Token Prediction</h3>
+        <p>L-MTP 把 lookahead action generation 和 Multi-Token Prediction 结合起来。每个自回归 step 中，action de-tokenizer 并行生成多个未来 token，论文实现中为 3 个 token。训练时监督所有预测 token；推理时只执行第一个 token，剩余 token 作为 lookahead 信息条件化后续预测。</p>
+        <p>这相当于让模型在执行当前动作时保留短期未来计划，缓解单 token rollout 的短视问题，并改善长时序一致性。</p>
+
+        <h3>5.7 训练目标与实现细节</h3>
+        <p>总损失是序列上 frame 与 action 的平均扩散损失：</p>
+        <p>$$loss=\sum_{n=1}^{N}\mathcal{L}(Z_n,P_n)=\sum_{n=1}^{N}\left(\mathcal{L}_{obs}(Z_n,E_{O,n})+\mathcal{L}_{act}(Z_n,E_{A,n})\right).$$</p>
+        <table>
+          <tr><th>项目</th><th>设置</th></tr>
+          <tr><td>动作块长度</td><td>$L=8$</td></tr>
+          <tr><td>Transformer 最大上下文</td><td>2096 tokens</td></tr>
+          <tr><td>上下文构成</td><td>256 language tokens + 5 个 physical token packages</td></tr>
+          <tr><td>每个 physical package</td><td>360 visual tokens + 8 action tokens</td></tr>
+          <tr><td>多视角输入</td><td>拼接为一张图，送入 VAE 和 AR transformer</td></tr>
+          <tr><td>训练效率</td><td>teacher forcing 全并行；Transformer backbone 使用 LoRA 微调</td></tr>
+          <tr><td>推理效率</td><td>KV-cache 缓存每层中间特征</td></tr>
+          <tr><td>硬件与时间</td><td>单张 NVIDIA A100-SXM4-80GB；最长训练 60 GPU hours</td></tr>
+          <tr><td>位置编码</td><td>RoPE；frame 与 action token 使用不同频率设置</td></tr>
+        </table>
+      </section>
+
+      <section id="experiments">
+        <h2>6. 实验与复现</h2>
+        <h3>6.1 LIBERO 仿真实验</h3>
+        <p>LIBERO 实验评估四个 suite：Spatial、Object、Goal、Long。每个 suite 约 400 demonstrations 微调，500 rollouts 评估，指标为 success rate。作者强调“no action pretraining”表示 backbone 没有在大规模 manipulation/action 数据上预训练。</p>
+        <table>
+          <tr><th>Method</th><th>Params</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr>
+          <tr><td>DP, w/o action pretraining</td><td>-</td><td>78</td><td>93</td><td>68</td><td>51</td><td>72</td></tr>
+          <tr><td>OpenVLA</td><td>7B</td><td>85</td><td>88</td><td>79</td><td>54</td><td>77</td></tr>
+          <tr><td>ThinkAct</td><td>7B</td><td>88</td><td>91</td><td>87</td><td>71</td><td>84</td></tr>
+          <tr><td>Pi0-Fast</td><td>3B</td><td><strong>96</strong></td><td>97</td><td>89</td><td>60</td><td>86</td></tr>
+          <tr><td>MolmoACT</td><td>7B</td><td>87</td><td>95</td><td>88</td><td>77</td><td>87</td></tr>
+          <tr><td>UniMimic, w/o action pretraining</td><td>~200M</td><td>71</td><td>79</td><td>67</td><td>29</td><td>62</td></tr>
+          <tr><td>WorldVLA, w/o action pretraining</td><td>7B</td><td>88</td><td>96</td><td>83</td><td>60</td><td>82</td></tr>
+          <tr><td><strong>PhysGen, w/o action pretraining</strong></td><td><strong>732M</strong></td><td>91.0</td><td><strong>99.6</strong></td><td><strong>93.8</strong></td><td><strong>78.8</strong></td><td><strong>90.8</strong></td></tr>
+        </table>
+        <p>结果解释重点：PhysGen 平均 90.8，不只超过 LLM/VLM-based baseline，也超过视觉生成预训练 baseline WorldVLA 8.8 个点；在 Long suite 上比 WorldVLA 高 18.8 个点，这支撑作者关于连续 AR 世界交互建模改善长时序一致性的 claim。唯一较弱项是 Spatial，低于 Pi0-Fast 的 96，作者将其归因于底层视频模型空间感知有限。</p>
+
+        <h3>6.2 ManiSkill 仿真实验</h3>
+        <p>ManiSkill 选择 PushCube、PickCube、StackCube 三个任务。每任务使用 1000 demonstrations 微调，125 rollouts 评估。</p>
+        <table>
+          <tr><th>Method</th><th>PushCube</th><th>PickCube</th><th>StackCube</th><th>Avg.</th></tr>
+          <tr><td>ACT</td><td>76</td><td>20</td><td>30</td><td>42</td></tr>
+          <tr><td>BC-T</td><td>98</td><td>4</td><td>14</td><td>39</td></tr>
+          <tr><td>DP</td><td>88</td><td>40</td><td><strong>80</strong></td><td>69</td></tr>
+          <tr><td>ICRT</td><td>77</td><td><strong>78</strong></td><td>30</td><td>62</td></tr>
+          <tr><td>RDT</td><td><strong>100</strong></td><td>77</td><td>74</td><td><strong>84</strong></td></tr>
+          <tr><td>Pi0</td><td><strong>100</strong></td><td>60</td><td>48</td><td>69</td></tr>
+          <tr><td><strong>PhysGen</strong></td><td><strong>100</strong></td><td>73</td><td>48</td><td>74</td></tr>
+        </table>
+        <p>ManiSkill 上 PhysGen 不如 RDT 平均高，但优于 ICRT 和 Pi0，尤其 PushCube 达 100%。这表明视频先验有帮助，但不等于在所有 manipulation setting 中全面超过 action-pretrained policy。</p>
+
+        <h3>6.3 真实机器人实验</h3>
+        <p>真实实验使用 Franka Panda，配两个 RealSense D415 摄像头，一个固定、一个腕部。四个任务是 Pick Cube、Press Button、Stack Cube、Pick Transparency。每任务收集 80-100 条 teleoperation demonstrations，评估 20 trials。ACT 从零训练，OpenVLA 和 Pi0 用官方 checkpoint 微调；PhysGen 只用这些收集数据微调，backbone 没有大规模动作预训练。</p>
+        <figure>
+          <img src="figures/real_world_exp2_p1.png" alt="Real-world manipulation visualization">
+          <figcaption>Franka Panda 真实任务：透明物体抓取、方块抓取、按按钮、堆叠方块。论文强调透明物体因反射和折射造成视觉歧义，更需要物理先验。</figcaption>
+        </figure>
+        <table>
+          <tr><th>Method</th><th>Pick Cube</th><th>Press Button</th><th>Stack Cube</th><th>Pick Transparency</th><th>Avg.</th></tr>
+          <tr><td>ACT</td><td>40</td><td>40</td><td>30</td><td>10</td><td>30</td></tr>
+          <tr><td>OpenVLA</td><td>30</td><td>25</td><td>10</td><td>0</td><td>16.3</td></tr>
+          <tr><td>Pi0</td><td><strong>85</strong></td><td><strong>85</strong></td><td><strong>60</strong></td><td>70</td><td><strong>75</strong></td></tr>
+          <tr><td><strong>PhysGen</strong></td><td>80</td><td><strong>85</strong></td><td><strong>60</strong></td><td><strong>75</strong></td><td><strong>75</strong></td></tr>
+        </table>
+
+        <h3>6.4 消融实验</h3>
+        <p>消融在 LIBERO-Object 上进行，指标为 success rate。</p>
+        <table>
+          <tr><th>Variant</th><th>Pretrain</th><th>Token</th><th>L-MTP</th><th>Backbone</th><th>SR</th><th>解释</th></tr>
+          <tr><td>PhysGen-Zero</td><td>No</td><td>continuous</td><td>+</td><td>AR</td><td>86.4</td><td>无视频预训练，作为检验 NOVA prior 的对照</td></tr>
+          <tr><td>PhysGen-Discrete</td><td>NOVA</td><td>discrete</td><td>+</td><td>AR</td><td>94.2</td><td>动作量化成离散词表，测试连续 token 价值</td></tr>
+          <tr><td>PhysGen-NoAR</td><td>NOVA</td><td>continuous</td><td>-</td><td>NoAR</td><td>95.0</td><td>去掉自回归 rollout，等价于 $N=1$ 单步映射</td></tr>
+          <tr><td>PhysGen-STP</td><td>NOVA</td><td>continuous</td><td>-</td><td>AR</td><td>96.8</td><td>单 token prediction，去掉 Lookahead-MTP</td></tr>
+          <tr><td><strong>PhysGen-Full</strong></td><td><strong>NOVA</strong></td><td><strong>continuous</strong></td><td><strong>+</strong></td><td><strong>AR</strong></td><td><strong>99.6</strong></td><td>完整模型</td></tr>
+        </table>
+        <p>消融对应四个结论：视频预训练带来 +13.2；连续 token 相对 discrete 带来 +5.4；AR 架构带来 +4.6；L-MTP 带来 +3.4。</p>
+
+        <h3>6.5 质性分析</h3>
+        <figure>
+          <img src="figures/vis_success3_p1.png" alt="Predicted videos and actual executions">
+          <figcaption>预测视频和实际执行对齐：每行展示 PhysGen 的预测视频与对应执行视频。作者认为二者在运动轨迹和关键动作时间上高度相似，说明视频 prior 成功迁移到动作规划。</figcaption>
+        </figure>
+        <figure>
+          <img src="figures/attn_map2_p1.png" alt="Attention map visualization">
+          <figcaption>注意力可视化：token-level attention 显示动作预测会选择性关注历史帧和动作 token；pixel-level attention 集中在方块、目标区和机械臂等任务关键区域。</figcaption>
+        </figure>
+      </section>
+
+      <section id="discussion">
+        <h2>7. 讨论与局限</h2>
+        <h3>7.1 这篇论文最有价值的地方</h3>
+        <p>最有价值的是它把“视频生成模型中有物理知识”这句话落成了一个可训练的机器人策略结构。它没有停在“生成视频再从视频中提动作”的间接路线，而是把动作直接并入自回归视频 token 流，让模型同时预测未来视觉和动作。这使得视频 prior、动作控制和序列规划在同一个模型内部交互。</p>
+        <p>第二个价值是连续 token。机器人动作和视觉 latent 的连续性非常重要，离散 token 在语言里自然，在控制里却容易产生精度损失。PhysGen 用扩散 de-tokenizer 学连续条件分布，在保持生成建模能力的同时避免硬量化。</p>
+
+        <h3>7.2 结果为什么站得住</h3>
+        <ul>
+          <li><strong>消融闭环比较完整：</strong>视频预训练、连续 token、自回归、L-MTP 分别有对应 ablation，且每项都有正收益。</li>
+          <li><strong>与强基线比较：</strong>LIBERO 上对比 OpenVLA、Pi0-Fast、WorldVLA、MolmoACT；真实实验对比 Pi0，说明不是只打弱 baseline。</li>
+          <li><strong>真实透明物体任务有辨识度：</strong>Pick Transparency 涉及反射/折射导致的视觉歧义，正好能测试视频物理先验是否帮助控制。</li>
+        </ul>
+
+        <h3>7.3 需要谨慎的地方</h3>
+        <div class="danger">
+          <p><strong>“视频模型=物理模拟器”仍是隐喻：</strong>视频生成模型学到的是视觉统计中的物理规律，不一定等价于可控、可验证的 dynamics model。它可能预测视觉合理但控制上错误的状态。</p>
+          <p><strong>真实实验规模较小：</strong>四个 Franka tabletop 任务、每任务 20 trials，可以证明可行性，但不足以说明广泛 real-world generalization。</p>
+          <p><strong>ManiSkill 并非全面领先：</strong>平均 74 低于 RDT 的 84，StackCube 也低于 DP/RDT。这说明没有动作预训练的视频先验不是所有场景的银弹。</p>
+          <p><strong>源码未包含实际附录：</strong>正文提到真实任务细节见 Appendix，但 LaTeX 中 appendix input 被注释掉。因此部分任务定义细节无法从源码进一步核查。</p>
+        </div>
+      </section>
+
+      <section id="questions">
+        <h2>8. 组会追问</h2>
+        <h3>Q1: PhysGen 和 WorldVLA/UWM 最大区别是什么？</h3>
+        <p>它们都关注 video-action joint prediction，但 PhysGen 明确采用 NOVA 式连续非量化自回归 backbone，把 frame token 和 action token 拼成 physical token，逐步预测世界和机器人共同演化；同时用 diffusion de-tokenizer 对连续视觉/动作分布建模。</p>
+
+        <h3>Q2: 为什么 action token 可以 attend 到 future visual states 不算泄漏？</h3>
+        <p>作者的意思是在同一个 physical chunk 内，动作规划可以读取对应视觉 token 表征，从而形成视觉条件化的逆运动学关系；跨 chunk 仍保持 temporal causal mask。这里要注意“future visual states”更像 chunk 内联合 token 的结构化条件，而不是无限制读取真实未来轨迹。</p>
+
+        <h3>Q3: L-MTP 推理时为什么只执行第一个 token？</h3>
+        <p>后续 token 用作 lookahead 信息，帮助当前预测具备更长规划视野；只执行第一个 token 可以保留 receding-horizon control 的反馈能力，下一步根据真实环境反馈重新预测。</p>
+
+        <h3>Q4: 连续 diffusion de-tokenizer 比 MLP regression 好在哪里？</h3>
+        <p>MLP regression 给出确定性点估计，容易平均化多模态动作。diffusion de-tokenizer 学的是条件分布 $p(P_n|Z_n)$，既保留连续精度，又保留生成模型表达多模态输出的能力。</p>
+
+        <h3>Q5: 如果复现，最容易踩坑的是哪里？</h3>
+        <p>一是 token 组织和 mask：language、5 个 physical package、每包 360 visual + 8 action token 必须对齐；二是 action de-tokenizer 的扩散采样和训练时对 $t$ 的多次采样；三是多视角拼接后与原始 NOVA VAE 的输入分布是否匹配。</p>
+      </section>
+
+      <section id="repro">
+        <h2>9. 复现信息</h2>
+        <h3>9.1 链接与代码状态</h3>
+        <ul>
+          <li>arXiv: <a href="https://arxiv.org/abs/2603.00110">https://arxiv.org/abs/2603.00110</a></li>
+          <li>Hugging Face paper page: <a href="https://huggingface.co/papers/2603.00110">https://huggingface.co/papers/2603.00110</a></li>
+          <li>源码 LaTeX 中未提供 PhysGen 官方代码仓库链接；Web 检索也未发现明确对应 `2603.00110` 的官方 GitHub。</li>
+        </ul>
+
+        <h3>9.2 最小复现配置速记</h3>
+        <pre><code>Backbone: NOVA autoregressive video generation model
+Language tokens: frozen Phi language model
+Visual tokenizer: frozen 3D-VAE from NOVA
+Action tokenizer: MLP, K_A = L = 8
+Physical token: concat(frame tokens, action tokens)
+Context length: 2096 = 256 language + 5 * (360 visual + 8 action)
+De-tokenizer: frame diffusion + Action-DiT action diffusion
+Training: teacher forcing, LoRA finetuning, 4 samples of t per image/action
+Inference: autoregressive rollout with KV-cache
+Hardware: single A100-SXM4-80GB, longest finetuning within 60 GPU hours</code></pre>
+
+        <h3>9.3 覆盖检查</h3>
+        <p>本报告已覆盖 Abstract、Introduction、Related Work、Preliminaries、Method、Experiment、Conclusion 的核心内容。源码包含 `\appendix` 但附录文件输入被注释，未发现实际附录正文可整合；报告已在相应位置说明这一点。</p>
+        <p class="small">生成日期：2026-05-08。源码包、PDF 与解压目录保留未清理，便于后续核查。</p>
+      </section>
+    </article>
+
+</main>
+</body>
+</html>
