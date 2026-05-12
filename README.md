@@ -1,17 +1,55 @@
 <div align="center">
 
-# World Action Models for Generalist Robotics: From Next Token Prediction to Next State Synthesis
+# World Action Models: The Next Frontier in Embodied AI
 
 [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2509.07996) [![ProjectPage](https://img.shields.io/badge/Website-Link-blue)](https://dreamzero0.github.io)
+
+<p align="center">
+  <a href="https://sinwang20.github.io/">Siyin Wang</a></strong><sup>1,2,*,‡</sup>,  
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Junhao Shi</a></strong><sup>1,2,*</sup>,  
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Zhaoyang Fu</a></strong><sup>1,*</sup>, 
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Xinzhe He</a></strong><sup>1,*</sup>,  
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Feihong Liu</a></strong><sup>1,*</sup>,<br>
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Chenchen Yang</a><sup>1,2</sup>, 
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Yikang Zhou</a><sup>2</sup>, 
+  <a href="https://github.com/OpenMOSS/Awesome-WAM">Zhaoye Fei</a><sup>1</sup>, 
+  <a href="https://scholar.google.com/citations?user=IlNreT4AAAAJ&hl=zh-TW">Jingjing Gong</a><sup>2</sup>, 
+  <a href="https://jinlanfu.github.io/">Jinlan Fu</a><sup>1</sup><br>,
+  <a href="https://sites.google.com/view/showlab">Mike Zheng Shou</a><sup>3</sup> · 
+  <a href="https://xuanjing-huang.github.io/">Xuanjing Huang</a><sup>1,2</sup> · 
+  <a href="https://xpqiu.github.io/">Xipeng Qiu</a><sup>1,2</sup> · 
+  <a href="https://teai.fudan.edu.cn/">Yu-Gang Jiang</a></strong><sup>1,†</sup>
+</p>
+
+<p align="center">
+  <sup>1</sup>Fudan University, 
+  <sup>2</sup>Shanghai Innovation Institute, 
+  <sup>3</sup>National University of Singapore<br>
+  <sup>*</sup>Equal Contribution,
+  <sup>‡</sup>Project Lead,
+  <sup>†</sup>Corresponding Author
+</p>
+
+
 
 </div>
 
 
-**写一下 introduction, Reading Skill 提一嘴**
+This repository accompanies our survey on **World Action Models (WAMs)** — the emerging paradigm that unifies predictive world modeling with action generation for embodied AI. We will keep this repo continuously updated as the field evolves.
+
+- 📄 The **first systematic WAM survey**, covering architecture taxonomy (Cascaded & Joint WAMs), training data, evaluation protocols, and world models for VLA learning.
+- 📖 **Reading blogs included**: we also provide a concise, structured summary blog for each paper to help you quickly grasp the key ideas, architecture, and contributions. The summarization skill used to generate them is also open-sourced in this repository.
+- 🤝 Community-driven: found a missing paper or have a suggestion? Feel free to open an issue or submit a pull request!
+
 
 <p align="center">
   <img src="figs/roadmap.svg" alt="Temporal evolution and taxonomy of representative works on World Action Models (WAMs). " width="100%">
 </p>
+
+
+## 🔔 News
+
+- **[2026-05-13]**  Initial release of the survey paper and repository.
 
 ## Contents
 
@@ -31,7 +69,7 @@
 ## Tag Legend
 ### World Action Model tags
 **Cascaded WAM**
-- ![](https://img.shields.io/badge/Pixel--Space-d97706) Pixel-space Representations
+- ![](https://img.shields.io/badge/Explicit-d97706) Pixel-space Representations
   - ![](https://img.shields.io/badge/Learned-b45309) Learned Action Extraction
   - ![](https://img.shields.io/badge/Geometric-fbbf24) Geometric Extraction
 - ![](https://img.shields.io/badge/Implicit-ea580c) Implicit Planning via Latent Representations
@@ -54,197 +92,100 @@
 
 ## World Action Model
 ### Cascaded World-Action-Model
-***
-#### UniPi - *Learning Universal Policies via Text-Guided Video Generation* - [![arXiv](https://img.shields.io/badge/arXiv-2302.00111-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2302.00111)
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
 
-[[🌍 Webpage](https://research.google/blog/unipi-learning-universal-policies-via-text-guided-video-generation/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UniPi/index.html) ]
-***
-#### VLP - *Video Language Planning* - [![arXiv](https://img.shields.io/badge/arXiv-2310.10625-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2310.10625)
+**UniPi**: "Learning Universal Policies via Text-Guided Video Generation", NeurIPS 2023. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://openreview.net/forum?id=bo8q5MRcwy)] [[🌍 Webpage](https://research.google/blog/unipi-learning-universal-policies-via-text-guided-video-generation/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UniPi/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**VLP**: "Video Language Planning", ICLR 2024. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://openreview.net/forum?id=9pKtcJcMP3)] [[🌍 Webpage](https://video-language-planning.github.io/)] [[💻 Code](https://github.com/video-language-planning/vlp_code)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VLP/index.html) ]
 
-[[🌍 Webpage](https://video-language-planning.github.io/)] · [[💻 Code](https://github.com/video-language-planning/vlp_code)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VLP/index.html) ]
-***
-#### RoboEnvision - *RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2506.22007-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.22007)
+**RoboEnvision**: "RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation", IROS 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=11246352)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RoboEnvision/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**ThisAndThat**: "This&That: Language-Gesture Controlled Video Generation for Robot Planning", ICRA 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=11128780)] [[🌍 Webpage](https://mvandermerwe.github.io/publication/this-and-that/)] [[💻 Code](https://github.com/Kiteretsu77/This_and_That_VDM)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/ThisAndThat/index.html) ]
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RoboEnvision/index.html) ]
-***
-#### ThisAndThat - *This&That: Language-Gesture Controlled Video Generation for Robot Planning* - [![arXiv](https://img.shields.io/badge/arXiv-2407.05530-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2407.05530)
+**SayDreamAct**: "Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://arxiv.org/pdf/2602.10717)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/SayDreamAct/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**TesserAct**: "TesserAct: Learning 4D Embodied World Models", ICCV 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://openaccess.thecvf.com/content/ICCV2025/papers/Zhen_Learning_4D_Embodied_World_Models_ICCV_2025_paper.pdf)] [[🌍 Webpage](https://tesseractworld.github.io/)] [[💻 Code](https://github.com/UMass-Embodied-AGI/TesserAct)] [[🤗 Model](https://huggingface.co/anyeZHY/tesseract)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/TesserAct/index.html) ]
 
-[[🌍 Webpage](https://mvandermerwe.github.io/publication/this-and-that/)] · [[💻 Code](https://github.com/Kiteretsu77/This_and_That_VDM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/ThisAndThat/index.html) ]
-***
-#### SayDreamAct - *Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2602.10717-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.10717)
+**MVISTA-4D**: "MVISTA-4D: View-Consistent 4D World Model with Test-Time Action Inference for Robotic Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://arxiv.org/pdf/2602.09878)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/MVISTA-4D/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**Vidar**: "Vidar: Embodied Video Diffusion Model for Generalist Bimanual Manipulation", arXiv 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://arxiv.org/pdf/2507.12898)] [[🌍 Webpage](https://embodiedfoundation.github.io/vidar_anypos)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Vidar/index.html) ]
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/SayDreamAct/index.html) ]
-***
-#### TesserAct - *TesserAct: Learning 4D Embodied World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2504.20995-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2504.20995)
+**Gen2Act**: "Gen2Act: Human Video Generation in Novel Scenarios Enables Generalizable Robot Manipulation", CoRL 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://openreview.net/forum?id=HprBJupvvM)] [[🌍 Webpage](https://homangab.github.io/gen2act/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Gen2Act/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**Veo-Act**: "Veo-Act: How Far Can Frontier Video Models Advance Generalizable Robot Manipulation?", arXiv 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://arxiv.org/pdf/2604.04502)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.04502/index.html)]
 
-[[🌍 Webpage](https://tesseractworld.github.io/)] · [[💻 Code](https://github.com/UMass-Embodied-AGI/TesserAct)] · [[🤗 Model](https://huggingface.co/anyeZHY/tesseract)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/TesserAct/index.html) ]
-***
-#### MVISTA-4D - *MVISTA-4D: View-Consistent 4D World Model with Test-Time Action Inference for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2602.09878-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.09878)
+**VAG**: "VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis", arXiv 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://arxiv.org/pdf/2604.09330)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.09330/index.html)]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**pi0.7**: "pi0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities", arXiv 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+[[📄 Paper](https://arxiv.org/pdf/2604.15483)] [[🌍 Webpage](https://pi.website/pi07)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.15483/index.html)]
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/MVISTA-4D/index.html) ]
-***
-#### Vidar - *Vidar: Embodied Video Diffusion Model for Generalist Bimanual Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2507.12898-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2507.12898)
+**AVDC**: "Learning to Act from Actionless Videos through Dense Correspondences", ICLR 2024. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://openreview.net/forum?id=Mhb5fpA1T0)] [[🌍 Webpage](https://flow-diffusion.github.io/)] [[💻 Code](https://github.com/flow-diffusion/AVDC)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/AVDC/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**Im2Flow2Act**: "Flow as the Cross-Domain Manipulation Interface", CoRL 2024. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://proceedings.mlr.press/v270/xu25a.html)] [[🌍 Webpage](https://im2flow2act.github.io/)] [[💻 Code](https://github.com/real-stanford/im2Flow2Act)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Im2Flow2Act/index.html) ]
 
-[[🌍 Webpage](https://embodiedfoundation.github.io/vidar_anypos)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Vidar/index.html) ]
-***
-#### Gen2Act - *Gen2Act: Human Video Generation in Novel Scenarios Enables Generalizable Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2409.16283-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2409.16283)
+**3DFlowAction**: "3DFlowAction: Learning Cross-Embodiment Manipulation from 3D Flow World Model", arXiv 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://arxiv.org/pdf/2506.06199)] [[💻 Code](https://github.com/Hoyyyaard/3DFlowAction/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/3DFlowAction/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**NovaFlow**: "NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos", arXiv 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://arxiv.org/pdf/2510.08568)] [[🌍 Webpage](https://novaflow.lhy.xyz/)] [[💻 Code](https://github.com/rai-opensource/NovaFlow)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/NovaFlow/index.html) ]
 
-[[🌍 Webpage](https://homangab.github.io/gen2act/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Gen2Act/index.html) ]
-***
-#### Veo-Act - *Veo-Act: How Far Can Frontier Video Models Advance Generalizable Robot Manipulation?* - [![arXiv](https://img.shields.io/badge/arXiv-2604.04502-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.04502)
+**Dream2Flow**: "Dream2Flow: Bridging Video Generation and Open-World Manipulation with 3D Object Flow", arXiv 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://arxiv.org/pdf/2512.24766)] [[🌍 Webpage](https://dream2flow.github.io/)] [[💻 Code](https://github.com/KDharmarajanDev/Dream2Flow/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dream2Flow/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**Dreamitate**: "Dreamitate: Real-World Visuomotor Policy Learning via Video Generation", CoRL 2024. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://proceedings.mlr.press/v270/liang25b.html)] [[🌍 Webpage](https://dreamitate.cs.columbia.edu/)] [[💻 Code](https://github.com/cvlab-columbia/dreamitate)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dreamitate/index.html) ]
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.04502/index.html)]
-***
-#### VAG - *VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis* - [![arXiv](https://img.shields.io/badge/arXiv-2604.09330-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.09330)
+**4DGen**: "Geometry-aware 4D Video Generation for Robot Manipulation", ICLR 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://openreview.net/forum?id=18gC6pZVVc)] [[🌍 Webpage](https://robot4dgen.github.io/)] [[💻 Code](https://github.com/lzylucy/4dgen)] [[🤗 Model](https://huggingface.co/Zeyi)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/4DGen/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**RIGVid**: "Robotic Manipulation by Imitating Generated Videos Without Physical Demonstrations", ICLR 2026. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://openreview.net/forum?id=tv0Sz8A9Tc)] [[🌍 Webpage](https://rigvid-robot.github.io/)] [[💻 Code](https://github.com/shivanshpatel35/rigvid)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RIGVid/index.html) ]
 
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.09330/index.html)]
-***
-#### pi0.7 - *pi0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities* - [![arXiv](https://img.shields.io/badge/arXiv-2604.15483-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.15483)
+**LV-P**: "Large Video Planner Enables Generalizable Robot Control", arXiv 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+[[📄 Paper](https://arxiv.org/pdf/2512.15840)] [[🌍 Webpage](https://www.boyuan.space/large-video-planner/)] [[💻 Code](https://github.com/buoyancy99/large-video-planner)] [[🤗 Model](https://huggingface.co/KempnerInstituteAI/LVP)] [[🌟 Blog](https://github.com/OpenMOSS/WAM-survey/blob/main/report/cn_enhance_ver2/LVP%20-%20Large%20Video%20Planner%20Enables%20Generalizable%20Robot%20Control%20(CN-Enhance2).md)]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+**VideoPolicy**: "Video Generators are Robot Policies", arXiv 2025. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://arxiv.org/pdf/2508.00795)] [[🌍 Webpage](https://videopolicy.cs.columbia.edu/)] [[💻 Code](https://github.com/cvlab-columbia/videopolicy)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VideoPolicy/index.html) ]
 
-[[🌍 Webpage](https://pi.website/pi07)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.15483/index.html)]
-***
-#### AVDC - *Learning to Act from Actionless Videos through Dense Correspondences* - [![arXiv](https://img.shields.io/badge/arXiv-2310.08576-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2310.08576)
+**ARDuP**: "ARDuP: Active Region Video Diffusion for Universal Policies", IROS 2024. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://ieeexplore.ieee.org/document/10802264)] [[🌍 Webpage](https://rpl.cs.utexas.edu/publications/2024/10/14/huang-iros24-ardup/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/ARDuP/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+**mimic-video**: "mimic-video: Video-Action Models for Generalizable Robot Control Beyond VLAs", arXiv 2025. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://arxiv.org/pdf/2512.15692)] [[🌍 Webpage](https://mimic-video.github.io/)] [[💻 Code](https://github.com/mimic-video/mimic-video)] [[🤗 Model](https://huggingface.co/jonpai/mimic-video)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/mimic-video/index.html) ]
 
-[[🌍 Webpage](https://flow-diffusion.github.io/)] · [[💻 Code](https://github.com/flow-diffusion/AVDC)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/AVDC/index.html) ]
-***
-#### Im2Flow2Act - *Flow as the Cross-Domain Manipulation Interface* - [![arXiv](https://img.shields.io/badge/arXiv-2407.15208-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2407.15208)
+**VPP**: "Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations", ICML 2025. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://openreview.net/forum?id=c0dhw1du33)] [[🌍 Webpage](https://video-prediction-policy.github.io/)] [[💻 Code](https://github.com/roboterax/video-prediction-policy)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VPP/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+**VILP**: "VILP: Imitation Learning with Latent Video Planning", RA-L 2025. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10887293)] [[💻 Code](https://github.com/ZhengtongXu/VILP)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VILP/index.html) ]
 
-[[🌍 Webpage](https://im2flow2act.github.io/)] · [[💻 Code](https://github.com/real-stanford/im2Flow2Act)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Im2Flow2Act/index.html) ]
-***
-#### 3DFlowAction - *3DFlowAction: Learning Cross-Embodiment Manipulation from 3D Flow World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2506.06199-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.06199)
+**LaPA**: "Latent Action Pretraining from Videos", ICLR 2025. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://openreview.net/forum?id=VYOe2eBQeh)] [[🌍 Webpage](https://latentactionpretraining.github.io/)] [[💻 Code](https://github.com/LatentActionPretraining/LAPA)] [[🤗 Model](https://huggingface.co/latent-action-pretraining/LAPA-7B-openx)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/LaPA/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+**villa-X**: "villa-X: Enhancing Latent Action Modeling in Vision-Language-Action Models", ICLR 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://openreview.net/forum?id=y5CaJb17Fn)] [[🌍 Webpage](https://microsoft.github.io/villa-x/)] [[💻 Code](https://github.com/microsoft/villa-x)] [[🤗 Model](https://huggingface.co/microsoft/villa-x)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/villa-X/index.html) ]
 
-[[💻 Code](https://github.com/Hoyyyaard/3DFlowAction/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/3DFlowAction/index.html) ]
-***
-#### NovaFlow - *NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2510.08568-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.08568)
+**S-VAM**: "S-VAM: Shortcut Video-Action Model by Self-Distilling Geometric and Semantic Foresight", arXiv 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://arxiv.org/pdf/2603.16195)] [[🌍 Webpage](https://haodong-yan.github.io/S-VAM/)] [[💻 Code](https://github.com/Haodong-Yan/S-VAM-Code)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.16195/index.html)]
 
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
+**OmniVTA**: "OmniVTA: Visuo-Tactile World Modeling for Contact-Rich Robotic Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://arxiv.org/pdf/2603.19201)] [[🌍 Webpage](https://mrsecant.github.io/OmniVTA)] [[💻 Code](https://github.com/MrSecant/OmniVTA)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.19201/index.html)]
 
-[[🌍 Webpage](https://novaflow.lhy.xyz/)] · [[💻 Code](https://github.com/rai-opensource/NovaFlow)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/NovaFlow/index.html) ]
-***
-#### Dream2Flow - *Dream2Flow: Bridging Video Generation and Open-World Manipulation with 3D Object Flow* - [![arXiv](https://img.shields.io/badge/arXiv-2512.24766-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.24766)
-
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
-
-[[🌍 Webpage](https://dream2flow.github.io/)] · [[💻 Code](https://github.com/KDharmarajanDev/Dream2Flow/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dream2Flow/index.html) ]
-***
-#### Dreamitate - *Dreamitate: Real-World Visuomotor Policy Learning via Video Generation* - [![arXiv](https://img.shields.io/badge/arXiv-2406.16862-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2406.16862)
-
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
-
-[[🌍 Webpage](https://dreamitate.cs.columbia.edu/)] · [[💻 Code](https://github.com/cvlab-columbia/dreamitate)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Dreamitate/index.html) ]
-***
-#### 4DGen - *Geometry-aware 4D Video Generation for Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2507.01099-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2507.01099)
-
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
-
-[[🌍 Webpage](https://robot4dgen.github.io/)] · [[💻 Code](https://github.com/lzylucy/4dgen)] · [[🤗 Model](https://huggingface.co/Zeyi)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/4DGen/index.html) ]
-***
-#### RIGVid - *Robotic Manipulation by Imitating Generated Videos Without Physical Demonstrations* - [![arXiv](https://img.shields.io/badge/arXiv-2507.00990-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2507.00990)
-
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
-
-[[🌍 Webpage](https://rigvid-robot.github.io/)] · [[💻 Code](https://github.com/shivanshpatel35/rigvid)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RIGVid/index.html) ]
-***
-#### LV-P - *Large Video Planner Enables Generalizable Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2512.15840-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.15840)
-
-**Tags:** ![](https://img.shields.io/badge/Pixel--Space-d97706) ![](https://img.shields.io/badge/Geometric-fbbf24)
-
-[[🌍 Webpage](https://www.boyuan.space/large-video-planner/)] · [[💻 Code](https://github.com/buoyancy99/large-video-planner)] · [[🤗 Model](https://huggingface.co/KempnerInstituteAI/LVP)] · [[🌟 Summary](https://github.com/OpenMOSS/WAM-survey/blob/main/report/cn_enhance_ver2/LVP%20-%20Large%20Video%20Planner%20Enables%20Generalizable%20Robot%20Control%20(CN-Enhance2).md)]
-***
-#### VideoPolicy - *Video Generators are Robot Policies* - [![arXiv](https://img.shields.io/badge/arXiv-2508.00795-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2508.00795)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://videopolicy.cs.columbia.edu/)] · [[💻 Code](https://github.com/cvlab-columbia/videopolicy)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VideoPolicy/index.html) ]
-***
-#### ARDuP - *ARDuP: Active Region Video Diffusion for Universal Policies* - [![arXiv](https://img.shields.io/badge/arXiv-2406.13301-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2406.13301)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://rpl.cs.utexas.edu/publications/2024/10/14/huang-iros24-ardup/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/ARDuP/index.html) ]
-***
-#### mimic-video - *mimic-video: Video-Action Models for Generalizable Robot Control Beyond VLAs* - [![arXiv](https://img.shields.io/badge/arXiv-2512.15692-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.15692)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://mimic-video.github.io/)] · [[💻 Code](https://github.com/mimic-video/mimic-video)] · [[🤗 Model](https://huggingface.co/jonpai/mimic-video)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/mimic-video/index.html) ]
-***
-#### VPP - *Video Prediction Policy: A Generalist Robot Policy with Predictive Visual Representations* - [![arXiv](https://img.shields.io/badge/arXiv-2412.14803-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2412.14803)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://video-prediction-policy.github.io/)] · [[💻 Code](https://github.com/roboterax/video-prediction-policy)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VPP/index.html) ]
-***
-#### VILP - *VILP: Imitation Learning with Latent Video Planning* - [![arXiv](https://img.shields.io/badge/arXiv-2502.01784-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2502.01784)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[💻 Code](https://github.com/ZhengtongXu/VILP)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VILP/index.html) ]
-***
-#### LaPA - *Latent Action Pretraining from Videos* - [![arXiv](https://img.shields.io/badge/arXiv-2410.11758-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2410.11758)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://latentactionpretraining.github.io/)] · [[💻 Code](https://github.com/LatentActionPretraining/LAPA)] · [[🤗 Model](https://huggingface.co/latent-action-pretraining/LAPA-7B-openx)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/LaPA/index.html) ]
-***
-#### villa-X - *villa-X: Enhancing Latent Action Modeling in Vision-Language-Action Models* - [![arXiv](https://img.shields.io/badge/arXiv-2507.23682-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2507.23682)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://microsoft.github.io/villa-x/)] · [[💻 Code](https://github.com/microsoft/villa-x)] · [[🤗 Model](https://huggingface.co/microsoft/villa-x)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/villa-X/index.html) ]
-***
-#### S-VAM - *S-VAM: Shortcut Video-Action Model by Self-Distilling Geometric and Semantic Foresight* - [![arXiv](https://img.shields.io/badge/arXiv-2603.16195-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.16195)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://haodong-yan.github.io/S-VAM/)] · [[💻 Code](https://github.com/Haodong-Yan/S-VAM-Code)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.16195/index.html)]
-***
-#### OmniVTA - *OmniVTA: Visuo-Tactile World Modeling for Contact-Rich Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2603.19201-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.19201)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[🌍 Webpage](https://mrsecant.github.io/OmniVTA)] · [[💻 Code](https://github.com/MrSecant/OmniVTA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.19201/index.html)]
-***
-#### MWM - *Mask World Model: Predicting What Matters for Robust Robot Policy Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2604.19683-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.19683)
-
-**Tags:** ![](https://img.shields.io/badge/Implicit-ea580c)
-
-[[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.19683/index.html)]
-***
-
-
-
-
+**MWM**: "Mask World Model: Predicting What Matters for Robust Robot Policy Learning", arXiv 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
+[[📄 Paper](https://arxiv.org/pdf/2604.19683)] [[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.19683/index.html)]
 
 
 
@@ -253,210 +194,108 @@
 
 ### Joint World-Action-Model
 ### Autoregressive Generation
-***
-#### GR-1 - *Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2312.13139-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2312.13139)
 
-**Tags:** ![](https://img.shields.io/badge/Explicit--Decoupled-be185d)
 
-[[🌍 Webpage](https://gr1-manipulation.github.io/)] · [[💻 Code](https://github.com/bytedance/GR-1)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GR-1/index.html) ]
-***
-#### GR-MG - *GR-MG: Leveraging Partially-Annotated Data via Multi-Modal Goal-Conditioned Policy* - [![arXiv](https://img.shields.io/badge/arXiv-2408.14368-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2408.14368)
+**GR-1**: "Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation", ICLR 2024. ![](https://img.shields.io/badge/Explicit--Decoupled-be185d)
+[[📄 Paper](https://openreview.net/forum?id=NxoFmGgWC9)] [[🌍 Webpage](https://gr1-manipulation.github.io/)] [[💻 Code](https://github.com/bytedance/GR-1)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GR-1/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Explicit--Decoupled-be185d)
+**GR-MG**: "GR-MG: Leveraging Partially-Annotated Data via Multi-Modal Goal-Conditioned Policy", RA-L 2025. ![](https://img.shields.io/badge/Explicit--Decoupled-be185d)
+[[📄 Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10829675)] [[🌍 Webpage](https://gr-mg.github.io/)] [[💻 Code](https://github.com/bytedance/GR-MG)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GR-MG/index.html) ]
 
-[[🌍 Webpage](https://gr-mg.github.io/)] · [[💻 Code](https://github.com/bytedance/GR-MG)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GR-MG/index.html) ]
-***
-#### GR-2 - *GR-2: A Generative Video-Language-Action Model with Web-Scale Knowledge for Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2410.06158-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2410.06158)
+**GR-2**: "GR-2: A Generative Video-Language-Action Model with Web-Scale Knowledge for Robot Manipulation", arXiv 2024. ![](https://img.shields.io/badge/Explicit--Decoupled-be185d)
+[[📄 Paper](https://arxiv.org/pdf/2410.06158)] [[🌍 Webpage](https://gr2-manipulation.github.io/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GR-2/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Explicit--Decoupled-be185d)
+**CoT-VLA**: "CoT-VLA: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models", CVPR 2025. ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
+[[📄 Paper](https://openaccess.thecvf.com/content/CVPR2025/papers/Zhao_CoT-VLA_Visual_Chain-of-Thought_Reasoning_for_Vision-Language-Action_Models_CVPR_2025_paper.pdf)] [[🌍 Webpage](https://cot-vla.github.io/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CoT-VLA/index.html) ]
 
-[[🌍 Webpage](https://gr2-manipulation.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/GR-2/index.html) ]
-***
-#### CoT-VLA - *CoT-VLA: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models* - [![arXiv](https://img.shields.io/badge/arXiv-2503.22020-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2503.22020)
+**WorldVLA**: "WorldVLA: Towards Autoregressive Action World Model", arXiv 2025. ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
+[[📄 Paper](https://arxiv.org/pdf/2506.21539)] [[💻 Code](https://github.com/alibaba-damo-academy/WorldVLA)] [[🤗 Model](https://huggingface.co/Alibaba-DAMO-Academy/WorldVLA)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/WorldVLA/index.html) ]
+**RynnVLA-002**: "RynnVLA-002: A Unified Vision-Language-Action and World Model", arXiv 2025. ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
+[[📄 Paper](https://arxiv.org/pdf/2511.17502)] [[💻 Code](https://github.com/alibaba-damo-academy/RynnVLA-002)] [[🤗 Model](https://huggingface.co/Alibaba-DAMO-Academy/RynnVLA-002)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RynnVLA-002/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
+**F1**: "F1: A Vision-Language-Action Model Bridging Understanding and Generation to Actions", arXiv 2025. ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
+[[📄 Paper](https://arxiv.org/pdf/2509.06951)] [[🌍 Webpage](https://aopolin-lv.github.io/F1-VLA/)] [[💻 Code](https://github.com/InternRobotics/F1-VLA)] [[🤗 Model](https://huggingface.co/InternRobotics/F1-VLA)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/F1/index.html) ]
 
-[[🌍 Webpage](https://cot-vla.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CoT-VLA/index.html) ]
-***
-#### WorldVLA - *WorldVLA: Towards Autoregressive Action World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2506.21539-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.21539)
-
-**Tags:** ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
-
-[[💻 Code](https://github.com/alibaba-damo-academy/WorldVLA)] · [[🤗 Model](https://huggingface.co/Alibaba-DAMO-Academy/WorldVLA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/WorldVLA/index.html) ]
-***
-#### RynnVLA-002 - *RynnVLA-002: A Unified Vision-Language-Action and World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2511.17502-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.17502)
-
-**Tags:** ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
-
-[[💻 Code](https://github.com/alibaba-damo-academy/RynnVLA-002)] · [[🤗 Model](https://huggingface.co/Alibaba-DAMO-Academy/RynnVLA-002)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/RynnVLA-002/index.html) ]
-***
-#### F1 - *F1: A Vision-Language-Action Model Bridging Understanding and Generation to Actions* - [![arXiv](https://img.shields.io/badge/arXiv-2509.06951-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.06951)
-
-**Tags:** ![](https://img.shields.io/badge/Unified--Discrete-f472b6)
-
-[[🌍 Webpage](https://aopolin-lv.github.io/F1-VLA/)] · [[💻 Code](https://github.com/InternRobotics/F1-VLA)] · [[🤗 Model](https://huggingface.co/InternRobotics/F1-VLA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/F1/index.html) ]
-***
-#### VLA-JEPA - *VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.10098-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.10098)
-
-**Tags:** ![](https://img.shields.io/badge/Predictive--Latent-c026d3)
-
-[[🌍 Webpage](https://ginwind.github.io/VLA-JEPA/)] · [[💻 Code](https://github.com/ginwind/VLA-JEPA)] · [[🤗 Model](https://huggingface.co/ginwind/VLA-JEPA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VLA-JEPA/index.html) ]
-***
+**VLA-JEPA**: "VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model", arXiv 2026. ![](https://img.shields.io/badge/Predictive--Latent-c026d3)
+[[📄 Paper](https://arxiv.org/pdf/2602.10098)] [[🌍 Webpage](https://ginwind.github.io/VLA-JEPA/)] [[💻 Code](https://github.com/ginwind/VLA-JEPA)] [[🤗 Model](https://huggingface.co/ginwind/VLA-JEPA)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VLA-JEPA/index.html) ]
 
 
 ### Diffusion-based Generation
-***
-#### PAD - *Prediction with Action: Visual Policy Learning via Joint Denoising Process* - [![arXiv](https://img.shields.io/badge/arXiv-2411.18179-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2411.18179)
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**PAD**: "Prediction with Action: Visual Policy Learning via Joint Denoising Process", NeurIPS 2024. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://openreview.net/forum?id=teVxVdy8R2)] [[🌍 Webpage](https://sites.google.com/view/pad-paper)] [[💻 Code](https://github.com/Robert-gyj/Prediction_with_Action)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PAD/index.html) ]
 
-[[🌍 Webpage](https://sites.google.com/view/pad-paper)] · [[💻 Code](https://github.com/Robert-gyj/Prediction_with_Action)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PAD/index.html) ]
-***
-#### VideoVLA - *VideoVLA: Video Generators Can Be Generalizable Robot Manipulators* - [![arXiv](https://img.shields.io/badge/arXiv-2512.06963-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.06963)
+**VideoVLA**: "VideoVLA: Video Generators Can Be Generalizable Robot Manipulators", NeurIPS 2025. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://openreview.net/forum?id=UPHlqbZFZB)] [[🌍 Webpage](https://videovla-nips2025.github.io/)] [[💻 Code](https://github.com/VideoVLA-Project/VideoVLA)] [[🤗 Model](https://huggingface.co/VideoVLA/VideoVLA_Cogvideobase_Pretrained)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VideoVLA/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**UWM**: "Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets", RSS 2025. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://www.roboticsproceedings.org/rss21/p015.pdf)] [[🌍 Webpage](https://weirdlabuw.github.io/uwm/)] [[💻 Code](https://github.com/WEIRDLabUW/unified-world-model)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UWM/index.html) ]
 
-[[🌍 Webpage](https://videovla-nips2025.github.io/)] · [[💻 Code](https://github.com/VideoVLA-Project/VideoVLA)] · [[🤗 Model](https://huggingface.co/VideoVLA/VideoVLA_Cogvideobase_Pretrained)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/VideoVLA/index.html) ]
-***
-#### UWM - *Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets* - [![arXiv](https://img.shields.io/badge/arXiv-2504.02792-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2504.02792)
+**DreamZero**: "World Action Models are Zero-shot Policies", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://arxiv.org/pdf/2602.15922)] [[🌍 Webpage](https://dreamzero0.github.io/)] [[💻 Code](https://github.com/dreamzero0/dreamzero)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DreamZero/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**Cosmos Policy**: "Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://arxiv.org/pdf/2601.16163)] [[🌍 Webpage](https://research.nvidia.com/labs/dir/cosmos-policy/cosmos_policy_index.html)] [[💻 Code](https://github.com/nvlabs/cosmos-policy)] [[🤗 Model](https://huggingface.co/collections/nvidia/cosmos-policy)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CosmosPolicy/index.html) ]
 
-[[🌍 Webpage](https://weirdlabuw.github.io/uwm/)] · [[💻 Code](https://github.com/WEIRDLabUW/unified-world-model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UWM/index.html) ]
-***
-#### DreamZero - *World Action Models are Zero-shot Policies* - [![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.15922)
+**GigaWorld-Policy**: "GigaWorld-Policy: An Efficient Action-Centered World-Action Model", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://arxiv.org/pdf/2603.17240)] [[🌍 Webpage](https://gigaai-research.github.io/GigaWorld-Policy/)] [[💻 Code](https://github.com/open-gigaai/giga-world-policy)] [[🤗 Model](https://huggingface.co/open-gigaai)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2603.17240/index.html)]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**X-WAM**: "Unified 4D World Action Modeling from Video Priors with Asynchronous Denoising", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+[[📄 Paper](https://arxiv.org/pdf/2604.26694)] [[🌍 Webpage](https://sharinka0715.github.io/X-WAM/)] [[💻 Code](https://github.com/sharinka0715/X-WAM)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.26694/index.html)]
 
-[[🌍 Webpage](https://dreamzero0.github.io/)] · [[💻 Code](https://github.com/dreamzero0/dreamzero)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DreamZero/index.html) ]
-***
-#### Cosmos Policy - *Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning* - [![arXiv](https://img.shields.io/badge/arXiv-2601.16163-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2601.16163)
+**FLARE**: "FLARE: Robot Learning with Implicit World Modeling", CoRL 2025. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
+[[📄 Paper](https://proceedings.mlr.press/v305/zheng25a.html)] [[🌍 Webpage](https://research.nvidia.com/labs/gear/flare/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/FLARE/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**FRAPPE**: "FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
+[[📄 Paper](https://arxiv.org/pdf/2602.17259)] [[🌍 Webpage](https://h-zhao1997.github.io/frappe/)] [[💻 Code](https://github.com/OpenHelix-Team/frappe)] [[🤗 Model](https://huggingface.co/collections/hhhJB/frappe)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/FRAPPE/index.html) ]
 
-[[🌍 Webpage](https://research.nvidia.com/labs/dir/cosmos-policy/cosmos_policy_index.html)] · [[💻 Code](https://github.com/nvlabs/cosmos-policy)] · [[🤗 Model](https://huggingface.co/collections/nvidia/cosmos-policy)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CosmosPolicy/index.html) ]
-***
-#### GigaWorld-Policy - *GigaWorld-Policy: An Efficient Action-Centered World-Action Model* - [![arXiv](https://img.shields.io/badge/arXiv-2603.17240-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.17240)
+**CoVAR**: "CoVAR: Co-generation of Video and Action for Robotic Manipulation via Multi-Modal Diffusion", arXiv 2025. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2512.16023)] [[🌍 Webpage](https://mcml.ai/publications/ybe%2B26/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CoVAR/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**LDA-1B**: "LDA-1B: Scaling Latent Dynamics Action Model via Universal Embodied Data Ingestion", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2602.12215)] [[🌍 Webpage](https://pku-epic.github.io/LDA/)] [[💻 Code](https://github.com/jiangranlv/LDA-1B)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/LDA-1B/index.html) ]
 
-[[🌍 Webpage](https://gigaai-research.github.io/GigaWorld-Policy/)] · [[💻 Code](https://github.com/open-gigaai/giga-world-policy)] · [[🤗 Model](https://huggingface.co/open-gigaai)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2603.17240/index.html)]
-***
-#### X-WAM - *Unified 4D World Action Modeling from Video Priors with Asynchronous Denoising* - [![arXiv](https://img.shields.io/badge/arXiv-2604.26694-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.26694)
+**DUST**: "Dual-Stream Diffusion for World-Model Augmented Vision-Language-Action Model", arXiv 2025. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2510.27607)] [[🌍 Webpage](https://openreview.net/forum?id=mK1SdO7j3t)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DUST/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+**LingBot-VA**: "Causal World Modeling for Robot Control", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2601.21998)] [[💻 Code](https://github.com/robbyant/lingbot-va)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/LingBot-VA/index.html) ]
 
-[[🌍 Webpage](https://sharinka0715.github.io/X-WAM/)] · [[💻 Code](https://github.com/sharinka0715/X-WAM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.26694/index.html)]
-***
-#### FLARE - *FLARE: Robot Learning with Implicit World Modeling* - [![arXiv](https://img.shields.io/badge/arXiv-2505.15659-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2505.15659)
+**DexWorldModel**: "DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2604.16484)] [[💻 Code](https://github.com/DexForce/EmbodiChain)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.16484/index.html)]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
+**AIM**: "AIM: Intent-Aware Unified world action Modeling with Spatial Value Maps", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2604.11135)] [[💻 Code](https://github.com/Agentic-Intelligence-Lab/AIM)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.11135/index.html)]
 
-[[🌍 Webpage](https://research.nvidia.com/labs/gear/flare/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/FLARE/index.html) ]
-***
-#### FRAPPE - *FRAPPE: Infusing World Modeling into Generalist Policies via Multiple Future Representation Alignment* - [![arXiv](https://img.shields.io/badge/arXiv-2602.17259-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.17259)
+**Motus**: "Motus: A Unified Latent Action World Model", arXiv 2025. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2512.13030)] [[🌍 Webpage](https://motus-robotics.github.io/motus)] [[💻 Code](https://github.com/thu-ml/Motus)] [[🤗 Model](https://huggingface.co/motus-robotics/Motus)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Motus/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
+**MotuBrain**: "MotuBrain: An Advanced World Action Model for Robot Control", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2604.27792)] [[🌍 Webpage](https://www.shengshu.com/en/motubrain)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.27792/index.html)]
 
-[[🌍 Webpage](https://h-zhao1997.github.io/frappe/)] · [[💻 Code](https://github.com/OpenHelix-Team/frappe)] · [[🤗 Model](https://huggingface.co/collections/hhhJB/frappe)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/FRAPPE/index.html) ]
-***
-#### CoVAR - *CoVAR: Co-generation of Video and Action for Robotic Manipulation via Multi-Modal Diffusion* - [![arXiv](https://img.shields.io/badge/arXiv-2512.16023-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.16023)
+**AdaWorldPolicy**: "AdaWorldPolicy: World-Model-Driven Diffusion Policy with Online Adaptive Learning for Robotic Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2602.20057)] [[🌍 Webpage](https://adaworldpolicy.github.io/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/AdaWorldPolicy/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+**UD-VLA**: "Unified Diffusion VLA: Vision-Language-Action Model via Joint Discrete Denoising Diffusion Process", arXiv 2025. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+[[📄 Paper](https://arxiv.org/pdf/2511.01718)] [[🌍 Webpage](https://irpn-eai.github.io/UD-VLA.github.io/)] [[💻 Code](https://github.com/OpenHelix-Team/Unified-Diffusion-VLA)] [[🤗 Model](https://huggingface.co/chenpyyy/UD-VLA_CALVIN_ABCD_D)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UD-VLA/index.html) ]
 
-[[🌍 Webpage](https://mcml.ai/publications/ybe%2B26/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/CoVAR/index.html) ]
-***
-#### LDA-1B - *LDA-1B: Scaling Latent Dynamics Action Model via Universal Embodied Data Ingestion* - [![arXiv](https://img.shields.io/badge/arXiv-2602.12215-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.12215)
+**DiT4DiT**: "DiT4DiT: Jointly Modeling Video Dynamics and Actions for Generalizable Robot Control", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
+[[📄 Paper](https://arxiv.org/pdf/2603.10448)] [[🌍 Webpage](https://dit4dit.github.io/)] [[💻 Code](https://github.com/Mondo-Robotics/DiT4DiT)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DiT4DiT/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+**Fast-WAM**: "Fast-WAM: Do World Action Models Need Test-time Future Imagination?", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
+[[📄 Paper](https://arxiv.org/pdf/2603.16666)] [[🌍 Webpage](https://yuantianyuan01.github.io/FastWAM/)] [[💻 Code](https://github.com/yuantianyuan01/FastWAM)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2603.16666/index.html)]
 
-[[🌍 Webpage](https://pku-epic.github.io/LDA/)] · [[💻 Code](https://github.com/jiangranlv/LDA-1B)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/LDA-1B/index.html) ]
-***
-#### DUST - *Dual-Stream Diffusion for World-Model Augmented Vision-Language-Action Model* - [![arXiv](https://img.shields.io/badge/arXiv-2510.27607-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.27607)
+**WAV**: "World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
+[[📄 Paper](https://arxiv.org/pdf/2604.14732)] [[🌍 Webpage](https://win-commit.github.io/wavpage/)] [[💻 Code](https://github.com/Win-commit/WAV)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.14732/index.html)]
 
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+**Act2Goal**: "Act2Goal: From World Model To General Goal-conditioned Policy", arXiv 2025. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
+[[📄 Paper](https://arxiv.org/pdf/2512.23541)] [[🌍 Webpage](https://act2goal.github.io/)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Act2Goal/index.html) ]
 
-[[🌍 Webpage](https://openreview.net/forum?id=mK1SdO7j3t)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DUST/index.html) ]
-***
-#### LingBot-VA - *Causal World Modeling for Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2601.21998-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2601.21998)
+**UVA**: "Unified Video Action Model", RSS 2025. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Shared--Rep-db2777)
+[[📄 Paper](https://www.roboticsproceedings.org/rss21/p074.pdf)] [[🌍 Webpage](https://unified-video-action-model.github.io/)] [[💻 Code](https://github.com/ShuangLI59/unified_video_action)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UVA/index.html) ]
 
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[💻 Code](https://github.com/robbyant/lingbot-va)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/LingBot-VA/index.html) ]
-***
-#### DexWorldModel - *DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks* - [![arXiv](https://img.shields.io/badge/arXiv-2604.16484-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.16484)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[💻 Code](https://github.com/DexForce/EmbodiChain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.16484/index.html)]
-***
-#### AIM - *AIM: Intent-Aware Unified world action Modeling with Spatial Value Maps* - [![arXiv](https://img.shields.io/badge/arXiv-2604.11135-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.11135)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[💻 Code](https://github.com/Agentic-Intelligence-Lab/AIM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.11135/index.html)]
-***
-#### Motus - *Motus: A Unified Latent Action World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2512.13030-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.13030)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[🌍 Webpage](https://motus-robotics.github.io/motus)] · [[💻 Code](https://github.com/thu-ml/Motus)] · [[🤗 Model](https://huggingface.co/motus-robotics/Motus)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Motus/index.html) ]
-***
-#### MotuBrain - *MotuBrain: An Advanced World Action Model for Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2604.27792-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.27792)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[🌍 Webpage](https://www.shengshu.com/en/motubrain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.27792/index.html)]
-***
-#### AdaWorldPolicy - *AdaWorldPolicy: World-Model-Driven Diffusion Policy with Online Adaptive Learning for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2602.20057-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.20057)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[🌍 Webpage](https://adaworldpolicy.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/AdaWorldPolicy/index.html) ]
-***
-#### UD-VLA - *Unified Diffusion VLA: Vision-Language-Action Model via Joint Discrete Denoising Diffusion Process* - [![arXiv](https://img.shields.io/badge/arXiv-2511.01718-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.01718)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
-
-[[🌍 Webpage](https://irpn-eai.github.io/UD-VLA.github.io/)] · [[💻 Code](https://github.com/OpenHelix-Team/Unified-Diffusion-VLA)] · [[🤗 Model](https://huggingface.co/chenpyyy/UD-VLA_CALVIN_ABCD_D)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UD-VLA/index.html) ]
-***
-#### DiT4DiT - *DiT4DiT: Jointly Modeling Video Dynamics and Actions for Generalizable Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2603.10448-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.10448)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
-
-[[🌍 Webpage](https://dit4dit.github.io/)] · [[💻 Code](https://github.com/Mondo-Robotics/DiT4DiT)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/DiT4DiT/index.html) ]
-***
-#### Fast-WAM - *Fast-WAM: Do World Action Models Need Test-time Future Imagination?* - [![arXiv](https://img.shields.io/badge/arXiv-2603.16666-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.16666)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
-
-[[🌍 Webpage](https://yuantianyuan01.github.io/FastWAM/)] · [[💻 Code](https://github.com/yuantianyuan01/FastWAM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2603.16666/index.html)]
-***
-#### WAV - *World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems* - [![arXiv](https://img.shields.io/badge/arXiv-2604.14732-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.14732)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
-
-[[🌍 Webpage](https://win-commit.github.io/wavpage/)] · [[💻 Code](https://github.com/Win-commit/WAV)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.14732/index.html)]
-***
-#### Act2Goal - *Act2Goal: From World Model To General Goal-conditioned Policy* - [![arXiv](https://img.shields.io/badge/arXiv-2512.23541-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.23541)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
-
-[[🌍 Webpage](https://act2goal.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/Act2Goal/index.html) ]
-***
-#### UVA - *Unified Video Action Model* - [![arXiv](https://img.shields.io/badge/arXiv-2503.00200-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2503.00200)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Shared--Rep-db2777)
-
-[[🌍 Webpage](https://unified-video-action-model.github.io/)] · [[💻 Code](https://github.com/ShuangLI59/unified_video_action)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/UVA/index.html) ]
-***
-#### PhysGen - *Learning Physics from Pretrained Video Models: A Multimodal Continuous and Sequential World Interaction Models for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2603.00110-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.00110)
-
-**Tags:** ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Shared--Rep-db2777)
-
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PhysGen/index.html) ]
-***
-
+**PhysGen**: "Learning Physics from Pretrained Video Models: A Multimodal Continuous and Sequential World Interaction Models for Robotic Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Shared--Rep-db2777)
+[[📄 Paper](https://arxiv.org/pdf/2603.00110)] [[🌟 Blog](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/Report/PhysGen/index.html) ]
 
 
 
@@ -468,140 +307,102 @@
 
 ### World Model for Imitation Learning
 
-***
-#### DREMA - *Dream to Manipulate: Compositional World Models Empowering Robot Imitation Learning with Imagination* - [![arXiv](https://img.shields.io/badge/arXiv-2412.14957-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2412.14957)
+**DREMA**: "Dream to Manipulate: Compositional World Models Empowering Robot Imitation Learning with Imagination", ICLR 2025.
+[[📄 Paper](https://openreview.net/forum?id=3RSLW9YSgk)] [[🌍 Webpage](https://dreamtomanipulate.github.io/)] [[💻 Code](https://github.com/leobarcellona/drema_code)]
 
-[[🌍 Webpage](https://dreamtomanipulate.github.io/)] · [[💻 Code](https://github.com/leobarcellona/drema_code)]
-***
+**RoboScape**: "RoboScape: Physics-informed Embodied World Model", arXiv 2025.
+[[📄 Paper](https://openreview.net/forum?id=wbZCBBrq3W)]
 
-#### RoboScape - *RoboScape: Physics-informed Embodied World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2506.23135-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.23135)
-
-***
-#### Ctrl-World - *Ctrl-World: A Controllable Generative World Model for Robot* - [![arXiv](https://img.shields.io/badge/arXiv-2510.10125-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.10125)
-
-[[🌍 Webpage](https://ctrl-world.github.io/)] · [[💻 Code](https://github.com/Robert-gyj/Ctrl-World)]
-***
+**Ctrl-World**: "Ctrl-World: A Controllable Generative World Model for Robot", ICLR 2026.
+[[📄 Paper](https://openreview.net/forum?id=748bHL2BAv)] [[🌍 Webpage](https://ctrl-world.github.io/)] [[💻 Code](https://github.com/Robert-gyj/Ctrl-World)]
 
 ### World Model for Reinforcement Learning 
 
-***
+**PlaNet**: "Learning Latent Dynamics for Planning from Pixels", ICML 2019.
+[[📄 Paper](https://proceedings.mlr.press/v97/hafner19a/hafner19a.pdf)] [[🌍 Webpage](https://planetrl.github.io/)] [[💻 Code](https://github.com/google-research/planet)]
 
-#### PlaNet - *Learning Latent Dynamics for Planning from Pixels* - [![arXiv](https://img.shields.io/badge/arXiv-1811.04551-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1811.04551)
+**Dream to Control**: "Dream to Control: Learning Behaviors by Latent Imagination", ICLR 2020.
+[[📄 Paper](https://openreview.net/forum?id=S1lOTC4tDS)] [[🌍 Webpage](https://danijar.com/project/dreamer/)] [[💻 Code](https://github.com/danijar/dreamer)]
 
+**Dreamer V2**: "Mastering Atari with Discrete World Models", ICLR 2021.
+[[📄 Paper](https://openreview.net/forum?id=0oabwyZbOu)] [[🌍 Webpage](https://danijar.com/project/dreamerv2/)] [[💻 Code](https://github.com/danijar/dreamerv2)]
 
-[[🌍 Webpage](https://planetrl.github.io/)] · [[💻 Code](https://github.com/google-research/planet)]
-***
-#### Dream to Control - *Dream to Control: Learning Behaviors by Latent Imagination* - [![arXiv](https://img.shields.io/badge/arXiv-1912.01603-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1912.01603)
+**DayDreamer**: "DayDreamer: World Models for Physical Robot Learning", CoRL 2022.
+[[📄 Paper](https://proceedings.mlr.press/v205/wu23c/wu23c.pdf)] [[🌍 Webpage](https://danijar.com/project/daydreamer/)] [[💻 Code](https://github.com/danijar/daydreamer)]
 
+**Dreamer V3**: "Mastering Diverse Domains through World Models", Nature 2025.
+[[📄 Paper](https://www.nature.com/articles/s41586-025-08744-2)] [[🌍 Webpage](https://danijar.com/project/dreamerv3/)] [[💻 Code](https://github.com/danijar/dreamerv3)]
 
-[[🌍 Webpage](https://danijar.com/project/dreamer/)] · [[💻 Code](https://github.com/danijar/dreamer)]
-***
-#### Dreamer V2 - *Mastering Atari with Discrete World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2010.02193-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2010.02193)
+**Dreamer 4**: "Training Agents Inside of Scalable World Models", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2509.24527)] [[🌍 Webpage](https://danijar.com/project/dreamer4/)]
 
+**World-Env**: "World-Env: Leveraging World Model as a Virtual Environment for VLA Post-Training", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2509.24948)] [[💻 Code](https://github.com/amap-cvlab/world-env)]
 
-[[🌍 Webpage](https://danijar.com/project/dreamerv2/)] · [[💻 Code](https://github.com/danijar/dreamerv2)]
-***
-#### DayDreamer - *DayDreamer: World Models for Physical Robot Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2206.14176-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2206.14176)
+**WMPO**: "WMPO: World Model-based Policy Optimization for Vision-Language-Action Models", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2511.09515)] [[🌍 Webpage](https://wm-po.github.io/)] [[💻 Code](https://github.com/WM-PO/WMPO)]
 
-[[🌍 Webpage](https://danijar.com/project/daydreamer/)] · [[💻 Code](https://github.com/danijar/daydreamer)]
-***
-#### Dreamer V3 - *Mastering Diverse Domains through World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2301.04104-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2301.04104)
+**RISE**: "RISE: Self-Improving Robot Policy with Compositional World Model", arXiv 2026.
+[[📄 Paper](https://arxiv.org/pdf/2602.11075)] [[💻 Code](https://github.com/OpenDriveLab/RISE)]
 
-[[🌍 Webpage](https://danijar.com/project/dreamerv3/)] · [[💻 Code](https://github.com/danijar/dreamerv3)]
-***
-#### Dreamer 4 - *Training Agents Inside of Scalable World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24527-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24527)
+**WoVR**: "WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL", arXiv 2026.
+[[📄 Paper](https://arxiv.org/pdf/2602.13977)] [[💻 Code](https://github.com/RLinf/RLinf)] [[🤗 Model](https://huggingface.co/collections/RLinf/wovr)]
 
-[[🌍 Webpage](https://danijar.com/project/dreamer4/)]
-***
-#### World-Env - *World-Env: Leveraging World Model as a Virtual Environment for VLA Post-Training* - [![arXiv](https://img.shields.io/badge/arXiv-2509.24948-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.24948)
+**MoDem-V2**: "MoDem-V2: Visuo-Motor World Models for Real-World Robot Manipulation", ICRA 2024.
+[[📄 Paper](https://ieeexplore.ieee.org/document/10611121/)] [[🌍 Webpage](https://sites.google.com/view/modem-v2)] [[💻 Code](https://github.com/facebookresearch/modemv2)]
 
-[[💻 Code](https://github.com/amap-cvlab/world-env)]
-***
-#### WMPO - *WMPO: World Model-based Policy Optimization for Vision-Language-Action Models* - [![arXiv](https://img.shields.io/badge/arXiv-2511.09515-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.09515)
+**World-Gymnast**: "World-Gymnast: Training Robots with Reinforcement Learning in a World Model", arXiv 2026.
+[[📄 Paper](https://arxiv.org/pdf/2602.02454)] [[🌍 Webpage](https://world-gymnast.github.io/)] [[💻 Code](https://github.com/world-gymnast/world-gymnast)]
 
-[[🌍 Webpage](https://wm-po.github.io/)] · [[💻 Code](https://github.com/WM-PO/WMPO)]
-***
-#### RISE - *RISE: Self-Improving Robot Policy with Compositional World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.11075-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.11075)
+**RWM‑U**: "Uncertainty-Aware Robotic World Model Makes Offline Model-Based Reinforcement Learning Work on Real Robots", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2504.16680)] [[🌍 Webpage](https://sites.google.com/view/uncertainty-aware-rwm)] [[💻 Code](https://github.com/leggedrobotics/robotic_world_model)]
 
-[[💻 Code](https://github.com/OpenDriveLab/RISE)]
-***
-#### WoVR - *WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL* - [![arXiv](https://img.shields.io/badge/arXiv-2602.13977-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.13977)
+**World4RL**: "World4RL: Diffusion World Models for Policy Refinement with Reinforcement Learning for Robotic Manipulation", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2509.19080)] [[🌍 Webpage](https://world4rl.github.io/)] [[💻 Code](https://anonymous.4open.science/r/World4RL-0410)]
 
-[[💻 Code](https://github.com/RLinf/RLinf)] · [[🤗 Model](https://huggingface.co/collections/RLinf/wovr)]
-***
-#### MoDem-V2 - *MoDem-V2: Visuo-Motor World Models for Real-World Robot Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2309.14236-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2309.14236)
+**DiWA**: "DiWA: Diffusion Policy Adaptation with World Models", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2508.03645)] [[🌍 Webpage](https://diwa.cs.uni-freiburg.de/)] [[💻 Code](https://github.com/acl21/diwa)]
 
-[[🌍 Webpage](https://sites.google.com/view/modem-v2)] · [[💻 Code](https://github.com/facebookresearch/modemv2)]
-***
-#### World-Gymnast - *World-Gymnast: Training Robots with Reinforcement Learning in a World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.02454-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.02454)
+**VLA-RFT**: "VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2510.00406)] [[🌍 Webpage](https://vla-rft.github.io/)] [[💻 Code](https://github.com/OpenHelix-Team/VLA-RFT)] [[🤗 Model](https://huggingface.co/VLA-RFT)]
 
-[[🌍 Webpage](https://world-gymnast.github.io/)] · [[💻 Code](https://github.com/world-gymnast/world-gymnast)]
-***
-#### RWM‑U - *Uncertainty-Aware Robotic World Model Makes Offline Model-Based Reinforcement Learning Work on Real Robots* - [![arXiv](https://img.shields.io/badge/arXiv-2504.16680-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2504.16680)
+**RWML**: "Reinforcement World Model Learning for LLM-based Agents", arXiv 2026.
+[[📄 Paper](https://arxiv.org/pdf/2602.05842)]
 
-[[🌍 Webpage](https://sites.google.com/view/uncertainty-aware-rwm)] · [[💻 Code](https://github.com/leggedrobotics/robotic_world_model)] 
-***
-#### World4RL - *World4RL: Diffusion World Models for Policy Refinement with Reinforcement Learning for Robotic Manipulation* - [![arXiv](https://img.shields.io/badge/arXiv-2509.19080-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.19080)
+**PhysWorl**: "Robot Learning from a Physical World Model", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2511.07416)] [[🌍 Webpage](https://pointscoder.github.io/PhysWorld_Web/)] [[💻 Code](https://github.com/PointsCoder/OpenReal2Sim)]
 
-[[🌍 Webpage](https://world4rl.github.io/)] · [[💻 Code](https://anonymous.4open.science/r/World4RL-0410)]
-***
-#### DiWA - *DiWA: Diffusion Policy Adaptation with World Models* - [![arXiv](https://img.shields.io/badge/arXiv-2508.03645-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2508.03645)
+**VIPER**: "Video Prediction Models as Rewards for Reinforcement Learning", NeurIPS 2023.
+[[📄 Paper](https://proceedings.neurips.cc/paper_files/paper/2023/file/d9042abf40782fbce28901c1c9c0e8d8-Paper-Conference.pdf)] [[🌍 Webpage](https://escontrela.me/viper)] [[💻 Code](https://github.com/Alescontrela/viper_rl)]
 
-[[🌍 Webpage](https://diwa.cs.uni-freiburg.de/)] · [[💻 Code](https://github.com/acl21/diwa)]
-***
-#### VLA-RFT - *VLA-RFT: Vision-Language-Action Reinforcement Fine-tuning with Verified Rewards in World Simulators* - [![arXiv](https://img.shields.io/badge/arXiv-2510.00406-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2510.00406)
+**Diffusion Reward**: "Diffusion Reward: Learning Rewards via Conditional Video Diffusion", ECCV 2024.
+[[📄 Paper](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/05914.pdf)] [[🌍 Webpage](https://diffusion-reward.github.io/)] [[💻 Code](https://github.com/TEA-Lab/diffusion_reward)] [[🤗 Model](https://huggingface.co/tauhuang/diffusion_reward/tree/main)]
 
-[[🌍 Webpage](https://vla-rft.github.io/)] · [[💻 Code](https://github.com/OpenHelix-Team/VLA-RFT)] · [[🤗 Model](https://huggingface.co/VLA-RFT)]
-***
-#### RWML - *Reinforcement World Model Learning for LLM-based Agents* - [![arXiv](https://img.shields.io/badge/arXiv-2602.05842-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.05842)
-***
-####  PhysWorl - *Robot Learning from a Physical World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2511.07416-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.07416)
+**GenReward**: "Goal-Driven Reward by Video Diffusion Models for Reinforcement Learning", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2512.00961)] [[🌍 Webpage](https://qiwang067.github.io/genreward)]
 
-[[🌍 Webpage](https://pointscoder.github.io/PhysWorld_Web/)] · [[💻 Code](https://github.com/PointsCoder/OpenReal2Sim)]
-***
-#### VIPER - *Video Prediction Models as Rewards for Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2305.14343-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2305.14343)
+**SRPO**: "SRPO: Self-Referential Policy Optimization for Vision-Language-Action Models", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2511.15605)] [[💻 Code](https://github.com/sii-research/siiRL)] [[🤗 Model](https://huggingface.co/collections/Sylvest/srpo)]
 
-[[🌍 Webpage](https://escontrela.me/viper)] · [[💻 Code](https://github.com/Alescontrela/viper_rl)]
-***
-#### Diffusion Reward - *Diffusion Reward: Learning Rewards via Conditional Video Diffusion* - [![arXiv](https://img.shields.io/badge/arXiv-2312.14134-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2312.14134)
-
-[[🌍 Webpage](https://diffusion-reward.github.io/)] · [[💻 Code](https://github.com/TEA-Lab/diffusion_reward)] · [[🤗 Model](https://huggingface.co/tauhuang/diffusion_reward/tree/main)]
-***
-#### GenReward - *Goal-Driven Reward by Video Diffusion Models for Reinforcement Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2512.00961-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.00961)
-
-[[🌍 Webpage](https://qiwang067.github.io/genreward)]
-***
-#### SRPO - *SRPO: Self-Referential Policy Optimization for Vision-Language-Action Models* - [![arXiv](https://img.shields.io/badge/arXiv-2511.15605-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2511.15605)
-
-[[💻 Code](https://github.com/sii-research/siiRL)] · [[🤗 Model](https://huggingface.co/collections/Sylvest/srpo)]
-***
-#### RoboScape-R - *RoboScape-R: Unified Reward-Observation World Models for Generalizable Robotics Training via RL* - [![arXiv](https://img.shields.io/badge/arXiv-2512.03556-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.03556)
-***
+**RoboScape-R**: "RoboScape-R: Unified Reward-Observation World Models for Generalizable Robotics Training via RL", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2512.03556)]
 
 ### World Model for Evaluation
 
-***
-#### Veo - *Evaluating Gemini Robotics Policies in a Veo World Simulator* - [![arXiv](https://img.shields.io/badge/arXiv-2512.10675-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2512.10675)
+**Veo**: "Evaluating Gemini Robotics Policies in a Veo World Simulator", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2512.10675)] [[🌍 Webpage](https://veo-robotics.github.io/)]
 
-[[🌍 Webpage](https://veo-robotics.github.io/)]
-***
-#### Interactive World Simulator - *Interactive World Simulator for Robot Policy Training and Evaluation* - [![arXiv](https://img.shields.io/badge/arXiv-2603.08546-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.08546)
+**Interactive World Simulator**: "Interactive World Simulator for Robot Policy Training and Evaluation", arXiv 2026.
+[[📄 Paper](https://arxiv.org/pdf/2603.08546)] [[🌍 Webpage](https://www.yixuanwang.me/interactive_world_sim/)] [[💻 Code](https://github.com/WangYixuan12/interactive_world_sim)] [[🤗 Model](https://huggingface.co/yixuan1999/interactive-world-sim-checkpoints)]
 
-[[🌍 Webpage](https://www.yixuanwang.me/interactive_world_sim/)] · [[💻 Code](https://github.com/WangYixuan12/interactive_world_sim)] · [[🤗 Model](https://huggingface.co/yixuan1999/interactive-world-sim-checkpoints)]
-***
-#### WorldEval - *WorldEval: World Model as Real-World Robot Policies Evaluator* - [![arXiv](https://img.shields.io/badge/arXiv-2505.19017-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2505.19017)
+**WorldEval**: "WorldEval: World Model as Real-World Robot Policies Evaluator", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2505.19017)] [[🌍 Webpage](https://worldeval.github.io/)] [[💻 Code](https://github.com/liyaxuanliyaxuan/Worldeval)]
 
-[[🌍 Webpage](https://worldeval.github.io/)] · [[💻 Code](https://github.com/liyaxuanliyaxuan/Worldeval)]
-***
-#### WorldGym - *WorldGym: World Model as An Environment for Policy Evaluation* - [![arXiv](https://img.shields.io/badge/arXiv-2506.00613-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2506.00613)
+**WorldGym**: "WorldGym: World Model as An Environment for Policy Evaluation", arXiv 2025.
+[[📄 Paper](https://arxiv.org/pdf/2506.00613)] [[🌍 Webpage](https://world-model-eval.github.io/abstract)] [[💻 Code](https://github.com/world-model-eval/world-model-eval)]
 
-[[🌍 Webpage](https://world-model-eval.github.io/abstract)] · [[💻 Code](https://github.com/world-model-eval/world-model-eval)]
-***
-#### dWorldEval - *dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2604.22152-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.22152)
-
-[[🌍 Webpage](https://dworldeval.github.io/)]
-***
-
+**dWorldEval**: "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model", arXiv 2026.
+[[📄 Paper](https://arxiv.org/pdf/2604.22152)] [[🌍 Webpage](https://dworldeval.github.io/)]
 
 
 ### Training Data
@@ -831,3 +632,17 @@
 | **RoboArena** - *RoboArena: Distributed Real-World Evaluation of Generalist Robot Policies* | 2025-06 | [📄 Paper](https://arxiv.org/pdf/2506.18123) · [🌍&nbsp;Web](https://robo-arena.github.io/) · [💻&nbsp;Code](https://github.com/robo-arena/roboarena) |
 | **RoboChallenge** - *RoboChallenge: Large-Scale Real-Robot Evaluation of Embodied Policies* | 2025-10 | [📄 Paper](https://arxiv.org/pdf/2510.17950) · [🌍&nbsp;Web](https://robochallenge.ai/)· [💻&nbsp;Code](https://github.com/RoboChallenge) |
 | **ManipArena** - *ManipArena: Comprehensive Real-World Evaluation of Reasoning-Oriented Generalist Robot Manipulation* | 2026-03 | [📄 Paper](https://arxiv.org/pdf/2603.28545) · [🌍&nbsp;Web](https://maniparena.x2robot.com/) · [💻&nbsp;Code](https://github.com/maniparena/maniparena-repo) |
+
+
+
+## 👋 Citation
+
+If you find this survey or repository helpful for your research, please consider citing our paper:
+
+```bibtex
+@article{wang2026world,
+  title={World Action Models for Generalist Robotics: From Next Token Prediction to Next State Synthesis},
+  author={Wang, Siyin and Shi, Junhao and Fu, Zhaoyang and He, Xinzhe and Liu, Feihong and Yang, Chenchen and Zhou, Yikang and Fei, Zhaoye and Gong, Jingjing and Fu, Jinlan and Shou, Mike Zheng and Huang, Xuanjing and Qiu, Xipeng and Jiang, Yu-Gang},
+  year={2026}
+}
+```
