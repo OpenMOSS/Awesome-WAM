@@ -2,7 +2,7 @@
 
 # World Action Models: The Next Frontier in Embodied AI
 
-[![arXiv](https://img.shields.io/badge/arXiv-2602.15922-b31b1b.svg)](https://arxiv.org/abs/2509.07996) [![ProjectPage](https://img.shields.io/badge/Website-Link-blue)](https://dreamzero0.github.io)
+[![arXiv](https://img.shields.io/badge/arXiv-2605.xxx-b31b1b.svg)](https://arxiv.org/abs/2509.07996) [![ProjectPage](https://img.shields.io/badge/Website-Link-blue)](https://dreamzero0.github.io)
 
 <p align="center">
   <a href="https://sinwang20.github.io/">Siyin Wang</a></strong><sup>1,2,*,‡</sup>,  
