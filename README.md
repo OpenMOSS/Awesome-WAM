@@ -20,10 +20,10 @@
   - [World Action Model](#world-action-model)
     - [Cascaded World-Action-Model](#cascaded-world-action-model)
     - [Joint World-Action-Model](#joint-world-action-model)
-  - [World Model](#world-model)
-    - [Action-Conditioned](#action-conditioned)
-    - [Language-Conditioned and Multimodal](#language-conditioned-and-multimodal)
-    - [Embodied World Model](#embodied-world-model)
+  - [World Model for VLA](#world-model-for-vla)
+    - [Imitation Learning](#imitation-learning)
+    - [Reinforcement Learning](#reinforcement-learning)
+    - [Evaluation](#evaluation)
   - [Training Data](#training-data)
   - [Evaluation](#evaluation)
 
@@ -70,24 +70,6 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 **![](https://img.shields.io/badge/Eval-06b6d4) Evaluation**
 
 ***
-#### Veo-Act - *Veo-Act: How Far Can Frontier Video Models Advance Generalizable Robot Manipulation?* - [![arXiv](https://img.shields.io/badge/arXiv-2604.04502-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.04502)
-
-**Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
-
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.04502/index.html)]
-***
-#### pi0.7 - *$\pi_{0.7}$: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities* - [![arXiv](https://img.shields.io/badge/arXiv-2604.15483-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.15483)
-
-**Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
-
-[[🌍 Webpage](https://pi.website/pi07)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.15483/index.html)]
-***
-#### VAG - *VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis* - [![arXiv](https://img.shields.io/badge/arXiv-2604.09330-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.09330)
-
-**Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
-
-[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.09330/index.html)]
-***
 #### S-VAM - *S-VAM: Shortcut Video-Action Model by Self-Distilling Geometric and Semantic Foresight* - [![arXiv](https://img.shields.io/badge/arXiv-2603.16195-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.16195)
 
 **Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Implicit-ea580c)
@@ -100,29 +82,23 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 [[🌍 Webpage](https://mrsecant.github.io/OmniVTA)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2603.19201/index.html)]
 ***
-#### MWM - *Mask World Model: Predicting What Matters for Robust Robot Policy Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2604.19683-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.19683)
+#### Veo-Act - *Veo-Act: How Far Can Frontier Video Models Advance Generalizable Robot Manipulation?* - [![arXiv](https://img.shields.io/badge/arXiv-2604.04502-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.04502)
 
-**Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Implicit-ea580c)
+**Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
 
-[[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.19683/index.html)]
+[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.04502/index.html)]
 ***
-#### VLA-JEPA - *VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2602.10098-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2602.10098)
+#### pi0.7 - *$\pi_{0.7}$: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities* - [![arXiv](https://img.shields.io/badge/arXiv-2604.15483-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.15483)
 
-**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Discrete-db2777) ![](https://img.shields.io/badge/LatentPred-c026d3)
+**Tags:** ![](https://img.shields.io/badge/Cascaded-f59e0b) ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
 
-[[🌍 Webpage](https://ginwind.github.io/VLA-JEPA/)] · [[💻 Code](https://github.com/ginwind/VLA-JEPA)] · [[🤗 Model](https://huggingface.co/ginwind/VLA-JEPA)] · [[🌟 Summary](https://github.com/OpenMOSS/WAM-survey/blob/main/report/cn_enhance_ver2/VLA-JEPA%20-%20VLA-JEPA%20-%20Enhancing%20Vision-Language-Action%20Model%20with%20Latent%20World%20Model%20(CN-Enhance2).md)]
+[[🌍 Webpage](https://pi.website/pi07)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/cascade/2604.15483/index.html)]
 ***
-#### F1-VLA - *F1: A Vision-Language-Action Model Bridging Understanding and Generation to Actions* - [![arXiv](https://img.shields.io/badge/arXiv-2509.06951-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2509.06951)
-
-**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Discrete-db2777) ![](https://img.shields.io/badge/MLLM-f472b6)
-
-[[🌍 Webpage](https://aopolin-lv.github.io/F1-VLA/)] · [[💻 Code](https://github.com/InternRobotics/F1-VLA)] · [[🤗 Model](https://huggingface.co/InternRobotics/F1-VLA)] · [[🌟 Summary](https://arxiv.org/abs/2509.06951)]
-***
-#### WAV - *World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems* - [![arXiv](https://img.shields.io/badge/arXiv-2604.14732-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.14732)
+#### Fast-WAM - *Fast-WAM: Do World Action Models Need Test-time Future Imagination?* - [![arXiv](https://img.shields.io/badge/arXiv-2603.16666-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.16666)
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/HiddenState-fb7185)
 
-[[🌍 Webpage](https://win-commit.github.io/wavpage/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.14732/index.html)]
+[[🌍 Webpage](https://yuantianyuan01.github.io/FastWAM/)] · [[💻 Code](https://github.com/yuantianyuan01/FastWAM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2603.16666/index.html)]
 ***
 #### AIM - *AIM: Intent-Aware Unified world action Modeling with Spatial Value Maps* - [![arXiv](https://img.shields.io/badge/arXiv-2604.11135-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.11135)
 
@@ -130,17 +106,17 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.11135/index.html)]
 ***
+#### WAV - *World-Value-Action Model: Implicit Planning for Vision-Language-Action Systems* - [![arXiv](https://img.shields.io/badge/arXiv-2604.14732-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.14732)
+
+**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/HiddenState-fb7185)
+
+[[🌍 Webpage](https://win-commit.github.io/wavpage/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.14732/index.html)]
+***
 #### DexWorldModel - *DexWorldModel: Causal Latent World Modeling towards Automated Learning of Embodied Tasks* - [![arXiv](https://img.shields.io/badge/arXiv-2604.16484-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.16484)
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/SharedRep-db2777)
 
-[[🌍 Webpage](https://dexforce.com/docs/DexWorldModel.pdf)] · [[💻 Code](https://github.com/DexForce/EmbodiChain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.16484/index.html)]
-***
-#### FastWAM - *Fast-WAM: Do World Action Models Need Test-time Future Imagination?* - [![arXiv](https://img.shields.io/badge/arXiv-2603.16666-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.16666)
-
-**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/HiddenState-fb7185)
-
-[[🌍 Webpage](https://yuantianyuan01.github.io/FastWAM/)] · [[💻 Code](https://github.com/yuantianyuan01/FastWAM)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2603.16666/index.html)]
+[[📄 PDF](https://dexforce.com/docs/DexWorldModel.pdf)] · [[💻 Code](https://github.com/DexForce/EmbodiChain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.16484/index.html)]
 ***
 #### MotuBrain - *MotuBrain: An Advanced World Action Model for Robot Control* - [![arXiv](https://img.shields.io/badge/arXiv-2604.27792-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.27792)
 
@@ -148,11 +124,35 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 [[🌍 Webpage](https://www.shengshu.com/en/motubrain)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/multi-dit/2604.27792/index.html)]
 ***
-#### GigaWorld-Policy - *GigaWorld-Policy: An Efficient Action-Centered World--Action Model* - [![arXiv](https://img.shields.io/badge/arXiv-2603.17240-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.17240)
+#### GigaWorld-Policy - *GigaWorld-Policy: An Efficient Action-Centered World-Action Model* - [![arXiv](https://img.shields.io/badge/arXiv-2603.17240-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.17240)
 
 **Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Single--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
 
 [[🌍 Webpage](https://gigaai-research.github.io/GigaWorld-Policy/)] · [[💻 Code](https://github.com/open-gigaai/giga-world-policy)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2603.17240/index.html)]
+***
+#### DDP - *Dreaming the Unseen: World Model-regularized Diffusion Policy for Out-of-Distribution Robustness* - [![arXiv](https://img.shields.io/badge/arXiv-2603.21017-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2603.21017)
+
+**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Single--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
+
+[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2603.21017/index.html)]
+***
+#### VAG - *VAG: Dual-Stream Video-Action Generation for Embodied Data Synthesis* - [![arXiv](https://img.shields.io/badge/arXiv-2604.09330-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.09330)
+
+**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Single--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+
+[[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.09330/index.html)]
+***
+#### MWM - *Mask World Model: Predicting What Matters for Robust Robot Policy Learning* - [![arXiv](https://img.shields.io/badge/arXiv-2604.19683-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.19683)
+
+**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Continuous-e11d48) ![](https://img.shields.io/badge/Single--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+
+[[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.19683/index.html)]
+***
+#### dWorldEval - *dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model* - [![arXiv](https://img.shields.io/badge/arXiv-2604.22152-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.22152)
+
+**Tags:** ![](https://img.shields.io/badge/Joint-ec4899) ![](https://img.shields.io/badge/Discrete-db2777) ![](https://img.shields.io/badge/Parallel-fb7185)
+
+[[🌍 Webpage](https://dworldeval.github.io/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.22152/index.html)]
 ***
 #### X-WAM - *Unified 4D World Action Modeling from Video Priors with Asynchronous Denoising* - [![arXiv](https://img.shields.io/badge/arXiv-2604.26694-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2604.26694)
 
@@ -163,37 +163,6 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 ## World Action Models for Generalist Robotics
 
-目前有重复文章：
-- VideoGPT - VideoGPT: Video Generation using VQ-VAE and Transformers
-    - World Model -> Action-conditioned main_essay
-    - World Model -> Language-conditioned and Multimodal main_essay
-- Genie - Genie: Generative Interactive Environments
-    - World Model -> Action-conditioned main_essay
-    - World Model -> Embodied World Model main_essay
-- Unified World Models / UWM - Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets
-    - World Model -> Action-conditioned main_essay
-    - World Action Model -> Joint World-Action-Model -> Continuous Diffusion main_essay
-- VLA-JEPA - VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model
-    - World Model -> Action-conditioned main_essay
-    - World Action Model -> Joint World-Action-Model -> Discrete Tokenization main_essay
-- Video Diffusion Models - Video Diffusion Models
-    - World Model -> Language-conditioned and Multimodal -> Video Foundation Models main_essay
-    - World Model -> Language-conditioned and Multimodal -> Backbone Design -> U-Net-based main_essay
-- Latte - Latte: Latent Diffusion Transformer for Video Generation
-    - World Model -> Language-conditioned and Multimodal -> Backbone Design -> ViT-based main_essay
-    - World Model -> Language-conditioned and Multimodal -> Backbone Design -> Latent-space Modeling main_essay
-- EnerVerse - EnerVerse: Envisioning Embodied Future Space for Robotics Manipulation
-    - World Model -> Action-conditioned main_essay
-    - World Model -> Embodied World Model main_essay
-- 4DGen - Geometry-aware 4D Video Generation for Robot Manipulation
-    - World Model -> Embodied World Model main_essay
-    - World Action Model -> Cascaded World-Action-Model main_essay
-- Vidar
-    - World Model -> Embodied World Model main_essay
-      标题写的是 Vidar: Embodied Video Diffusion Model for Generalist Manipulation
-    - World Action Model -> Cascaded World-Action-Model main_essay
-      标题写的是 Vidar: Embodied Video Diffusion Model for Generalist Bimanual Manipulation
-    - 这两条是同一篇论文条目，arXiv 编号相同：2507.12898
 ## World Action Model
 ### Cascaded World-Action-Model
 
