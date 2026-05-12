@@ -16,16 +16,15 @@
 
 - [Roadmap](#roadmap)
 - [Tag Legend](#tag-legend)
-- [World Action Models for Generalist Robotics](#world-action-models-for-generalist-robotics)
-  - [World Action Model](#world-action-model)
-    - [Cascaded World-Action-Model](#cascaded-world-action-model)
-    - [Joint World-Action-Model](#joint-world-action-model)
-  - [World Model for VLA](#world-model-for-vla)
-    - [Imitation Learning](#imitation-learning)
-    - [Reinforcement Learning](#reinforcement-learning)
-    - [Evaluation](#evaluation)
-  - [Training Data](#training-data)
+- [World Action Model](#world-action-model)
+  - [Cascaded World-Action-Model](#cascaded-world-action-model)
+  - [Joint World-Action-Model](#joint-world-action-model)
+- [World Model for VLA](#world-model-for-vla)
+  - [Imitation Learning](#imitation-learning)
+  - [Reinforcement Learning](#reinforcement-learning)
   - [Evaluation](#evaluation)
+- [Training Data](#training-data)
+- [Evaluation](#evaluation)
 
 ## Roadmap
 
@@ -161,7 +160,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 [[🌍 Webpage](https://sharinka0715.github.io/X-WAM/)] · [[🌟 Summary](https://htmlpreview.github.io/?https://github.com/OpenMOSS/WAM-survey/blob/main/temp-check/single-dit/2604.26694/index.html)]
 ***
 
-## World Action Models for Generalist Robotics
+
 
 ## World Action Model
 ### Cascaded World-Action-Model
