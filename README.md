@@ -605,7 +605,7 @@ Roadmap 是这个仓库的主导航。后面的分支章节应与图中的命名
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **PSNR / SSIM** - *Image Quality Assessment: From Error Visibility to Structural Similarity* | 2004 | — |
+| **PSNR / SSIM** - *Image Quality Assessment: From Error Visibility to Structural Similarity* | 2004 | [![IEEE](https://img.shields.io/badge/IEEE-TIP-00629B?style=flat-square&logo=ieee)](https://ieeexplore.ieee.org/document/1284395) · [🌍&nbsp;Web](https://ece.uwaterloo.ca/~z70wang/research/ssim/) · [💻&nbsp;Code](https://ece.uwaterloo.ca/~z70wang/research/ssim/) |
 | **LPIPS** - *The Unreasonable Effectiveness of Deep Features as a Perceptual Metric* | 2018-01 | [![arXiv](https://img.shields.io/badge/arXiv-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/1801.03924) · [🌍&nbsp;Web](https://richzhang.github.io/PerceptualSimilarity/) · [💻&nbsp;Code](https://github.com/richzhang/PerceptualSimilarity) |
 | **DreamSim** - *DreamSim: Learning New Dimensions of Human Visual Similarity Using Synthetic Data* | 2023-06 | [![arXiv](https://img.shields.io/badge/arXiv-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2306.09344) · [🌍&nbsp;Web](https://dreamsim-nights.github.io/) · [💻&nbsp;Code](https://github.com/ssundaram21/dreamsim) |
 | **DINOv2** - *DINOv2: Learning Robust Visual Features without Supervision* | 2023-04 | [![arXiv](https://img.shields.io/badge/arXiv-b31b1b?style=flat-square&logo=arxiv)](https://arxiv.org/pdf/2304.07193) · [🌍&nbsp;Web](https://dinov2.metademolab.com/) · [💻&nbsp;Code](https://github.com/facebookresearch/dinov2) |
