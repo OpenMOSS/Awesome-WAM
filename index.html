@@ -68,28 +68,32 @@
           <h1>World Action Models: The Next Frontier in Embodied AI</h1>
           <div class="paper-authors" aria-label="Paper authors and affiliations">
             <p>
-              Siyin Wang<sup>1,2,*</sup>, Junhao Shi<sup>1,2,*</sup>, Zhaoyang Fu<sup>1,*</sup>,
-              Xinzhe He<sup>1,*</sup>, Feihong Liu<sup>1,*</sup>, Chenchen Yang<sup>1,2</sup>,
-              Yikang Zhou<sup>2</sup>, Zhaoye Fei<sup>1</sup>, Jingjing Gong<sup>2</sup>,
-              Jinlan Fu<sup>1</sup>, Mike Zheng Shou<sup>3</sup>, Xuanjing Huang<sup>1,2</sup>,
-              Xipeng Qiu<sup>1,2</sup>, Yu-Gang Jiang<sup>1,†</sup>
+              <a href="https://sinwang20.github.io/">Siyin Wang</a><sup>1,2,*</sup>,
+              <a href="https://openmoss.github.io/Awesome-WAM">Junhao Shi</a><sup>1,2,*</sup>,
+              <a href="https://openmoss.github.io/Awesome-WAM">Zhaoyang Fu</a><sup>1,*</sup>,
+              <a href="https://openmoss.github.io/Awesome-WAM">Xinzhe He</a><sup>1,*</sup>,
+              <a href="https://openmoss.github.io/Awesome-WAM">Feihong Liu</a><sup>1,*</sup>, <br>
+              <a href="https://openmoss.github.io/Awesome-WAM">Chenchen Yang</a><sup>1,2</sup>,
+              <a href="https://openmoss.github.io/Awesome-WAM">Yikang Zhou</a><sup>2</sup>,
+              <a href="https://openmoss.github.io/Awesome-WAM">Zhaoye Fei</a><sup>1</sup>,
+              <a href="https://scholar.google.com/citations?user=IlNreT4AAAAJ&hl=zh-TW">Jingjing Gong</a><sup>2</sup>,
+              <a href="https://jinlanfu.github.io/">Jinlan Fu</a><sup>1</sup>, <br>
+              <a href="https://sites.google.com/view/showlab">Mike Zheng Shou</a><sup>3</sup>,
+              <a href="https://xuanjing-huang.github.io/">Xuanjing Huang</a><sup>1,2</sup>,
+              <a href="https://xpqiu.github.io/">Xipeng Qiu</a><sup>1,2</sup>,
+              <a href="https://teai.fudan.edu.cn/">Yu-Gang Jiang</a><sup>1,†</sup>
             </p>
             <p>
               <sup>1</sup>Fudan University
               <sup>2</sup>Shanghai Innovation Institute
               <sup>3</sup>National University of Singapore
             </p>
-            <p><sup>*</sup>Equal Contribution <sup>†</sup>Corresponding Author</p>
+            <p><sup>*</sup>Equal Contribution, <sup>‡</sup>Project Lead, <sup>†</sup>Corresponding Author</p>
           </div>
-          <p class="paper-subtitle">
-            This survey formalizes World Action Models (WAMs) as embodied foundation models that
-            unify forward predictive modeling with action generation. It traces how VLAs and world
-            models converge, organizes methods into Cascaded and Joint WAMs, reviews the training
-            data ecosystem, and summarizes evaluation protocols and open challenges.
-          </p>
+          
 
           <div class="paper-actions">
-            <a class="btn btn-dark btn-icon" href="./docs/WAM_survey.pdf">
+            <a class="btn btn-dark btn-icon" href="https://openmoss.github.io/Awesome-WAM">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 3.75h7.5L19.25 8.5v11.75a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
                 <path d="M14.5 3.75V8.5h4.75" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/>
@@ -97,7 +101,7 @@
               </svg>
               <span>Paper</span>
             </a>
-            <a class="btn btn-dark btn-icon" href="https://github.com/OpenMOSS/WAM-survey" target="_blank" rel="noopener">
+            <a class="btn btn-dark btn-icon" href="https://github.com/OpenMOSS/Awesome-WAM" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 3.75a8.75 8.75 0 0 0-2.77 17.05c.44.08.6-.19.6-.42v-1.66c-2.46.53-2.98-1.18-2.98-1.18-.4-1.03-.98-1.3-.98-1.3-.8-.54.06-.53.06-.53.89.06 1.36.92 1.36.92.79 1.35 2.07.96 2.58.73.08-.57.31-.96.56-1.18-1.96-.22-4.02-.98-4.02-4.37 0-.97.35-1.77.92-2.39-.09-.23-.4-1.13.09-2.36 0 0 .75-.24 2.46.91a8.5 8.5 0 0 1 4.48 0c1.71-1.15 2.46-.91 2.46-.91.49 1.23.18 2.13.09 2.36.57.62.92 1.42.92 2.39 0 3.4-2.07 4.15-4.05 4.36.32.27.6.8.6 1.61v2.39c0 .23.16.5.61.42A8.75 8.75 0 0 0 12 3.75Z" fill="currentColor"/>
               </svg>
@@ -105,6 +109,13 @@
             </a>
           </div>
         </div>
+
+        <p class="paper-subtitle">
+            This survey formalizes World Action Models (WAMs) as embodied foundation models that
+            unify forward predictive modeling with action generation. It traces how VLAs and world
+            models converge, organizes methods into Cascaded and Joint WAMs, reviews the training
+            data ecosystem, and summarizes evaluation protocols and open challenges.
+          </p>
 
         <figure class="architecture-figure section-stack section-figure overview-figure" aria-label="Overview roadmap">
           <img
@@ -304,7 +315,7 @@
             <div class="stage-list">
               <div><strong>Explicit planning</strong><span>pixel-space carriers such as video, flow, depth, normals, or 4D structure</span></div>
               <div><strong>Implicit planning</strong><span>latent features, future tokens, masks, and hidden-state conditioning</span></div>
-              <div><strong>Trade-off</strong><span>Natural modularity and interpretable future plans, but two-stage coupling, generation cost, and stage mismatch can limit closed-loop control.</span></div>
+              <!-- <div><strong>Trade-off</strong><span>Natural modularity and interpretable future plans, but two-stage coupling, generation cost, and stage mismatch can limit closed-loop control.</span></div> -->
             </div>
           </article>
 
@@ -319,9 +330,9 @@
               autoregressive sequence modeling, diffusion, flow matching, or parallel generation.
             </p>
             <div class="stage-list">
-              <div><strong>autoregressive generation</strong><span>shared token spaces, multi-head routing, unified vocabularies</span></div>
-              <div><strong>diffusion-based generation</strong><span>single-engine or multi-engine diffusion and non-autoregressive generation</span></div>
-              <div><strong>Trade-off</strong><span>Unified training strengthens world-action coupling, but sequential error propagation, latency, and unclear coupling mechanisms remain open issues.</span></div>
+              <div><strong>Autoregressive generation</strong><span>shared token spaces, multi-head routing, unified vocabularies</span></div>
+              <div><strong>Diffusion-based generation</strong><span>single-engine or multi-engine diffusion and non-autoregressive generation</span></div>
+              <!-- <div><strong>Trade-off</strong><span>Unified training strengthens world-action coupling, but sequential error propagation, latency, and unclear coupling mechanisms remain open issues.</span></div> -->
             </div>
           </article>
         </div>
