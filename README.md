@@ -737,7 +737,7 @@
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **VideoPhy** - *VideoPhy: Evaluating Physical Commonsense for Video Generation* | 2024-06 | [📄 Paper](https://arxiv.org/pdf/2406.03520) · [🌍&nbsp;Web](https://videophy.github.io/) · [💻&nbsp;Code](https://github.com/Hritikbansal/videophy) · [📦&nbsp;Dataset](https://huggingface.co/datasets/videophysics/videophy_test_public) 
+| **VideoPhy** - *VideoPhy: Evaluating Physical Commonsense for Video Generation* | 2024-06 | [📄 Paper](https://arxiv.org/pdf/2406.03520)  · [💻&nbsp;Code](https://github.com/Hritikbansal/videophy) · [📦&nbsp;Dataset](https://huggingface.co/datasets/videophysics/videophy_test_public) 
 | **PhyGenBench** - *Towards World Simulator: Crafting Physical Commonsense-Based Benchmark for Video Generation* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.05363) · [🌍&nbsp;Web](https://phygenbench123.github.io/) · [💻&nbsp;Code](https://github.com/OpenGVLab/PhyGenBench) 
 | **VBench-2.0** - *VBench-2.0: Advancing Video Generation Benchmark Suite for Intrinsic Faithfulness* | 2025-03 | [📄 Paper](https://arxiv.org/pdf/2503.21755) · [🌍&nbsp;Web](https://vchitect.github.io/VBench-2.0-project/) · [💻&nbsp;Code](https://github.com/Vchitect/VBench) · [📦&nbsp;Dataset](https://huggingface.co/datasets/Vchitect/VBench-2.0_sampled_videos) 
 | **WorldModelBench** - *WorldModelBench: Judging Video Generation Models as World Models* | 2025-02 | [📄 Paper](https://arxiv.org/pdf/2502.20694) · [🌍&nbsp;Web](https://worldmodelbench-team.github.io/) · [💻&nbsp;Code](https://github.com/WorldModelBench-Team/WorldModelBench) |
@@ -751,9 +751,8 @@
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **WorldSimBench** - *WorldSimBench: Towards Video Generation Models as World Simulators* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.18072) · [🌍&nbsp;Web](https://iranqin.github.io/WorldSimBench.github.io/) · [💻&nbsp;Code](https://github.com/iranqin/WorldSimBench) |
+| **WorldSimBench** - *WorldSimBench: Towards Video Generation Models as World Simulators* | 2024-10 | [📄 Paper](https://arxiv.org/pdf/2410.18072) · [🌍&nbsp;Web](https://iranqin.github.io/WorldSimBench.github.io/) |
 | **Wow, wo, val!** - *A Comprehensive Embodied World Model Evaluation Turing Test* | 2026-01 | [📄 Paper](https://arxiv.org/pdf/2601.04137) |
-
 ---
 
 #### 🤖 Action Policy — General
