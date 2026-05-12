@@ -232,9 +232,10 @@ code {
   .mobile-header { display: none; }
 
   .content-main {
-    width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
-    margin: 0;
-    padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+    width: min(var(--content-max), calc(100% - var(--sidebar-w) - var(--desktop-gutter) - var(--desktop-gutter)));
+    margin-left: calc(var(--sidebar-w) + max(var(--desktop-gutter), calc((100vw - var(--sidebar-w) - var(--content-max)) / 2)));
+    margin-right: auto;
+    padding: 3.2rem 0 6rem;
   }
 
   .hero-section {
@@ -382,13 +383,13 @@ code {
   min-height: 36rem;
   padding: 2.2rem 0 2.9rem;
   border-bottom: 1px solid var(--line);
-  text-align: left;
+  text-align: center;
 }
 
 .hero-copy {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   width: 100%;
   max-width: var(--content-max);
@@ -399,7 +400,7 @@ code {
 .paper-tags {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 0.45rem;
   margin-bottom: 1.35rem;
 }
@@ -463,7 +464,7 @@ h3 {
 
 .paper-subtitle {
   max-width: 47rem;
-  margin: 1rem 0 0;
+  margin: 1rem auto 0;
   color: var(--ink-soft);
   font-size: 1rem;
   line-height: 1.8;
@@ -473,7 +474,7 @@ h3 {
   display: grid;
   gap: 0.32rem;
   max-width: 58rem;
-  margin-top: 1rem;
+  margin: 1rem auto 0;
   color: var(--ink-soft);
   font-size: 0.9rem;
   line-height: 1.55;
@@ -507,7 +508,7 @@ h3 {
 .paper-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 0.65rem;
   margin-top: 1.6rem;
 }
@@ -1593,11 +1594,15 @@ h3 {
 }
 
 @media (min-width: 1060px) {
+  .site-footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .footer-inner {
-    width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
-    margin: 0;
-    padding-left: calc(var(--sidebar-w) + var(--desktop-gutter));
-    padding-right: var(--desktop-gutter);
+    width: min(var(--content-max), calc(100% - var(--sidebar-w) - var(--desktop-gutter) - var(--desktop-gutter)));
+    margin-left: calc(var(--sidebar-w) + max(var(--desktop-gutter), calc((100vw - var(--sidebar-w) - var(--content-max)) / 2)));
+    margin-right: auto;
   }
 }
 
@@ -1705,7 +1710,7 @@ h3 {
 
   .paper-actions {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
   }
 
   .coupling-rail {

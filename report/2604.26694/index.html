@@ -489,12 +489,55 @@
       }
       th, td { padding: 0.55rem; }
     }
-  </style>
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
 </head>
 <body>
 <main>
 <div class="wrap">
-<header class="hero"><h1>Unified 4D World Action Modeling from Video Priors with Asynchronous Denoising</h1><div class="meta"><p><b>方法名：</b>X-WAM</p><p><b>作者：</b>Jun Guo, Qiwei Li, Peiyan Li, Zilong Chen, Nan Sun, Yifei Su, Heyun Wang, Yuan Zhang, Xinghang Li, Huaping Liu</p><p><b>机构：</b>Tsinghua University, Xiaomi Robotics, Peking University, CASIA</p><p><b>发表：</b>arXiv preprint, 2026；源码为 NeurIPS 2026 preprint 模板，arXiv 页面未标注正式接收信息</p><p><b>版本：</b>v2，2026-05-07；初版 2026-04-29</p><p><b>链接：</b><a href="https://arxiv.org/abs/2604.26694">arXiv 2604.26694</a> | <a href="https://arxiv.org/pdf/2604.26694">PDF</a> | <a href="https://sharinka0715.github.io/X-WAM/">Project</a></p></div></header>
+<header class="hero">    <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<h1>Unified 4D World Action Modeling from Video Priors with Asynchronous Denoising</h1><div class="meta"><p><b>方法名：</b>X-WAM</p><p><b>作者：</b>Jun Guo, Qiwei Li, Peiyan Li, Zilong Chen, Nan Sun, Yifei Su, Heyun Wang, Yuan Zhang, Xinghang Li, Huaping Liu</p><p><b>机构：</b>Tsinghua University, Xiaomi Robotics, Peking University, CASIA</p><p><b>发表：</b>arXiv preprint, 2026；源码为 NeurIPS 2026 preprint 模板，arXiv 页面未标注正式接收信息</p><p><b>版本：</b>v2，2026-05-07；初版 2026-04-29</p><p><b>链接：</b><a href="https://arxiv.org/abs/2604.26694">arXiv 2604.26694</a> | <a href="https://arxiv.org/pdf/2604.26694">PDF</a> | <a href="https://sharinka0715.github.io/X-WAM/">Project</a></p></div></header>
 <div class="toc"><b>目录</b><ul><li><a href="#s1">1. 论文速览</a></li><li><a href="#s2">2. 动机</a></li><li><a href="#s3">3. 相关工作梳理</a></li><li><a href="#s4">4. 方法详解</a></li><li><a href="#s5">5. 实验</a></li><li><a href="#s6">6. 复现信息汇总</a></li><li><a href="#s7">7. 分析、局限与边界</a></li></ul></div>
 <section id="s1" class="card"><h2>1. 论文速览</h2><div class="tldr"><b>一句话总结：</b>X-WAM 把机器人策略执行、未来多视角 RGB-D 视频生成和 3D/4D 重建放进同一个 diffusion world-action model，用轻量 depth branch 加入空间建模，并用 Asynchronous Noise Sampling 同时保持动作解码效率和视频生成质量。</div><p><b>难度评级：</b>★★★★★。需要理解 video diffusion/DiT、flow matching、world action model、RGB-D/多视角几何、机器人 imitation learning 与异步采样推理。</p><p><b>关键词：</b><span class="tag">World Action Model</span><span class="tag">4D World Modeling</span><span class="tag">RGB-D Generation</span><span class="tag">Asynchronous Noise Sampling</span><span class="tag">Robotic Foundation Model</span></p><table><tr><th>阅读定位项</th><th>内容</th></tr><tr><td>论文要解决什么</td><td>已有 unified world action models 主要停留在 2D pixel-space，缺少显式 3D 空间意识；同时，动作要低延迟，视频/世界生成要高质量，两者采样步数需求冲突。</td></tr><tr><td>作者的方法抓手</td><td>从 Wan2.2-TI2V-5B 视频 DiT 初始化，联合预测未来 RGB、depth、state 和 action；复制最后 $M$ 个 DiT block 构造 depth branch；用 ANS 让训练噪声分布匹配异步推理。</td></tr><tr><td>最重要的结果</td><td>RoboCasa 平均 SR 79.2%，RoboTwin 2.0 clean/randomized 为 89.8%/90.7%；RoboCasa 4D 重建在 RGB、depth 和 point cloud 指标上超过对比方法。</td></tr><tr><td>阅读时要注意的点</td><td>核心不只是“加 depth”，而是如何在不破坏预训练 video prior、不显著增加 action latency 的前提下，把 depth、action 和 video 放进统一去噪序列。</td></tr></table><h3>核心贡献清单</h3><ul><li><b>提出 unified 4D World Action Model X-WAM。</b>一个框架同时服务 video generation、3D reconstruction、policy success 和 efficient action execution。</li><li><b>提出 lightweight depth adaptation。</b>通过复制 DiT 后部 block 形成 depth prediction branch，depth branch 单向读取 main branch，以尽量保留预训练 video backbone 的分布和参数完整性。</li><li><b>提出 Asynchronous Noise Sampling。</b>训练时从满足 $t_O\ge t_a$ 的联合分布采样，推理时 action 用较少步数快速解码，video 继续完整去噪。</li><li><b>大规模预训练并做多层验证。</b>在 5,873.9 小时、1,492,026 episodes 机器人数据上预训练，并在 RoboCasa、RoboTwin 2.0、4D reconstruction 和真实双臂机器人任务上评估。</li></ul></section>
 <section id="s2" class="card"><h2>2. 动机</h2><h3>2.1 要解决什么问题</h3><p>论文把 embodied AI 当前路线分成 policy models 与 world models 两类。VLA/policy models 擅长 instruction following 和 action prediction，但缺少动作如何在真实世界连续展开的几何直觉和物理意识；world models 能模拟未来观察，但通常不能直接输出可执行动作。近期 WAM/UWM 尝试统一 video generation 和 action prediction，但仍主要在 2D pixel-space 工作。</p><p>作者认为，真实物理世界本质是三维的；只做 2D 像素预测会丢失几何结构，使模型可能生成物理上不合理的未来，也难以进行几何忠实的 3D reconstruction。</p><h3>2.2 已有方法的局限</h3><ul><li><b>VLA：</b>能从语言和视觉到动作，但显式空间建模较弱，特别是需要精细插入、长时序进展理解和几何推理的任务。</li><li><b>World models：</b>能生成未来观察，但不直接生成 executable robot actions。</li><li><b>现有 unified WAM/UWM：</b>开始联合 video/action，但局限在 2D pixel-space，缺少 explicit 3D spatial awareness。</li><li><b>异步采样前作：</b>为了 action latency 会 decouple video/action timestep；如果训练时独立采样各模态 timestep，会产生测试时不会出现的 $t_O<t_a$ 配置，造成 train-inference distribution mismatch。</li></ul><h3>2.3 本文的解决思路</h3><p>X-WAM 的高层思路是：以预训练视频 diffusion model 的强视觉先验为基础，把机器人观测扩展到 multi-view RGB-D future generation；depth 用轻量分支适配而非重建整个模型；action 和 video 共享统一去噪框架，但通过 ANS 让 action 先完成去噪、video 继续去噪。</p></section>

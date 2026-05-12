@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WorldVLA: Towards Autoregressive Action World Model - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>WorldVLA: Towards Autoregressive Action World Model</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Jun Cen, Chaohui Yu, Hangjie Yuan, Yuming Jiang, Siteng Huang, Jiayan Guo, Xin Li, Yibing Song, Hao Luo, Fan Wang, Deli Zhao, Hao Chen</p>
+<p><strong>Organization: </strong>DAMO Academy, Alibaba Group; Hupan Lab; Zhejiang University</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2506.21539">2506.21539</a>, submission date 2025-06-26; topic: Robotics and Artificial Intelligence</p>
+<p><strong>PDF: </strong><a href="https://arxiv.org/pdf/2506.21539">arXiv PDF</a>; <strong>Code: </strong><a href="https://github.com/alibaba-damo-academy/WorldVLA">GitHub link given in the paper</a>, which currently redirects to <a href="https://github.com/alibaba-damo-academy/RynnVLA-002">RynnVLA-002</a>; <strong>Model page: </strong><a href="https://huggingface.co/Alibaba-DAMO-Academy/WorldVLA">Hugging Face WorldVLA</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation and related work</a></li>
+<li><a href="#method">3. Detailed explanation of method</a></li>
+<li><a href="#math">4. Mathematical forms and training objectives</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#reproduce">6. Repeat audit</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>WorldVLA puts the discrete autoregressive VLA action model and the action-conditioned world model into the same Chameleon-style token generation framework, allowing the model to learn to "look at the picture to take action" and "predict the next frame based on the action" at the same time, and uses action attention mask to alleviate the error accumulation of autoregressive action chunks.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>Existing VLA models usually only use actions as output and lack the ability to use actions as input to understand environmental dynamics; the world model can predict future visual states based on actions, but cannot directly output robot actions. WorldVLA attempts to unify these two categories of functionality.</td></tr>
+<tr><th>The author's approach</th><td>Discretize text, images and 7-dimensional robot actions into tokens, and mix training action loss and world loss in an autoregressive LLM; and design an attention mask for action chunk generation that only looks at text and images and does not look at previous action tokens.</td></tr>
+<tr><th>most important results</th><td>On LIBERO, WorldVLA 512×512 achieved an average success rate of 81.8% without large-scale robot pre-training, which is higher than OpenVLA's 76.5%. Compared with action model alone, the average SR of action-world joint training increased from 62.8% to 67.2%, and with action chunk and new mask, it increased from 76.6% to 78.1%.</td></tr>
+<tr><th>Things to note when reading</th><td>The paper has no appendices, and many implementation hyperparameters are only given in the text; "WorldVLA" in the table sometimes refers to action-world joint training, and sometimes refers to the 256/512 resolution model, which needs to be distinguished in conjunction with the table column headers.</td></tr>
+</table>
+<h3>keywords</h3>
+<p>
+<span class="tag">Vision-Language-Action</span>
+<span class="tag">World Model</span>
+<span class="tag">Autoregressive Modeling</span>
+<span class="tag">Action Chunking</span>
+<span class="tag">LIBERO</span>
+</p>
+<h3>core contribution</h3>
+<ul>
+<li><strong>Unify the understanding and generation of actions and images.</strong>The paper proposes WorldVLA, which combines action model and world model into the same autoregressive action-world model.</li>
+<li><strong>Point out the error propagation problem of discrete autoregressive action chunk.</strong>The author observed that under ordinary causal mask, subsequent actions will rely on the previously generated action tokens, and if the previous actions are wrong, they will continue to bias the later actions.</li>
+<li><strong>Propose action attention mask.</strong>Mask historical action tokens when generating the current action, so that each action is mainly determined by text and visual input, thereby reducing performance degradation when the action chunk length increases.</li>
+<li><strong>Experiments demonstrate two-way enhancement.</strong>World model training improves action success rate, and action model training also improves long video prediction quality, especially the 50-frame FVD dropped from 718.6 to 674.1.</li>
+</ul>
+</section>
+<section id="motivation">
+<h2>2. Motivation and related work</h2>
+<h3>2.1 Problems to be solved</h3>
+<p>The paper divides the robot model into two complementary but incomplete capabilities: the VLA/action model outputs actions based on images and language, and the world model predicts future visual states based on the current visual state and actions. The former can perform tasks, but actions are mostly regarded as final outputs; the latter can model environmental changes caused by actions, but cannot directly give control strategies.</p>
+<p>The motivation for WorldVLA is that if a model wants to both generate actions and imagine the next frame based on the actions, it will be forced to learn visual semantics, action semantics, and physical transfer relationships simultaneously during training. The author calls this the mutual enhancement of action model and world model.</p>
+<div class="figure">
+<img alt="Action model, world model and action world model comparison" src="figures/fig_1_4.png"/>
+<div class="caption"><strong>Figure 1. </strong>The teaser of the paper: action model is image/text to action, world model is image/action to image, and action world model attempts to unify the two.</div>
+</div>
+<h3>2.2 Related work context</h3>
+<table>
+<tr>
+<th>Technical line</th>
+<th>Representation method</th>
+<th>Positioning in the paper</th>
+<th>WorldVLA Differences</th>
+</tr>
+<tr>
+<td>Vision-Language-Action Model</td>
+<td>RT-1/RT-2, OpenVLA, $\pi_0$, diffusion VLA</td>
+<td>Use MLLM or a visual backbone plus an action head to map observations and instructions to actions.</td>
+<td>It not only predicts actions, but also uses actions as input to train predictions for the next frame, allowing the model to learn action-conditioned dynamics.</td>
+</tr>
+<tr>
+<td>Video / World Model</td>
+<td>MAGVIT, SVD, Cosmos, iVideoGPT, DWS</td>
+<td>Video generation can be used to "imagine the future"; the world model further uses actions to control future states.</td>
+<td>WorldVLA retains both world prediction and action output, instead of just generating video or only making strategy selection.</td>
+</tr>
+<tr>
+<td>Unified Understanding and Generation</td>
+<td>Chameleon, Emu3, Transfusion, Janus, UVA</td>
+<td>Unify understanding and generation into the same model or system.</td>
+<td>WorldVLA chooses the discrete token + autoregressive LLM route; UVA serves as a continuous diffusion head control in the action-world direction.</td>
+</tr>
+</table>
+<h3>2.3 Comparison table of method types</h3>
+<table class="compact">
+<tr><th>Model Type</th><th>Discrete</th><th>Continuous</th><th>Input</th><th>Output</th></tr>
+<tr><td>Action Model</td><td>OpenVLA</td><td>$\pi_0$</td><td>T + V</td><td>A</td></tr>
+<tr><td>Video Prediction Model</td><td>MAGVIT</td><td>SVD</td><td>T + V</td><td>V</td></tr>
+<tr><td>World Model</td><td>iVideoGPT</td><td>DWS</td><td>T + V + A</td><td>V</td></tr>
+<tr><td>Action World Model</td><td>WorldVLA</td><td>UVA</td><td>T + V + A</td><td>V + A</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>3. Detailed explanation of method</h2>
+<h3>3.1 Overall architecture</h3>
+<p>WorldVLA is initialized from Chameleon, because Chameleon itself is a discrete token model that unifies image understanding and image generation. On this basis, the paper adds three types of tokenizers: image tokenizer, text tokenizer, and action tokenizer. All modalities end up in the same sequence of autoregressive tokens.</p>
+<div class="figure">
+<img alt="WorldVLA overview" src="figures/fig_1_3.png"/>
+<div class="caption"><strong>Figure 2. </strong>Action model on the left: text and historical image input, output $K$ action chunks; world model on the right: text, image and action input, output the next frame of image, repeat $N$ rounds.</div>
+</div>
+<table>
+<tr><th>components</th><th>The settings given in the paper</th><th>function</th></tr>
+<tr><td>Image tokenizer</td><td>VQ-GAN; compression rate 16; codebook size 8192; 256×256 image generation 256 tokens, 512×512 image generation 1024 tokens.</td><td>Discretize the image so that LLM can generate image tokens like text tokens.</td></tr>
+<tr><td>Text tokenizer</td><td>BPE tokenizer; vocabulary size 65, 536, including 8192 image tokens and 256 action tokens.</td><td>Unified vocabulary entry for text, image, and action tokens.</td></tr>
+<tr><td>Action tokenizer</td><td>Each continuous action dimension is discretized into 256 bins; an action is represented by 7 tokens: 3 relative positions, 3 relative angles, and 1 absolute gripper state.</td><td>Turn the robot control variables into discrete tokens that can be predicted by the autoregressive model.</td></tr>
+</table>
+<h3>3.2 Action Model Data</h3>
+<p>The task of the action model is to generate actions based on language instructions and image observations. The text prompt form used in the paper is: </p>
+<div class="pseudocode">What action should the robot take to + task instruction + ?</div>
+<p>The sequence form is: </p>
+<div class="formula-block">
+ $$\texttt{[BOS]\{text\}}
+ \underbrace{\texttt{[BOI]\{image\}\dots\{image\}[EOI]}}_{\times M}
+ \texttt{[EOS]}
+ \overbrace{
+ \underbrace{\texttt{[BOA]\{action\}\dots\{action\}[EOA]}}_{\times K}
+ \texttt{[EOS]}}^{\mathcal{L}_{action}}$$
+ <p>Here $M$ is the number of input historical images, and $K$ is the length of the action chunk output at one time. During training, only the cross-entropy loss $\mathcal{L}_{action}$ on the action token is calculated.</p>
+</div>
+<h3>3.3 World Model Data</h3>
+<p>The world model's task is to generate the next frame based on the current image and current action. The paper emphasizes that it does not require task instruction, because after a given action, the next state is mainly determined by the current state and action. The text prompt used is: </p>
+<div class="pseudocode">Generate the next frame based on the current image and the action.</div>
+<div class="formula-block">
+ $$\texttt{[BOS]\{text\}}
+ \underbrace{
+ \texttt{[BOI]\{image\}[EOI][BOA]\{action\}[EOA][EOS]}
+ \overbrace{\texttt{[BOI]\{image\}[EOI][EOS]}}^{\mathcal{L}_{world}}
+ }_{\times N}$$
+ <p>$N$ represents the number of rounds of continuous prediction of the next frame; the paper defaults to $N=1$ to save calculations. During training, only the loss of the generated image token is calculated.</p>
+</div>
+<h3>3.4 Action Attention Mask</h3>
+<p>Ordinary autoregressive causal masks allow the current token to see all past tokens. This is natural for text and image generation, but it creates a problem for action chunks: subsequent action tokens will rely on previously predicted action tokens. Since basic MLLM is mainly pre-trained on text and images, action modal generalization is not as strong as text images. Once the previous action is predicted incorrectly, the error will be propagated within the chunk.</p>
+<p>The mask strategy proposed by the author is: only text and image input are allowed to be viewed when generating the current action, and previous actions are not allowed to be viewed. In this way, $K$ actions are semantically closer to parallel prediction, and each action is directly determined by visual observation.</p>
+<div class="figure">
+<img alt="Attention mask comparison" src="figures/attention_mask.png"/>
+<div class="caption"><strong>Figure 3. </strong>(a) Default action model causal mask; (b) WorldVLA's action mask, which blocks previous actions; (c) World model still uses conventional causal mask.</div>
+</div>
+<h3>3.5 Forward process pseudocode</h3>
+<div class="pseudocode"># Action branch
+tokens = concat(BOS, text_tokens, image_tokens[1: M], EOS)
+action_tokens = autoregressive_decode(tokens, K * 7, mask="no_prior_action")
+loss_action = cross_entropy(action_tokens, target_action_tokens)
+
+# World branch
+tokens = concat(BOS, world_prompt, image_t, action_t, EOS)
+next_image_tokens = autoregressive_decode(tokens, image_token_count, mask="causal")
+loss_world = cross_entropy(next_image_tokens, target_image_tokens)
+
+# Joint training
+loss = loss_action + alpha * loss_world</div>
+</section>
+<section id="math">
+<h2>4. Mathematical forms and training objectives</h2>
+<h3>4.1 Problem Formulation</h3>
+<div class="formula-block">
+<p class="intuition">Action model is answering: given historical observations and language instructions, what action should be performed currently.</p>
+ $$a_t = \pi_\theta(a_t \mid o_{t-h: t}, l)$$
+ <table class="symbol-table">
+<tr><td>$a_t$</td><td>Robot motion at time $t$.</td></tr>
+<tr><td>$o_{t-h: t}$</td><td>Historical image observations from $t-h$ to $t$.</td></tr>
+<tr><td>$l$</td><td>Natural language task instructions.</td></tr>
+<tr><td>$\pi_\theta$</td><td>Strategy model, also known as action model.</td></tr>
+</table>
+</div>
+<div class="formula-block">
+<p class="intuition">World model is answering: given past observations and past actions, what will the next frame look like.</p>
+ $$o_t = f_\phi(o_t \mid o_{t-h: t-1}, a_{t-h: t-1})$$
+ <table class="symbol-table">
+<tr><td>$f_\phi$</td><td>world model. </td></tr>
+<tr><td>$o_{t-h: t-1}$</td><td>Sequence of image observations prior to the current frame.</td></tr>
+<tr><td>$a_{t-h: t-1}$</td><td>The corresponding historical action sequence.</td></tr>
+</table>
+</div>
+<div class="formula-block">
+<p class="intuition">WorldVLA puts both capabilities into the same parametric model $M_\psi$.</p>
+ $$M_\psi: \begin{cases}
+ a_t = M_\psi^{\text{policy}}(a_t \mid o_{t-h: t}, l), \\
+ o_t = M_\psi^{\text{world}}(o_t \mid o_{t-h: t-1}, a_{t-h: t-1}).
+ \end{cases}$$
+ <p>These are not two completely separate models, but share an autoregressive token backbone; the differences mainly come from the input sequence format, loss position and attention mask.</p>
+</div>
+<h3>4.2 Joint Loss</h3>
+<div class="formula-block">
+ $$\mathcal{L} = \mathcal{L}_{action} + \alpha \mathcal{L}_{world}$$
+ <table class="symbol-table">
+<tr><td>$\mathcal{L}_{action}$</td><td>Cross-entropy loss on action token.</td></tr>
+<tr><td>$\mathcal{L}_{world}$</td><td>cross-entropy loss on generated image token.</td></tr>
+<tr><td>$\alpha$</td><td>The world loss weight is fixed at 0.04 in the paper experiment.</td></tr>
+</table>
+<p>The reason for using $\alpha$ is very practical: an action has only 7 tokens, while an image has 256 or 1024 tokens; without weighting, the number of tokens in world loss will significantly dominate the total loss.</p>
+</div>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<table>
+<tr><th>Project</th><th>settings</th></tr>
+<tr><td>Benchmark</td><td>LIBERO, including LIBERO-Spatial, Object, Goal, Long, LIBERO-90. Spatial measures spatial relationships, Object measures object recognition, grasping and placement, Goal measures different target processes, Long contains 10 long-range tasks, and LIBERO-90 is used for pre-training.</td></tr>
+<tr><td>Data processing</td><td>Filter failed trajectories and no-operation actions; world model evaluation requires paired video/action ground truth, so 90% trajectory is used as the training set and 10% is used as the validation set. The benchmark comparison in Table 3 was trained fairly using all available data.</td></tr>
+<tr><td>Default hyperparameters</td><td>The default input image number of action model is $M=2$; the action chunk size of LIBERO Long is $K=10$, and the remaining three tasks are $K=5$; the default world model is $N=1$; $\alpha=0.04$.</td></tr>
+<tr><td>Action metrics</td><td>Each task is rolled out 50 times, and the success rate is recorded in percentage.</td></tr>
+<tr><td>World metrics</td><td>Record FVD, PSNR, SSIM, LPIPS on the validation set.</td></tr>
+</table>
+<h3>5.2 Main benchmark results</h3>
+<table class="compact">
+<tr><th>Continuous Action Model</th><th>Pretraining</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Average</th></tr>
+<tr><td>Diffusion Policy</td><td>No</td><td>78.3</td><td>92.5</td><td>68.3</td><td>50.5</td><td>72.4</td></tr>
+<tr><td>Octo</td><td>Yes</td><td>78.9</td><td>85.7</td><td>84.6</td><td>51.1</td><td>75.1</td></tr>
+<tr><td>DiT Policy</td><td>Yes</td><td>84.2</td><td>96.3</td><td>85.4</td><td>63.8</td><td>82.4</td></tr>
+<tr><td>OpenVLA-OFT</td><td>Yes</td><td>96.9</td><td>98.1</td><td>95.5</td><td>91.1</td><td>95.4</td></tr>
+<tr><th>Discrete Action Model</th><th>Pretraining</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Average</th></tr>
+<tr><td>OpenVLA</td><td>Yes</td><td>84.7</td><td>88.4</td><td>79.2</td><td>53.7</td><td>76.5</td></tr>
+<tr><td>WorldVLA 256×256</td><td>No</td><td>85.6</td><td>89.0</td><td>82.6</td><td>59.0</td><td>79.1</td></tr>
+<tr><td>WorldVLA 512×512</td><td>No</td><td>87.6</td><td>96.2</td><td>83.4</td><td>60.0</td><td>81.8</td></tr>
+</table>
+<p>The author's interpretation is that WorldVLA has surpassed discrete OpenVLA without large-scale robot pre-training. 512×512 is better than 256×256. On the one hand, Chameleon's image tokenizer and LLM components are closer to the 512×512 pre-training setting. On the other hand, high resolution provides more detailed visual information, which is important for crawling tasks.</p>
+<h3>5.3 World Model helps Action Model</h3>
+<table class="compact">
+<tr><th>Index</th><th>Action Model</th><th>World Model</th><th>Action Chunking</th><th>New Mask</th><th>Goal</th><th>Object</th><th>Spatial</th><th>Long</th><th>Average</th></tr>
+<tr><td>1</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>67.3</td><td>82.9</td><td>77.8</td><td>23.0</td><td>62.8</td></tr>
+<tr><td>2</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>73.1</td><td>88.0</td><td>80.2</td><td>27.3</td><td>67.2</td></tr>
+<tr><td>3</td><td>Yes</td><td>No</td><td>Yes</td><td>No</td><td>79.6</td><td>82.9</td><td>36.7</td><td>16.9</td><td>54.0</td></tr>
+<tr><td>4</td><td>Yes</td><td>No</td><td>Yes</td><td>Yes</td><td>84.4</td><td>90.9</td><td>81.8</td><td>49.3</td><td>76.6</td></tr>
+<tr><td>5</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td>85.1</td><td>90.9</td><td>84.0</td><td>52.4</td><td>78.1</td></tr>
+</table>
+<p>Compared with Row 1, the average success rate of Row 2 increased from 62.8 to 67.2; compared with Row 4, the average success rate of Row 5 increased from 76.6 to 78.1. The paper explains that: the world model needs to learn the state changes caused by actions, so it will make the shared backbone better understand the physics of the environment and the meaning of actions, which will be beneficial to the action model.</p>
+<div class="figure">
+<img alt="Action model visualization" src="figures/vis_action_model.png"/>
+<div class="caption"><strong>Figure 4. </strong>Qualitative examples given in the paper: a single action model will move directly to the target location but fails to successfully grasp the object; the action world model will repeatedly try to grab and then move after success.</div>
+</div>
+<h3>5.4 Action Model helps World Model</h3>
+<table class="compact">
+<tr><th></th><th colspan="4">10 frames</th><th colspan="4">50 frames</th></tr>
+<tr><th>Model</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th><th>FVD ↓</th><th>PSNR ↑</th><th>SSIM ↑</th><th>LPIPS ↓</th></tr>
+<tr><td>World Model</td><td><strong>250.0</strong></td><td>29.62</td><td><strong>90.73</strong></td><td>11.97</td><td>718.6</td><td>23.98</td><td>83.41</td><td>15.60</td></tr>
+<tr><td>Action World Model</td><td>255.1</td><td><strong>29.77</strong></td><td>90.40</td><td><strong>11.94</strong></td><td><strong>674.1</strong></td><td><strong>24.30</strong></td><td><strong>83.55</strong></td><td><strong>15.44</strong></td></tr>
+</table>
+<p>On the 10-frame, the two are close, and the FVD and SSIM of the pure world model are slightly better; on the 50-frame, the action world model is better on all four indicators. The author emphasizes that action generation training can also enhance visual and behavioral pattern understanding, especially for longer sequence generation.</p>
+<div class="figure">
+<img alt="World model visualization" src="figures/vis_world_model_6.png"/>
+<div class="caption"><strong>Figure 5. </strong>The pure world model has inconsistencies or objects disappear in scenes such as opening drawers, moving plates, and putting bowls on the stove; the predictions of the action world model are more consistent with the action results.</div>
+</div>
+<h3>5.5 Action Chunking and Attention Mask</h3>
+<p>The paper observes that when the ordinary autoregressive method generates multiple continuous actions, the longer the action chunk, the easier it is to degrade performance. The reason is that subsequent actions rely too much on previously generated actions rather than being directly rooted in visual input. The new mask allows each action to rely only on text and images to avoid error propagation within the chunk.</p>
+<div class="figure">
+<img alt="Action chunk length ablation" src="figures/ck_7.png"/>
+<div class="caption"><strong>Figure 6. </strong>Action chunk length ablation: Ordinary masks degrade significantly under long chunks, while new masks maintain a better success rate under longer chunks; chunks that are too long will still decline because the policy cannot adapt in time.</div>
+</div>
+<h3>5.6 World Model vs. Video Prediction Model</h3>
+<p>The input of the video prediction model is the current frame and task instruction, without action; the input of the world model includes action. The author compared the help of the two to the action model and found that the world model improved all evaluation tasks, while the video prediction model only helped on two tasks and had a negative impact on one task. The explanation given in the paper is: when there is no action condition, the same initial frame may correspond to multiple reasonable future frames, and the training signal is more blurred; the future state of the action-conditioned world model is more certain.</p>
+<div class="figure">
+<img alt="World model versus video prediction model" src="figures/video_model_2.png"/>
+<div class="caption"><strong>Figure 7. </strong>Comparison of action world model and action video prediction model; the paper attributes the difference to whether action conditioning is clear.</div>
+</div>
+<h3>5.7 Historical image input length</h3>
+<table class="compact">
+<tr><th></th><th colspan="2">1 frame</th><th colspan="2">2 frames</th><th colspan="2">4 frames</th></tr>
+<tr><th>Setting</th><th>SR ↑</th><th>FPS ↑</th><th>SR ↑</th><th>FPS ↑</th><th>SR ↑</th><th>FPS ↑</th></tr>
+<tr><td>w/o Action Chunking</td><td>58.4</td><td>2.27</td><td>67.3</td><td>1.77</td><td>78.7</td><td>1.22</td></tr>
+<tr><td>w/ Action Chunking</td><td>74.0</td><td>3.67</td><td>84.4</td><td>3.13</td><td>84.7</td><td>2.78</td></tr>
+</table>
+<p>The more history frames there are, the stronger visual context the model gets, but at the expense of FPS. With action chunking, the SR from 2 frames to 4 frames only goes from 84.4 to 84.7, so the author uses $M=2$ by default as a compromise between performance and speed.</p>
+<h3>5.8 World Model Pretraining</h3>
+<table class="compact">
+<tr><th>Setting</th><th>Goal</th><th>Object</th><th>Spatial</th><th>Long</th><th>Average</th></tr>
+<tr><td>w/o World Model Pretrain</td><td>67.3</td><td>82.9</td><td>77.8</td><td>23.0</td><td>62.8</td></tr>
+<tr><td>w/ World Model Pretrain</td><td>73.1</td><td>84.0</td><td>79.8</td><td>30.2</td><td>66.8</td></tr>
+</table>
+<p>After world model pretraining, the average SR is from 62.8 to 66.8, and the Long is from 23.0 to 30.2. The author explains this as: world model pre-training forces the model to learn visual input, actions, and state transfer physics before migrating to the action model.</p>
+</section>
+<section id="reproduce">
+<h2>6. Repeat audit</h2>
+<div class="audit-card">
+<h3>6.1 Code and model</h3>
+<p><span class="ok">Available information: </span>The arXiv page and source code both provide GitHub links. <a href="https://github.com/alibaba-damo-academy/WorldVLA">alibaba-damo-academy/WorldVLA</a>. This link currently redirects to <a href="https://github.com/alibaba-damo-academy/RynnVLA-002">RynnVLA-002</a>, the README shows that WorldVLA was upgraded to RynnVLA-002 on 2025-11-10, and the WorldVLA model, training code and LIBERO evaluation code were released on 2025-06-23. Still on Hugging Face <a href="https://huggingface.co/Alibaba-DAMO-Academy/WorldVLA">WorldVLA model card</a>, 256 and 512 resolution checkpoints are listed.</p>
+</div>
+<h3>6.2 Data and preprocessing</h3>
+<ul>
+<li>Use LIBERO benchmark to mainly evaluate Spatial, Object, Goal, and Long, and use LIBERO-90 as the source of pre-training related data.</li>
+<li>Filter unsuccessful trajectories and no-op actions, and the processing method refers to OpenVLA.</li>
+<li>World model evaluation requires ground-truth paired video/action data, so training/validation is divided into 90%/10% trajectories.</li>
+<li>The main benchmark comparison in Table 3 is trained using all available data for comparison with the previous work.</li>
+</ul>
+<h3>6.3 Training key hyperparameters</h3>
+<table>
+<tr><th>Super parameters</th><th>value</th><th>Remarks</th></tr>
+<tr><td>Backbone initialization</td><td>Chameleon</td><td>Discrete autoregressive models for unifying image understanding and generation.</td></tr>
+<tr><td>Image resolution</td><td>256×256 or 512×512</td><td>A 512×512 image corresponds to 1024 image tokens, which has higher performance but a higher cost.</td></tr>
+<tr><td>Image tokenizer codebook</td><td>8192</td><td>VQ-GAN tokenizer. </td></tr>
+<tr><td>Text tokenizer vocabulary</td><td>65, 536</td><td>Contains image/action token.</td></tr>
+<tr><td>Action bins</td><td>256 bins per dimension</td><td>The bin width is determined by the training data range.</td></tr>
+<tr><td>Action dimension</td><td>7 tokens</td><td>3 relative positions + 3 relative angles + 1 gripper state. </td></tr>
+<tr><td>Historical images $M$</td><td>Default 2</td><td>Determined by historical frame ablation.</td></tr>
+<tr><td>Action chunk $K$</td><td>Long is 10, the rest are 5</td><td>Default configuration.</td></tr>
+<tr><td>World prediction rounds $N$</td><td>1</td><td>To save calculations.</td></tr>
+<tr><td>Loss weight $\alpha$</td><td>0.04</td><td>Balancing the problem of far more image tokens than action tokens.</td></tr>
+</table>
+<h3>6.4 Recurring gaps</h3>
+<ul>
+<li><span class="warn">The training resources are not stated in the main text of the paper.</span>GPU type, number, training duration, batch size, optimizer, learning rate schedule, etc. are not included in the LaTeX text.</li>
+<li><span class="warn">There are no appendices.</span>The appendix input in the source code is commented, and no more complete superparameter list or implementation details are provided.</li>
+<li><span class="warn">The code repository has been upgraded.</span>The WorldVLA GitHub link given in the paper currently redirects to RynnVLA-002; if you strictly reproduce the paper table, you need to confirm whether the warehouse retains the original WorldVLA version or the corresponding tag/commit.</li>
+</ul>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Judging from the paper's own evidence, the value is concentrated in two interconnected conclusions: first, world model training can improve action generation; second, action model training can also improve world prediction for longer horizons. This conclusion is not supported by concept maps alone, but is supported by action ablation tables, world model ablation tables, and visual cases.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The paper claims that three types of evidence align with each other: the main benchmark shows that WorldVLA exceeds OpenVLA in the discrete action model group; ablation clearly splits the impact of action model, world model, action chunking, and attention mask; the visualization diagram shows the typical failure modes of pure action model and pure world model. In particular, Row 3 and Row 4 of Table 4 directly illustrate that the naive autoregressive action chunk will degrade significantly, but the new mask can restore performance.</p>
+<h3>7.3 Limitations and future directions described by the author</h3>
+<ul>
+<li><strong>Data and model sizes remain scalable.</strong>The Conclusion clearly lists scaling data and model size as follow-up directions.</li>
+<li><strong>Discrete image tokenizers have limited visual expression capabilities.</strong>The author points out that current tokenizers rely on discrete representations and have limited perceptual expressiveness, and a more unified and higher-quality tokenizer is needed.</li>
+<li><strong>Auxiliary action heads can be added.</strong>The author believes that auxiliary action head may further improve grasping performance.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>The experimental evidence of the paper mainly comes from the LIBERO simulation benchmark; whether the model can be directly transferred to real robots, more hardware action spaces, longer task chains and more complex interactive environments, the text does not give experimental verification. The reported conclusions on generalization are therefore limited to the LIBERO setting that the paper has evaluated.</p>
+<h3>7.5 Appendix status</h3>
+<p>This arXiv source code does not contain available appendices: `\beginappendix` and `\input{sec/appendix}` in `paper.tex` are both commented, and there is no `sec/appendix.tex` in the source code Contents. Therefore, this report does not have appendix proofs, appendix superparameters or appendix supplementary experiments that can be integrated.</p>
+</section>
+</main>
+</body>
+</html>

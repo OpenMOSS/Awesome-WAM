@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Dream2Flow: Bridging Video Generation and Open-World Manipulation with 3D Object Flow - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div>
+<span class="tag">arXiv: 2512.24766</span>
+<span class="tag">Video Generation</span>
+<span class="tag">3D Object Flow</span>
+<span class="tag">Open-World Manipulation</span>
+</div>
+<h1>Dream2Flow: Bridging Video Generation and Open-World Manipulation with 3D Object Flow</h1>
+<p>This paper proposes Dream2Flow: Distill the video of "how the task should happen" generated by the text conditional video generation model into 3D object flow, and then let the robot track the movement of this object through trajectory optimization or reinforcement learning.</p>
+<div class="meta">
+<div><strong>Author</strong>: Karthik Dharmarajan, Wenlong Huang, Jiajun Wu, Li Fei-Fei, Ruohan Zhang</div>
+<div><strong>institution</strong>: Stanford University</div>
+<div><strong>version</strong>: arXiv v1, 31 Dec 2025</div>
+<div><strong>Project page</strong>: <a href="https://dream2flow.github.io/">https: //dream2flow.github.io/</a></div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#s1">1. Quick overview of the paper</a></li>
+<li><a href="#s2">2. Problem setting and motivation</a></li>
+<li><a href="#s3">3. Related job positioning</a></li>
+<li><a href="#s4">4. Intensive reading of methods</a></li>
+<li><a href="#s5">5. Experiments and results</a></li>
+<li><a href="#s6">6. reproducibility and implementation details</a></li>
+<li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#s8">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="s1">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>Solving the interface problem between video generation models and robot control. The video model can generate reasonable human/object interaction videos, but the robot requires low-level actions; directly imitating human hand movements will encounter an embodiment gap, so the author wants to decouple "how objects in the world should move" from "which robot implements it."</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Use 3D object flow as the video-control interface: first recover the 3D point trajectory of the task-related object from the generated video through depth estimation, segmentation and point tracking, then write the operation as object trajectory tracking, and use trajectory optimization, particle dynamics planning or SAC reward to generate actions.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>Dream2Flow is better than AVDC and RIGVID in three real robot tasks: Bread in Bowl is 8/10, Open Oven is 8/10, and Cover Bowl is 3/10; in Open Door RL, 3D object flow reward reaches Franka 100/100, Spot 100/100, and GR1 94/100, which is close to manual object-state reward.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>Note the similarities and differences between it and NovaFlow: both use the interface to generate video to 3D flow, but Dream2Flow emphasizes 3D object flow as a unified reward/target, which can serve random shooting planning, real robot rigid grasping trajectory optimization, and cross-embodiment reinforcement learning.</td>
+</tr>
+</table>
+<figure>
+<img alt="Dream2Flow method overview" src="figures/figs_method.png"/>
+<figcaption>Figure 2: Dream2Flow pipeline. The task language and initial RGB-D observations are fed into the video generation model, which then reconstructs the 3D object flow through mask, depth, tracks, and finally the flow is tracked by the robot policy or optimizer.</figcaption>
+</figure>
+</section>
+<section id="s2">
+<h2>2. Problem setting and motivation</h2>
+<p>The motivation of the paper is straightforward: the video generation model can already imagine "how objects are manipulated" in open scenes, but these videos usually use human hands as the interacting subjects, and the action spaces, kinematics, and contact methods of robots and human hands are different. The author believes that the human hand movements in the video should not be directly imitated, but the 3D motion of task-related objects in the video should be extracted.</p>
+<p>Therefore, Dream2Flow converts the task into object trajectory tracking: the video model is responsible for giving "what state changes should occur", and the robot module is responsible for determining "how the ontology implements this state change". This allows the same 3D object flow to be implemented by Franka, Spot or GR1 using different action strategies.</p>
+<div class="callout">
+<strong>Core abstraction: </strong>3D object flow is an intermediate layer between language intent and low-level control. It is both more geometric than RGB video and less dependent on ontology than robot motion.
+ </div>
+</section>
+<section id="s3">
+<h2>3. Related job positioning</h2>
+<h3>3.1 Task specifications of Manipulation</h3>
+<p>Task specifications can come from symbolic planning, language conditional policies, target images, keypoint constraints, 3D value maps, affordance maps, etc. Dream2Flow belongs to the object-centric specification: language instructions are first interpreted by the video model as object motion and then executed by the robot.</p>
+<h3>3.2 2D/3D Flow in Robotics</h3>
+<p>Dense motion fields, point tracks and 3D scene/object flow can all be used as embodiment-agnostic mid-level interfaces. This article follows the object-centric route to recover the desired object motion from the video and then track it under robot constraints. Compared with 2D optical flow or rigid body pose, 3D object flow can cover more deformation, occlusion and non-rigid scenes.</p>
+<h3>3.3 Video Models for Robotics</h3>
+<p>Video models can be used as auxiliary training objectives, reward models, policies, visual simulators, or data generators. Dream2Flow's position is: it does not treat the video model as an action strategy, nor does it directly use it to train imitation policy, but uses it as an "object motion generator" for open-world tasks.</p>
+</section>
+<section id="s4">
+<h2>4. Intensive reading of methods</h2>
+<h3>4.1 Problem Formulation</h3>
+<p>The inputs are the task language $\ell$, the initial RGB-D observation $(I_0, D_0)$, and the camera projection to the robot coordinate system $\Pi$. The output is the action sequence $u_{0: H-1}$. The action space is not fixed, it can be a pushed skill primitive, a terminal pose, or a low-level control.</p>
+<p>The core representation extracted from the video is $P_{1: T} \in \mathbb{R}^{T \times n \times 3}$, which is the 3D trajectory of $n$ task-related object points at $T$ time steps. Action inference is written with the following optimization: </p>
+<div class="callout">
+ $$\min_{\{u_t\}} \sum_{t=0}^{H-1} \lambda_{\text{task}}(\hat{x}^{\text{obj}}_t, \tilde{P}_t) + \lambda_{\text{control}}(\hat{x}_t, u_t)$$
+ $$\lambda_{\text{task}}(\hat{x}^{\text{obj}}_t, \tilde{P}_t) = \sum_{i=1}^{n} \|\hat{x}^{\text{obj}}_t[i] - \tilde{P}_t[i]\|_2^2$$
+ </div>
+<p>That is to say, the robot only needs to find a series of actions to make the predicted object point position as close as possible to the target point position in the video flow, while satisfying constraints such as control smoothness and accessibility.</p>
+<h3>4.2 Extracting 3D Object Flow</h3>
+<p>In the video generation stage, only images and task language are given, the robot is not included in the initial image, and the robot is not mentioned in the prompt. The author observed that if the current image-to-video model is required to generate fine-grained robot interactions, it is more likely to generate physically unreasonable trajectories; making the model more stable in generating videos of "human hands completing tasks".</p>
+<p>After generating the video, the system uses SpatialTrackerV2 to estimate the depth of each frame. Since the monocular video depth has scale-shift ambiguity, Dream2Flow uses the first frame to align the true initial depth $D_0$, find the global $s^\star, b^\star$, and obtain the calibrated depth $Z_t = s^\star\tilde{Z}_t + b^\star$.</p>
+<p>The system then uses Grounding DINO to locate task-relevant objects from the initial image and language, uses SAM 2 to obtain a binary mask, samples pixels from the mask area, and uses CoTracker3 to track 2D trajectories and visibility in the generated video. Finally, the visible point is lifted to the 3D object flow in the robot coordinate system based on the calibrated depth and internal and external parameters of the camera.</p>
+<h3>4.3 Action Inference: Three execution domains</h3>
+<table>
+<tr><th>domain</th><th>Action/Kinetics</th><th>How to use 3D object flow</th></tr>
+<tr><td>Simulated Push-T</td><td>push skill primitive: starting position, push direction, push distance; learn particle dynamics model</td><td>Random shooting samples multiple pushes and selects the action whose predicted particle position is closest to the flow subgoal; replan after each push.</td></tr>
+<tr><td>Real World</td><td>Absolute end pose; rigid-grasp dynamics model</td><td>First use AnyGrasp to grab the target object or movable part, and then optimize the end pose to make the point motion of the grabbed part close to the 3D flow.</td></tr>
+<tr><td>Simulated Open Door</td><td>SAC learns sensorimotor policy; different embodiments have different action spaces</td><td>Write the 3D object flow as reward to encourage the door/handle particles to move along the flow generated by the video.</td></tr>
+</table>
+<h3>4.4 Particle dynamics and planning of Push-T</h3>
+<p>Push-T is a non-crawl push task. appendix explains that the particle dynamics input is $\tilde{x}_t \in \mathbb{R}^{N \times 14}$. Each particle contains position, RGB, normal vector and push parameters, and the next position increment of each particle is output. The architecture is a small Point Transformer V3 backbone, followed by MLP for dimensional projection.</p>
+<p>The training data comes from 500 random pushing transitions. The scene is synthesized from 4 virtual RGB-D cameras to point clouds, removing points outside the board range, and then downsampling with 1.5 cm voxel, retaining 1 particle for each voxel. When planning, Dream2Flow re-plans after each push, using lookahead subgoal; the lookahead given by appendix is ​​$L = 20$. This avoids only chasing the final state, resulting in a small translation error but a large rotation error of the T-block.</p>
+<h3>4.5 Real Robot: Grasping Selection, Movable Parts Filtering and Trajectory Optimization</h3>
+<p>In real tasks, the system uses AnyGrasp to propose up to 40 top-down grasps: 20 from the real camera coordinate system point cloud, and 20 from a virtual camera coordinate system looking from top to bottom to increase vertical grasp candidates. For objects with moving parts, such as an oven door, where you grab is critical. Dream2Flow uses HaMer to detect the thumb position of the human hand in the generated video. If a candidate grasp is within 2 cm of the thumb, the earliest grasp that meets the conditions is selected; otherwise, it falls back to the heuristic "closest to the movable part point".</p>
+<p>Movable part filtering is also very useful: if some 2D track moves more than 1 pixel per frame on average, it is considered a movable flow; then the positive/negative point prompt of SAM 2 is used to constrain the movable part mask. This can reduce the possibility of incorrectly lifting backgrounds or fixed components to 3D, resulting in execution failures.</p>
+<p>The real trajectory optimization is carried out on the 7-dimensional Franka joint angle. The control items are composed of three parts: reachability, pose smoothness and manipulability. The weights are $w_r=100$, $w_s=1$ and $w_m=0.01$ respectively; the flow task weight is $w_f=10$. The optimized end trajectory is fitted and sampled with B-spline, and the sampling condition is that adjacent poses are at least 1 cm or 20 degrees apart. Implemented using PyBullet IK and Deoxys joint impedance controller.</p>
+<p><a href="figures/figs_grasp_selection.pdf">View appendix grasp selection original image PDF</a></p>
+<h3>4.6 Open Door RL Reward</h3>
+<p>Open Door uses SAC to train cross-embodiment policies. The SAC super parameters given by appendix include: learning rate $3 \times 10^{-4}$, discount $0.99$, batch size 256, buffer size $10^6$, target update rate $0.005$, hidden layers 2, hidden units 256, training iterations 5000, episode horizon 500; GR1 has a larger action space, so training 10, 000 iterations.</p>
+<p>3D object flow reward includes particle progress items and end-close object items: </p>
+<div class="callout">
+ $$r_{\text{particle}} = 0.75 \cdot \frac{t^\star}{t_{\text{end}}}$$
+ $$r_{\text{ee}} = 0.25 \cdot (1 - \tanh(10 \cdot \|ee_{\text{door}} - \bar{x}\|_2))$$
+ $$R_{\text{flow}} = r_{\text{particle}} + r_{\text{ee}}$$
+ </div>
+<p>Among them, $t^\star$ is the time step at which the current object particle state is closest to the reference 3D flow. The meaning of this reward is: there is no need to hand-write the status reward of "how much to turn the door handle and how much to open the door hinge", but to directly reward the robot for making the object move along the object trajectory in the generated video.</p>
+</section>
+<section id="s5">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Tasks</h3>
+<p>Experiments cover simulated and real robots. Push-T was evaluated in OmniGibson, and the success criteria were a translation error of less than 2 cm and a rotation error of less than 15 degrees from the T-block to the target position. Real tasks include Put Bread in Bowl, Open Oven, Cover Bowl; Open Door is evaluated in Robosuite, requiring the door handle to rotate and open the door at least 17 degrees without timeout.</p>
+<figure>
+<img alt="Robustness evaluations" src="figures/figs_generalization.png"/>
+<figcaption>Figure 4: Robustness evaluation. Dream2Flow generally remains usable across changes in object instances, backgrounds, perspectives, and camera observations, with the exception of individual settings such as large loaves of bread that show significant drops.</figcaption>
+</figure>
+<h3>5.2 Intermediate representation comparison on real robots</h3>
+<p>The comparison methods are AVDC and RIGVID. AVDC takes the dense optical flow from the generated video and then finds the rigid body transformation; RIGVID is based on the 6D pose / rigid transform idea, which is transformed here to estimate the rigid body transformation using Dream2Flow's 3D points. The result is as follows: </p>
+<table>
+<tr><th>Task</th><th>AVDC</th><th>RIGVID</th><th>Dream2Flow</th></tr>
+<tr><td>Bread in Bowl</td><td>7/10</td><td>6/10</td><td><strong>8/10</strong></td></tr>
+<tr><td>Open Oven</td><td>0/10</td><td>6/10</td><td><strong>8/10</strong></td></tr>
+<tr><td>Cover Bowl</td><td>2/10</td><td>1/10</td><td><strong>3/10</strong></td></tr>
+</table>
+<p>AVDC is okay for simple rigid body movements like bread, but the optical flow on the oven cannot keep up with the movement of the door, resulting in insufficient range of motion. RIGVID and AVDC have very noisy rigid body transformation estimates when there are few visible points, which can easily make the optimization execution unstable. Cover Bowl is difficult for all methods because scarf is deformable and rigid body transform itself is not suitable.</p>
+<h3>5.3 3D object flow as RL reward</h3>
+<table>
+<tr><th>Reward Type</th><th>Franka</th><th>Spot</th><th>GR1</th></tr>
+<tr><td>Object State</td><td>99/100</td><td>99/100</td><td><strong>96/100</strong></td></tr>
+<tr><td>3D Object Flow</td><td><strong>100/100</strong></td><td><strong>100/100</strong></td><td>94/100</td></tr>
+</table>
+<p>This result is critical: 3D object flow reward is almost the same as manual object-state reward, but there is no need to design explicit state reward for each task. What's more interesting is that different embodiments have learned different strategies: Spot will move the chassis to gain better accessibility, while GR1 uses the area between the fingers and the palm to pull the door to improve stability.</p>
+<figure>
+<img alt="Diverse embodiment rollouts" src="figures/figs_diverse_embodiment_fig.png"/>
+<figcaption>Figure 6: Different embodiment door opening strategies trained with 3D object flow reward. The same object movement goal can be achieved by different robot forms with different actions.</figcaption>
+</figure>
+<h3>5.4 Video generator selection</h3>
+<table>
+<tr><th>Video Generation Model</th><th>Push-T</th><th>Open Oven</th></tr>
+<tr><td>Wan2.1</td><td><strong>52/100</strong></td><td>2/10</td></tr>
+<tr><td>Kling 2.1</td><td>31/100</td><td>4/10</td></tr>
+<tr><td>Veo 3</td><td>-</td><td><strong>8/10</strong></td></tr>
+</table>
+<p>Wan2.1 was best on Push-T because that task required target image cues and Veo 3 did not support end-frame conditioning at the time. Veo 3 is the best in Open Oven; Wan2.1 is more likely to generate camera motion, violating the static camera assumption, and Wan2.1 and Kling will also generate wrong opening and closing axes.</p>
+<h3>5.5 Dynamics model ablation</h3>
+<table>
+<tr><th>Dynamics Model Type</th><th>Success Rate</th></tr>
+<tr><td>Pose</td><td>12/100</td></tr>
+<tr><td>Heuristic</td><td>17/100</td></tr>
+<tr><td>Particle</td><td><strong>52/100</strong></td></tr>
+</table>
+<p>This ablation shows that 3D object flow itself is not omnipotent; the downstream dynamics model must also be sufficient to express the rotation and contact effects required by the task. In Push-T, neither the pose model nor the heuristic model can adequately handle rotation, and particle dynamics is significantly stronger.</p>
+<h3>5.6 Failure Analysis</h3>
+<p>The paper provides a failure decomposition of 60 real robot experiments: 12 video generation failures, half of which came from object morphing or hallucination; 4 flow extraction failures, mainly due to severe rotation or objects leaving the field of view, resulting in the final tracks being invisible; 4 robot execution failures all occurred in the Cover Bowl, due to incorrect grabbing points or insufficient movement range.</p>
+<figure>
+<img alt="Failure breakdown" src="figures/figs_failures.png"/>
+<figcaption>Figure 7: Real robot failure decomposition. The main failures come from video artifacts, tracking errors, and grab selection mismatches.</figcaption>
+</figure>
+</section>
+<section id="s6">
+<h2>6. reproducibility and implementation details</h2>
+<div class="cols">
+<div class="mini">
+<h3>Prompt</h3>
+<p>The real task prompt template is: <code>&lt;TASK&gt; by one hand. The camera holds a still pose, not zooming in or out.</code>. "by one hand" is used to help HaMer find hand/thumb position, and "camera holds a still pose" is used to reduce camera movement.</p>
+</div>
+<div class="mini">
+<h3>Real-world tasks</h3>
+<p>Put Bread in Bowl, Open Oven, Cover Bowl, and in-the-wild Pull Out Chair, Open Drawer, Sweep Pasta, Recycle Can.</p>
+</div>
+<div class="mini">
+<h3>Push-T planning</h3>
+<p>Replan after each push; perform nearest neighbor matching between currently tracked particles and feature-augmented particles in the entire scene; subgoal uses $t^\star + L$, among which $L=20$.</p>
+</div>
+<div class="mini">
+<h3>Particle dynamics</h3>
+<p>4 virtual RGB-D cameras synthesized point clouds, 1.5 cm voxel downsample; 500 random pushing transitions to train small Point Transformer V3.</p>
+</div>
+<div class="mini">
+<h3>Real-world optimizer</h3>
+<p>PyRoki optimizes joint angles, B-spline fits the end trajectory, PyBullet IK finds the target joint angle, and Deoxys joint impedance controller executes it.</p>
+</div>
+<div class="mini">
+<h3>Failure modes</h3>
+<p>Morphing/hallucination of the generated video, occlusion and leaving the field of view cause tracking dropout, and insufficient grab points or movement range cause real execution failure.</p>
+</div>
+</div>
+<div class="callout warn">
+<strong>Source code status: </strong>This source package contains the full text and appendix LaTeX. The experiment table, prompts, planning, rewards, and limitations in the report are all from <code>tmp/source_tex_dump_2512.24766.txt</code> with <code>tmp/pdf_text_2512.24766.txt</code> Check; image source comes from <code>Report/2512.24766/figures/</code>. 
+ </div>
+</section>
+<section id="s7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is to improve "generating object movement in videos" into a reusable control interface, instead of just using videos as visualization results or training data. 3D object flow can not only drive real robot trajectory optimization, but also become RL reward, and can span different embodiments such as Franka, Spot, and GR1. This makes the contribution of the paper not just a pipeline, but a more general presentation layer.</p>
+<p>The second value is that the experiment is clearly broken down: it asks whether the intermediate representation is better than 2D flow / rigid transform, whether the flow reward is close to the handwritten reward, whether the video generator affects the results, and whether the dynamics model is critical. These questions just correspond to the links in the system that are most likely to be questioned.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results hold up, first of all because the comparison is not only with the weak baseline. AVDC and RIGVID are both drop-in alternatives for extracting trajectories from video, testing the value of 3D object flow compared to optical flow or rigid transform. Secondly, RL reward results are evaluated on three embodiments, each with 100 random gate positions, indicating that 3D object flow is not only applicable to a single robot.</p>
+<p>Furthermore, the authors do not shy away from system dependencies: video model selection, dynamics model selection, and failure types are all reported separately. In particular, the gap between particle dynamics 52/100, pose 12/100, and heuristic 17/100 in Push-T shows that success is not "just having flow", but is determined by flow and the downstream dynamics model.</p>
+<h3>7.3 Limitations</h3>
+<ul>
+<li><strong>The real world relies on rigid-grasp assumptions: </strong>The real robot part mainly assumes that the grasped part moves rigidly with the end, which limits strong deformation, slipping and complex contact tasks.</li>
+<li><strong>Real-world particle dynamics has not yet been extended: </strong>Push-T uses particle dynamics, but training and scaling such models in the real world is still difficult.</li>
+<li><strong>It takes a long time: </strong>It takes 3 to 11 minutes to generate and process a 3D object flow. The main bottleneck is video generation and lack of real-time interactivity.</li>
+<li><strong>Single-view video generation is easily affected by occlusion: </strong>If the human hand covers most of the area of a small object, 2D tracking and lifting will be unstable; the paper recommends considering 3D point trackers or full 4D representations in the future.</li>
+<li><strong>Generated video artifacts are propagated to the execution: </strong>Morphing, hallucination, wrong articulation axis or camera motion will directly pollute the flow.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<p>Dream2Flow is most suitable for scenarios where the target object is visible, the task can be expressed by object point motion, the video model can generate a video of reasonable interaction under a still camera, and the robot has a reliable grasping/planning module. It is not suitable for tasks requiring high-speed closed-loop control, strong tactile feedback, complex multi-object contacts, or long-term invisible state estimation.</p>
+</section>
+<section id="s8">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the difference between Dream2Flow and NovaFlow?</h3>
+<p>Both use routes to generate video to 3D flow. NovaFlow emphasizes actionable flow to zero-sample execution of robot actions and VLM rejection sampling; Dream2Flow emphasizes 3D object flow as a unified interface, which can be used for real trajectory optimization, Push-T particle planning and RL reward.</p>
+<h3>Q2: Why not directly control the robot using the hand trajectory in the video?</h3>
+<p>Because there is an embodiment gap between human hands and robots, the action space and accessibility are different. Hand trajectories may also not be appropriate for the robot. Dream2Flow only uses hand information to assist in grasping selection, such as using thumb position to select movable parts, but what is really tracked is the movement of the object.</p>
+<h3>Q3: What is the difference between 3D object flow and rigid transform?</h3>
+<p>Rigid transform assumes that the target is a rigid body and the visible points are sufficiently stable; 3D object flow is a point-level trajectory that can express finer motion in occlusion, non-rigid, granular or local movable part scenes. In the experiment, Cover Bowl showed that rigid transform is not suitable for deformable objects.</p>
+<h3>Q4: Why can flow reward be close to manual object-state reward?</h3>
+<p>Because flow reward encodes task-related object state changes, not robot actions. As long as the object trajectories given by the generated video are reasonable, the strategy can learn feasible implementation methods for different embodiments from the reward.</p>
+<h3>Q5: What is the main source of failure?</h3>
+<p>The upstream is video morphing, hallucination, camera motion and wrong joint axes; the midstream is tracking dropout caused by occlusion; the downstream is the actual grasp point error or insufficient movement range. The failure analysis of the paper shows that the current bottleneck is not a single module, but the chain error from open world video to real execution.</p>
+</section>
+</main>
+</body>
+</html>

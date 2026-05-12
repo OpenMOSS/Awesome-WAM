@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AdaWorldPolicy - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>AdaWorldPolicy: World-Model-Driven Diffusion Policy with Online Adaptive Learning for Robotic Manipulation</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Ge Yuan, Qiyuan Qiao, Jing Zhang, Dong Xu</p>
+<p><strong>Organization: </strong>The University of Hong Kong; Beihang University</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2602.20057">2602.20057</a>, submission date 2026-02-23; source code uses CVPR 2026 template</p>
+<p><strong>Project page: </strong><a href="https://AdaWorldPolicy.github.io">https: //AdaWorldPolicy.github.io</a>; The source code of the paper does not provide a GitHub repository or checkpoint link</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation and related work</a></li>
+<li><a href="#method">3. Detailed explanation of method</a></li>
+<li><a href="#math">4. Mathematical forms and training objectives</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#reproduce">6. Repeat audit</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>AdaWorldPolicy combines the Cosmos-Predict2 world model, lightweight action expert and force predictor into a unified Flow Matching DiT strategy, and uses world prediction error and force prediction error to perform LoRA online updates during testing, thereby enabling self-supervised adaptation under visual and physical domain shifts.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>Robots will encounter visual perturbations, object/mechanics changes, and physical contact distribution shifts in dynamic real-world environments and contact-rich tasks; it is difficult to self-correct with real feedback during testing by relying solely on offline imitation or VLA-style reactive policies.</td></tr>
+<tr><th>The author's approach</th><td>Turn the world model from "offline predictor/validator" to active supervisor: first generate actions, then use the Future Imagination mode of the same network to predict future observations after execution, and use the difference between predictions and real feedback as the test-time adaptation signal.</td></tr>
+<tr><th>most important results</th><td>LIBERO-10 full multimodal success 0.96; Variant PushT under texture / random light / random color OOD AWP(ol) reaches 0.51 / 0.77 / 0.66, both higher than AWP; CALVIN ABC→D average completion length AWP(ol) is 3.54; real task in-domain average full method in the ablation table is 76.3%.</td></tr>
+<tr><th>Things to note when reading</th><td>AdaOL updates LoRA parameters online, not simple re-planning; real-world results are mainly presented in bar graphs, without trial-by-trial tables, but the appendix supplements the evaluation protocol, success criteria, TTA two-stage process and key hyper-parameters.</td></tr>
+</table>
+<p>
+<span class="tag">World Model</span>
+<span class="tag">Diffusion Policy</span>
+<span class="tag">Flow Matching</span>
+<span class="tag">Test-Time Adaptation</span>
+<span class="tag">Force Feedback</span>
+<span class="tag">LoRA</span>
+</p>
+<div class="figure">
+<img alt="AdaWorldPolicy teaser" src="figures/awp-1_teaser.drawio.png"/>
+<div class="caption"><strong>Figure 1. </strong>AdaWorldPolicy's closed loop: Mode I generates actions and executes them; Mode II predicts the future based on the same observation and action; the error between the real future and imagined observation drives LoRA online update.</div>
+</div>
+<h3>core contribution</h3>
+<ul>
+<li><strong>Unified multimodal diffusion framework.</strong>The world model, action model, and force predictor are all implemented as Flow Matching DiT and exchange information via MMSA.</li>
+<li><strong>AdaOL was adapted online during testing.</strong>The model self-supervisedly updates a small number of LoRA parameters based on the gap between real feedback and imagined future to reduce visual and physical domain shift.</li>
+<li><strong>Access force-torque feedback.</strong>Force Predictor predicts future force readings for handling dynamic force shift in contact-rich tasks.</li>
+<li><strong>Multiple benchmark verification.</strong>Covers LIBERO-10, Variant PushT, CALVIN and 4 real robot tasks, and adds sampling step, MMSA, future frame visualization and implementation details in the appendix.</li>
+</ul>
+</section>
+<section id="motivation">
+<h2>2. Motivation and related work</h2>
+<h3>2.1 Why ordinary VLA is not enough</h3>
+<p>The paper points out that although the VLA model can combine language, vision and action, it usually relies on a large number of human demonstrations and has limited generalization in unseen or dynamically changing contact-rich scenes. The fundamental reason is that most of them are reactive mappings trained offline: the current observation comes in and the action is directly output, lacking a mechanism to explicitly predict the physical consequences and use real feedback to correct itself.</p>
+<h3>2.2 Why should we put the world model into a closed loop?</h3>
+<p>There are existing world models that are often used as "digital twin" or offline validators in robots; there are also WorldVLA, UVA, etc. that unify action generation and world prediction. However, the author believes that most of these methods are still offline training strategies and cannot adapt quickly when faced with visual and dynamic changes during deployment. The core motivation of AdaWorldPolicy is that the prediction error of the world model itself is a self-supervised signal, which can continuously correct the action model, world model and force predictor during testing.</p>
+<table>
+<tr><th>Related directions</th><th>Positioning with existing methods</th><th>AdaWorldPolicy Differences</th></tr>
+<tr><td>World Models for Robotic Control</td><td>Dreamer, Cosmos, Dino-WM, etc. for dynamics prediction, planning or policy validation.</td><td>The world model does not just predict or verify, but actively generates online adaptation loss.</td></tr>
+<tr><td>Diffusion Models for Decision Making</td><td>Diffusion Policy etc. model action trajectories as diffusion processes and are good at multi-modal action distribution.</td><td>Add future outcome modeling and force prediction to the diffusion policy to constrain the physical consistency of the action.</td></tr>
+<tr><td>Online Adaptation for Robotics</td><td>TTA, LoRA, confidence maximization, etc. adjust model parameters during testing.</td><td>Using world-model prediction error and force discrepancy as robot-specific self-supervised update signals.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>3. Detailed explanation of method</h2>
+<h3>3.1 Problem setting</h3>
+<p>The multi-modal historical observation $o=\{x_{\text{static}}, x_{\text{gripper}}, f\}$ is input at each moment, including static camera sequence, gripper camera sequence and force-torque readings. The three share the context length $T_c$. The model outputs the future action sequence $a=a_{t: t+T_a-1}$. The goal is to use its own interactive data $\{(o_t, a_t, o_{t+1})\}_{t=0}^{T}$ to update the parameters $\theta_t$ to $\theta_{t+1}$ in a test environment without adding new manual annotations or demonstrations.</p>
+<div class="figure">
+<img alt="AdaWorldPolicy architecture" src="figures/awp-2_overall.drawio.png"/>
+<div class="caption"><strong>Figure 2. </strong>Network architecture: World Model is based on Cosmos-Predict2 2B; Force Predictor and Action Model are 0.4B Flow DiT; the three exchange features through Multi-modal Self-Attention, and are supported by LoRA for online updates.</div>
+</div>
+<h3>3.2 Three modules</h3>
+<table>
+<tr><th>module</th><th>input/output</th><th>function</th><th>scale</th></tr>
+<tr><td>World Model</td><td>Input the current static/gripper angle of view and action conditions; output the future visual state $x'_{\text{static}}, x'_{\text{gripper}}$.</td><td>Predict the visual consequences of actions and provide AdaOL self-supervised signals.</td><td>Cosmos-Predict2 2B. </td></tr>
+<tr><td>Force Predictor</td><td>Inputs current status and action; outputs future force-torque reading $f'$.</td><td>Supplement the contact dynamics invisible to the visual world model and alleviate force shift.</td><td>Real world 0.4B; removed when simulation has no force.</td></tr>
+<tr><td>Action Model</td><td>Mode I inputs noise action tokens and denoise; Mode II inputs known actions as conditions.</td><td>Generates an action; or becomes an action-conditioned condition in Future Imagination.</td><td>Real world 0.4B; simulation can increase to 0.6B.</td></tr>
+</table>
+<h3>3.3 Dual mode: same network, two roles</h3>
+<div class="figure">
+<img alt="Two modes" src="figures/awp-3_stages.drawio.png"/>
+<div class="caption"><strong>Figure 3. </strong>Mode I generates action sequences; Mode II conditions executed actions and predicts future observations. This switchable mode is the basis of AdaOL.</div>
+</div>
+<div class="pseudocode">Mode I: Action Generation
+input: observation history o, noisy action token a_k
+mask: action token is target (mask = 0)
+output: action sequence a
+loss: L1, flow matching on action vector field
+
+Mode II: Future Imagination
+input: observation history o, concrete action a, noised future observation o'_k
+mask: action is condition (mask = 1)
+output: imagined future observation o_hat'
+loss: L2, flow matching on future observation vector field</div>
+<h3>3.4 Multi-perspective expansion of World Model</h3>
+<p>The paper extends Cosmos-Predict2 from single-view video prediction to multi-view input: each camera view first obtains tokens through Cosmos VAE, and then splices along the temporal dimension; different views use independent RoPE to maintain the spatial and temporal structure across views. The input token is also equipped with a binary mask, where 1 represents the known condition and 0 represents the prediction target; after final denoising, the condition part will be replaced by the original input to ensure that the condition observation is not contaminated by the model generation results.</p>
+<h3>3.5 Multi-modal Self-Attention</h3>
+<p>MMSA is the bridge between the three modules. It is not a simple concat, nor is it a one-way cross-attention, but allows world / force / action to generate QKV respectively, and then performs self-attention after splicing the token dimension. In this way, the three can query each other's information while retaining their own dedicated representation space.</p>
+<div class="formula-block">
+<p class="intuition">What MMSA is doing: putting the attention requests of three experts, world, force, and action, into the same attention field to communicate with each other.</p>
+ $$\text{MMSA}(Q, K, V)=A([Q_x, Q_f, Q_a], [K_x, K_f, K_a], [V_x, V_f, V_a])$$
+ <table class="symbol-table">
+<tr><td>$x$</td><td>World Model / visual tokens. </td></tr>
+<tr><td>$f$</td><td>Force Predictor / force tokens. </td></tr>
+<tr><td>$a$</td><td>Action Model / action tokens. </td></tr>
+<tr><td>$A$</td><td>Standard self-attention operations.</td></tr>
+</table>
+</div>
+<h3>3.6 AdaOL online adaptation loop</h3>
+<p>AdaOL runs a closed loop after each execution: generate an action, execute it, receive real feedback, imagine future results of the same action, calculate the error, update a small number of parameters with LoRA. The author emphasizes that only low-rank matrices are updated, the proportion is less than 0.1%, and the online update overhead is controllable.</p>
+<div class="formula-block">
+<p class="intuition">AdaOL loss compares: what the model thinks the action will cause and what actually happens in the real world.</p>
+ $$\mathcal{L}_{\text{AdaOL}}=\|E(o_{t+1})-E(\hat{o}_{t+1})\|_2^2$$
+ <p>$E(\cdot)$ is the Cosmos VAE encoder. This error generates the correction gradient $\Delta w$, which is used for LoRA online updates.</p>
+</div>
+</section>
+<section id="math">
+<h2>4. Mathematical forms and training objectives</h2>
+<h3>4.1 Action Generation loss</h3>
+<div class="formula-block">
+ $$\mathcal{L}_{1}(\theta)=
+ \mathbb{E}\left[
+ \left\|\mathbf{u}_{\theta}(a_k, k, o; \theta)-\mathbf{v}_k(a_k, a)\right\|^2
+ \right]$$
+ <p>Here $a_k$ is the noised action, $\mathbf{u}_\theta$ is the flow vector field predicted by the model, and $\mathbf{v}_k$ is the Flow Matching target vector field. This loss training model denoises the action $a$ from the current observation $o$.</p>
+</div>
+<h3>4.2 Future Imagination loss</h3>
+<div class="formula-block">
+ $$\mathcal{L}_{2}(\theta)=
+ \mathbb{E}\left[
+ \left\|\mathbf{u}_{\theta}(o'_k, k, o, a; \theta)-\mathbf{v}_k(o'_k, o')\right\|^2
+ \right]$$
+ <p>$o'_k$ is a noised future observation; here the action $a$ is a known condition. It trains the world/force/action shared system to predict "what will happen after performing this action".</p>
+</div>
+<h3>4.3 Joint objective</h3>
+<div class="formula-block">
+ $$\mathcal{L}_{\text{total}}(\theta)=p_a L_1+(1-p_a)L_2$$
+ <p>Two modes are randomly switched during training: training action generation with probability $p_a$, otherwise training future imagination. This design enables the model to learn to be both a policy and an action-conditioned world model simultaneously.</p>
+</div>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<table>
+<tr><th>settings</th><th>content</th></tr>
+<tr><td>Simulation benchmark</td><td>LIBERO-10 measures long-range combination skills; Variant PushT measures texture, random lighting, and random color OOD; CALVIN uses ABC→D cross-domain protocol, and each sequence completes 5 tasks in a row.</td></tr>
+<tr><td>real robot</td><td>6-DoF robotic arm, gripper camera, wrist-mounted force-torque sensor and third-person static camera; tasks include Sweep Beans, Pick-and-Place Eggs, Pour Water, Wipe Whiteboard.</td></tr>
+<tr><td>Offline training</td><td>PyTorch + Cosmos-Predict2; 8 A100 80GB; AdamW; global batch size 64 to 256; LR $1\times10^{-4}$, linear attenuation to 1% in up to 20k steps after loss plateau.</td></tr>
+<tr><td>online learning</td><td>Single NVIDIA RTX 5880 48GB; LoRA rank 16, only placed in the first 4 layers of each backbone; each incoming sample does 2 gradient steps, LR $5\times10^{-7}$; the average TTA inference speed is only about 5% slower than without adaptation.</td></tr>
+</table>
+<div class="figure">
+<img alt="Benchmarks" src="figures/awp-4_benchmark.drawio.png"/>
+<div class="caption"><strong>Figure 4. </strong>Three simulation benchmarks: Variant PushT, LIBERO, and CALVIN.</div>
+</div>
+<h3>5.2 LIBERO-10</h3>
+<table class="compact">
+<tr><th>Setting</th><th>Method</th><th>Static Camera</th><th>Gripper Camera</th><th>Joint States</th><th>Success</th></tr>
+<tr><td>Static only</td><td>UVA</td><td>Yes</td><td>No</td><td>No</td><td>0.89</td></tr>
+<tr><td>Static only</td><td><strong>AWP</strong></td><td>Yes</td><td>No</td><td>No</td><td><strong>0.91</strong></td></tr>
+<tr><td>Full multimodal</td><td>OpenVLA</td><td>Yes</td><td>Yes</td><td>Yes</td><td>0.54</td></tr>
+<tr><td>Full multimodal</td><td>MODE</td><td>Yes</td><td>Yes</td><td>Yes</td><td>0.94</td></tr>
+<tr><td>Full multimodal</td><td>OpenVLA-OFT</td><td>Yes</td><td>Yes</td><td>Yes</td><td>0.94</td></tr>
+<tr><td>Full multimodal</td><td><strong>AWP</strong></td><td>Yes</td><td>Yes</td><td>Yes</td><td><strong>0.96</strong></td></tr>
+</table>
+<p>LIBERO-10 results prove that the AWP architecture itself is already strong without online adaptation: static-only super UVA, full multimodal super MODE and OpenVLA-OFT.</p>
+<h3>5.3 Variant PushT: OOD robustness</h3>
+<table class="compact">
+<tr><th>Method</th><th>Original</th><th>Texture</th><th>Rand Light</th><th>Rand Color</th></tr>
+<tr><td>Diffusion Policy</td><td>0.78</td><td>0.18</td><td>0.14</td><td>0.11</td></tr>
+<tr><td>OpenVLA</td><td>0.35</td><td>0.22</td><td>0.20</td><td>0.14</td></tr>
+<tr><td>UniPi</td><td>0.42</td><td>0.35</td><td>0.33</td><td>0.18</td></tr>
+<tr><td>UVA</td><td>0.94</td><td>0.11</td><td>0.54</td><td>0.13</td></tr>
+<tr><td>AWP</td><td>0.97</td><td>0.47</td><td>0.71</td><td>0.61</td></tr>
+<tr><td><strong>AWP (ol)</strong></td><td><strong>0.98</strong></td><td><strong>0.51</strong></td><td><strong>0.77</strong></td><td><strong>0.66</strong></td></tr>
+</table>
+<p>AdaOL is best seen here: AWP is already stronger than most baselines, but online learning continues to bring improvements on all OOD variants, especially random lighting from 0.71 to 0.77, and random color from 0.61 to 0.66.</p>
+<h3>5.4 CALVIN ABC→D</h3>
+<table class="compact">
+<tr><th>Method</th><th>Len 1</th><th>Len 2</th><th>Len 3</th><th>Len 4</th><th>Len 5</th><th>Avg. Len.</th></tr>
+<tr><td>OpenVLA</td><td>91.3</td><td>77.8</td><td>62.0</td><td>52.1</td><td>43.5</td><td>3.27</td></tr>
+<tr><td>MoDE</td><td>91.5</td><td>79.2</td><td>67.3</td><td>55.8</td><td>45.3</td><td>3.39</td></tr>
+<tr><td>GR-MG</td><td>91.0</td><td>79.1</td><td>67.8</td><td>56.9</td><td>47.7</td><td>3.42</td></tr>
+<tr><td>AWP</td><td>91.8</td><td>79.2</td><td>68.5</td><td>62.8</td><td>48.0</td><td>3.51 ± 0.03</td></tr>
+<tr><td><strong>AWP (ol)</strong></td><td><strong>92.0</strong></td><td><strong>79.6</strong></td><td><strong>68.6</strong></td><td><strong>63.0</strong></td><td><strong>48.0</strong></td><td><strong>3.54 ± 0.04</strong></td></tr>
+</table>
+<p>The increments for online learning on CALVIN are smaller but consistent: average length 3.51 to 3.54, with length 5 remaining at 48.0. The author explains this as TTA being able to fine-tune policies that have generalized well.</p>
+<h3>5.5 Real robot tasks</h3>
+<div class="figure">
+<img alt="Real-robot setup" src="figures/awp-5_real.drawio.png"/>
+<div class="caption"><strong>Figure 5. </strong>Real robot setup: INOVO robotic arm, static/gripper camera and force sensor; tasks include sweeping beans, putting eggs, pouring water, and wiping whiteboards; tablecloth, distractor, object, lighting, etc. domain shift is shown on the right.</div>
+</div>
+<div class="figure">
+<img alt="Real-world results" src="figures/awp-6_exp_real.drawio.png"/>
+<div class="caption"><strong>Figure 6. </strong>Real-world results: AWP under in-domain has outperformed DP-Force and UVA for most tasks; AWP(ol) under domain shift has a stable improvement compared to AWP. In the figure, Pour goes from 80% to 90% under Object Change, which is consistent with the example in the text.</div>
+</div>
+<p>The appendix complements the real-world protocol: 150 expert demonstrations collected in-domain per task; 30 trials per model configuration per task/distribution, up to 1500 execution steps. AdaOL testing is divided into two phases: Trials 1-15 are continuously updated online, and Trials 16-30 freeze the updated model to evaluate the stability of the adapted policy.</p>
+<h3>5.6 Ablation</h3>
+<table class="compact">
+<tr><th>Configuration</th><th>Success Rate</th><th>meaning</th></tr>
+<tr><td>AdaWorldPolicy w/ AdaOL</td><td><strong>76.3</strong></td><td>Full method, real in-domain four-task averaging.</td></tr>
+<tr><td>AdaWorldPolicy w/o AdaOL</td><td>72.5</td><td>Updated online without testing, down 3.8.</td></tr>
+<tr><td>w/o Force Predictor</td><td>53.8</td><td>Remove force prediction, and contact-rich tasks degrade significantly.</td></tr>
+<tr><td>w/o World Model Supervision</td><td>46.3</td><td>Degenerating into a behavioral cloning strategy shows that world supervision is the core.</td></tr>
+<tr><td>MMSA → Concatenation</td><td>36.3</td><td>Simple splicing cannot effectively integrate modules.</td></tr>
+<tr><td>MMSA → Cross-Attention</td><td>50.0</td><td>Normal cross-attention is still weaker than MMSA.</td></tr>
+</table>
+<h3>5.7 Appendix supplement: sampling steps, imagined future and super parameters</h3>
+<table class="compact">
+<tr><th>Appendix experiment</th><th>key results</th><th>Integrate location</th></tr>
+<tr><td>Sampling steps on LIBERO</td><td>AWP 20/10/5/2 steps are 96.33 / 95.53 / 94.67 / 94.00 respectively; reducing steps only slightly reduces performance.</td><td>Speed and accuracy can be traded off when reproducing.</td></tr>
+<tr><td>AdaOL on LIBERO</td><td>Improved from 95.53 to 96.05 in 10 steps.</td><td>It shows that AdaOL also has small gains in slight distribution differences.</td></tr>
+<tr><td>MMSA fusion</td><td>MMSA 95.53, Concat 89.67, Cross-Attention 91.21. </td><td>The necessity of reinforcing the MMSA in the main text ablation.</td></tr>
+<tr><td>Imagined future visualization</td><td>The imagined future of PushT, CALVIN, and LIBERO is basically consistent with real observation; there will be blur/artifacts in complex backgrounds and egg tasks in real scenes.</td><td>Supporting a world model provides supervision but also reveals vision generation limitations.</td></tr>
+</table>
+<div class="figure">
+<img alt="Simulation imagined future" src="figures/awp_supp-1_vis_predicted.drawio.png"/>
+<div class="caption"><strong>Appendix Figure. </strong>Imagined future versus real observation in simulation: PushT, CALVIN, and LIBERO10.</div>
+</div>
+<div class="figure">
+<img alt="Real imagined future" src="figures/awp_supp-1_vis_predicted_real.drawio.png"/>
+<div class="caption"><strong>Appendix Figure. </strong>Imagined future in real scenes; the authors point out that artifacts and blur will appear in scenes with complex backgrounds and small objects, but the structural consistency is still sufficient for policy.</div>
+</div>
+</section>
+<section id="reproduce">
+<h2>6. Repeat audit</h2>
+<h3>6.1 Public resource status</h3>
+<div class="audit-card">
+<p><span class="warn">The source code does not provide complete training code with arXiv.</span>The paper only gives the project homepage in the abstract <a href="https://AdaWorldPolicy.github.io">AdaWorldPolicy.github.io</a>, there are no GitHub or checkpoint links in the LaTeX source code. The appendix mentions that the supplementary zip contains the local video web page `AdaWorldPolicy_Homepage/index.html`, but the folder is not included in the arXiv e-print.</p>
+</div>
+<h3>6.2 Key hyperparameters</h3>
+<table>
+<tr><th>Benchmark</th><th>Image Size</th><th>History Length</th><th>Action Horizon</th><th># Imagined Frames</th></tr>
+<tr><td>LIBERO10</td><td>128 × 128</td><td>5</td><td>20</td><td>20</td></tr>
+<tr><td>PushT</td><td>256 × 256</td><td>5</td><td>20</td><td>20</td></tr>
+<tr><td>CALVIN</td><td>192 × 192</td><td>1</td><td>12</td><td>12</td></tr>
+<tr><td>Real-world</td><td>112 × 160</td><td>1</td><td>32</td><td>4</td></tr>
+</table>
+<p>Real-world use of sparse prediction: imagined frames are only 4, while the action horizon is 32, covering the action time span with sparse future frames to reduce video generation latency.</p>
+<h3>6.3 Data processing and force data</h3>
+<ul>
+<li>In the real task, 150 expert demonstrations were collected in each in-domain environment, using PS5 controller teleoperation, and mapping the force sensor readings to handle vibrations to provide feedback to the operator.</li>
+<li>Force readings do not have stable upper and lower bounds like pixels or relative poses; the appendix explains the use of quantile-based normalization, that is, scaling by 1st and 99th percentile to mitigate outlier/spike effects.</li>
+<li>DP baseline has also been enhanced to DP-Force: concat 6D force data and image observation features, and then fuse them through Transformer cross-attention to ensure fair comparison of real experiments.</li>
+</ul>
+<h3>6.4 Recurring gaps</h3>
+<ul>
+<li>The complete code, model weights and data download path are not provided; the reproducibility framework can only be described based on the paper.</li>
+<li>The values in the real-world graph come from histograms, and the main text does not have a trial-by-trial table; the appendix only gives the protocol and success criteria, but does not have a complete real rollout table.</li>
+<li>The specific fine-tuning configuration of Cosmos-Predict2 depends on the original implementation; the paper states "largely follow training recipe", but does not list all scheduler, augmentation, and LoRA target module details.</li>
+<li>The online update measured about 5% slowdown on RTX 5880, but did not give details on the absolute latency and batch/sequence padding of each step.</li>
+</ul>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable point is to turn the world model error into an online learning signal, instead of just using the world model as a rollout visualizer or offline evaluator. The PushT OOD table, real-world domain shift diagram and ablation in the main article all point to the same Affiliations: when visual or physical conditions change, AWP(ol) is continuously modified through real feedback, which is more stable than a fixed offline policy.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The evidence chain of the paper covers two levels: "offline capability" and "online adaptation": LIBERO/CALVIN shows that the base AWP architecture itself is strong; PushT OOD and real domain shift show the increment brought by AdaOL; ablation shows that removing world supervision, force predictor or MMSA all decrease significantly. The sampling-step and imagined-future visualizations in the appendix further illustrate that the futures generated by the world model, while not photo-perfect, are structurally usable as supervision.</p>
+<h3>7.3 Limitations and future directions described by the author</h3>
+<ul>
+<li><strong>OOD generalization of world models is still not perfect.</strong>The appendix clearly states that Cosmos-Predict2 will experience future frame quality degradation under significant domain shifts, continuously changing lighting, and complex real-world scenes.</li>
+<li><strong>AdaOL hyperparameters are fixed.</strong>The author does not adjust AdaOL hyperparameters for each task or environment; adaptive or meta-learning can be used to automatically adjust them in the future.</li>
+<li><strong>Long-range planning failures remain to be addressed.</strong>The conclusion states that long-horizon planning failures will be further addressed in the future and extended to larger network architectures.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>AdaWorldPolicy is suitable for scenarios where there is continuous observation feedback, a small amount of update overhead can be tolerated during testing, and the world prediction error is related to the success or failure of the task. For scenarios that require strict safety constraints, cannot update parameters online, or have weak correlation between visual future prediction and real control objectives, the paper does not provide sufficient verification.</p>
+</section>
+</main>
+</body>
+</html>

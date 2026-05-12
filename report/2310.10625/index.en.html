@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Video Language Planning - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Video Language Planning</h1>
+<div class="meta">
+<p><strong>Reading Report: </strong>Prepared for junior PhD group meetings, focusing on explaining methods, formulas, implementation and experimental reproducibility details.</p>
+<p><strong>Authors: </strong>Yilun Du, Mengjiao Yang, Pete Florence, Fei Xia, Ayzaan Wahid, Brian Ichter, Pierre Sermanet, Tianhe Yu, Pieter Abbeel, Joshua B. Tenenbaum, Leslie Kaelbling, Andy Zeng, Jonathan Tompson</p>
+<p><strong>Organization: </strong>Google DeepMind, MIT, UC Berkeley</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2310.10625">2310.10625</a>; Project page: <a href="https://video-language-planning.github.io/">video-language-planning.github.io</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#formulation">4. Formalization of the problem</a></li>
+<li><a href="#method">5. Detailed explanation of method</a></li>
+<li><a href="#experiments">6. Experiments and results</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#repro">8. Reproducibility Audit</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>VLP decomposes the long-range robot task into "VLM proposes language sub-actions, video model simulates the future, VLM heuristic evaluates progress, tree search selects plan", and finally uses goal-conditioned policy to execute the generated video plan on the robot.
+ </div>
+<table>
+<thead>
+<tr><th>quick review questions</th><th>concise answer</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>What should the paper solve?</td>
+<td>LLM/VLM are good at long-range semantic planning but lack fine-grained physical dynamic reasoning; video models can express dynamics but short horizons are prone to degradation. What the paper wants to solve is: how to combine the two to generate an executable multi-modal video language plan for complex long-range robot tasks.</td>
+</tr>
+<tr>
+<td>The author's approach</td>
+<td>Use forward tree search to combine three modules: $\pi_{\text{VLM}}(x, g)$ generates candidate text actions, $f_{\text{VM}}(x, a)$ generates a short video rollout of the action, and $H_{\text{VLM}}(x, g)$ estimates how many steps are left to the target and prunes.</td>
+</tr>
+<tr>
+<td>most important results</td>
+<td>In the Language Table long-term execution task, VLP achieved 64% / 92% / 16% completion in Move to Area / Group by Color / Make Line respectively, significantly higher than UniPi, LAVA, RT-2 and PaLM-E; the accuracy of the generated video plan in the sim/real multi-task is also significantly higher than the combination without value function and UniPi.</td>
+</tr>
+<tr>
+<td>Things to note when reading</td>
+<td>Don't understand VLP as an end-to-end policy. Its core is test-time composition and search: the video model is not a direct controller, but a dynamics-like rollout model; real execution relies on goal-conditioned policy, and the quality of planning is exchanged for more inference calculations.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand VLM/LLM planning, text-to-video diffusion, tree search, goal-conditioned policy, long-range robot evaluation.</p>
+<p><strong>Keywords: </strong>video language planning, VLM, text-to-video dynamics model, forward search, heuristic function, goal-conditioned policy, long-horizon manipulation. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Video Language Planning (VLP) is proposed.</strong>Combine VLM and video models through tree search to jointly express long-range plans in language and video.</li>
+<li><strong>Use VLM as both policy and heuristic.</strong>The policy generates the next text action, and the heuristic predicts how many actions are left before the goal is completed, thereby evaluating the video rollout.</li>
+<li><strong>Use text-to-video model as dynamics model.</strong>Given the current image and short text actions, predict future short videos and recursively piece together a long-term video plan.</li>
+<li><strong>Demonstrating inference budget scalability.</strong>Increasing the number of language branches, video branches and beams can improve the success rate of video planning.</li>
+<li><strong>Demonstrated execution on three types of robotic platforms.</strong>Includes Language Table, 7DoF mobile manipulator, 14DoF bi-manual ALOHA.</li>
+</ul>
+<figure>
+<img alt="Video Language Planning teaser" src="figures/fig_video-language-planning-teaser-v3.png"/>
+<figcaption><strong>Figure: Video Language Planning.</strong>The VLM policy generates textual actions, the video model generates future states, the VLM heuristic evaluates progress, the tree search recursively expands the plan, and finally the goal-conditioned policy executes.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 Why are long-distance tasks difficult?</h3>
+<p>Real robot long-range tasks require two types of capabilities at the same time: one is high-level semantic planning, that is, knowing what to do next; the other is low-level dynamic prediction, that is, knowing how the world will change after executing a certain action. Classic task and motion planning have long relied on this decomposition, but the question in the era of large models is: can pre-trained VLM/video models be used to replace handwritten symbolic models and dynamic models.</p>
+<h3>2.2 Limitations of using LLM/VLM alone</h3>
+<p>LLM can generate step-by-step text plans, and VLM can incorporate image observations into the plan; however, they are mainly trained on static graphics/question and answer data and tend to lack dynamic reasoning capabilities. For example, by only looking at the current image and target, the model may know the semantic step of "stack the bowls", but it may not be able to predict visual dynamics such as movement, collision, occlusion, and whether the object is reachable.</p>
+<h3>2.3 Limitations of using video models alone</h3>
+<p>The Text-to-video model can generate rich future visual states and carry more detailed physical and spatial information than text; however, it is difficult to generate high-quality long videos. Directly giving a long-range instruction requires the model to generate hundreds of frames of plans at a time, which can easily lose consistency or fail to achieve the final goal.</p>
+<h3>2.4 High-level ideas of this article</h3>
+<p>The starting point of VLP is combination: VLM is responsible for abstract action candidates and progress evaluation, the video model is responsible for short-range dynamic rollout, and tree search strings multiple short-range rollouts into long-term plans. In this way, the VLM alone is not required to imagine physical dynamics, nor is the video model alone responsible for complete long-range planning.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<thead>
+<tr><th>direction</th><th>What do you do if you already have a job?</th><th>The difference between VLPs</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM/VLM for decision making</td>
+<td>LLM generates high-level text steps; VLM connects visual input to text plans.</td>
+<td>VLP not only outputs text steps, but also uses video models to simulate the consequences of actions and uses search to select rollouts.</td>
+</tr>
+<tr>
+<td>Video models as dynamics</td>
+<td>Video prediction models are used to predict future image states, and recent text-to-video models have improved visual quality.</td>
+<td>VLP embeds a short-range video rollout into a long-range forward tree search, with the goal of generating hundreds of frame plans.</td>
+</tr>
+<tr>
+<td>Video-based control / UniPi</td>
+<td>UniPi directly generates videos from long-range text objects and then converts them into actions.</td>
+<td>VLP explicitly introduces language sub-actions, value/heuristic and branching search to avoid one-time long video generation.</td>
+</tr>
+<tr>
+<td>Composable foundation models</td>
+<td>Combining multiple generative models brings new capabilities, such as images, videos, 3D, trajectory planning, etc.</td>
+<td>The combination mechanism of VLP is forward search, which can do long-range reasoning on the future video state; the paper especially compares HiP and points out that HiP is generated and executed step by step, while VLP simulates a long horizon before selecting a plan.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="formulation">
+<h2>4. Formalization of the problem</h2>
+<p>The input is the current visual observation $x_0$ and the natural language long-range target $g$. The output is a long video plan $\{x_t\}_{1: T}$, where each image $x_t$ can be considered a visual sub-goal. The paper assumes that images can be used as world state representations, and uses image goal-conditioned policy to convert visual sub-goals into low-level actions.</p>
+<h3>4.1 Three core functions</h3>
+<table>
+<thead>
+<tr><th>function</th><th>Input and output</th><th>role</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>$\pi_{\text{VLM}}(x, g)\rightarrow a$</td>
+<td>The current image $x$ and the target $g$, output text action $a$.</td>
+<td>High-level policy proposes abstract actions that should be tried next.</td>
+</tr>
+<tr>
+<td>$f_{\text{VM}}(x, a)\rightarrow x_{1: S}$</td>
+<td>The current image $x$ and the short text action $a$ output a short-range future video.</td>
+<td>Dynamics-like video model, simulates the visual state after executing the action.</td>
+</tr>
+<tr>
+<td>$H_{\text{VLM}}(x, g)\rightarrow \mathbb{R}$</td>
+<td>A certain future image state $x$ and target $g$, output heuristic score.</td>
+<td>value/heuristic, evaluates how close the state is to completing the goal.</td>
+</tr>
+</tbody>
+</table>
+<h3>4.2 Optimization goals</h3>
+<div class="formula-block">
+<p class="intuition">VLP searches for: among the long video plans that can be sampled by the VLM policy and video model, which final state is closest to task completion.</p>
+ $$x_{1: H}^{*}=\arg\max_{x_{1: H}\sim f_{\text{VM}}, \pi_{\text{VLM}}} H_{\text{VLM}}(x_H, g)$$
+ <table class="symbol-table">
+<tr><td>$x_{1: H}$</td><td>A long-term video plan obtained by splicing multiple short video rollouts.</td></tr>
+<tr><td>$x_H$</td><td>Final image status of the long video project.</td></tr>
+<tr><td>$H_{\text{VLM}}(x_H, g)$</td><td>VLM heuristic estimate of whether the final state is close to the target.</td></tr>
+<tr><td>$f_{\text{VM}}, \pi_{\text{VLM}}$</td><td>Qualified candidate plans must be generated by both the text action policy and the video model.</td></tr>
+</table>
+</div>
+<p>Note that this is not optimizing the real environment reward in traditional RL, but searching for the most promising plan to complete the task in the future video tree generated by the model.</p>
+</section>
+<section id="method">
+<h2>5. Detailed explanation of method</h2>
+<h3>5.1 VLM as Policy</h3>
+<p>The VLM policy is responsible for generating candidate text actions from the current image and target. The implementation of the paper follows the PaLM-E idea, using the natural language target and the current image token embedding as context. The author tried two construction methods: one is to provide sample text action labels and let VLM predict the action; the other is to fine-tune PaLM-E with random short segments $x_{1: S}$ and its abstract action labels in long trajectories.</p>
+<h3>5.2 Video Model as Dynamics Model</h3>
+<p>Given the current image $x$ and the abstract text action $a$, the video model $f_{\text{VM}}(x, a)$ generates the short video $x_{1: S}$. This video provides two things at the same time: one is the possible result state after the action is performed, and the other is the low-level visual path from the current state to the result state. The training data are short image trajectory snippets and corresponding language labels.</p>
+<h3>5.3 VLM as Heuristic Function</h3>
+<p>VLP needs to choose one of many candidate rollouts. For this purpose, the author trained $H_{\text{VLM}}(x, g)$, inputting future images and long-range goals, and outputting how many steps are needed from the current state to the completion of the goal. The training method is: take a certain $x_t$ from the trajectory snippets $x_{1: H}$ that can complete the long-range goal $g$, and let PaLM-E predict how many steps are left before the end of the trajectory. When actually used for searching, the negative value of the predicted step number is taken, so the higher the value, the closer it is to completion.</p>
+<h3>5.4 Tree Search process</h3>
+<p>The algorithm maintains $B$ parallel video plan beams. Each planning step, for each beam: </p>
+<div class="pseudocode">Input: current image x0, long-range target g
+Initialize B beams: [[x0],..., [x0]]
+For h = 1... H: For each beam b: x = last frame of current beam
+ sample A text actions: a1... aA = pi_VLM(x, g)
+ for each action ai, sample D videos: f_VM(x, ai)
+ Use H_VLM to select the highest-scoring video and connect it to the back of the beam
+ Every 5 steps: discard the lowest scoring beam and replace it with the highest scoring beam
+Return: The long-horizon video plan with the highest final H_VLM score</div>
+<p>The computing budget here is controlled by three hyperparameters: language branching factor $A$, video branching factor $D$, and planning beams $B$. More budget generates more candidate text actions and video rollouts, so better plans may be found, but the inference time is also longer.</p>
+<h3>5.5 Prevent exploitative model dynamics</h3>
+<p>When the search directly optimizes $H_{\text{VLM}}$, it is possible to exploit the pseudo-dynamics of the video model. For example, the object suddenly teleports to the target position, or the final frame blocks the unfinished part, but heuristic gives high scores. Therefore, the paper adds threshold filtering: if a rollout increases the heuristic estimate beyond a fixed threshold, the video will be discarded to avoid using unphysical model loopholes in exchange for high scores.</p>
+<figure>
+<img alt="Long horizon video plans" src="figures/fig_plan-vis-v2.png"/>
+<figcaption><strong>Long Horizon Video Plan.</strong>VLP is only given the initial image and long-range language target, and the language subplan and intermediate visual frames are directly synthesized by the model.</figcaption>
+</figure>
+<h3>5.6 From video planning to action execution</h3>
+<p>Different from the frame-by-frame inverse dynamics in the previous UniPi, this paper emphasizes that many adjacent video frames cannot be reached by a single action, so a short-range goal-conditioned policy is used: </p>
+<div class="formula-block">
+ $$\pi_{\text{control}}(x, x_g)\rightarrow u$$
+ <p>It inputs the current image $x$ and the target frame $x_g$ in the video plan, and outputs the low-level control $u$ that moves the robot toward $x_g$. During training, $x_t$ and future state $x_{t+h}$ are randomly sampled from the control trajectory, and $\pi_{\text{control}}(x_t, x_{t+h})$ is used to predict $u_t$.</p>
+</div>
+<p>Receding horizon control will also be used for long-term execution: fix the horizon to generate a plan, and re-observe and replan after a period of execution to reduce the accumulation of execution errors.</p>
+<h3>5.7 Implementation details in Appendix</h3>
+<table>
+<thead>
+<tr><th>module</th><th>Configuration</th><th>Source</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Video model training</td>
+<td>Follow the UniPi / text-to-video diffusion architecture; base text-conditioned video generation at $24\times40$, then super-resolve to $48\times80$ and $192\times320$; each resolution generates 16 frames.</td>
+<td><span class="appendix-ref">Appendix Training Details</span></td>
+</tr>
+<tr>
+<td>Video model resources</td>
+<td>The base text-conditioned video model is trained with 64 TPUv3 pods for 3 days, and the high-resolution super-resolution models are trained for 1 day; separate text-to-video models are trained in different domains.</td>
+<td><span class="appendix-ref">Appendix Training Details</span></td>
+</tr>
+<tr>
+<td>VLM models</td>
+<td>Following the PaLM-E architecture and code base; fine-tune single 12B PaLM-E predicts both heuristics and policies; trained with 64 TPUv3 pods for 1 day per domain.</td>
+<td><span class="appendix-ref">Appendix Training Details</span></td>
+</tr>
+<tr>
+<td>Goal-conditioned policy</td>
+<td>Using the LAVA architecture, replace the CLIP text encoder with the goal image's ResNet encoder; each domain is trained with 16 TPUv3 pods for 1 day.</td>
+<td><span class="appendix-ref">Appendix Training Details</span></td>
+</tr>
+<tr>
+<td>Language Table planning</td>
+<td>horizon 16, beam width 2, language branching factor 4, video branching factor 4; DDIM sampler, base resolution 64 sampling steps, high resolution 4 sampling steps; classifier-free guidance scale 5.</td>
+<td><span class="appendix-ref">Appendix Planning Details</span></td>
+</tr>
+<tr>
+<td>7DoF mobile manipulator planning</td>
+<td>Use PaLM-E to generate scene captions, use few-shot prompted PaLM to generate plans according to SayCan prompts; beam width 3; base resolution $64\times80$, super-resolution $256\times320$; goal policy uses the last frame of the generated video segment.</td>
+<td><span class="appendix-ref">Appendix Planning Details</span></td>
+</tr>
+<tr>
+<td>14DoF bi-manual planning</td>
+<td>Use the Language Table planning setup; set the heuristic clipping threshold to 15.</td>
+<td><span class="appendix-ref">Appendix Planning Details</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="experiments">
+<h2>6. Experiments and results</h2>
+<p>The experiments are divided into three categories: long-range video synthesis, long-range execution, and generalization. The paper covers simulated Language Table, real Language Table, 7DoF mobile manipulator, and 14DoF bi-manual ALOHA.</p>
+<h3>6.1 Long-Horizon Video Synthesis</h3>
+<p>Evaluate whether the generated video plan accomplishes long-term goals. The appendix explains that the evaluation method is to manually determine whether the generated video satisfies the long-horizon goal at any time; each goal and each method generates 50 videos. Due to the slow generation of long-range videos, each video takes about 30 minutes.</p>
+<table>
+<thead>
+<tr>
+<th rowspan="2">Model</th>
+<th colspan="3">Sim Environment</th>
+<th colspan="3">Real Environment</th>
+</tr>
+<tr>
+<th>Move Area</th><th>Group Color</th><th>Make Line</th><th>Move Area</th><th>Group Color</th><th>Make Line</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>UniPi</td><td>2%</td><td>4%</td><td>2%</td><td>4%</td><td>12%</td><td>4%</td></tr>
+<tr><td>VLP (No Value Function)</td><td>10%</td><td>42%</td><td>8%</td><td>20%</td><td>64%</td><td>4%</td></tr>
+<tr><td>VLP (Ours)</td><td class="best">58%</td><td class="best">98%</td><td class="best">66%</td><td class="best">78%</td><td class="best">100%</td><td class="best">56%</td></tr>
+</tbody>
+</table>
+<p>This table directly supports two core designs of VLP: better than UniPi direct long-range video generation, indicating that the hierarchical/search structure is important; better than no value function, indicating that heuristic pruning is not just decoration.</p>
+<h3>6.2 Impact of Search Budget on Video Plan</h3>
+<table>
+<thead>
+<tr><th>Beams</th><th>Language Branch</th><th>Video Branch</th><th>Make Line Performance</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>1</td><td>4%</td></tr>
+<tr><td>1</td><td>1</td><td>4</td><td>10%</td></tr>
+<tr><td>1</td><td>4</td><td>4</td><td>22%</td></tr>
+<tr><td>2</td><td>4</td><td>4</td><td class="best">56%</td></tr>
+</tbody>
+</table>
+<p>As video branching, language branching, and beams increase, the Make Line video plan success rate goes from 4% to 56%. This illustrates the capability of VLP with test-time compute scaling: more candidate rollouts can significantly improve long-range plan quality.</p>
+<figure>
+<img alt="Planning budget ablation" src="figures/fig_plan_ablation.png"/>
+<figcaption><strong>Video Accuracy vs Planning Budget.</strong>The qualitative comparison on the right shows the difference in generated plans under smaller branching and larger branching.</figcaption>
+</figure>
+<h3>6.3 Long-Horizon Execution</h3>
+<p>Execution evaluation uses the ground-truth simulation state of the Language Table to calculate reward and completion thresholds. Each method evaluates 50 environments per task, with a maximum of 1500 timesteps per environment; stopping early if completed halfway. The paper states that VLP takes about 1 hour per environment, and RT-2 baseline takes about 0.5 hours.</p>
+<table>
+<thead>
+<tr>
+<th rowspan="2">Model</th>
+<th colspan="2">Move to Area</th>
+<th colspan="2">Group by Color</th>
+<th colspan="2">Make Line</th>
+</tr>
+<tr><th>Reward</th><th>Completion</th><th>Reward</th><th>Completion</th><th>Reward</th><th>Completion</th></tr>
+</thead>
+<tbody>
+<tr><td>UniPi</td><td>30.8</td><td>0%</td><td>44.0</td><td>4%</td><td>44.0</td><td>4%</td></tr>
+<tr><td>LAVA</td><td>59.8</td><td>22%</td><td>50.0</td><td>2%</td><td>33.5</td><td>0%</td></tr>
+<tr><td>RT-2</td><td>18.5</td><td>0%</td><td>46.0</td><td>26%</td><td>36.5</td><td>2%</td></tr>
+<tr><td>PaLM-E</td><td>36.5</td><td>0%</td><td>43.5</td><td>2%</td><td>26.2</td><td>0%</td></tr>
+<tr><td>VLP (Ours)</td><td class="best">87.3</td><td class="best">64%</td><td class="best">95.8</td><td class="best">92%</td><td class="best">65.0</td><td class="best">16%</td></tr>
+</tbody>
+</table>
+<p>The authors point out that the horizon of these tasks is very long, and many baselines will "stuck" and stop effective action. The execution advantage of VLP comes from iteratively planning visual subgoals and executing intermediate frames with a goal-conditioned policy.</p>
+<figure>
+<img alt="Simulation execution" src="figures/fig_sim_execution.png"/>
+<figcaption><strong>Simulation Execution.</strong>VLP performs different long-range goals in a simulated Language Table environment.</figcaption>
+</figure>
+<h3>6.4 Execution Budget and Action Extraction Ablation</h3>
+<table>
+<thead>
+<tr><th>Beams</th><th>Planning Horizon</th><th>Branching Factor</th><th>Line Score</th><th>Line Completion</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>4</td><td>48.9</td><td>0%</td></tr>
+<tr><td>1</td><td>1</td><td>16</td><td>53.3</td><td>2%</td></tr>
+<tr><td>1</td><td>2</td><td>16</td><td>58.1</td><td>8%</td></tr>
+<tr><td>2</td><td>2</td><td>16</td><td class="best">65.0</td><td class="best">16%</td></tr>
+</tbody>
+</table>
+<p>The execution success rate also increases as the planning horizon and branching factor increase, again indicating that test-time planning compute is part of the method.</p>
+<table>
+<thead>
+<tr><th>Action Inference</th><th>Group Color Score</th><th>Group Color Completion</th></tr>
+</thead>
+<tbody>
+<tr><td>Inverse Dynamics</td><td>89.7</td><td>80%</td></tr>
+<tr><td>Goal Policy (Last)</td><td>85.0</td><td>66%</td></tr>
+<tr><td>Goal Policy (Every)</td><td class="best">95.8</td><td class="best">92%</td></tr>
+</tbody>
+</table>
+<p>It is best to use goal-conditioned policy frame by frame, which means that the middle frames in the video plan themselves are valuable dense subgoals; only watching the last frame of the short video will lose execution guidance.</p>
+<h3>6.5 Real Robot and Multi-Platform Planning</h3>
+<p>VLP also demonstrated real robot execution with multi-platform video plans: Language Table real robot, 7DoF mobile manipulator, 14DoF bi-manual ALOHA. In the ALOHA setting, the video model outputs 4 camera views at the same time using channel-wise concatenation; VLM policy and heuristic use top/side views.</p>
+<figure>
+<img alt="Real execution" src="figures/fig_real_execution.png"/>
+<figcaption><strong>Real Execution.</strong>Performing long-range tasks on a real Language Table robot.</figcaption>
+</figure>
+<figure>
+<img alt="7DoF mobile manipulator execution" src="figures/fig_vlp-fractal-lh-execution.png"/>
+<figcaption><strong>7DoF Mobile Robot Execution.</strong>The video plan generated by VLP can be executed on the mobile robot by goal-conditioned policy.</figcaption>
+</figure>
+<figure>
+<img alt="ALOHA multiview plans" src="figures/fig_aloha_figure.png"/>
+<figcaption><strong>Multiview Video Plans for Dexterous Manipulation.</strong>VLP synthesizes 4-camera consistent video plans and language sub-goals for 14DoF bi-manual ALOHA.</figcaption>
+</figure>
+<h3>6.6 Generalization</h3>
+<p>The paper reports generalization to objects, lighting, and new tasks. The core explanation is: after the execution is split into visual goal generation and goal-conditioned controller, the video model is responsible for generating visual goals, and the control strategy only needs to focus on the local information required to reach nearby visual goals.</p>
+<figure>
+<img alt="Generalization to objects and lighting" src="figures/fig_generalization.png"/>
+<figcaption><strong>Generalization to Objects and Lighting.</strong>VLP generalizes to robots in new objects, different lighting, and different office locations.</figcaption>
+</figure>
+<figure>
+<img alt="Task generalization" src="figures/fig_vlp-object-generalization.png"/>
+<figcaption><strong>Task Generalization.</strong>When VLM and text-to-video models are trained with large-scale mixed data, VLP can perform new tasks on unseen objects.</figcaption>
+</figure>
+<h3>6.7 Appendix Supplementary Results</h3>
+<p>The appendix adds three categories of results: failure cases, robustness of goal-conditioned policy to noisy synthesized goals, and additional long-range video planning.</p>
+<figure>
+<img alt="Failure in transferring web knowledge" src="figures/fig_vlp-new-object-failures.png"/>
+<figcaption><strong>Failure in Transferring Web Knowledge.</strong>In low or no data regimes, the model may incorrectly transfer web knowledge, such as generating grippers into octopus arms.</figcaption>
+</figure>
+<figure>
+<img alt="Failure in physics" src="figures/fig_limitations.png"/>
+<figcaption><strong>Failure in Physics.</strong>Objects may disappear, reappear, or teleport during long video generation, indicating that object permanence is still a limitation.</figcaption>
+</figure>
+<figure>
+<img alt="Goal policy robustness" src="figures/fig_goal_conditioned_policy.png"/>
+<figcaption><strong>Goal Policy Robustness to Synthesized Goals.</strong>Even if the generated target image contains artifacts, the goal-conditioned policy can still focus on the local visual information required for execution.</figcaption>
+</figure>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part of this paper is that it turns the "basic model combination" into an operational long-range planning algorithm. It does not require a single VLM to understand semantics, physics, dynamics, and control at the same time, nor does it require a single video model to generate a complete long-range plan at once; instead, it allows each model to do what it is relatively good at, and then uses test-time search to combine the capabilities.</p>
+<p>From a method perspective, the value of VLP lies in reopening the visual planning route: video is not an accessory to display results, but a state trajectory in the search space; VLM heuristic does not just do captions, but serves as a value-like pruning signal. This combination makes inference computing an adjustable resource, and more search budget can be exchanged for better plans.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>First, the main results and method claims of the paper are aligned: VLP claims that tree search combining VLM with video models can improve long-range planning, so the experiment simultaneously evaluates video planning quality and real execution success rate. In the video schedule, VLP is significantly higher than UniPi and no-value-function ablation in the three tasks of sim/real Move, Group, and Make.</p>
+<p>Second, the comparisons cover several key alternatives: UniPi for direct long-range video generation, LAVA for direct language/behavior cloning, PaLM-E for direct VLM planning, visual language action model RT-2, and VLP ablation without heuristic. The advantage of VLP is not only relative to a weak baseline, but also better in different paradigms.</p>
+<p>Third, ablation proves that the improvement is related to the search Affiliations: the video planning success rate increases from 4% to 56% with beam/language branch/video branch; the execution success rate also increases with the increase of planning horizon and branching factor. Action extraction ablation also shows that the frame-by-frame goal policy is the key to converting video plans into actions.</p>
+<h3>7.3 Explanation of results clearly given in the paper</h3>
+<ul>
+<li>VLM policy alone is not sufficient for long-range planning because it lacks accurate dynamic prediction; video rollout can complement low-level visual dynamics.</li>
+<li>The video model alone is insufficient to directly generate long-range plans because long videos are prone to distortion; language sub-actions and tree search provide hierarchical structures.</li>
+<li>The value-like effect of VLM heuristic can filter out unfavorable rollout, but the no-value-function ablation is significantly worse.</li>
+<li>The goal-conditioned policy is robust to noise in generated goals because it can ignore most irrelevant visual details and focus on local executable goals.</li>
+</ul>
+<h3>7.4 Author's statement of limitations</h3>
+<table>
+<thead>
+<tr><th>limitations</th><th>Explanation in the paper</th><th>Scope of influence</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Image status is incomplete</td>
+<td>VLP uses images as world state representation, but in many tasks images cannot capture the complete 3D state, hide physical factors or quality.</td>
+<td>Tasks related to occlusion, contact force, object weight, and invisible state.</td>
+</tr>
+<tr>
+<td>Video dynamics are not always accurate</td>
+<td>The author observed that objects in synthesized videos may appear spontaneously or teleport.</td>
+<td>The search may exploit non-physical rollout, which requires threshold filtering but cannot cure it.</td>
+</tr>
+<tr>
+<td>Planning reasoning is expensive</td>
+<td>Language Table long-range planning takes about 30 minutes; VLP execution takes about 1 hour per environment.</td>
+<td>Real-time robotic applications, interactive closed-loop tasks.</td>
+</tr>
+<tr>
+<td>Depends on domain-specific training</td>
+<td>The paper trains separate text-to-video models, separate VLM models per domain, and goal-conditioned policy is also trained by domain.</td>
+<td>Cross-platform generalization still requires data and adaptation training.</td>
+</tr>
+</tbody>
+</table>
+<h3>7.5 Applicable boundaries</h3>
+<p>VLP is most suitable for long-range robotic tasks where the goal can be decomposed by language, state changes can be expressed by images/videos, short-range goal-conditioned policies can be learned, and a high inference computational budget is allowed. It is not suitable for tasks that require high-frequency real-time responses, strong latent state reasoning, precise contact force control, or where video models cannot reliably simulate key dynamics.</p>
+</section>
+<section id="repro">
+<h2>8. Reproducibility Audit</h2>
+<div class="audit-card">
+<h3>8.1 Data and tasks</h3>
+<ul>
+<li><span class="best">Given: </span>The Language Table has about 10, 000 long-horizon trajectories, covering simulation and reality, and hundreds of long-horizon goals; the experiment selects 3 goals for automatic evaluation, about 20, 000 trajectories and 400, 000 short-horizon text labels.</li>
+<li><span class="best">Given: </span>7DoF mobile manipulator uses RT-1 dataset; generalization experiments mix 7DoF, Bridge, RT-2, Ego4D, EPIC-KITCHEN, LAION-400M.</li>
+<li><span class="best">Given: </span>14DoF ALOHA uses about 1200 teleoped demonstrations, each with about 20 language instructions, for a total of about 25k short-horizon text labels.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.2 Assessment details</h3>
+<ul>
+<li>Video evaluation: 50 videos are generated for each goal and each method, and human judgment is made as to whether the long-horizon goal is met.</li>
+<li>Execution evaluation: Language Table uses ground-truth simulation state to calculate reward; 50 environments per task per method; up to 1500 timesteps per environment, stopping early when completed.</li>
+<li>VLP execution settings: planning horizon 2, beam width 2, branching factor 16; in the simulation, the goal-conditioned policy is called 4 times per frame for the first 16 frames of the video plan; in the real environment, the goal-conditioned policy is called for the first 10 frames.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.3 Training and computing power</h3>
+<p>The threshold for reproducibility is high: the video model is trained for several days using 64 TPUv3 pods, the VLM is 12B PaLM-E, and the goal-conditioned policy also uses 16 TPUv3 pods. The paper provides directional configuration, but it is difficult for ordinary laboratories to reproduce it on a large scale.</p>
+</div>
+<div class="audit-card">
+<h3>8.4 Minimum recurrence path</h3>
+<p>A more realistic route to reproduce is to first scale down to Language Table simulation: train a small VLM/action-label predictor or a fixed set of action proposals, train a low-resolution short-range video model, train a goal-conditioned policy, and then compare UniPi-style direct long-video generation, no-value-function VLP and full VLP. The key is not to reproduce 12B PaLM-E, but to verify whether "video rollout + heuristic search" is better than direct long-range video generation.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

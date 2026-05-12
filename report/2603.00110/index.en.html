@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>PhysGen - arXiv: 2603.00110 Reading Report</title>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="title-wrap">
+<h1>Learning Physics from Pretrained Video Models: A Multimodal Continuous and Sequential World Interaction Models for Robotic Manipulation</h1>
+<p class="subtitle">arXiv: 2603.00110 Reading Report - PhysGen / Preparation for junior PhD group meeting</p>
+<div class="meta">
+<span class="pill">Zijian Song, Qichang Li, Sihan Qin et al.</span>
+<span class="pill">Sun Yat-sen University / X-Era AI Lab / GDUT</span>
+<span class="pill">Video Generation as World Interaction Model</span>
+<span class="pill">Continuous Physical Tokens</span>
+<span class="pill">732M parameters</span>
+</div>
+</div>
+</header>
+<nav class="toc">
+<a href="#overview">1. Quick overview of the paper</a>
+<a href="#motivation">2. Motivations and issues</a>
+<a href="#related">3. Related job positioning</a>
+<a href="#prelim">4. Preliminary knowledge</a>
+<a href="#method">5. Detailed explanation of method</a>
+<a href="#experiments">6. Experimentation and reproducibility</a>
+<a href="#discussion">7. Discussion and limitations</a>
+<a href="#questions">8. Questioning at the group meeting</a>
+<a href="#repro">9. reproducibility information</a>
+</nav>
+<article>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<p class="lead">The core idea of PhysGen is: don't just use the pre-trained language model as the "brain" of the robot strategy, but also use the pre-trained autoregressive video generation model as an implicit physics simulator. The model projects visual frames and action blocks into the same continuous physical token space, uses a causal transformer to predict the next set of "visual + action" tokens, and then uses a diffusion de-tokenizer to restore future images and executable actions.</p>
+<table>
+<tr><th>What should the paper solve?</th><td>Robot operation lacks large-scale action teaching data; VLA relies on the symbolic knowledge of LLM/VLM, but operation requires continuous space, time and physical interaction. The author hopes to transfer the physical prior of "how the object will move" from the video generation model and learn control with less robot data.</td></tr>
+<tr><th>The author's approach</th><td>Based on the NOVA autoregressive video generation backbone, PhysGen is proposed: combine video frame tokens and action chunk tokens into physical tokens; use continuous diffusion de-tokenizer to model visual and action distribution; add inverse-kinematics causal mask, Lookahead Multi-Token Prediction, LoRA training and KV-cache inference.</td></tr>
+<tr><th>most important results</th><td>The average success rate of LIBERO is 90.8%, higher than OpenVLA 77%, WorldVLA 82%, and Pi0-Fast 86%; ManiSkill averages 74%, and PushCube reaches 100%; the real Franka Panda four tasks average 75%, which is the same as Pi0, and 75% vs Pi0 70% in transparent object grabbing.</td></tr>
+<tr><th>Things to note when reading</th><td>"The video generation model can be used as a physical simulator" is a strong idea, but the implementation does not directly use the video generation results for planning, but changes the video generation backbone to joint video-action autoregression. The core evidence comes from continuous tokens, video pre-training, AR rollout, and L-MTP ablation.</td></tr>
+</table>
+<div class="grid three">
+<div class="card"><div class="kpi">90.8%</div><div class="kpi-label">LIBERO average success rate</div></div>
+<div class="card"><div class="kpi">+13.8%</div><div class="kpi-label">An absolute improvement over OpenVLA's LIBERO</div></div>
+<div class="card"><div class="kpi">60h</div><div class="kpi-label">The longest fine-tuning time is about one card A100 training time</div></div>
+</div>
+<figure>
+<img alt="PhysGen framework" src="figures/world_evolve1_p1.png"/>
+<figcaption>PhysGen framework: The model runs synchronously with the real environment. Each step predicts the next visual state and action. After executing the action, the environment feedback is encoded back into the token stream, forming a continuous perception-planning-execution loop.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivations and issues</h2>
+<h3>2.1 Why not continue to pile action data?</h3>
+<p>The paper starts from the scarcity of robot data: large-scale generative pretraining can bring cross-task generalization in NLP and vision, but robot action teaching is expensive, time-consuming, and strongly hardware-dependent. The VLA method connects LLM/VLM to the action head and can transfer language and visual knowledge, but there is a modal gap between text/action: language is a symbolic description, and robot action is a continuous, geometric, and time-sensitive control signal.</p>
+<p>The author believes that the video generation model is closer to the knowledge required by the robot: the video model must predict future frames from historical frames, and therefore implicitly learns physical priors such as object permanence, motion trends after contact, and temporal consistency. Autoregressive video generation is particularly like a sequential decision process in control because it predicts the future in a rolling, step-by-step manner.</p>
+<h3>2.2 Problems with traditional tokenization</h3>
+<p>Many autoregressive models rely on discrete tokens. Discretization is natural for language, but the nature of latent images and actions is continuous signals, and quantization will bring resolution errors. For robots, small motion quantization errors may accumulate into trajectory drift over long time series. PhysGen therefore advocates continuous tokens: both vision and action are modeled in continuous embedding space, and then diffusion loss is used to learn conditional distribution.</p>
+<div class="note">
+<strong>One sentence version: </strong>PhysGen does not allow the robot to "understand the language and then perform actions", but allows the robot to "borrow the world evolution prior of the video generation model" to simultaneously predict future images and actions in the continuous physical token space.
+ </div>
+</section>
+<section id="related">
+<h2>3. Related job positioning</h2>
+<table>
+<tr><th>direction</th><th>Representation method</th><th>How authors position PhysGen</th></tr>
+<tr><td>Vision-Language-Action Models</td><td>RT series, OpenVLA, $\pi_0$, GR00T, etc.</td><td>These methods mostly transfer knowledge from LLM/VLM and then connect the action head. PhysGen also uses an autoregressive architecture, but the backbone comes from a video generation model rather than a language model.</td></tr>
+<tr><td>Video-Action Joint Prediction</td><td>WorldVLA, UWM, UniMimic, UVA, etc.</td><td>There have been works that jointly predict vision and action, but PhysGen emphasizes step-by-step physical autoregression and uses shared continuous token representations to reduce discretization errors.</td></tr>
+<tr><td>Non-Quantized Autoregressive Models</td><td>MAR, NOVA, etc.</td><td>MAR uses a denoising process to model continuous token conditional distributions; NOVA extends it to video generation. PhysGen adds action tokens on this basis to become a unified vision-action autoregression.</td></tr>
+</table>
+<figure>
+<img alt="PhysGen architecture main" src="figures/phytransformer1a_p1.png"/>
+<figcaption>PhysGen main architecture: starting from language tokens, using Causal Transformer autoregression to predict physical tokens; frame diffusion and action diffusion estimate the continuous conditional distributions of vision and action respectively.</figcaption>
+</figure>
+</section>
+<section id="prelim">
+<h2>4. Preliminary knowledge</h2>
+<h3>4.1 How Diffusion loss serves as a probabilistic model for continuous tokens</h3>
+<p>The ordinary diffusion model gradually adds noise to the clean sample $x_0$: </p>
+<p>$$q(x_t \mid x_{t-1})=\mathcal{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I).$$</p>
+<p>The training goal is to have the network predict the injected noise: </p>
+<p>$$L(\theta)=\mathbb{E}_{t, x_0, \epsilon}\left[\left\|\epsilon-\epsilon_\theta(\sqrt{\bar{\alpha}_t}x_0+\sqrt{1-\bar{\alpha}_t}\epsilon, t)\right\|^2\right].$$</p>
+<p>The key inspiration of MAR/NOVA is: given the autoregressive context $z$, you can directly train the denoiser $\epsilon_\theta(x_t|t, z)$ to learn $p(x|z)$ without quantizing the continuous signal into a discrete vocabulary: </p>
+<p>$$\mathcal{L}(z, x)=\mathbb{E}_{\epsilon, t}\left[\|\epsilon-\epsilon_\theta(x_t|t, z)\|^2\right].$$</p>
+<p>PhysGen applies this idea to de-tokenization of frame tokens and action tokens.</p>
+<h3>4.2 What NOVA offers</h3>
+<p>NOVA is a continuous, non-quantized autoregressive video generation model. It is modeled by time: </p>
+<p>$$p(l, S_1, \dots, S_N)=\prod_{n=1}^{N}p(S_n|l, S_1, \dots, S_{n-1}), $$</p>
+<p>And it is generated autoregressively in the form of token set within the frame. PhysGen retains NOVA's language and visual embedding mechanism, allowing it to inherit the world dynamic knowledge in video pre-training, and then adds action tokens and action diffusion de-tokenizers.</p>
+</section>
+<section id="method">
+<h2>5. Detailed explanation of method</h2>
+<h3>5.1 Input and output: predict next step from historical vision and actions</h3>
+<p>At step $n$, PhysGen inputs the task instruction $l$, the historical image $\{O_0, \dots, O_{N-1}\}$ and the corresponding action block $\{A_1, \dots, A_{N-1}\}$, and outputs the next frame visual state $O_N$ and the next action block $A_N$. Each action block $A_n$ contains $L$ consecutive actions, $L=8$ in the experiment.</p>
+<p>The meaning of this formulation is that the model does not only predict actions, but predicts "how the actions and the environment evolve together." This makes it more like a predictive world interaction model than a pure policy head.</p>
+<h3>5.2 Tokenizer: Put language, vision, and action into the same space</h3>
+<table>
+<tr><th>modal</th><th>encoding method</th><th>Whether to freeze</th><th>output</th></tr>
+<tr><td>language instructions</td><td>Phi language model tokenizer/encoder</td><td>Freeze</td><td>$E_l\in\mathbb{R}^{K_l\times d}$</td></tr>
+<tr><td>visual frame</td><td>NOVA's original 3D-VAE, flattened into frame tokens</td><td>Freeze</td><td>$E_{O, n}\in\mathbb{R}^{K_O\times d}$</td></tr>
+<tr><td>action block</td><td>MLP action tokenizer</td><td>training</td><td>$E_{A, n}\in\mathbb{R}^{K_A\times d}$, among which $K_A=L$</td></tr>
+</table>
+<p>Each physical token is composed of visual tokens and action tokens concatenated along the sequence dimension: </p>
+<p>$$P_n=[E_{O, n}; E_{A, n}], \quad P_n\in\mathbb{R}^{(K_O+K_A)\times d}.$$</p>
+<p>Since observation precedes action, the author adds a learnable Begin-of-Action token before the action sequence to align the length.</p>
+<h3>5.3 Physical Autoregression</h3>
+<p>PhysGen follows LLM's token-by-token autoregression, but token now represents the joint physical state of vision and action: </p>
+<p>$$p(E_l, P_0, \dots, P_N)=\prod_{n=0}^{N}p(P_n|E_l, P_0, \dots, P_{n-1}).$$</p>
+<p>The conditional distribution is parameterized by a Causal Transformer replicating the NOVA architecture. Transformer output condition vector $Z_n$: </p>
+<p>$$Z_n=\mathrm{Transformer}(l, P_0, \dots, P_{n-1}).$$</p>
+<h3>5.4 De-tokenizer: Continuous diffusion restores vision and action</h3>
+<p>Given $Z_n$, PhysGen estimates $p(P_n|Z_n)$ using the DiT-based denoising process: </p>
+<p>$$\mathcal{L}(P_n, Z_n)=\mathbb{E}_{\epsilon, t}\left[\|\epsilon-\epsilon_\theta(P_{n, t}|t, Z_n)\|^2\right].$$</p>
+<p>The reverse sampling form is: </p>
+<p>$$P_{n, t-1}=\frac{1}{\sqrt{\alpha_t}}\left(P_{n, t}-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon_\theta(P_{n, t}|t, Z_n)\right)+\sigma_t\delta.$$</p>
+<p>The de-tokenization of vision and action is done separately: the frame token uses NOVA's reconstruction paradigm; the action token uses lightweight Action-DiT, and the condition vector is injected through cross-attention.</p>
+<figure>
+<img alt="Action diffusion network" src="figures/phytransformer1b_p1.png"/>
+<figcaption>Action diffusion network: predict token as a condition vector and inject action denoiser through cross-attention.</figcaption>
+</figure>
+<h3>5.5 Causal Mask and Implicit Inverse Kinematics</h3>
+<p>PhysGen's attention mask is designed for the joint token of "frame + action".</p>
+<ul>
+<li>Frame part uses chunk-wise full attention: patches in the same frame can pay attention to each other.</li>
+<li>Action part uses temporal causal attention: early actions within the action block cannot see subsequent actions.</li>
+<li>Action tokens can attend one-way to frame tokens: action planning can be conditioned on visual states, which the authors claim facilitates implicit inverse kinematics.</li>
+<li>Maintain temporal causality across chunks to avoid future information leakage.</li>
+</ul>
+<figure>
+<img alt="Causal attention mask" src="figures/attn_mask1_p1.png"/>
+<figcaption>Causal attention mask: frame tokens are fully connected within the chunk, action tokens maintain causality over time, and visual tokens are read in one direction for visually conditioned control.</figcaption>
+</figure>
+<h3>5.6 Lookahead Multi-Token Prediction</h3>
+<p>L-MTP combines lookahead action generation and Multi-Token Prediction. In each autoregressive step, the action de-tokenizer generates multiple future tokens in parallel, which is 3 tokens in the paper implementation. All prediction tokens are supervised during training; only the first token is executed during inference, and the remaining tokens are used as lookahead information to condition subsequent predictions.</p>
+<p>This is equivalent to allowing the model to retain short-term future plans while executing the current action, mitigating the short-term problem of single token rollout, and improving long-term consistency.</p>
+<h3>5.7 Training goals and implementation details</h3>
+<p>The total loss is the average diffusion loss of frames and actions over the sequence: </p>
+<p>$$loss=\sum_{n=1}^{N}\mathcal{L}(Z_n, P_n)=\sum_{n=1}^{N}\left(\mathcal{L}_{obs}(Z_n, E_{O, n})+\mathcal{L}_{act}(Z_n, E_{A, n})\right).$$</p>
+<table>
+<tr><th>Project</th><th>settings</th></tr>
+<tr><td>action block length</td><td>$L=8$</td></tr>
+<tr><td>Transformer maximum context</td><td>2096 tokens</td></tr>
+<tr><td>context composition</td><td>256 language tokens + 5 physical token packages</td></tr>
+<tr><td>Each physical package</td><td>360 visual tokens + 8 action tokens</td></tr>
+<tr><td>Multi-view input</td><td>Splice it into one image and send it to VAE and AR transformer</td></tr>
+<tr><td>training efficiency</td><td>Teacher forcing is fully parallel; Transformer backbone uses LoRA fine-tuning</td></tr>
+<tr><td>Reasoning efficiency</td><td>KV-cache caches intermediate features of each layer</td></tr>
+<tr><td>Hardware and time</td><td>Single NVIDIA A100-SXM4-80GB; maximum training time 60 GPU hours</td></tr>
+<tr><td>position encoding</td><td>RoPE; frame and action token use different frequency settings</td></tr>
+</table>
+</section>
+<section id="experiments">
+<h2>6. Experimentation and reproducibility</h2>
+<h3>6.1 LIBERO simulation experiment</h3>
+<p>The LIBERO experiment evaluates four suites: Spatial, Object, Goal, and Long. Each suite has about 400 demonstrations for fine-tuning and 500 rollouts for evaluation, and the indicator is success rate. The author emphasizes that "no action pretraining" means that the backbone is not pretrained on large-scale manipulation/action data.</p>
+<table>
+<tr><th>Method</th><th>Params</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr>
+<tr><td>DP, w/o action pretraining</td><td>-</td><td>78</td><td>93</td><td>68</td><td>51</td><td>72</td></tr>
+<tr><td>OpenVLA</td><td>7B</td><td>85</td><td>88</td><td>79</td><td>54</td><td>77</td></tr>
+<tr><td>ThinkAct</td><td>7B</td><td>88</td><td>91</td><td>87</td><td>71</td><td>84</td></tr>
+<tr><td>Pi0-Fast</td><td>3B</td><td><strong>96</strong></td><td>97</td><td>89</td><td>60</td><td>86</td></tr>
+<tr><td>MolmoACT</td><td>7B</td><td>87</td><td>95</td><td>88</td><td>77</td><td>87</td></tr>
+<tr><td>UniMimic, w/o action pretraining</td><td>~200M</td><td>71</td><td>79</td><td>67</td><td>29</td><td>62</td></tr>
+<tr><td>WorldVLA, w/o action pretraining</td><td>7B</td><td>88</td><td>96</td><td>83</td><td>60</td><td>82</td></tr>
+<tr><td><strong>PhysGen, w/o action pretraining</strong></td><td><strong>732M</strong></td><td>91.0</td><td><strong>99.6</strong></td><td><strong>93.8</strong></td><td><strong>78.8</strong></td><td><strong>90.8</strong></td></tr>
+</table>
+<p>Key points in the interpretation of the results: PhysGen averages 90.8, which not only exceeds the LLM/VLM-based baseline, but also exceeds the visual generation pre-training baseline WorldVLA by 8.8 points; it is 18.8 points higher than WorldVLA in the Long suite, which supports the author's claim that continuous AR world interaction modeling improves long-term consistency. The only weak entry is Spatial, which is lower than Pi0-Fast's 96, which the authors attribute to the underlying video model's limited spatial awareness.</p>
+<h3>6.2 ManiSkill simulation experiment</h3>
+<p>ManiSkill selects three tasks: PushCube, PickCube, and StackCube. Each task uses 1000 demonstrations for fine-tuning and 125 rollouts for evaluation.</p>
+<table>
+<tr><th>Method</th><th>PushCube</th><th>PickCube</th><th>StackCube</th><th>Avg.</th></tr>
+<tr><td>ACT</td><td>76</td><td>20</td><td>30</td><td>42</td></tr>
+<tr><td>BC-T</td><td>98</td><td>4</td><td>14</td><td>39</td></tr>
+<tr><td>DP</td><td>88</td><td>40</td><td><strong>80</strong></td><td>69</td></tr>
+<tr><td>ICRT</td><td>77</td><td><strong>78</strong></td><td>30</td><td>62</td></tr>
+<tr><td>RDT</td><td><strong>100</strong></td><td>77</td><td>74</td><td><strong>84</strong></td></tr>
+<tr><td>Pi0</td><td><strong>100</strong></td><td>60</td><td>48</td><td>69</td></tr>
+<tr><td><strong>PhysGen</strong></td><td><strong>100</strong></td><td>73</td><td>48</td><td>74</td></tr>
+</table>
+<p>PhysGen on ManiSkill is not as high on average as RDT, but better than ICRT and Pi0, especially PushCube by 100%. This suggests that the video prior is helpful, but does not necessarily outperform the action-pretrained policy across all manipulation settings.</p>
+<h3>6.3 Real robot experiment</h3>
+<p>The real experiment uses a Franka Panda with two RealSense D415 cameras, one fixed and one on the wrist. The four tasks are Pick Cube, Press Button, Stack Cube, and Pick Transparency. Collect 80-100 teleoperation demonstrations per task and evaluate 20 trials. ACT is trained from scratch, and OpenVLA and Pi0 use official checkpoints for fine-tuning; PhysGen only uses these collected data for fine-tuning, and backbone does not have large-scale action pre-training.</p>
+<figure>
+<img alt="Real-world manipulation visualization" src="figures/real_world_exp2_p1.png"/>
+<figcaption>Franka Panda Real tasks: transparent object grabbing, block grabbing, button pressing, block stacking. The paper emphasizes that transparent objects cause visual ambiguity due to reflection and refraction, and require physical prior knowledge.</figcaption>
+</figure>
+<table>
+<tr><th>Method</th><th>Pick Cube</th><th>Press Button</th><th>Stack Cube</th><th>Pick Transparency</th><th>Avg.</th></tr>
+<tr><td>ACT</td><td>40</td><td>40</td><td>30</td><td>10</td><td>30</td></tr>
+<tr><td>OpenVLA</td><td>30</td><td>25</td><td>10</td><td>0</td><td>16.3</td></tr>
+<tr><td>Pi0</td><td><strong>85</strong></td><td><strong>85</strong></td><td><strong>60</strong></td><td>70</td><td><strong>75</strong></td></tr>
+<tr><td><strong>PhysGen</strong></td><td>80</td><td><strong>85</strong></td><td><strong>60</strong></td><td><strong>75</strong></td><td><strong>75</strong></td></tr>
+</table>
+<h3>6.4 Ablation experiment</h3>
+<p>Ablation is performed on LIBERO-Object, and the metric is success rate.</p>
+<table>
+<tr><th>Variant</th><th>Pretrain</th><th>Token</th><th>L-MTP</th><th>Backbone</th><th>SR</th><th>explain</th></tr>
+<tr><td>PhysGen-Zero</td><td>No</td><td>continuous</td><td>+</td><td>AR</td><td>86.4</td><td>No video pre-training as a control to test NOVA prior</td></tr>
+<tr><td>PhysGen-Discrete</td><td>NOVA</td><td>discrete</td><td>+</td><td>AR</td><td>94.2</td><td>Actions are quantified into discrete words and the value of continuous tokens is tested.</td></tr>
+<tr><td>PhysGen-NoAR</td><td>NOVA</td><td>continuous</td><td>-</td><td>NoAR</td><td>95.0</td><td>Remove the autoregressive rollout, equivalent to $N=1$ single-step mapping</td></tr>
+<tr><td>PhysGen-STP</td><td>NOVA</td><td>continuous</td><td>-</td><td>AR</td><td>96.8</td><td>Single token prediction, remove Lookahead-MTP</td></tr>
+<tr><td><strong>PhysGen-Full</strong></td><td><strong>NOVA</strong></td><td><strong>continuous</strong></td><td><strong>+</strong></td><td><strong>AR</strong></td><td><strong>99.6</strong></td><td>complete model</td></tr>
+</table>
+<p>Ablation corresponds to four conclusions: video pre-training brings +13.2; continuous token versus discrete brings +5.4; AR architecture brings +4.6; L-MTP brings +3.4.</p>
+<h3>6.5 Qualitative analysis</h3>
+<figure>
+<img alt="Predicted videos and actual executions" src="figures/vis_success3_p1.png"/>
+<figcaption>Predicted video and actual execution alignment: Each row shows PhysGen's predicted video and the corresponding execution video. The author believes that the two are highly similar in motion trajectories and key action times, indicating that video prior has been successfully transferred to action planning.</figcaption>
+</figure>
+<figure>
+<img alt="Attention map visualization" src="figures/attn_map2_p1.png"/>
+<figcaption>Attention visualization: token-level attention shows that action prediction will selectively focus on historical frames and action tokens; pixel-level attention focuses on task-critical areas such as boxes, target areas, and robotic arms.</figcaption>
+</figure>
+</section>
+<section id="discussion">
+<h2>7. Discussion and limitations</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable thing is that it turns the sentence "there is physical knowledge in the video generation model" into a trainable robot strategy structure. It does not stop at the indirect route of "generating videos and extracting actions from the videos", but directly incorporates actions into the autoregressive video token stream, allowing the model to predict future vision and actions at the same time. This allows video prior, motion control and sequence planning to interact within the same model.</p>
+<p>The second value is the continuous token. The continuity of robot movements and visual latent is very important. Discrete tokens are natural in language, but they are prone to accuracy losses in control. PhysGen uses a diffusion de-tokenizer to learn continuous conditional distributions, avoiding hard quantization while maintaining generative modeling capabilities.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li><strong>The ablation closed loop is relatively complete: </strong>Video pre-training, continuous token, autoregression, and L-MTP have corresponding ablation respectively, and each has a positive return.</li>
+<li><strong>Compare to strong baseline: </strong>Comparing OpenVLA, Pi0-Fast, WorldVLA, and MolmoACT on LIBERO; comparing Pi0 in real experiments, it shows that it is not just about weakening the baseline.</li>
+<li><strong>The real transparent object task has recognition: </strong>Pick Transparency involves visual ambiguity caused by reflection/refraction, which is a good way to test whether video physics priors help control.</li>
+</ul>
+<h3>7.3 Things to be careful about</h3>
+<div class="danger">
+<p><strong>"Video model = physics simulator" is still a metaphor: </strong>What the video generation model learns is the physical laws in visual statistics, which is not necessarily equivalent to a controllable and verifiable dynamics model. It may predict visually reasonable but controllably wrong states.</p>
+<p><strong>Real experiments are smaller: </strong>Four Franka tabletop tasks, with 20 trials each, demonstrate feasibility but are not sufficient to illustrate broad real-world generalization.</p>
+<p><strong>ManiSkill is not ahead across the board: </strong>The average of 74 is lower than RDT's 84, and StackCube is lower than DP/RDT. This shows that video priors without action pre-training are not a silver bullet for all scenarios.</p>
+<p><strong>The source code does not contain the actual appendix: </strong>The text mentions that the details of the actual task are in the Appendix, but the appendix input in LaTeX is commented out. Therefore, some task definition details cannot be further verified from the source code.</p>
+</div>
+</section>
+<section id="questions">
+<h2>8. Questioning at the group meeting</h2>
+<h3>Q1: What is the biggest difference between PhysGen and WorldVLA/UWM?</h3>
+<p>They all focus on video-action joint prediction, but PhysGen explicitly uses the NOVA-style continuous non-quantized autoregressive backbone to combine frame tokens and action tokens into physical tokens to gradually predict the co-evolution of the world and the robot; at the same time, it uses diffusion de-tokenizer to model continuous visual/action distribution.</p>
+<h3>Q2: Why is it not considered a leak if the action token can attend to future visual states?</h3>
+<p>What the author means is that within the same physical chunk, action planning can read the corresponding visual token representation, thereby forming a visual conditioned inverse kinematics relationship; the temporal causal mask is still maintained across chunks. It should be noted here that "future visual states" are more like structured conditions for combining tokens within chunks, rather than unlimited reading of real future trajectories.</p>
+<h3>Q3: Why only the first token is executed during L-MTP inference?</h3>
+<p>Subsequent tokens are used as lookahead information to help the current prediction have a longer planning horizon; only executing the first token can retain the feedback ability of receding-horizon control, and the next step is to re-predict based on real environment feedback.</p>
+<h3>Q4: How is continuous diffusion de-tokenizer better than MLP regression?</h3>
+<p>MLP regression gives deterministic point estimates and easily averages multi-modal actions. The diffusion de-tokenizer learns the conditional distribution $p(P_n|Z_n)$, which retains both continuous accuracy and the ability to generate models to express multi-modal output.</p>
+<h3>Q5: If it happens again, where is the most likely pitfall?</h3>
+<p>The first is the token organization and mask: language, 5 physical packages, and 360 visual + 8 action tokens per package must be aligned; the second is the diffusion sampling of action de-tokenizer and the multiple sampling of $t$ during training; the third is whether the input distribution of the original NOVA VAE matches after multi-view splicing.</p>
+</section>
+<section id="repro">
+<h2>9. reproducibility information</h2>
+<h3>9.1 Link and code status</h3>
+<ul>
+<li>arXiv: <a href="https://arxiv.org/abs/2603.00110">https: //arxiv.org/abs/2603.00110</a></li>
+<li>Hugging Face paper page: <a href="https://huggingface.co/papers/2603.00110">https: //huggingface.co/papers/2603.00110</a></li>
+<li>There is no PhysGen official code repository link provided in the source code LaTeX; Web search also did not find the official GitHub that clearly corresponds to `2603.00110`.</li>
+</ul>
+<h3>9.2 Minimum Reproducible Configuration Shorthand</h3>
+<pre><code>Backbone: NOVA autoregressive video generation model
+Language tokens: frozen Phi language model
+Visual tokenizer: frozen 3D-VAE from NOVA
+Action tokenizer: MLP, K_A = L = 8
+Physical token: concat(frame tokens, action tokens)
+Context length: 2096 = 256 language + 5 * (360 visual + 8 action)
+De-tokenizer: frame diffusion + Action-DiT action diffusion
+Training: teacher forcing, LoRA finetuning, 4 samples of t per image/action
+Inference: autoregressive rollout with KV-cache
+Hardware: single A100-SXM4-80GB, longest finetuning within 60 GPU hours</code></pre>
+<h3>9.3 Coverage check</h3>
+<p>This report has covered the core content of Abstract, Introduction, Related Work, Preliminaries, Method, Experiment, and Conclusion. The source code contains `\appendix` but the appendix file input is commented and no actual appendix text was found to be integrated; this is noted in the report.</p>
+<p class="small">Generation date: 2026-05-08. The source code package, PDF and decompression Contents are left uncleaned to facilitate subsequent verification.</p>
+</section>
+</article>
+</main>
+</body>
+</html>

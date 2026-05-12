@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>mimic-video - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>mimic-video: Video-Action Models for Generalizable Robot Control Beyond VLAs</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Jonas Pai, Liam Achenbach, Victoriano Montesinos, Benedek Forrai, Oier Mees, Elvis Nava</p>
+<p><strong>Organization: </strong>mimic robotics; Microsoft Zurich; ETH Zurich; ETH AI Center; UC Berkeley</p>
+<p><strong>Paper: </strong><a href="https://arxiv.org/abs/2512.15692">arXiv: 2512.15692</a> | <a href="https://arxiv.org/pdf/2512.15692">PDF</a> | <a href="https://mimic-video.github.io">Project home page</a></p>
+<p><strong>Keywords: </strong><span class="tag">Video-Action Model</span><span class="tag">VLA</span><span class="tag">Flow Matching</span><span class="tag">Inverse Dynamics Model</span><span class="tag">Robot Control</span></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Quick overview of the paper</a></li>
+<li><a href="#sec2">2. Background and problem setting</a></li>
+<li><a href="#sec3">3. Related work context</a></li>
+<li><a href="#sec4">4. Method details</a></li>
+<li><a href="#sec5">5. Experiments and results</a></li>
+<li><a href="#sec6">6. Key points of reproducibility and implementation</a></li>
+<li><a href="#sec7">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper proposes mimic-video, which uses the latent visual plan of the Internet-scale pre-trained video model as the dynamic prior of the robot strategy, and then uses the flow matching action decoder to perform inverse dynamics. Therefore, in SIMPLER, LIBERO and real-arm dexterity hand tasks, it saves action data and converges faster than the corresponding VLA representation.
+ </div>
+<section id="sec1">
+<h2>1. Quick overview of the paper</h2>
+<table>
+<tr><th>Reading positioning</th><th>content</th></tr>
+<tr>
+<td><strong>What should the paper solve?</strong></td>
+<td>Mainstream VLA relies on static image and text pre-training and has strong semantic knowledge, but physical dynamics, temporal causality and operation processes still need to be learned from expensive robot demonstrations. What the paper wants to solve is: how to use the dynamic prior in video pre-training directly for robot control and reduce the demand for action data.</td>
+</tr>
+<tr>
+<td><strong>The author's approach</strong></td>
+<td>Use a flow matching video model such as Cosmos-Predict2 as the frozen video backbone, and obtain the noisy latent visual plan through partial denoising; the action decoder is used as the Inverse Dynamics Model, cross-attend to the middle layer representation of the video model, and output the action chunk.</td>
+</tr>
+<tr>
+<td><strong>most important results</strong></td>
+<td>SIMPLER-Bridge average success rate: mimic-video scratch is 46.9%, higher than $\pi_{0.5}$-style VLA scratch's 35.4%; task-specific $\tau_v$ is 56.3% after tuning. LIBERO averages 93.9%, which is higher than $\pi_{0.5}$-style VLA's 85.9%. On the real dual-arm dexterity hand, the Packing is 72.0 and the Package handover is 93.0, which are both higher than the 42.6 and 74.1 of the multi-view DiT-Block Policy.</td>
+</tr>
+<tr>
+<td><strong>Things to note when reading</strong></td>
+<td>This article is different from the previous method of "generating the future video completely first and then solving the action from the pixels". The focus is on partial denoising and intermediate hidden states; the author even found that the best strategy performance often occurs near high noise $\tau_v=1$, which means that high-fidelity video reconstruction is not a necessary condition.</td>
+</tr>
+</table>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Propose Video-Action Model (VAM): </strong>Couple the pre-trained video model with the flow matching action decoder. The video model is responsible for dynamic/visual planning, and the action head is responsible for low-level control.</li>
+<li><strong>Propose efficient action sampling: </strong>Stop in the middle of flow time $\tau_v$ by partial denoising to avoid completely generating future videos at each control step.</li>
+<li><strong>Compare equivalent action headers with VLA: </strong>$\pi_{0.5}$-style baseline uses PaliGemma 3B and the same motion decoder, trying to attribute the difference to video representation vs. graphic representation.</li>
+<li><strong>Give data efficiency conclusions: </strong>On LIBERO, the action decoder under video prior conditions can achieve the highest success rate of VLM-conditioned decoder with 10% of the data; it still has an average success rate of 77% at 1 episode/task.</li>
+</ul>
+<div class="figure">
+<img alt="mimic-video teaser" src="figures/teaser-new.png"/>
+<div class="caption">Figure 1: Overview of the paper. The author positions mimic-video as a type of Video-Action Model other than VLA: it does not allow the strategy to re-learn physical dynamics from static images and text, but reuses the dynamic prior of the video model.</div>
+</div>
+</section>
+<section id="sec2">
+<h2>2. Background and problem setting</h2>
+<h3>2.1 Bottleneck of VLA</h3>
+<p>VLA transfers the semantic knowledge of VLM to robot control. The advantage is that it can understand language, objects and environmental concepts; however, the pre-training data of VLM is mainly static graphics and text, lacking the time information of "what changes caused by the action". Therefore, real physical dynamics, contact, deformation, and long-range programmed operations still need to be learned from the teaching trajectory during robot post-training.</p>
+<p>The author believes that this brings an unsustainable data burden: if the backbone is "blind" to physical cause and effect, subsequent action data must bear three things: semantics, dynamics, and control. The goal of mimic-video is to hand over dynamic and visual action planning to the video backbone, and the action decoder only converts latent plan to motor command.</p>
+<h3>2.2 Why is the video not completely generated?</h3>
+<p>Existing video policy methods often learn the joint distribution of videos and actions, or first synthesize future pixels and then obtain actions through tracking/IDM. The problem is that full video synthesis is expensive at every control step and may have future artifacts at the pixel level, introducing out-of-distribution input to motion decoding. The approach of this article is to directly use the intermediate representation of the video model, especially the latent state after partial denoising.</p>
+<h3>2.3 Author's core assumptions</h3>
+<p>If the video model has learned "how the task will unfold visually", then the action decoder does not need to model complex future distributions and only needs to do inverse dynamics: given the current proprioception and visual plan, translate it into a low-level action sequence. The author calls this modeling Video-Action Model.</p>
+</section>
+<section id="sec3">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Paper positioning</th><th>Differences in this article</th></tr>
+<tr>
+<td>Imitation Learning</td>
+<td>Diffusion Policy, flow matching decoder, $\pi_0/\pi_{0.5}$, etc. use a generative framework to model multi-modal action distribution.</td>
+<td>mimic-video inherits the flow matching action decoder, but replaces the conditional representation with the video model latent plan.</td>
+</tr>
+<tr>
+<td>Vision-Language-Action Models</td>
+<td>RT-2, OpenVLA, and $\pi_0$ series rely on image and text pre-training semantic transfer.</td>
+<td>The author believes that VLA's static image and text pre-training lacks physical dynamics. This article uses video pre-training to fill this gap.</td>
+</tr>
+<tr>
+<td>Video Models for Policy Learning</td>
+<td>Dreamitate, Video Policy, world model, etc. use video prediction to assist control or planning.</td>
+<td>This paper does not rely on full pixel reconstruction, nor does it use heuristic tracking, but samples the marginal action distribution from the middle noisy video latents.</td>
+</tr>
+</table>
+</section>
+<section id="sec4">
+<h2>4. Method details</h2>
+<h3>4.1 Case Study: Control difficulties are split into "predicting the future" and "executing the future"</h3>
+<p>The author first does an oracle study: the action decoder conditional input can be predicted video latents, or the oracle latents of ground-truth future video; the video backbone can be a standard pre-trained model, or a model fine-tuned from the robot video. The results show that the success rate is close to perfect when using oracle latents, regardless of whether the backbone is finetune or not. This supports a key judgment: once the future vision plan is correct, low-level action decoding is relatively simple; the difficulty mainly shifts to video model pre-training and video domain adaptation.</p>
+<div class="figure">
+<img alt="oracle video latent case study" src="figures/figure2-oier.png"/>
+<div class="caption">Figure 2: oracle case study. The score is close to full under the condition of ground-truth future video latent, indicating that the action decoder can recover low-level actions from the video representation; the performance of normal prediction latent is affected by the quality of video prediction.</div>
+</div>
+<h3>4.2 Flow Matching Basics</h3>
+<div class="formula-block">
+<p class="intuition">Flow matching learns the path between clean data and Gaussian noise into a vector field, and integrates the noise back into the data during sampling.</p>
+ $$
+ x^\tau=(1-\tau)x^0+\tau\varepsilon, \quad \tau\in[0, 1]
+ $$
+ <p>$\tau=0$ is clean data, and $\tau=1$ is pure noise. The conditional vector field is: </p>
+ $$
+ u_\tau(x^\tau\mid x^0)=\frac{d}{d\tau}x^\tau=\varepsilon-x^0
+ $$
+ <p>Model $v_\theta$ is trained by regressing this vector field: </p>
+ $$
+ \mathcal{L}_{\mathrm{CFM}}=
+ \mathbb{E}\left\|v_\theta(x^\tau, \tau)-u_\tau(x^\tau\mid x^0)\right\|^2
+ $$
+ <p>When sampling, integrate from $\tau=1$ to $\tau=0$. This article uses the continuous time parameter $\tau$, deliberately not walking the entire path, but stopping at $\tau_v$ in the middle, forming partial denoising.</p>
+</div>
+<h3>4.3 Model structure</h3>
+<p>The strategy goal is to predict action chunk $\mathbf{A}_t=[\mathbf{a}_t, \dots, \mathbf{a}_{t+H_a-1}]$, and the conditions include multiple RGB images, language instructions $l$ and proprioceptive state $\mathbf{q}_t$. The model consists of two flow matching modules: </p>
+<div class="formula-block">
+ $$
+ v_\phi(\mathbf{z}^0_{\mathrm{past}}, \mathbf{z}^{\tau_v}_{\mathrm{future}}, l, \tau_v)
+ \Rightarrow p_\phi(\mathbf{z}^0_{\mathrm{future}}\mid \mathbf{z}^0_{\mathrm{past}}, l)
+ $$
+ $$
+ \pi_\theta(\mathbf{A}^{\tau_a}_t, \mathbf{q}_t, \mathbf{h}^{\tau_v}, \tau_a, \tau_v)
+ \Rightarrow p_\theta(\mathbf{A}^0_t\mid \mathbf{q}_t, \mathbf{h}^{\tau_v}_t, \tau_v)
+ $$
+ <p>Where $\mathbf{h}^{\tau_v}=v_\phi^{(k)}(\cdot)$ is the hidden states of layer $k$ of the video model, and the action decoder uses these representations through cross-attention.</p>
+</div>
+<p>The video model example is Cosmos-Predict2, an open source 2B latent Diffusion Transformer that uses a 3D-tokenizer to encode video frames. The input includes 5 frames of clean context prefix and noisy future latent patches; each transformer layer contains full-sequence self-attention, cross-attention for T5 language instructions, and two layers of MLP.</p>
+<p>The action decoder is also DiT: use MLP to encode proprioception and future action tokens respectively, and add learned absolute positional encodings after being put into a sequence. Each layer contains cross-attention, action sequence self-attention and MLP on the intermediate representation of the video; the module output is modulated by AdaLN, and the AdaLN input contains low-rank bilinear-affine encoding of $\tau_v$ and $\tau_a$.</p>
+<div class="figure">
+<img alt="mimic-video architecture" src="figures/figure3-oier-new.png"/>
+<div class="caption">Figure 3: Mimic-video architecture. The video backbone goes to the middle of the flow time $\tau_v$ and then takes the latent visual plan; the action decoder uses proprioception and video hidden states to generate actions.</div>
+</div>
+<h3>4.4 Action Sampling</h3>
+<p>During inference, future video noise and action noise are first sampled. The video stream is integrated from $\tau=1$ to the specified $\tau_v$ to obtain a partially denoised future latent; then the $k$ layer in front of the video model is taken to represent $\mathbf{h}^{\tau_v}$, and the action decoder is fully integrated from $\tau_a=1$ to 0, and a clean action chunk is output.</p>
+<div class="impl-note">In the special case of $\tau_v=1$, video stream integration is not required and line 3 is equivalent to redundancy; only one forward operation is required on the heavy video backbone to generate an action condition representation. The author found $\tau_v=1$ to be a good default for both performance and speed.</div>
+<h3>4.5 Training process</h3>
+<ul>
+<li><strong>Stage 1: Video backbone adaptation.</strong>Use LoRA to finetune a video model on robot video data to adapt it to the target visual domain and robot dynamics while maintaining pre-trained temporal inference capabilities.</li>
+<li><strong>Stage 2: Action decoder training.</strong>Freeze the video backbone and train $\pi_\theta$ from scratch to return to the action flow field. The condition is to freeze the $\mathbf{h}^{\tau_v}$ provided by the backbone.</li>
+<li><strong>Independently sample flow times.</strong>$\tau_v$ and $\tau_a$ are sampled simultaneously during each training. The video side $\mathcal{T}_v$ uses the logit-normal that matches the video pre-training, and the action side $\mathcal{T}_a(\tau_a)\propto\sqrt{\tau_a-0.001}$.</li>
+</ul>
+</section>
+<section id="sec5">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Assessment setup</h3>
+<ul>
+<li><strong>SIMPLER-Bridge: </strong>Test task generalization under realistic visual field shifts using a Widow-X embodiment trained with BridgeDataV2.</li>
+<li><strong>LIBERO: </strong>Focusing on LIBERO-Goal, Object, and Spatial, each suite has 10 tasks and 50 expert demos per task for precise multi-task desktop operations.</li>
+<li><strong>Real arms and dexterous hands: </strong>Two Franka Panda arms are equipped with 16-DoF mimic humanoid hands. Observation includes workspace view, 4 wrist cameras and proprioception; evaluation of Package Sorting and Tape Stowing related tasks. The action decoder has very little task data: 1h33m/512 episodes for sorting and 2h14m/480 episodes for stowing; the video backbone is finetune on a wider 200-hour corpus.</li>
+</ul>
+<h3>5.2 SIMPLER-Bridge main results</h3>
+<table>
+<tr><th>model</th><th>Put Carrot on Plate</th><th>Put Spoon on Towel</th><th>Stack Blocks</th><th>Eggplant</th><th>Average SR</th></tr>
+<tr><td>OpenVLA finetuned</td><td>4.2</td><td>8.3</td><td>0.0</td><td>45.8</td><td>14.6</td></tr>
+<tr><td>Octo finetuned</td><td>8.3</td><td>12.5</td><td>0.0</td><td>43.1</td><td>16.0</td></tr>
+<tr><td>ThinkAct pretrained</td><td>37.5</td><td>58.3</td><td>8.7</td><td>70.8</td><td>43.8</td></tr>
+<tr><td>FLOWER finetuned</td><td>13.0</td><td>71.0</td><td>8.0</td><td>88.0</td><td>45.0</td></tr>
+<tr><td>$\pi_{0.5}$-style VLA scratch</td><td>25.0</td><td>29.2</td><td>20.8</td><td>66.7</td><td>35.4</td></tr>
+<tr><td><strong>mimic-video scratch</strong></td><td><strong>37.5</strong></td><td>37.5</td><td>12.5</td><td><strong>100.0</strong></td><td><strong>46.9</strong></td></tr>
+<tr><td><strong>mimic-video scratch, per-task $\tau_v$ tuning</strong></td><td>54.2</td><td>41.7</td><td>29.2</td><td>100.0</td><td>56.3</td></tr>
+</table>
+<p>The key comparison here is scratch vs scratch: mimic-video and $\pi_{0.5}$-style VLA use equivalent action decoder and the same target data conditions, but the former is represented by a video backbone, and the average success rate is 11.5 percentage points higher. The per-task $\tau_v$ tuning further pushed the average to 56.3.</p>
+<h3>5.3 LIBERO main results</h3>
+<table>
+<tr><th>model</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Avg</th></tr>
+<tr><td>Diffusion Policy scratch</td><td>78.3</td><td>92.5</td><td>68.3</td><td>79.7</td></tr>
+<tr><td>Octo finetuned</td><td>78.9</td><td>85.7</td><td>84.6</td><td>83.1</td></tr>
+<tr><td>DiT Policy finetuned</td><td>84.2</td><td>96.3</td><td>85.4</td><td>88.6</td></tr>
+<tr><td>OpenVLA finetuned</td><td>84.7</td><td>88.4</td><td>79.2</td><td>84.1</td></tr>
+<tr><td>OpenVLA-OFT finetuned</td><td>96.2</td><td>98.3</td><td>96.2</td><td>96.9</td></tr>
+<tr><td>$\pi_{0.5}$-style VLA scratch</td><td>79.2</td><td>94.0</td><td>84.4</td><td>85.9</td></tr>
+<tr><td><strong>mimic-video scratch</strong></td><td><strong>94.2</strong></td><td><strong>96.8</strong></td><td><strong>90.6</strong></td><td><strong>93.9</strong></td></tr>
+</table>
+<p>mimic-video scratch exceeds most finetuned generalist baselines and is only lower than OpenVLA-OFT finetuned's 96.9. Compared with $\pi_{0.5}$-style VLA scratch, the average improvement is 8.0 percentage points, and the Spatial suite has the largest improvement.</p>
+<h3>5.4 Real dual-arm dexterity results</h3>
+<table>
+<tr><th>model</th><th>Packing</th><th>Package handover</th></tr>
+<tr><td>DiT-Block Policy</td><td>11.0</td><td>30.0</td></tr>
+<tr><td>DiT-Block Policy + wrist cams</td><td>42.6</td><td>74.1</td></tr>
+<tr><td><strong>mimic-video</strong></td><td><strong>72.0</strong></td><td><strong>93.0</strong></td></tr>
+</table>
+<p>The reading of this result is important: mimic-video is only conditional on a single workspace camera view, but exceeds the DiT-Block Policy that adds wrist cams. The author explains that the prior prediction ability of video generation can bridge the visual uncertainty caused by grasping occlusion to a certain extent.</p>
+<div class="figure">
+<img alt="real bimanual mimic setup" src="figures/figure4-new-compressed.png"/>
+<div class="caption">Figure 4: Real-arm Franka + 16-DoF mimic hands setup. In each action chunk, mimic-video uses $\tau_v=1$ to generate a latent video plan, and then executes the action on the real robot.</div>
+</div>
+<h3>5.5 Data efficiency and convergence speed</h3>
+<p>The author changes the action decoder training data size on LIBERO-Goal, Spatial, and Object. The results show that the mimic-video action decoder can achieve the highest success rate of the VLM-conditioned decoder using only 10% of the training data; even if each task only uses 1 episode, which is equivalent to reducing 98% of the action data, it still has an average success rate of 77%, which is close to the Diffusion Policy baseline.</p>
+<div class="figure">
+<img alt="data efficiency" src="figures/data-efficiency-figure.png"/>
+<div class="caption">Figure 5: Data efficiency curve. The action decoder under video prior conditions maintains a high success rate with very little data.</div>
+</div>
+<div class="figure">
+<img alt="convergence" src="figures/convergence-figure.png"/>
+<div class="caption">Figure 6: Convergence speed. The mimic-video decoder converges faster and has a higher final success rate; this advantage still exists after the VLA baseline undergoes FAST pretraining.</div>
+</div>
+<h3>5.6 Video fidelity and motion performance trade-offs</h3>
+<p>The author scans $\tau_v\in[0, 1]$ to study whether complete video reconstruction is necessary. Intuitively, lower $\tau_v$ represents a more complete and higher-fidelity video latent, which should be better; but in the SIMPLER experiment, the best autonomous policy performance appeared at the highest flow time $\tau_v=1$. This shows that the action decoder does not need a completely denoised video, only a useful enough intermediate representation.</p>
+<div class="figure">
+<img alt="noise levels" src="figures/noise_levels.png"/>
+<div class="caption">Figure 7: Success rate on SIMPLER-Bridge changes with $\tau_v$. Performance peaks at higher noise/intermediate representations, where high-fidelity video reconstruction is not a requirement.</div>
+</div>
+<p>In order to isolate video generation errors, the author also used noisy ground-truth video latents as a sweep to measure the action reconstruction MSE on BridgeDataV2. The lowest MSE occurs at $\tau_v\approx0.4$, while the error increases as one approaches full reconstruction at $\tau_v=0$. The paper attributes this to the information form of the intermediate hidden states: when close to the clean target, the model layer may tend to approximate identity mapping, but have less information for downstream actions.</p>
+<div class="figure">
+<img alt="MSE vs tau_v" src="figures/mse_figure.png"/>
+<div class="caption">Figure 8: When using noisy ground-truth video latents conditional action decoder, the action reconstruction MSE is lowest in the middle flow time, and becomes worse when approaching clean and pure noise.</div>
+</div>
+</section>
+<section id="sec6">
+<h2>6. Key points of reproducibility and implementation</h2>
+<h3>6.1 Training hyperparameters</h3>
+<table>
+<tr><th>hyperparameters</th><th>Video finetuning: BridgeDataV2</th><th>LIBERO</th><th>mimic</th><th>Action decoder: BridgeDataV2</th><th>LIBERO</th><th>mimic</th></tr>
+<tr><td>Learning Rate</td><td colspan="3">1.778e-4</td><td colspan="3">1e-4</td></tr>
+<tr><td>Warmup Steps</td><td colspan="6">1000</td></tr>
+<tr><td>Training Steps</td><td>70043</td><td>7k-8k</td><td>27300</td><td>14112</td><td>50k</td><td>26k</td></tr>
+<tr><td>LR Scheduler</td><td colspan="3">Constant</td><td colspan="3">Linear</td></tr>
+<tr><td>Weight Decay</td><td colspan="6">0.1</td></tr>
+<tr><td>Gradient Clip</td><td colspan="6">10.0</td></tr>
+<tr><td>Batch Size</td><td>256</td><td>128</td><td>32</td><td>256</td><td>128</td><td>128</td></tr>
+<tr><td>Optimizer</td><td colspan="6">AdamW</td></tr>
+</table>
+<h3>6.2 Data preprocessing</h3>
+<ul>
+<li><strong>General: </strong>All orientations are represented as 6D vectors corresponding to the first two rows of the rotation matrix; images are extracted or rendered at 480×640 resolution.</li>
+<li><strong>BridgeDataV2: </strong>Observation is the absolute end pose and continuous gripper joint state; Action is the future end pose, representing the entire action chunk relative to the proprioceptive pose, and continuous gripper actions. The author removes 3046 non-informative language labels and deletes the first state and null-action of each episode.</li>
+<li><strong>LIBERO: </strong>Observation is the absolute end pose and continuous gripper joint state; Action is the end action and binary gripper action relative to the proprioceptive pose. The author follows the OpenVLA-OFT process to remove replay failed episodes.</li>
+<li><strong>mimic: </strong>Observation includes the absolute end pose, continuous hand joint states, relative poses of the actuators at both ends, the end and hand actions at the previous moment; Action is the end pose action and absolute hand joints action relative to the proprioceptive pose.</li>
+</ul>
+<h3>6.3 Empirical conclusions in the appendix</h3>
+<ul>
+<li><strong>Video model source layer $k$: </strong>The middle layer $k=19$ brings the strongest strategy performance, and the success rate decreases significantly when approaching the initial layer or the final layer; the author believes that ideally this layer selection should be learnable.</li>
+<li><strong>Video observation horizon $H_o$: </strong>Using 5 frames of historical observations is better than using only the current 1 frame.</li>
+<li><strong>$\pi_{0.5}$-style VLA baseline: </strong>The cross-attend on SIMPLER-Bridge to the 11th layer of FAST-pretrained VLM is the best; the decoder does not improve significantly after continuing to train for 2-3 epochs.</li>
+</ul>
+<h3>6.4 The easiest points to step on when reproducing experiments</h3>
+<div class="warn">
+<ul>
+<li>Do not unfreeze the video backbone to train on motion data. The key design of the paper is to freeze the backbone after LoRA video finetuning, and then train the action decoder.</li>
+<li>$\tau_v$ is an inference hyperparameter, which is not fixed and must be completely denoised. The default $\tau_v=1$ may be the fastest and the best on average.</li>
+<li>When comparing VLA baselines, the action decoder architecture should be consistent, otherwise it is impossible to tell whether the improvement comes from video representation or decoder capacity.</li>
+</ul>
+</div>
+</section>
+<section id="sec7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is that it does not just say "the video model has a physical prior", but turns this prior into a controllable variable: the same flow matching action decoder is conditioned on the video backbone representation and the VLM backbone representation respectively, and then compares the sample efficiency, convergence speed and success rate. Coupled with the oracle latent case study and $\tau_v$ sweep, the paper breaks down the core mechanism of VAM more clearly: the performance does not come from complete pixel generation, but from the encoding of dynamic and visual plans by the video model intermediate representation.</p>
+<h3>7.2 Why the results hold up</h3>
+<div class="check">
+<ul>
+<li><strong>Comparative design is cleaner: </strong>$\pi_{0.5}$-style VLA baseline uses PaliGemma 3B and the same action decoder as mimic-video, and is trained under equivalent data conditions, so that the difference is more concentrated on the conditioning representation.</li>
+<li><strong>The tasks cover a variety of tasks: </strong>The results cover the three suites of SIMPLER-Bridge and LIBERO, as well as the high-dimensional contact task of real dual-arm dexterous hands.</li>
+<li><strong>Mechanism experiment directly: </strong>The near perfect success of oracle future video latents shows that action decoding can indeed be supported by video plan representation; the data efficiency curve shows that 10% of the data reaches the highest success rate of VLA decoder; $\tau_v$ and MSE analysis explain why partial/noisy denoising can be better than full reconstruction.</li>
+<li><strong>The appendix gives implementation details: </strong>Hyperparameters, data preprocessing, source layer, observation horizon and VLA baseline parameter adjustment experience are all listed to facilitate the determination of recurrence boundaries.</li>
+</ul>
+</div>
+<h3>7.3 Limitations clearly stated by the author</h3>
+<ul>
+<li><strong>Single-view video backbone: </strong>Currently relies on single-view video backbone, limiting the strategy to a fixed single workspace view. The authors believe that native multi-view video architecture may improve spatial reasoning and occlusion robustness.</li>
+<li><strong>A unified cross-embodiment large model has not yet been formed: </strong>The paper does not extend the VAM recipe to a unified large-scale cross-embodiment model, and the author believes that this step is the key to unlocking the generalization ability of the video foundation model.</li>
+<li><strong>Real mission scope is limited: </strong>The real world only covers a focused set of dual-arm dexterity tasks; a wider range of operational behaviors needs to be expanded.</li>
+<li><strong>$\tau_v$ is still a sensitive inference hyperparameter: </strong>Although $\tau_v=1$ is a good default, the authors also report that task-optimized $\tau_v$ can further improve the average SIMPLER success rate, indicating that actual deployments may still require task-level tuning.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>Judging from the evidence in the paper, mimic-video is suitable for robot operation settings where visual dynamics can express task intentions but action data is scarce, especially tasks that require generalization to visual domain shifts or heavy occlusions. It is currently not equivalent to the universal robot foundation policy: single perspective, non-uniform cross-embodiment, limited scope of real tasks, and still limits direct extrapolation.</p>
+<h3>7.5 Group meeting reading reminder</h3>
+<ul>
+<li>Prioritize understanding of $\tau_v$: it determines the video stream to stop in a noisy latent plan. The counter-intuitive point of the paper is that high-fidelity reconstruction does not equal a good strategy.</li>
+<li>Take a look at Figure 2 and Figure 7/8 together: the former illustrates that "actions are easy to decode when the future visual plan is good enough", and the latter illustrates that "the complete future predicted by the model may not be the best condition".</li>
+<li>When reading the main results, distinguish between scratch, finetuned, and pretrained data systems; the most powerful comparison in the paper is between mimic-video scratch and $\pi_{0.5}$-style VLA scratch.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Learning Universal Policies via Text-Guided Video Generation - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Learning Universal Policies via Text-Guided Video Generation</h1>
+<div class="meta">
+<p><strong>Reading Report: </strong>Prepared for junior PhD group meetings, focusing on explaining methods, formulas, implementation and experimental reproducibility details.</p>
+<p><strong>Authors: </strong>Yilun Du, Mengjiao Yang, Bo Dai, Hanjun Dai, Ofir Nachum, Joshua B. Tenenbaum, Dale Schuurmans, Pieter Abbeel</p>
+<p><strong>Organization: </strong>MIT, Google DeepMind, UC Berkeley, Georgia Tech, University of Alberta</p>
+<p><strong>Publication: </strong>NeurIPS 2023; arXiv: <a href="https://arxiv.org/abs/2302.00111">2302.00111</a>; Project page: <a href="https://universal-policy.github.io/">universal-policy.github.io</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#formulation">4. Formalization of the problem</a></li>
+<li><a href="#method">5. Detailed explanation of method</a></li>
+<li><a href="#experiments">6. Experiments and results</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#repro">8. Reproducibility Audit</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper rewrites the "strategy" into "text-conditioned video generation": first use text and current images to generate a future visual plan, and then use an inverse dynamics model to translate the planned video into robot actions, thereby using language and images as a unified interface across tasks and environments.
+ </div>
+<table>
+<thead>
+<tr><th>quick review questions</th><th>concise answer</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>What should the paper solve?</td>
+<td>Traditional RL/imitation learning strategies are usually bound to the definition of states, actions, and rewards in a certain environment, making it difficult to reuse knowledge across tasks, environments, and data sources; what this paper wants to solve is how to construct a more general language-conditional decision-making strategy.</td>
+</tr>
+<tr>
+<td>The author's approach</td>
+<td>Use text as a general target interface and image/video as a general state and plan interface: first use a text conditional video diffusion model to generate a future visual plan, and then use a task-specific inverse dynamics model to convert the video plan into actions.</td>
+</tr>
+<tr>
+<td>most important results</td>
+<td>In combined robot planning, UniPi reaches $46.1\pm3.0$ on the novel relation task, which is significantly higher than the $9.6\pm1.7$ of the strongest baseline; it is also better than the control setting in CLIPort new task migration and real robot video generation.</td>
+</tr>
+<tr>
+<td>Things to note when reading</td>
+<td>Don't understand UniPi as a "universal robot policy that directly outputs actions". Its versatility is mainly at the video planning layer, and the actual action still relies on the task/robot-specific inverse dynamics model; therefore, when reading experiments, it is necessary to distinguish between the generalization ability of the planner and the adaptation ability of the action adapter.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. You need to be familiar with diffusion models, offline reinforcement learning/imitation learning, language-conditioned robot operations, video generation models and some model predictive control ideas.</p>
+<p><strong>Keywords: </strong>text-conditioned video generation, universal policy, diffusion model, inverse dynamics, combinatorial generalization, robot manipulation. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Proposed policy-as-video/UniPi.</strong>The paper writes sequential decision making as a text-conditional video generation problem, using video trajectories as the planning space and text as the task specifications.</li>
+<li><strong>Proposed Unified Predictive Decision Process (UPDP).</strong>UPDP replaces the environment-specific state, reward, and dynamics models in MDP with image space, textual description, and conditional video generators.</li>
+<li><strong>Separate general planning from task-specific execution.</strong>The video diffusion model is responsible for generating visual plans, and the inverse dynamics model is responsible for inferring actions from adjacent images or planned trajectories.</li>
+<li><strong>Demonstrate three types of generalization.</strong>Including combined language target generalization, multi-environment task transfer, and transfer to real robot video plans using Internet video pre-training.</li>
+<li><strong>The appendix gives details of reproducible training.</strong>Includes Video U-Net, T5-XXL prompt embedding, 1.7B parameter video model, 2M steps, batch size 2048, 256 TPU-v4, inverse dynamics network and PyBullet environment details.</li>
+</ul>
+<figure>
+<img alt="UniPi overview" src="figures/figs_overview.png"/>
+<figcaption><strong>Figure: Text-Conditional Video Generation as Universal Policies.</strong> The paper puts the simulation environment, real robots and Internet videos under a unified "text + video" interface, and uses generative video planning to connect downstream control tasks.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper focuses on general intelligence: whether an agent can reuse knowledge in many tasks and many environments. Language and vision models have shown zero-shot/combinatorial generalization capabilities, but traditional control methods are usually bound to the state space, action space and reward function of the specific environment.</p>
+<p>Specific to robot operation, different tasks may have different objects, different goals, different action semantics, and even different data sources. Directly learning an action-space policy often requires all environments to share comparable state and action interfaces; in reality, MuJoCo's joint states, Atari's pixels, and real robot videos are not the same object.</p>
+<h3>2.2 Where are the existing methods stuck?</h3>
+<p>The paper breaks down the abstract problem of MDP into three points: </p>
+<ul>
+<li><strong>Lack of unified state interface across environments.</strong>Different control environments have different state spaces, and unified encoding will become a complex tokenization problem.</li>
+<li><strong>Explicit reward functions are difficult to migrate.</strong>RL is often defined as maximizing cumulative reward, but it is difficult to design the same reward for cross-environment tasks.</li>
+<li><strong>Dynamic models depend on the environment and action space.</strong>$s$ and $a$ in $T(s'|s, a)$ are environment-specific and difficult to share across robot morphologies or tasks.</li>
+</ul>
+<p>Therefore, the author changed the goal from "learning a strategy that directly outputs actions" to "learning a model that can generate future visual plans." Text describes the task, images/videos carry state changes, and actions are only recovered at the end by a small inverse dynamics model.</p>
+<h3>2.3 High-level solution ideas of this article</h3>
+<p>UniPi's pipeline is: </p>
+<div class="pseudocode">Input: current observation image x0, text task c
+1. Video planner rho generates future image sequence tau = [x1,..., xH]
+2. Inverse dynamics pi infers the action sequence [a0,..., aH-1] based on [x0, x1,..., xH]
+3. Execute the action; open-loop is used in the paper experiment, and the method is also compatible with closed-loop / MPC
+Output: A control action converted from a textual conditional visual plan</div>
+<p>The key intuition of this design is that language is naturally suitable for combinatorial goals, images/videos are naturally readable across environments, and inverse dynamics can be left to be learned individually for each specific robot or environment.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<thead>
+<tr><th>direction</th><th>How to position the paper</th><th>Differences from UniPi</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>World model / model-based RL</td>
+<td>Learn environment rewards and dynamics, and then use them for planning or strategy learning.</td>
+<td>Usually state-action-reward format data is required, which is not easy to use with Internet videos; UniPi generates plans directly in the text conditional video space.</td>
+</tr>
+<tr>
+<td>Diffusion for decision making</td>
+<td>Methods such as Diffuser use diffusion models to generate state/action trajectories.</td>
+<td>Existing methods mostly train from scratch in task-specific states/action spaces; UniPi generates image videos and can be accessed for pre-training with Internet videos.</td>
+</tr>
+<tr>
+<td>Generalist agents</td>
+<td>Gato, Multi-Game Decision Transformer, etc. use sequence models to unify multitasking.</td>
+<td>These methods still require unified tokens or shared action spaces; UniPi uses text and images as natural unified interfaces.</td>
+</tr>
+<tr>
+<td>Language-conditioned policies</td>
+<td>Verbal instructions as multitasking control conditions.</td>
+<td>Most methods directly output specific robot actions; UniPi first outputs an interpretable video plan, and then uses inverse dynamics to adapt the action space.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="formulation">
+<h2>4. Formalization of the problem</h2>
+<h3>4.1 From MDP to UPDP</h3>
+<p>MDP is usually written as a combination of states, actions, transfers, rewards and other objects. The alternative abstraction proposed in this article is called <strong>Unified Predictive Decision Process (UPDP)</strong>, defined as: </p>
+<div class="formula-block">
+<p class="intuition">This definition puts "planning" on the image sequence and "goal" on the text.</p>
+ $$\mathcal{G} = \langle \mathcal{X}, \mathcal{C}, H, \rho\rangle$$
+ <table class="symbol-table">
+<tr><td>$\mathcal{X}$</td><td>Image viewing space. All environments can be projected as images or video frames.</td></tr>
+<tr><td>$\mathcal{C}$</td><td>Text task description space, use natural language to express goals, and avoid manual reward design.</td></tr>
+<tr><td>$H$</td><td>limited horizon.</td></tr>
+<tr><td>$\rho(\cdot|x_0, c)$</td><td>Conditional video generator, given an initial image and a task text, outputs a distribution of a sequence of $H$-step images in the future.</td></tr>
+</table>
+</div>
+<p>Let $\tau=[x_1, \ldots, x_H]\in\mathcal{X}^H$ represent the future image sequence. UPDP's planner $\rho(\tau|x_0, c)$ doesn't output actions directly, but instead synthesizes "future videos that look like a completed task."</p>
+<h3>4.2 Trajectory conditional action strategy</h3>
+<p>In order to put the video plan on the action, the paper defines trajectory-task conditioned policy: </p>
+<div class="formula-block">
+ $$\pi(\cdot|\{x_h\}_{h=0}^H, c): \mathcal{X}^{H+1}\times \mathcal{C}\rightarrow \Delta(\mathcal{A}^{H})$$
+ <p>It outputs a $H$ step action sequence distribution based on complete image trajectories and text tasks. Intuitively, $\rho$ is responsible for imagining the target trajectory, and $\pi$ is responsible for explaining "how to make the robot achieve this trajectory."</p>
+</div>
+<p>The training scenario is offline RL/imitation-style: there is empirical data $\mathcal{D}=\{(x_i, a_i)_{i=0}^{H-1}, x_H, c\}_{j=1}^n$ from which the video generator and inverse dynamics policy are estimated.</p>
+<h3>4.3 Diffusion Models for UPDP</h3>
+<p>The paper instantiates $\rho(\tau|x_0, c)$ using the video diffusion model. The unconditional diffusion model first defines the forward noise adding process: </p>
+<div class="formula-block">
+ $$q_k(\tau_k|\tau)=\mathcal{N}(\cdot; \alpha_k\tau, \sigma_k^2I), \quad k\in[0, 1]$$
+ <table class="symbol-table">
+<tr><td>$\tau$</td><td>Clean video trajectories, i.e. sequences of future images.</td></tr>
+<tr><td>$\tau_k$</td><td>The noise adding trajectory under the $k$th noise intensity.</td></tr>
+<tr><td>$\alpha_k, \sigma_k^2$</td><td>The scaling factor and variance of the predefined noise schedule.</td></tr>
+<tr><td>$s(\tau_k, k)$</td><td>The denoising model learned during reverse generation.</td></tr>
+</table>
+</div>
+<p>The conditional version of denoiser is written as $s(\tau_k, k|c, x_0)$, that is, each step of denoising looks at the task text and initial image. The paper also uses classifier-free guidance: </p>
+<div class="formula-block">
+ $$\hat{s}(\tau_k, k|c, x_0)=(1+\omega)s(\tau_k, k|c, x_0)-\omega s(\tau_k, k)$$
+ <p>Here $\omega$ controls the conditional boot strength. The larger $\omega$ is, the more likely the sampling will be to satisfy text and initial frame conditions; if it is too strong, naturalness or diversity may be sacrificed.</p>
+</div>
+</section>
+<section id="method">
+<h2>5. Detailed explanation of method</h2>
+<figure>
+<img alt="Method overview" src="figures/figs_method_overview.png"/>
+<figcaption><strong>Overview of methods.</strong>Given initial observations and text instructions, UniPi first generates a future image plan, and then uses an inverse dynamics model to convert the image plan into actions.</figcaption>
+</figure>
+<h3>5.1 Two modules</h3>
+<div class="grid">
+<div class="note">
+<strong>Universal video-based planner $\rho$</strong>
+<p>A text- and initial frame-conditioned video diffusion model. It outputs a sequence of future frames and acts as a task-agnostic planner.</p>
+</div>
+<div class="note">
+<strong>Task-specific action generator $\pi$</strong>
+<p>An inverse dynamics model. It reads the generated video trajectories and infers the actions in the current robot/environment action space.</p>
+</div>
+</div>
+<h3>5.2 Conditional video synthesis: why the initial frame must be conditionalized</h3>
+<p>Ordinary text-to-video models generate open-domain videos from text only; but the control plan must start from the real current state. The paper compared the solution of "fixing the first frame only at test-time" and found that subsequent frames easily deviate from the initial scene. Therefore, the author explicitly uses the first frame as a conditional input during training, allowing the model to learn to "complete the task starting from this specific state."</p>
+<h3>5.3 Maintain trajectory consistency through tiling</h3>
+<p>The control scene requires that the same environmental state remains consistent in the video. For example, objects, robots and backgrounds on the desktop cannot drift randomly in subsequent frames. The paper reuses the temporal super-resolution video diffusion architecture, but copies the conditioned initial observation image along the time dimension as additional context when denoising each future frame.</p>
+<p>In implementation, each noisy frame performs channel-wise concatenation with the corresponding initial frame context. This is equivalent to letting the model repeatedly see "what the real environment looks like" throughout the entire sampling process, thereby reducing the deviation of the video plan from the actual state.</p>
+<h3>5.4 Hierarchical planning</h3>
+<p>Long horizon high-dimensional control makes it difficult to generate all the details at once. UniPi first generates a coarse video that is sparse in time, representing key stages; it then uses temporal super-resolution to interpolate and refine in the time dimension to obtain a denser executable plan. This corresponds to the coarse-to-fine hierarchy in traditional planning.</p>
+<p>The ablation in the table shows that after adding temporal hierarchy, the Relation task is upgraded from $39.4\pm2.8$ to $53.2\pm2.0$, indicating that fine-grained video planning is particularly important for complex spatial relationship tasks.</p>
+<h3>5.5 Behavioral modulation during testing</h3>
+<p>The paper points out that a prior $h(\tau)$ can be combined during sampling to impose external constraints on the generated video trajectory. For example, use an image classifier to constrain a certain state in the plan, or specify an intermediate frame as Dirac delta to make the plan pass through a specific state. This allows UniPi to change plan preferences without retraining.</p>
+<figure>
+<img alt="Adaptable planning" src="figures/figs_combinatorical_adapt.png"/>
+<figcaption><strong>Adaptable Planning.</strong>Through test-time sampling guidance, the model can direct the plan to a specified intermediate image, thus modulating the blocks to be moved.</figcaption>
+</figure>
+<h3>5.6 Inverse dynamics and execution</h3>
+<p>Given the generated video $\{x_h\}_{h=0}^H$, the inverse dynamics model predicts the action sequence $\{a_h\}_{h=0}^{H-1}$. The paper shows that inverse dynamics training is independent of the planner and can be completed with smaller, action-labeled data sets.</p>
+<p>There are two execution methods: closed-loop regenerates a new plan at each step or every few steps, similar to MPC; open-loop directly executes the one-time inferred action sequence sequentially. All experiments in this paper use open-loop for computational efficiency.</p>
+<figure>
+<img alt="Action execution pipeline" src="figures/figs_combinatorical_pipeline.png"/>
+<figcaption><strong>Action Execution.</strong>The left side is the synthesized video plan, and the right side is the simulated environment trajectory after executing the action. The paper uses the alignment of the two to illustrate that the video plan can be converted into controlled behavior.</figcaption>
+</figure>
+<h3>5.7 Training and implementation details in appendix</h3>
+<table>
+<thead>
+<tr><th>components</th><th>Configuration</th><th>Source</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Video U-Net</td>
+<td>3 residual blocks; 512 base channels; channel multiplier [1, 2, 4]; attention resolutions [6, 12, 24]; attention head dimension 64; conditioning embedding dimension 1024.</td>
+<td><span class="appendix-ref">Appendix A.1</span></td>
+</tr>
+<tr>
+<td>Noise schedule</td>
+<td>log SNR range [-20, 20]. </td>
+<td><span class="appendix-ref">Appendix A.1</span></td>
+</tr>
+<tr>
+<td>text encoding</td>
+<td>T5-XXL, 4.6B parameters, used to handle input prompts.</td>
+<td><span class="appendix-ref">Appendix A.1</span></td>
+</tr>
+<tr>
+<td>Simulation task video model</td>
+<td>first-frame conditioned video diffusion: 10x48x64, skip every 8 frames, 1.7B parameters; temporal super-resolution: 20x48x64, skip every 4 frames, 1.7B parameters. </td>
+<td><span class="appendix-ref">Appendix A.1</span></td>
+</tr>
+<tr>
+<td>Real world video model</td>
+<td>finetune 16x40x24 (1.7B), 32x40x24 (1.7B), 32x80x48 (1.4B), 32x320x192 (1.2B) temporal super-resolution models. </td>
+<td><span class="appendix-ref">Appendix A.1</span></td>
+</tr>
+<tr>
+<td>diffusion training</td>
+<td>2M steps; batch size 2048; learning rate 1e-4; 10k linear warmup; 256 TPU-v4 chips. </td>
+<td><span class="appendix-ref">Appendix A.1</span></td>
+</tr>
+<tr>
+<td>inverse dynamics network</td>
+<td>Input image, predict 7-dimensional controls of simulated robot arm; 3x3 conv + 3 residual conv layers + mean pooling + MLP(128, 7).</td>
+<td><span class="appendix-ref">Appendix A.2</span></td>
+</tr>
+<tr>
+<td>inverse dynamics training</td>
+<td>Adam; gradient norm clipped at 1; learning rate 1e-4; 2M steps; first 10k steps linear warmup.</td>
+<td><span class="appendix-ref">Appendix A.2</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="experiments">
+<h2>6. Experiments and results</h2>
+<p>The paper uses three sets of experiments to evaluate UniPi: combinatorial policy synthesis, multi-environment migration, and real-world migration. The focus of the evaluation is not on the optimal control of a single environment, but on whether "video as a unified strategy space" brings generalization.</p>
+<h3>6.1 Combinatorial Policy Synthesis</h3>
+<h4>Experimental setup</h4>
+<p>The task comes from PDSketch combinatorial robot planning. The robot needs to operate the blocks according to language instructions, such as "put a red block right of a cyan block". Completing the task usually includes: picking up the white square, putting it into a bowl for dyeing, and then moving the square to the designated plate to satisfy the spatial relationship.</p>
+<p>Verbal instructions are split 70%/30% for training visible combinations and testing new combinations. The positions of blocks, bowls, and plates in each episode are completely random. The video model is trained on 200k videos generated by scripted agent. Actions are not preset pick-place primitives, but actions in continuous robot joint space.<span class="appendix-ref">Appendix A.4</span></p>
+<h4>Result table</h4>
+<table>
+<thead>
+<tr>
+<th rowspan="2">Model</th>
+<th colspan="2">Seen</th>
+<th colspan="2">Novel</th>
+</tr>
+<tr>
+<th>Place</th><th>Relation</th><th>Place</th><th>Relation</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>State + Transformer BC</td><td>19.4 ± 3.7</td><td>8.2 ± 2.0</td><td>11.9 ± 4.9</td><td>3.7 ± 2.1</td></tr>
+<tr><td>Image + Transformer BC</td><td>9.4 ± 2.2</td><td>11.9 ± 1.8</td><td>9.7 ± 4.5</td><td>7.3 ± 2.6</td></tr>
+<tr><td>Image + TT</td><td>17.4 ± 2.9</td><td>12.8 ± 1.8</td><td>13.2 ± 4.1</td><td>9.1 ± 2.5</td></tr>
+<tr><td>Diffuser</td><td>9.0 ± 1.2</td><td>11.2 ± 1.0</td><td>12.5 ± 2.4</td><td>9.6 ± 1.7</td></tr>
+<tr><td>UniPi (Ours)</td><td class="best">59.1 ± 2.5</td><td class="best">53.2 ± 2.0</td><td class="best">60.1 ± 3.9</td><td class="best">46.1 ± 3.0</td></tr>
+</tbody>
+</table>
+<p>The conclusion is expressed according to the results of the paper: UniPi is significantly higher than direct behavior cloning, Trajectory Transformer style action sequence prediction and state/action diffusion baseline in both seen and novel language prompt combinations. Novel Relation goes from $9.6\pm1.7$ of the strongest baseline to $46.1\pm3.0$ of UniPi, indicating that the language condition video plan is effective for the combined relationship target.</p>
+<figure>
+<img alt="Combinatorial video generation" src="figures/figs_combinatorical_plan.png"/>
+<figcaption><strong>Combinatorial Video Generation.</strong>The generation plan under the language target was not seen at the time of testing. This figure is cited in the report mainly to illustrate that the model indeed generates visual trajectories first, rather than directly returning actions.</figcaption>
+</figure>
+<h4>Ablation</h4>
+<table>
+<thead>
+<tr><th>Frame Condition</th><th>Frame Consistency</th><th>Temporal Hierarchy</th><th>Place</th><th>Relation</th></tr>
+</thead>
+<tbody>
+<tr><td>No</td><td>No</td><td>No</td><td>13.2 ± 3.2</td><td>12.4 ± 2.4</td></tr>
+<tr><td>Yes</td><td>No</td><td>No</td><td>52.4 ± 2.9</td><td>34.7 ± 2.6</td></tr>
+<tr><td>Yes</td><td>Yes</td><td>No</td><td>53.2 ± 3.0</td><td>39.4 ± 2.8</td></tr>
+<tr><td>Yes</td><td>Yes</td><td>Yes</td><td class="best">59.1 ± 2.5</td><td class="best">53.2 ± 2.0</td></tr>
+</tbody>
+</table>
+<p>Explained item by item: </p>
+<ul>
+<li><strong>Frame condition</strong> is one of the biggest sources of gain since planning must start from a current real image.</li>
+<li><strong>Frame consistency</strong> Mainly helps with the Relation task, indicating that keeping the environment state consistent is helpful for spatial relationship reasoning.</li>
+<li><strong>Temporal hierarchy</strong> The biggest improvement is for Relation, from $39.4$ to $53.2$, which corresponds to complex long-range plans that require coarse-to-fine refinement.</li>
+</ul>
+<h3>6.2 Multi-Environment Transfer</h3>
+<p>This experiment uses CLIPort's language bootstrap manipulation suite. Training data comes from scripted oracle demonstrations of 10 tasks, totaling 200k videos; tested on 3 new tasks. The paper emphasizes that CLIPort's original method is not directly comparable to baseline because CLIPort predicts pick/place poses, and all methods here perform actions in the robot's joint action space.<span class="appendix-ref">Appendix A.5</span></p>
+<table>
+<thead>
+<tr><th>Model</th><th>Place Bowl</th><th>Pack Object</th><th>Pack Pair</th></tr>
+</thead>
+<tbody>
+<tr><td>State + Transformer BC</td><td>9.8 ± 2.6</td><td>21.7 ± 3.5</td><td>1.3 ± 0.9</td></tr>
+<tr><td>Image + Transformer BC</td><td>5.3 ± 1.9</td><td>5.7 ± 2.1</td><td>7.8 ± 2.6</td></tr>
+<tr><td>Image + TT</td><td>4.9 ± 2.1</td><td>19.8 ± 0.4</td><td>2.3 ± 1.6</td></tr>
+<tr><td>Diffuser</td><td>14.8 ± 2.9</td><td>15.9 ± 2.7</td><td>10.5 ± 2.4</td></tr>
+<tr><td>UniPi (Ours)</td><td class="best">51.6 ± 3.6</td><td class="best">75.5 ± 3.1</td><td class="best">45.7 ± 3.7</td></tr>
+</tbody>
+</table>
+<p>The paper uses this result to support the judgment that "video planning space is easier to share across tasks than direct action space": UniPi is significantly higher than baseline in the three test environments.</p>
+<figure>
+<img alt="Multitask video generation" src="figures/figs_multitask_plan.png"/>
+<figcaption><strong>Multitask Video Generation.</strong>The model generates video plans for different language tasks in the new test task, showing examples of video plans under multi-environment transfer.</figcaption>
+</figure>
+<h3>6.3 Real World Transfer</h3>
+<h4>training data</h4>
+<p>Real-world transfer experiments mix internet-scale pre-training data with smaller real-world robot data. The pre-training data is the same as used by Imagen Video: 14M video-text pairs, 60M image-text pairs, and the LAION-400M image-text dataset. The robot data comes from the Bridge dataset, with a total of 7.2k video-text pairs, using task IDs as text; divided into train/test by 80% / 20%.</p>
+<p>The training process is to pre-train on Internet-scale data and then finetune on Bridge train split. The paper evaluates the quality of generated video plans and the task success rate as judged by the surrogate success classifier.</p>
+<table>
+<thead>
+<tr><th>Model (24x40)</th><th>CLIP Score ↑</th><th>FID ↓</th><th>FVD ↓</th><th>Success ↑</th></tr>
+</thead>
+<tbody>
+<tr><td>No Pretrain</td><td>24.43 ± 0.04</td><td>17.75 ± 0.56</td><td>288.02 ± 10.45</td><td>72.6%</td></tr>
+<tr><td>Pretrain</td><td class="best">24.54 ± 0.03</td><td class="best">14.54 ± 0.57</td><td class="best">264.66 ± 13.64</td><td class="best">77.1%</td></tr>
+</tbody>
+</table>
+<p>According to the paper, pre-training improves all reported metrics. CLIP score is only slightly improved, but FID/FVD and surrogate success are improved; the author also points out that CLIP score may not fully reflect whether the control task is completed, so the last frame success classifier is trained as a supplementary indicator.</p>
+<figure>
+<img alt="Real high fidelity plans" src="figures/figs_real_results2.png"/>
+<figcaption><strong>High Fidelity Plan Generation.</strong>High-resolution video planning examples from real robotic tasks.</figcaption>
+</figure>
+<figure>
+<img alt="New prompts generalization" src="figures/figs_new_prompts_2.png"/>
+<figcaption><strong>Pretraining Enables Combinatorial Generalization.</strong>Internet pre-training enables the model to generate video plans for new task commands that do not appear in the Bridge dataset; training the model from scratch will generate incorrect task plans.</figcaption>
+</figure>
+<figure>
+<img alt="OOD background robustness" src="figures/figs_ood_generalize.png"/>
+<figcaption><strong>Robustness to Background Change.</strong>The model is robust to background changes such as black clipping and additional synthetic objects.</figcaption>
+</figure>
+<h3>6.4 Appendix Supplementary Results</h3>
+<p>The appendix adds three categories of qualitative results: combinatorial generalization, multi-environment transfer, and real-world high-fidelity plan generation. These figures are not new quantitative conclusions, but are used to illustrate the results of the main article and are not individual examples.</p>
+<figure>
+<img alt="Appendix combinatorial generation" src="figures/figs_combinatorical_plan_app.png"/>
+<figcaption><strong>Appendix supplement: Combinatorial Video Generation.</strong>More videos of unseen language goals being generated while testing.</figcaption>
+</figure>
+<figure>
+<img alt="Appendix multitask generation" src="figures/figs_multitask_plan_app.png"/>
+<figcaption><strong>Appendix supplement: Multitask Video Generation.</strong>More video plans for new tasks in the multi-task setting.</figcaption>
+</figure>
+<figure>
+<img alt="Appendix real world generation" src="figures/figs_real_app.png"/>
+<figcaption><strong>Appendix supplement: High Fidelity Plan Generation.</strong>High-resolution video plans for more real-world language prompts.</figcaption>
+</figure>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part of this paper is not to simply apply the diffusion model to robot control, but to propose a clear interface rewrite: transferring the most difficult to unify state, action, and reward issues in cross-task decision-making into a more general "text target + video plan" space. Doing so gives the pre-trained knowledge in the language model/video generation model a chance to enter the control problem, rather than being blocked out by the environment-specific action space.</p>
+<p>From the perspective of group reading, the value of UniPi is that it provides a new decomposition: the planner is as general as possible, and the action adapter is as local as possible. The video generator is responsible for "imagining interpretable future trajectories" and inverse dynamics is responsible for "translating trajectories into actions that the current robot can perform." This changes the core question of the paper from "Can a universal action strategy be learned?" to "Can a transferable planner be learned in video space?"</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The reason why the results of the paper are convincing is first of all because the three experiments correspond to the three capabilities claimed by the method: combined generalization, multi-task transfer, and real-world transfer brought about by Internet video pre-training. Instead of just showing how good the video looks on one toy setting, it tests different levels of generalization on simulated combinatorial tasks, CLIPort multi-environment tasks and Bridge real-world videos.</p>
+<p>Secondly, the key comparison directly targets the paper's claim: the baseline includes Transformer BC that predicts actions directly from images/states, Trajectory Transformer style models that predict future action sequences, and Diffuser that does diffusion in action/state space. UniPi is significantly better on these comparisons, especially reaching $46.1\pm3.0$ in the novel relation combination task, while the strongest baseline is $9.6\pm1.7$, which supports the conclusion that "video planning space is more conducive to combination generalization than direct action space".</p>
+<p>Third, ablation disassembles and verifies three key designs in the method: first-frame conditioning, frame consistency tiling, and temporal hierarchy all bring gains. In particular, the Relation task has been improved from the non-level $39.4\pm2.8$ to the complete model $53.2\pm2.0$, which shows that the improvement does not only come from a larger model or more data, but is related to the plan generation structure proposed in the paper.</p>
+<h3>7.3 Explanation of results clearly given in the paper</h3>
+<ul>
+<li>After converting action predictions into video predictions, language targets can be combined and generalized in the visual planning space.</li>
+<li>Images/videos provide a shared interface across environments, making multi-task training and transfer more natural than direct action space learning.</li>
+<li>Internet video pre-training can provide additional visual and physical priors for real robot plan generation.</li>
+<li>Video plans are human interpretable and can therefore be used for plan diagnosis and action verification.</li>
+</ul>
+<h3>7.4 Author's statement of limitations</h3>
+<table>
+<thead>
+<tr><th>limitations</th><th>Explanation in the paper</th><th>Scope of influence</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Video diffusion sampling is slow</td>
+<td>High-fidelity video generation can take up to a minute; the authors mention preliminary experiments with progressive distillation bringing 16x speed-up, and faster diffusion samplers can also be used.</td>
+<td>Real-time control, closed-loop MPC will be affected.</td>
+</tr>
+<tr>
+<td>Mainly consider fully observed environments</td>
+<td>In partially observable environments, the video diffusion model may hallucinate objects or motions that do not correspond to the real physical world.</td>
+<td>Occlusion, multi-view incomplete, hidden state tasks.</td>
+</tr>
+<tr>
+<td>Requires video and text data</td>
+<td>UPDP does not require reward design, but the learning planner requires video-task descriptions; whether it is better than MDP depends on the available data types.</td>
+<td>Control tasks without natural video or text annotation.</td>
+</tr>
+<tr>
+<td>Inverse dynamics remains context-specific</td>
+<td>Planner can be shared, but converting videos into actions requires training in the specific robot action space.</td>
+<td>Adapter data is still required when migrating across robot forms.</td>
+</tr>
+</tbody>
+</table>
+<h3>7.5 Applicable boundaries</h3>
+<p>Based on the content of the paper, UniPi is most naturally applicable to scenarios where tasks can be described by language, states can be fully expressed by images/videos, demonstration videos or Internet video priors can be obtained, and actions can be recovered from visual changes by inverse dynamics. It is not equivalent to a general-purpose RL solver, nor does it directly solve problems requiring precise hidden state estimation or high-frequency feedback control.</p>
+</section>
+<section id="repro">
+<h2>8. Reproducibility Audit</h2>
+<div class="audit-card">
+<h3>8.1 Data and Environment</h3>
+<ul class="checklist">
+<li><span class="best">Given: </span>Use PDSketch for combined tasks; use specific training/test task lists for CLIPort multitasking; and use the Bridge dataset for real-world tasks.</li>
+<li><span class="best">Given: </span>All simulation tasks use scripted agent to generate 200k videos; combined task training/test language combinations are split at 70% / 30%.</li>
+<li><span class="warn">Parts are missing: </span>The paper does not give the complete random seed, training set generation script or complete prompt list in the text.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.2 Model and hyperparameters</h3>
+<ul class="checklist">
+<li><span class="best">Given: </span>Video U-Net core structure, noise schedule, T5-XXL, model size, resolution, frame skip sampling, training steps, batch size, learning rate, warmup and hardware.</li>
+<li><span class="best">Given: </span>Inverse dynamics structure, optimizer, gradient clipping, learning rate, number of training steps.</li>
+<li><span class="warn">High threshold for recurrence: </span>The 1.7B video model, batch size 2048 and 256 TPU-v4 are very expensive to reproduce in ordinary laboratories.</li>
+</ul>
+</div>
+<div class="audit-card">
+<h3>8.3 Baselines</h3>
+<p>The appendix explains the structure and training settings of Transformer BC, Transformer TT, and State-Based Diffusion, and explains that the learning rate, warmup, gradient clip, etc. are consistent with the inverse dynamics settings. Transformer BC uses 4 layers of attention, 8 heads, hidden size 512, and uses convolution to extract image features and combines it with T5 embeddings. Transformer TT predicts 8 controls into the future. State-Based Diffusion reuses U-Net similar to first-frame conditioned video diffusion, but the diffusion object is changed to future controls.</p>
+</div>
+<div class="audit-card">
+<h3>8.4 reproducibility suggestions</h3>
+<p>If you want to reproduce the experiment, the minimum feasible path is not to directly reproduce the real-world 1.7B/TPU version, but to reproduce the simulation combined task first: use PDSketch/PyBullet to generate a smaller-scale video, train a smaller first-frame conditioned video diffusion, then train the inverse dynamics model, and finally compare Image + Transformer BC, Image + TT and state/action baseline. The main conclusion in the report relies on the difference in video planning relative to action planning, so this small-scale path is more suitable as a method validation.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

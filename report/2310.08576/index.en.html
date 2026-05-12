@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Learning to Act from Actionless Videos through Dense Correspondences - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Learning to Act from Actionless Videos through Dense Correspondences</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Po-Chen Ko, Jiayuan Mao, Yilun Du, Shao-Hua Sun, Joshua B. Tenenbaum</p>
+<p><strong>Organization: </strong>National Taiwan University; MIT CSAIL; MIT BCS; CBMM</p>
+<p><strong>Version: </strong>arXiv: 2310.08576v1, submitted on 2023-10-12</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2310.08576">arXiv</a> | <a href="https://arxiv.org/pdf/2310.08576">PDF</a> | <a href="https://flow-diffusion.github.io/">Project page</a> | <a href="https://github.com/flow-diffusion/AVDC">Code</a></p>
+<p><strong>Keywords: </strong>actionless videos; dense correspondence; video diffusion; optical flow; robot policy; learning from observation</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Summary of related work</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiment</a></li>
+<li><a href="#repro">6. Summary of recurrence information</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper proposes AVDC: first use a text conditional video diffusion model to "imagine" future videos of the robot completing the task, then use inter-frame dense correspondences and initial depth to restore the 3D rigid body transformation of the object or camera, and finally map the transformation into robot actions, so training mainly relies on RGB videos without action labels.
+ </div>
+<table class="tight">
+<tr><th>Reading targeting item</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>Learn executable robot strategies from a small number of video demonstrations without action annotations, avoiding the need to recollect action-labeled trajectories for each robot and each task.</td></tr>
+<tr><td>The author's approach</td><td>Split the "action" into two reusable intermediate quantities: text conditional future video and inter-frame dense correspondence. The video represents future state changes, and optical flow and depth restore pixel changes to $SE(3)$ transformation.</td></tr>
+<tr><td>most important results</td><td>Meta-World has an average success rate of 43.1%, which is higher than BC-Scratch 16.2%, BC-R3M 15.4%, and UniPi 6.1%; iTHOR has an average success rate of 31.3%, while the two BC baselines are only 2.1% and 0.4%; the zero-shot success rate from human pushing video to robot execution on Visual Pusher is 90% / 40 runs.</td></tr>
+<tr><td>Things to note when reading</td><td>The method does not directly output actions from the video end-to-end, but relies heavily on optical flow, mask, depth, rigid body motion assumptions and manual action primitives; the appendix report of the real Panda experiment failed 8 times out of 10 tests and needs to be read together with the qualitative display of the main text.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Experimental protocols that simultaneously understand diffusion video generation, optical flow/dense correspondence, camera projection geometry, robot motion primitives, and learning from observation are required.</p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Action inference without action tags: </strong>The author proposes to use dense correspondences between video frames to infer the rigid body transformation of the object or camera, and then convert it into actions, so the target task video does not require action annotation.</li>
+<li><strong>Cross-task and cross-environment display: </strong>The same idea is used for Meta-World desktop operation, iTHOR navigation, Visual Pusher human video to robot pushing things, and Bridge/Panda real robot setup.</li>
+<li><strong>Efficient video strategy modeling implementation: </strong>The paper provides a video policy model code framework, and through U-Net, factorized spatial-temporal block, first-frame conditioning and other designs, it can be trained on small environmental data with 4 V100s in one day.</li>
+</ul>
+<div class="figure">
+<img alt="Diverse task execution without action labels" src="figures/figs_teaser.png"/>
+<div class="caption"><strong>Figure 1: </strong> Paper teaser. The author shows that AVDC only relies on synthesized video and dense correspondence to implement actions in manipulation, navigation and real-world manipulation.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>A common bottleneck in robot learning is that state and action spaces are highly dependent on embodiment. Folding cloth, pouring water, pick-and-place, and navigation require different state representations and action interfaces; if policy learning requires expert action sequences for each task, the cost of data collection will increase rapidly with the number of robots and scenarios.</p>
+<p>The authors capture the versatility of video data: RGB videos can record "how states change" and are easier to collect both on the Internet and in the lab. But the video itself doesn't tell the robot which joint trajectories or end-effector actions it should perform. The question of this article is: can we learn an executable strategy only from RGB video, and then translate the video changes into current robot actions during deployment.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li><strong>Direct behavior cloning requires action tags: </strong>The BC baseline has access to Meta-World's 15, 216 and iTHOR's 5, 757 labeled frame-action pairs, but these labels are exactly the data not used by our method.</li>
+<li><strong>Video planning still lacks action: </strong>The UniPi class method expresses policy prediction as text-conditioned video generation, but requires a task-specific inverse dynamics model to infer actions from the video, and still relies on action annotation.</li>
+<li><strong>End-to-end flow diffusion is unstable: </strong>The author tried to directly generate optical flow, but believed that the optical flow field is sparse and lacks the spatial/temporal smoothness of ordinary images. The diffusion model directly fitting the flow distribution is not as good as "two stages: first generate RGB video, and then use GMFlow to estimate optical flow."</li>
+<li><strong>Computational cost and code availability: </strong>The author points out that the closest UniPi training costs more than 256 TPU pods and has limited source code availability; this paper compresses high-fidelity video policy training onto a small dataset in about a day on 4 GPUs.</li>
+</ul>
+<h3>2.3 The solution ideas of this article</h3>
+<p>AVDC's high-level thinking is to "imagine the future first, then geometricize the actions." Given the current RGBD observation and text target, the model generates the next 8 frames of video; GMFlow outputs dense correspondence between adjacent generated frames; the initial depth and camera internal parameters upgrade the pixels to 3D; finally, the rigid body transformation of the object or scene is restored through optimization, and the transformation is converted into actions using ready-made grasp, push, IK, and navigation action mapping.</p>
+</section>
+<section id="related">
+<h2>3. Summary of related work</h2>
+<table>
+<tr><th>Technical line</th><th>Positioning in the paper</th><th>How to connect to this article</th></tr>
+<tr><td>Robot learning from videos</td><td>Existing work uses videos to learn visual representations, extract targets/subtasks, or use videos as dynamics models for planning; UniPi is the closest, writing policy predictions into text-based conditional video generation.</td><td>AVDC continues the "video as intermediate plan" route, but uses dense correspondence to avoid learning task-specific inverse dynamics.</td></tr>
+<tr><td>Dense correspondences</td><td>Dense Object Nets, kPAM, Neural Descriptor Fields, etc. illustrate that dense correspondence can implicitly parameterize object poses and robot actions.</td><td>This article does not learn a specific object descriptor, but uses off-the-shelf GMFlow to obtain dense correspondence between adjacent frames of the generated video, and then uses geometric optimization to restore the transformation.</td></tr>
+<tr><td>Learning from observation</td><td>Learning from observation only uses state sequences and does not assume expert actions; other action-free pretraining requires interaction with the environment or RL.</td><td>AVDC does not rely on target task action labels, nor does it require environmental interactive RL for the target task; it leaves action recovery at deployment time to the perception and geometry modules.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall pipeline</h3>
+<div class="figure">
+<img alt="AVDC framework" src="figures/figs_framework.png"/>
+<div class="caption"><strong>Figure 2: </strong> AVDC's four-step framework: input RGBD + text target, generate imagined execution video, estimate optical flow of adjacent frames, convert optical flow and initial depth into the $SE(3)$ transformation of the target object, and then map it to robot commands.</div>
+</div>
+<ol>
+<li><strong>Video generation: </strong>Conditional diffusion model learning $p(\textit{img}_{1: T}\mid \textit{img}_0, \textit{txt})$, experimental $T=8$. Input the current frame and text description, and output the future execution video.</li>
+<li><strong>Optical flow estimation: </strong>Use GMFlow to predict optical flow for each pair of adjacent generated frames. The flow of each pixel is dense correspondence, indicating where this point will move in the next frame.</li>
+<li><strong>Geometry recovery: </strong>Use the initial depth map and camera intrinsic parameters to convert the initial pixel points into 3D points; then find a rigid body transformation $T_t$ to make the projected position of the transformed 3D point match the 2D point tracked by the optical flow as much as possible.</li>
+<li><strong>Action execution: </strong>In a fixed camera scene, restore the target object transformation and convert it into grasp/push subgoals; in a navigation scene, invert the scene transformation to obtain camera/robot motion, and then map it to MoveForward, RotateLeft, RotateRight or Done.</li>
+</ol>
+<h3>4.2 Text conditional video diffusion model</h3>
+<p>The goal of the diffusion model is to generate future frames from initial image and text conditions. The training loss written in the paper is: </p>
+<div class="formula-block">
+<p class="intuition">Intuition: The model learns to denoise the future video after adding noise; the condition is the current frame and task text.</p>
+ $$
+ \mathcal{L}_{\mathrm{MSE}} =
+ \left\|\epsilon -
+ \epsilon_\theta\left(\sqrt{1-\beta_t}\, \textit{img}_{1: T}
+ + \sqrt{\beta_t}\, \epsilon, \ t \mid \textit{txt}\right)
+ \right\|^2.
+ $$
+ <table class="symbol-table">
+<tr><td>$\textit{img}_0$</td><td>The current observation frame is used as the initial condition.</td></tr>
+<tr><td>$\textit{img}_{1: T}$</td><td>Future $T$ frame, experimental $T=8$.</td></tr>
+<tr><td>$\textit{txt}$</td><td>Natural language task description, encoded by fixed CLIP-Text encoder and Perceiver pooling.</td></tr>
+<tr><td>$\epsilon_\theta$</td><td>Video U-Net denoising network, using noise to predict training targets.</td></tr>
+<tr><td>$\beta_t$</td><td>Diffusion noise scheduling; appendix explains training/inference timesteps=100, beta schedule=cosine, objective=predict_v.</td></tr>
+</table>
+</div>
+<p>Architecturally, the author starts from Dhariwal &amp; Nichol's image diffusion U-Net and extends it to video. To enhance consistency with the initial frame, they spliced ​​the conditional frame $\textit{img}_0$ to each future frame in the RGB dimension instead of just adding one frame in front of the timeline. Factorized spatial-temporal convolution is used in the ResNet block: spatial convolution is first performed on each time step, and then temporal convolution is performed on each spatial position, replacing the expensive complete 3D convolution.</p>
+<div class="figure">
+<img alt="U-Net architecture" src="figures/figs_unet.png"/>
+<div class="caption"><strong>Figure 3: </strong> U-Net architecture for video diffusion model. The dashed line is the residual connection.</div>
+</div>
+<h3>4.3 Recovering action from optical flow and depth</h3>
+<p>In the object manipulation task of a fixed camera, let the initial 3D point set of the target object be $\{x_i\}$, the camera internal parameter be $K$, and $T_t$ is the rigid body transformation of the object in frame $t$ relative to the initial frame. The projection relationship is $K T_t x_i = (u_t, v_t, d_t)$, and the corresponding 2D point is $(u_t/d_t, v_t/d_t)$. GMFlow gives the tracking pixel $(u_t^i, v_t^i)$ of point $x_i$ at frame $t$, so the author optimizes: </p>
+<div class="formula-block">
+ $$
+ \mathcal{L}_{\text{Trans}} =
+ \sum_i
+ \left\|u_t^i - \frac{(K T_t x_i)_1}{(K T_t x_i)_3}\right\|_2^2
+ +
+ \left\|v_t^i - \frac{(K T_t x_i)_2}{(K T_t x_i)_3}\right\|_2^2.
+ $$
+ <p>This step only requires the initial frame depth, not future frame depth. Because $T_t$ is assumed to be a rigid body transformation, the future 3D depth is implicitly determined through the projected geometry.</p>
+</div>
+<details>
+<summary>Derivation and completion: why this loss is enough to restore $T_t$</summary>
+<div>
+<p>The initial point $x_i$ has been determined by the initial RGBD and camera internal parameters. Given a candidate rigid body transformation $T_t$, $x_i$ can be placed under the object coordinates of frame $t$, and then projected to the image plane via $K$. Optical flow provides the 2D position of the same physical point in the generated video frame $t$, so minimizing the projection error is to find the 6DoF transformation that best explains all dense correspondence. In actual implementation, the Meta-World appendix first uses RANSAC to find inliers from 2D correspondence, and then uses these inliers to estimate the 3D transformation. <span class="appendix-ref">Appendix: Meta-World setup</span>. </p>
+</div>
+</details>
+<h3>4.4 Action mapping in different environments</h3>
+<table>
+<tr><th>environment</th><th>The recovered geometry</th><th>action mapping</th><th>Key implementation details</th></tr>
+<tr><td>Meta-World</td><td>Target object rigid body transformation</td><td>Select grasp or push according to whether the vertical displacement exceeds 10 cm; grasp mode closes the gripper and then follows subgoals, and push mode puts the manipulator in the pushable direction and then follows subgoals.</td><td>Sample $N=500$ mask points, using the object centroid as the contact point; use RANSAC to filter correspondence outliers <span class="appendix-ref">Appendix: 4.1</span>. </td></tr>
+<tr><td>iTHOR</td><td>Static scene transformation, inverse to obtain camera motion</td><td>Observe the imaginary point 1m in front of the robot: Done if the displacement is less than 1 mm, MoveForward if the horizontal displacement is less than 25 cm, otherwise press the direction RotateLeft/RotateRight.</td><td>Do not track a single object; use the entire frame flow to filter key points that move out of the image; re-plan when inliers are less than 10% of the initial sampling points <span class="appendix-ref">Appendix: iTHOR setup</span>. </td></tr>
+<tr><td>Real Panda</td><td>Target object initial pose and target pose</td><td>Assuming the target is top-graspable and does not require redirection, use the IK solver to generate the robot trajectory.</td><td>The hardware is Franka Emika Panda + Intel Realsense D435; appendix explains that target segmentation is manually specified, and small objects/low resolution cause 3D rotation to be unstable <span class="appendix-ref">Appendix: real-world setup</span>. </td></tr>
+</table>
+<h3>4.5 Key points of training and inference</h3>
+<div class="impl-note"><strong>First-frame conditioning: </strong>The author spliced the initial frame to the noisy future video along the RGB channel instead of splicing along the time dimension. Appendix MSE experiments prove that cat_c is better than cat_t in the early stage of Bridge training.</div>
+<div class="impl-note"><strong>Text encoder: </strong>The CLIP-Text encoder is fixed, and diffusion time embedding is added after Perceiver pooling to aggregate tokens; text cross-attention is not used. The difference in MSE between CLIP and T5-base is not significant. <span class="appendix-ref">Appendix: Text Encoder</span>. </div>
+<div class="impl-note"><strong>Reasoning speed: </strong>Each round of action planning in Meta-World takes about 18 seconds, with a maximum of 5 replans. The total planning cost is about 18-108 seconds. DDIM 10 steps accelerated video generation by about 10 times, and Meta-World overall success dropped from 43.1% to 37.5%, a drop of 5.6 percentage points. <span class="appendix-ref">Appendix: complexity/DDIM</span>. </div>
+<div class="pseudocode">Algorithm: AVDC execution loop
+Input: current RGBD image, task text, camera intrinsics, optional object mask
+1. Generate future frames img_1: T with a text-conditioned video diffusion model.
+2. For each adjacent frame pair, estimate optical flow with GMFlow.
+3. Track dense correspondences through the generated video.
+4. Lift initial pixels to 3D using initial depth and K.
+5. Estimate object or scene rigid transforms by minimizing projection error.
+6. Convert transforms to task-specific robot commands using primitives or navigation rules.
+7. Execute; if progress stalls or correspondences are lost, replan from the new observation.</div>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Baselines and variants</h3>
+<table>
+<tr><th>method</th><th>training signal</th><th>function</th></tr>
+<tr><td>BC-Scratch</td><td>Train ResNet-18 + CLIP text + MLP from scratch using expert action labels.</td><td>Measuring the difficulty of regular behavioral cloning in a multitasking setting.</td></tr>
+<tr><td>BC-R3M</td><td>Also uses action tags, but the visual backbone is initialized to R3M.</td><td>Testing whether robot pretrained visual representations aid action prediction.</td></tr>
+<tr><td>UniPi baseline</td><td>Use the video generated by AVDC to train the inverse dynamics model to output actions.</td><td>The route representing "Video Planning + Learning Inverse Dynamics" still requires action tags.</td></tr>
+<tr><td>AVDC (Flow)</td><td>Directly predict inter-frame optical flow.</td><td>Verify whether generating flow directly is better than RGB video first and then GMFlow.</td></tr>
+<tr><td>AVDC (No Replan)</td><td>Full geometric motion is restored, but open-loop execution is performed.</td><td>Verify the effect of closed-loop replanning.</td></tr>
+<tr><td>AVDC (Full)</td><td>RGB video generation + GMFlow + geometric motion recovery + replanning.</td><td>The main method of the paper.</td></tr>
+</table>
+<h3>5.2 Meta-World desktop operation</h3>
+<p>Setup: 11 Sawyer robot arm operation tasks, 3 camera positions per task, 5 demonstrations per camera position, 165 videos in total. Methods and variants use ground-truth target object segmentation mask; BC baseline uses action tags. Evaluated as average success rate for 25 seeds per task, per camera position.</p>
+<table class="tight">
+<tr><th>method</th><th>Overall</th><th>key phenomena</th></tr>
+<tr><td>BC-Scratch</td><td>16.2%</td><td>Even with 15, 216 action labels, multi-task generalization is still weak.</td></tr>
+<tr><td>BC-R3M</td><td>15.4%</td><td>R3M initialization did not improve the overall results.</td></tr>
+<tr><td>UniPi (With Replan)</td><td>6.1%</td><td>Requires inverse dynamics, overall lower than BC.</td></tr>
+<tr><td>AVDC (Flow)</td><td>13.7%</td><td>It performs well on button-press-topdown, faucet-close, and handle-press, but most tasks are poor and supports the author's "two-stage" design.</td></tr>
+<tr><td>AVDC (No Replan)</td><td>19.6%</td><td>It exceeds BC, but is significantly lower than the closed-loop version.</td></tr>
+<tr><td><strong>AVDC (Full)</strong></td><td><strong>43.1%</strong></td><td>The overall best among 11 tasks; door-open 72.0%, door-close 89.3%, handle-press 81.3%.</td></tr>
+</table>
+<div class="figure">
+<img alt="Meta-World qualitative result" src="figures/figs_mw_qual.png"/>
+<div class="caption"><strong>Figure 4: </strong> Meta-World qualitative result. The authors demonstrate generating video, optical flow, current/next subgoal, and execution trajectory.</div>
+</div>
+<div class="figure">
+<img alt="Number of replanning steps versus success rate" src="figures/figs_replan_SR.png"/>
+<div class="caption"><strong>Figure 5: </strong> The greater the maximum number of replannings, the higher the success rate from multiple perspectives. The authors use it to support closed-loop replanning strategies.</div>
+</div>
+<h3>5.3 iTHOR target navigation</h3>
+<p>Settings: 12 target objects, distributed in 4 types of rooms; MoveForward, RotateLeft, RotateRight, and Done can be executed at each time step. The success criterion is that the target object comes into view and is within 1.5m, or Done is predicted in the correct state. 3 objects per room, 20 episodes per object.</p>
+<table class="tight">
+<tr><th>Room</th><th>BC-Scratch</th><th>BC-R3M</th><th>AVDC</th></tr>
+<tr><td>Kitchen</td><td>1.7%</td><td>0.0%</td><td><strong>26.7%</strong></td></tr>
+<tr><td>Living Room</td><td>3.3%</td><td>0.0%</td><td><strong>23.3%</strong></td></tr>
+<tr><td>Bedroom</td><td>1.7%</td><td>1.7%</td><td><strong>38.3%</strong></td></tr>
+<tr><td>Bathroom</td><td>1.7%</td><td>0.0%</td><td><strong>36.7%</strong></td></tr>
+<tr><td>Overall</td><td>2.1%</td><td>0.4%</td><td><strong>31.3%</strong></td></tr>
+</table>
+<p>The author explains: BC-R3M is worse than BC-Scratch, probably because R3M is pre-trained on robot operation tasks and is not suitable for visual navigation. The intermediate video of AVDC can show the agent navigating to the target, and the optical flow can easily be mapped to movement or rotation; when there is no flow, it means that the target has been found and Done is selected.</p>
+<div class="figure">
+<img alt="iTHOR qualitative result" src="figures/figs_ithor_qual.png"/>
+<div class="caption"><strong>Figure 6: </strong> iTHOR qualitative result. Generating video, flow and action inference corresponding to TV navigation tasks.</div>
+</div>
+<h3>5.4 Cross-embodiment: human video to robot recommendation</h3>
+<p>The Visual Pusher experiment only uses 198 actionless human pushing videos to train the video diffusion model. The U-Net architecture is the same as Meta-World, and the training is 10k steps; then a zero-shot test is performed on the simulated robot pushing task without fine-tuning. The result was a 90% success rate in 40 runs.</p>
+<div class="figure">
+<img alt="Visual Pusher cross embodiment result" src="figures/figs_cross_domain_qual.png"/>
+<div class="caption"><strong>Figure 7: </strong> Visual Pusher. AVDC generates video plans from human demonstrations, and then turns the dense correspondence into robot actions.</div>
+</div>
+<h3>5.5 Bridge to reality Franka Panda</h3>
+<p>The Bridge dataset contains 33, 078 WidowX 250 kitchen task teleoperation videos, without depth. The author first used Bridge to train the video generation model, and then used 20 human hand demonstration videos to fine-tune in his own real desktop environment. Realistic setup using Franka Emika Panda and a permanently installed Intel Realsense D435 RGBD camera.</p>
+<p>The main article emphasizes that the model can generate videos, predict optical flow, identify targets and infer actions; the appendix gives a more specific failure analysis: the real experiment failed 8 times out of 10 tests, 75% of the failure reasons came from the wrong plan generated by the video diffusion model (selecting the wrong object or placing the wrong target), and 25% came from the discontinuity of the generated video, such as the disappearance of objects in the middle frame <span class="appendix-ref">Appendix: real-world failure mode</span>. </p>
+<div class="two-col">
+<div class="figure">
+<img alt="Bridge qualitative result" src="figures/figs_bridge_qual.png"/>
+<div class="caption"><strong>Figure 8: </strong> Bridge predicts the current and next subgoal.</div>
+</div>
+<div class="figure">
+<img alt="Franka Panda qualitative result" src="figures/figs_franka_qual.png"/>
+<div class="caption"><strong>Figure 9: </strong> Franka Panda execution example showing current and next subgoal at bottom.</div>
+</div>
+</div>
+<h3>5.6 Appendix Supplementary Experiments</h3>
+<table>
+<tr><th>Appendix content</th><th>result</th><th>meaning</th></tr>
+<tr><td>Object mask with segmentation models</td><td>Using Language Segment-Anything instead of GT mask, the average success rate in Meta-World 11 tasks is 34.5%, which is 8.6 percentage points lower than GT mask's 43.1%.</td><td>The method is sensitive to segmentation quality; the main results of the paper use GT mask in Meta-World.</td></tr>
+<tr><td>First-frame conditioning</td><td>The last frame MSE of cat_c early in Bridge training is lower than the temporal dimension splicing cat_t; each point is the mean of 4000 samples, and the error bars are the standard error.</td><td>RGB channel-wise conditioning is part of the efficiency design.</td></tr>
+<tr><td>Text encoder</td><td>The difference in video generation MSE between CLIP-Text 63M and T5-base 110M is not significant.</td><td>The text encoder is not the main bottleneck; the authors use fixed CLIP-Text + Perceiver.</td></tr>
+<tr><td>Bridge zero-shot real scenes</td><td>The Bridge model can generate reasonable videos on complex real-life kitchen images outside the toy kitchen, but the original resolution is 48x64 and the video is blurry.</td><td>The video generation model has certain scene migration, but low resolution will affect motion recovery.</td></tr>
+</table>
+<div class="figure">
+<img alt="Segmentation mask qualitative result" src="figures/figs_mask_qualitative.png"/>
+<div class="caption"><strong>Figure 10: </strong> Language Segment-Anything success and failure mask examples.</div>
+</div>
+<div class="figure">
+<img alt="Ablation MSE plot" src="figures/figs_mse_plot_no_title.png"/>
+<div class="caption"><strong>Figure 11: </strong> First-frame conditioning and text encoder ablation. The paper uses last frame MSE to evaluate the generation quality.</div>
+</div>
+</section>
+<section id="repro">
+<h2>6. Summary of recurrence information</h2>
+<h3>6.1 Data and Evaluation Protocol</h3>
+<table>
+<tr><th>scene</th><th>training data</th><th>Assessment</th></tr>
+<tr><td>Meta-World</td><td>11 tasks x 3 cameras x 5 demonstrations = 165 videos; BC baseline uses 15, 216 frame-action pairs.</td><td>25 seeds per task, per camera position, average success rate reported.</td></tr>
+<tr><td>iTHOR</td><td>240 videos; BC baseline uses 5, 757 frame-action pairs.</td><td>12 object navigation tasks, 4 room types, 20 episodes per object.</td></tr>
+<tr><td>Visual Pusher</td><td>198 human pushing videos, no action labels; training 10k steps.</td><td>Simulated robot pushing, zero-shot, no fine-tuning, 40 runs.</td></tr>
+<tr><td>Bridge/Panda</td><td>Bridge 33, 078 WidowX videos; 20 hands-on demonstrations of fine-tuning in real environments.</td><td>Real pick-and-place tabletop task, with 10 trials failure analysis provided in the appendix.</td></tr>
+</table>
+<h3>6.2 Model hyperparameters</h3>
+<p>Common settings for all models: dropout=0, num_head_channels=32, train/inference timesteps=100, training objective=predict_v, beta_schedule=cosine, loss_function=l2, min_snr_gamma=5, learning_rate=1e-4, ema_update_steps=10, ema_decay=0.999 <span class="appendix-ref">Appendix: Video Diffusion Model</span>. </p>
+<table class="tight">
+<tr><th>parameters</th><th>Meta-World</th><th>iTHOR</th><th>Bridge</th></tr>
+<tr><td>num_parameters</td><td>201M</td><td>109M</td><td>166M</td></tr>
+<tr><td>resolution</td><td>128 x 128</td><td>64 x 64</td><td>48 x 64</td></tr>
+<tr><td>base_channels</td><td>128</td><td>128</td><td>160</td></tr>
+<tr><td>num_res_block</td><td>2</td><td>3</td><td>3</td></tr>
+<tr><td>attention_resolutions</td><td>8, 16</td><td>4, 8</td><td>4, 8</td></tr>
+<tr><td>channel_mult</td><td>1, 2, 3, 4, 5</td><td>1, 2, 4</td><td>1, 2, 4</td></tr>
+<tr><td>batch_size</td><td>16</td><td>32</td><td>32</td></tr>
+<tr><td>training_timesteps</td><td>60k</td><td>80k</td><td>180k</td></tr>
+</table>
+<h3>6.3 Perceiver text aggregator</h3>
+<table class="tight">
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>layers</td><td>2</td></tr>
+<tr><td>num_attn_heads</td><td>8</td></tr>
+<tr><td>num_head_channels</td><td>64</td></tr>
+<tr><td>num_output_tokens</td><td>64</td></tr>
+<tr><td>num_output_tokens_from_pooled</td><td>4</td></tr>
+<tr><td>max_seq_len</td><td>512</td></tr>
+<tr><td>ff_expansion_factor</td><td>4</td></tr>
+</table>
+<h3>6.4 Hardware and time</h3>
+<ul>
+<li>Training hardware: 4 x V100 32GB. Meta-World takes about 24 hours to train 165 videos; iTHOR takes about 24 hours to train 240 videos; the real experiment takes about 48 hours Bridge pretraining + 4 hours human-data fine-tuning.</li>
+<li>Inference hardware: RTX 3080Ti. In a single round of Meta-World planning, video generation takes about 10.57s, flow prediction takes about 0.28s for each pair of frames, action regression takes about 1.31s, and action execution takes about 1.53s.</li>
+<li>Code: The appendix to the paper says that the supplementary zip is included <code>./codebase_AVDC</code>; Project page provides GitHub repository <a href="https://github.com/flow-diffusion/AVDC">flow-diffusion/AVDC</a>. </li>
+</ul>
+<div class="audit-card">
+<strong>Local material status: </strong>arXiv source code has been decompressed in <code>tmp/arxiv_source_2310.08576/</code>; PDF at <code>tmp/2310.08576.pdf</code>; The source compressed package is in <code>tmp/arxiv_source_2310.08576.tar.gz</code>; The report chart is in <code>Report/2310.08576/figures/</code>. These temporary materials have not yet been deleted to facilitate continued verification.
+ </div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>According to the paper's own experimental and method design, the core value is to explicitly remove the missing link between "video without action tags" and "executable actions": the video model is only responsible for generating future visual states, and dense correspondence and geometric optimization are responsible for converting state changes into executable transformations. This split allows the method to be trained using RGB-only demonstrations, while leaving motion recovery to more mature modules such as depth, flow, mask, IK, and motion primitives.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The support for the results mainly comes from three levels. First, the Meta-World table contains multiple action tag baselines and multiple AVDC variants. The Full version is higher than the No Replan and Flow versions and supports "replanning + two-stage RGB-to-flow" design. Second, if the iTHOR task is replaced by navigation, the action space and object operations are completely different, but the same correspondence-to-transform logic can still exceed two BC baselines. Third, the appendix ablation exposes the impact of engineering variables such as segmentation, first-frame conditioning, and number of DDIM steps, and does not only report successful cases of the main method.</p>
+<h3>7.3 Author's statement of limitations</h3>
+<ul>
+<li><strong>Occlusion: </strong>When the robot arm covers most areas of the object, the algorithm may lose the object track.</li>
+<li><strong>Optical flow vulnerability: </strong>Rapid illumination changes or large attitude changes can render optical flow prediction ineffective.</li>
+<li><strong>Missing contact information: </strong>Real manipulation requires grasp or contact surface, and this information cannot be directly transferred from videos of different human and robotic hands.</li>
+<li><strong>Missing force information: </strong>RGB video does not have force information, and the author recommends using real interactive learning or fine-tuning to make up for it in the future.</li>
+<li><strong>Real experiment failed: </strong>The appendix reports that real Panda failed 8 out of 10 times, 75% due to video model planning errors and 25% due to discontinuities in the generated video.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<table>
+<tr><th>Suitable for use cases</th><th>Not suitable or requires additional modules</th></tr>
+<tr><td>Key changes to the task can be approximated as rigid body transformations of the object or camera.</td><td>Flexible objects, complex contacts, force control tasks, or tasks where contact surfaces must be inferred.</td></tr>
+<tr><td>Initial depth can be obtained during deployment, or can be replaced by monocular depth estimation.</td><td>Environments without reliable depth, camera calibration or object/scene masks.</td></tr>
+<tr><td>There is a clear relationship between language goals and visual changes, such as pick up fruit, navigate to object, push object.</td><td>Goals require hidden states, long-term multi-stage symbolic planning, or non-visual feedback.</td></tr>
+<tr><td>You can accept ten seconds of planning latency, or use sampling acceleration such as DDIM.</td><td>Real-time strongly constrained control tasks; even using DDIM 10 steps still sacrifices some success rate.</td></tr>
+</table>
+</section>
+</main>
+</body>
+</html>

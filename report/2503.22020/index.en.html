@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CoT-VLA - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>CoT-VLA: Visual Chain-of-Thought Reasoning for Vision-Language-Action Models</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Qingqing Zhao, Yao Lu, Moo Jin Kim, Zipeng Fu, Zhuoyang Zhang, Yecheng Wu, Zhaoshuo Li, Qianli Ma, Song Han, Chelsea Finn, Ankur Handa, Ming-Yu Liu, Donglai Xiang, Gordon Wetzstein, Tsung-Yi Lin</p>
+<p><strong>Organization: </strong>NVIDIA, Stanford University, MIT</p>
+<p><strong>Publication: </strong>CVPR 2025; arXiv v1 submitted on 2025-03-27</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2503.22020">arXiv: 2503.22020</a> | <a href="https://arxiv.org/pdf/2503.22020">PDF</a> | <a href="https://cot-vla.github.io/">Project home page</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#reproducibility">6. Repeat audit</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>CoT-VLA embodies the "think first, act later" principle of VLA by first autoregressively generating a future sub-goal image, and then generating a robot action based on the current image, language instructions and the sub-goal image, thus using visual prediction as an explicit intermediate reasoning step in robot control.
+ </div>
+<table class="compact">
+<tr><th>Reading targeting item</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>Existing VLA usually predicts actions directly from observation and language, lacking explicit intermediate reasoning, especially lacking temporal planning or reasoning capabilities in complex operation tasks.</td></tr>
+<tr><td>The author's approach</td><td>Use future image frames as visual CoT: first predict the sub-target image after $n$ steps, and then use full attention to generate action chunks in parallel; visual reasoning can be trained with videos without action annotations.</td></tr>
+<tr><td>most important results</td><td>LIBERO's average success rate is 81.13%, which is higher than OpenVLA fine-tuned's 76.5%; the abstract states that the real robot task is improved by 17% compared to SOTA VLA, and the simulation benchmark is improved by 6%.</td></tr>
+<tr><td>Things to note when reading</td><td>The main contribution is not just "adding an image generation module", but combining visual token generation, action token discretization, hybrid attention, action chunking and two-stage training into a deployable VLA system.</td></tr>
+</table>
+<h3>difficulty rating</h3>
+<p><strong>4/5. </strong>Understanding the main idea requires a background in VLA, imitation learning, discrete visual tokens, autoregressive image generation and robot benchmark; at the reproducibility level, you also need to understand action discretization, action chunking, closed-loop deployment and multi-data hybrid training.</p>
+<h3>keywords</h3>
+<p>Vision-Language-Action Models; Visual Chain-of-Thought; Subgoal Image Generation; Hybrid Attention; Action Chunking; Robot Manipulation</p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Propose visual chain-of-thought for VLA.</strong>The paper defines the sub-target image as the intermediate reasoning step before action prediction, so that the robot strategy first generates a planning state in the pixel space and then outputs the action.</li>
+<li><strong>Building a CoT-VLA system.</strong>The system is based on a unified multi-modal model such as VILA-U that can understand/generate images and text, and adds hybrid attention: text/image generation uses causal attention, and action prediction uses full attention.</li>
+<li><strong>Take advantage of action-less videos.</strong>Sub-target image prediction does not require action annotation, so in addition to Open X-Embodiment robot data, video data such as Something-Something V2 and EPIC-KITCHENS-100 are also introduced in the pre-training stage.</li>
+<li><strong>Validated on simulated and real robots.</strong>The experiments cover LIBERO, Bridge-V2 and Franka-Tabletop, and analyze the effects of action chunking, hybrid attention, visual CoT and pre-training through ablation.</li>
+</ul>
+<div class="figure">
+<img alt="CoT-VLA teaser" src="figures/fig1_teaser.png"/>
+<div class="caption">Figure 1: vanilla VLA predicts actions directly from current observations and language; CoT-VLA first generates sub-target images and then short action sequences. This figure is the shortest entry into the problem setting and methodological differences throughout the paper.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper focuses on a structural problem of VLA in robot operation: many existing models map visual observations and language instructions directly to actions, formally like an end-to-end policy. Although such models can take advantage of VLM's scene understanding capabilities, there is no explicit planning state in the middle, so the author believes that they lack temporal planning or reasoning about "what should the scene look like next."</p>
+<p>In a long-range operation task, the robot not only needs to know "what to grasp", but also "which target state the scene should move towards after grasping". The choice of CoT-VLA is to let the model generate a future image $\hat{s}_{t+n}$ before taking action, and put the "intention" on the visualized sub-goal state.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<p>The paper divides the limitations of existing methods into two categories. The first category is direct VLA: OpenVLA, RT/PaLM-E. The first category of methods mainly learns $P(a_t \mid s_t, l)$ and lacks explicit intermediate reasoning. The second category is robotics CoT or subgoal methods: some methods use language plans, keypoints, bounding boxes or reward guidance as intermediate representations, but these representations are either too abstract or require additional preprocessing or annotation pipelines.</p>
+<p>The reason why the author chose subgoal image is that the image state naturally exists in robot demonstrations and general videos, and there is no need for additional manual marking of key points or boxes; it also expresses object positions, contact relationships, and scene states more directly than plain text plans.</p>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The high-level idea of CoT-VLA is to split action generation into two conditional generation problems: </p>
+<ol>
+<li>Based on the current observation $s_t$ and the language instruction $l$, generate the future sub-target image $\hat{s}_{t+n}$.</li>
+<li>Based on the current observation, language instructions and sub-target images, an action sequence of length $m$ is generated.</li>
+</ol>
+<p>This design allows the model to learn "how the future visual state changes" from videos without action annotations, while still using robot demonstrations to learn "how to use actions to reach that state."</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<h3>3.1 Chain-of-Thought Reasoning</h3>
+<p>The paper starts from language CoT: LLM improves complex task performance by generating intermediate reasoning steps. Existing work in the field of vision and embodied has extended the intermediate steps into bounding boxes, image infilling, CLIP embeddings, text plans, point trajectories, future image trajectories, or reward guidance.</p>
+<p>The positioning of CoT-VLA is: instead of generating an open-loop future image trajectory for the robot to follow, it uses single or staged future images as action generation conditions in closed-loop VLA. That is, the sub-target image is not the final output, but an explicit intermediate variable inside the control strategy.</p>
+<h3>3.2 Vision-Language-Action Models</h3>
+<p>The VLA method relies on the visual and language understanding capabilities of pretrained VLM to map natural language instructions and image observations into robot actions. The paper mainly compares VLA routes for direct action prediction, such as OpenVLA, Octo, RT/PaLM-E related directions, and methods of using VLM for perception, decomposition, dense reward or goal generation.</p>
+<p>The difference between CoT-VLA and these works is that it still maintains the end-to-end trainable VLA form, but explicitly adds visual intermediate reasoning; at the same time, the training signal for visual intermediate reasoning can come from action-less videos.</p>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<div class="figure">
+<img alt="CoT-VLA framework" src="figures/fig2_method.png"/>
+<div class="caption">Figure 2: CoT-VLA framework. The model is based on VILA-U, which first trains visual target generation on robot demonstrations and action-less videos, and then generates sub-target images and short action sequences in a closed loop during deployment.</div>
+</div>
+<h3>4.1 Problem setting and data format</h3>
+<p>The paper considers two types of data: </p>
+<table>
+<tr><th>data</th><th>form</th><th>Purpose</th></tr>
+<tr><td>Robot demonstration $D_r$</td><td>$D_r=\{(l, \mathbf{a}_{1...T}, \mathbf{s}_{1...T})\}$</td><td>It trains both sub-target image generation and action prediction.</td></tr>
+<tr><td>No action video $D_v$</td><td>$D_v=\{(l, \mathbf{s}_{1...T})\}$</td><td>Only visual sub-object predictions are trained since there are no action labels.</td></tr>
+</table>
+<p>Among them, $l$ is the language command, $\mathbf{s}_{1...T}$ is the image observation sequence, and $\mathbf{a}_{1...T}$ is the robot action sequence.</p>
+<h3>4.2 Core differences between Vanilla VLA and CoT-VLA</h3>
+<div class="formula-block">
+<p class="intuition">Vanilla VLA directly answers: "Given the current image and instructions, what action should be taken now?"</p>
+ $$\hat{\mathbf{a}}_t \sim P_\theta(\mathbf{a}_t \mid \mathbf{s}_t, l)$$
+ <p>There are no explicit intermediate states here. If the model misunderstands the task goal, the error will go directly into the action.</p>
+</div>
+<div class="formula-block">
+<p class="intuition">CoT-VLA first answers: "What should the future image look like when the task is successful?" and then answers: "In order to reach this image state, what is the next short action?"</p>
+ $$\hat{\mathbf{s}}_{t+n} \sim P_\theta(\mathbf{s}_{t+n}\mid \mathbf{s}_t, l)$$
+ $$\{\hat{\mathbf{a}}_t, \ldots, \hat{\mathbf{a}}_{t+m}\}\sim P_\theta(\{\mathbf{a}_t, \ldots, \mathbf{a}_{t+m}\}\mid \mathbf{s}_t, l, \hat{\mathbf{s}}_{t+n})$$
+ <table class="symbol-table">
+<tr><td>$\hat{\mathbf{s}}_{t+n}$</td><td>The future sub-goal image generated by the model is called the intermediate step of visual CoT reasoning in the paper.</td></tr>
+<tr><td>$n$</td><td>Sub-goal prediction horizon; sample from the specified interval according to the data set during pre-training <span class="tag">Supplementary material 6.1</span>. </td></tr>
+<tr><td>$m$</td><td>Action chunk length; the paper uses action chunk size 10.</td></tr>
+<tr><td>$D_r, D_v$</td><td>$D_r$ supports both visual and movement training; $D_v$ only supports visual sub-goal training.</td></tr>
+</table>
+</div>
+<h3>4.3 Base model VILA-U</h3>
+<p>CoT-VLA is built on VILA-U. VILA-U is a unified multi-modal generation model that can understand and generate text, image, and video tokens. The VILA-U image resolution used in this paper is $256\times256$, and each image is encoded into $16\times16\times4$ discrete visual tokens, of which the residual depth is 4.</p>
+<p>This choice is critical: if the base VLM can only understand images but cannot generate images, it will be difficult to directly generate future images as CoT tokens. CoT-VLA therefore optimizes the LLM backbone, projector and depth transformer, but keeps the vision tower frozen.</p>
+<h3>4.4 Hybrid Attention</h3>
+<div class="figure">
+<img alt="Hybrid attention" src="figures/fig3_attention.png"/>
+<div class="caption">Figure 3: Image/text tokens are generated token by token using causal attention; action tokens are generated using full attention so that action dimensions within the same action chunk can interact with each other.</div>
+</div>
+<p>The paper binds attention design to output type: </p>
+<ul>
+<li><strong>Visual and text generation: </strong>Using causal attention, consistent with autoregressive next-token prediction.</li>
+<li><strong>Action generation: </strong>Using full attention allows action tokens to see each other; the author believes that this helps predict the entire action in parallel, rather than strictly one-way expansion like language.</li>
+</ul>
+<div class="impl-note"><strong>Implementation points: </strong>The action is not a direct regression of continuous values, but each action dimension is discretized into 256 bins; the paper follows the OpenVLA approach, using the 1st to 99th percentile interval of the training data action distribution to evenly divide the bins, and reuse the 256 least used text tokens in the tokenizer as the action bin token.</div>
+<h3>4.5 Training objectives</h3>
+<div class="formula-block">
+<p class="intuition">The visual loss training model splits the future image into discrete residual tokens and then predicts them layer by layer.</p>
+ $$\mathcal{L}_{\text{visual}}=-\sum_j\sum_{d=1}^{D}\log P_\delta(k_{jd}\mid k_{j, <d class="symbol-table">
+<tr><td>$j$</td><td>The spatial location of visual tokens.</td></tr>
+<tr><td>$d$</td><td>Depth index for residual quantization.</td></tr>
+<tr><td>$k_{jd}$</td><td>The discrete visual code of layer $d$ at position $j$.</td></tr>
+<tr><td>$P_\delta$</td><td>The depth transformer uses the code embedding $h_j$ generated by LLM to predict residual tokens.</td></tr>
+</d></div>
+<div class="formula-block">
+<p class="intuition">The action loss training model generates action chunks of length $m$ given the current image, language, and sub-target images.</p>
+ $$\mathcal{L}_{\text{action}}=-\sum_{i=1}^{m}\log P_\theta(\mathbf{a}_t...\mathbf{a}_{t+m}\mid l, s_t, s_{t+n})$$
+ $$\mathcal{L}=\mathcal{L}_{\text{action}}+\mathcal{L}_{\text{visual}}$$
+ <p>The paper does not introduce additional weight coefficients, and the ultimate goal is the sum of cross entropy of visual token prediction and action token prediction.</p>
+</div>
+<h3>4.6 Two-stage training and closed-loop deployment</h3>
+<p><strong>Pre-training phase: </strong>CoT-VLA is trained on a subset of Open X-Embodiment and action-less video data. The robot data follows the OpenVLA pipeline and only retains the 7-DoF data of the third-person perspective and single-arm end-effector control; the video data uses EPIC-KITCHENS-100 and Something-Something V2. All images are processed to $256\times256$.</p>
+<p><strong>Downstream adaptation stage: </strong>The LLM backbone, projector, and depth transformer are fine-tuned on task-specific demonstrations of the target robot setup, while the vision tower remains frozen.</p>
+<div class="pseudo">Algorithm: CoT-VLA test-time closed-loop control
+Input: model P_theta, initial observation s_obs_0, language instruction l
+t = 0
+while True: s_hat_{t+n} = sample P_theta(s_{t+n} | l, s_obs_t)
+ [a_hat_t,..., a_hat_{t+m}] = sample P_theta(a_t,..., a_{t+m} | l, s_obs_t, s_hat_{t+n})
+ for j = 0... m: execute a_hat_{t+j}
+ t = t + m + 1
+ s_obs_t = new robot observation</div>
+<p>The meaning of closed loop is: the model performs an action and then re-shoots the current observation, and then generates the next sub-target image and the next action, rather than generating the complete trajectory at once.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<table>
+<tr><th>Benchmark/Platform</th><th>settings</th><th>Assessment focus</th></tr>
+<tr><td>LIBERO</td><td>Four suites: Spatial, Object, Goal, Long; each suite has 10 tasks, and each task has 50 human teleoperation demos.</td><td>Spatial relationships, object interaction, goal understanding, and long-range tasks in simulation.</td></tr>
+<tr><td>Bridge-V2</td><td>6-DoF WidowX; 45k language-annotated trajectories; continue task-specific fine-tuning on Bridge-V2 until training action prediction accuracy reaches 95%.</td><td>Four types of generalization: visual, motion, semantic, and language grounding.</td></tr>
+<tr><td>Franka-Tabletop</td><td>7-DoF Franka Emika Panda; pre-training has not seen this setup; only 10 to 150 demonstrations per testing scenario.</td><td>Small data adaptation, single-instruction and multi-instruction tasks.</td></tr>
+</table>
+<p>Baselines include Diffusion Policy, OpenVLA, Octo, and SUSIE. Diffusion Policy is trained from scratch on LIBERO and Franka-Tabletop; OpenVLA and Octo use published checkpoints on Bridge-V2 and fine-tune on LIBERO/Franka; SUSIE uses published checkpoint on Bridge-V2.</p>
+<h3>5.2 LIBERO main results</h3>
+<table class="compact">
+<tr><th>method</th><th>Average</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th></tr>
+<tr><td>Diffusion Policy</td><td>72.4 ± 0.7%</td><td>78.3 ± 1.1%</td><td><strong>92.5 ± 0.7%</strong></td><td>68.3 ± 1.2%</td><td>50.5 ± 1.3%</td></tr>
+<tr><td>Octo fine-tuned</td><td>75.1 ± 0.6%</td><td>78.9 ± 1.0%</td><td>85.7 ± 0.9%</td><td>84.6 ± 0.9%</td><td>51.1 ± 1.3%</td></tr>
+<tr><td>OpenVLA fine-tuned</td><td>76.5 ± 0.6%</td><td>84.7 ± 0.9%</td><td>88.4 ± 0.8%</td><td>79.2 ± 1.0%</td><td>53.7 ± 1.3%</td></tr>
+<tr><td><strong>CoT-VLA-7B</strong></td><td><strong>81.13 ± 0.6%</strong></td><td><strong>87.5 ± 1.4%</strong></td><td>91.6 ± 0.5%</td><td><strong>87.6 ± 0.6%</strong></td><td><strong>69.0 ± 0.8%</strong></td></tr>
+</table>
+<p>CoT-VLA has the highest average success rate, Spatial, Goal, and Long; the Diffusion Policy in the Object suite is the highest, and CoT-VLA ranks second. The paper specifically explains the failure analysis of LIBERO-Spatial: some baselines will ignore language instructions and perform another task when the initial visual state is similar; CoT-VLA first clarifies the target state through the sub-target image under language conditions, so it shows better instruction following.</p>
+<h3>5.3 Bridge-V2 results</h3>
+<table class="compact">
+<tr><th>Category</th><th>SUSIE</th><th>Octo</th><th>OpenVLA</th><th>CoT-VLA</th></tr>
+<tr><td>Visual</td><td>30%</td><td>35%</td><td><strong>75%</strong></td><td>65%</td></tr>
+<tr><td>Motion</td><td>10%</td><td>10%</td><td>45%</td><td><strong>60%</strong></td></tr>
+<tr><td>Semantic</td><td>20%</td><td>0%</td><td>40%</td><td><strong>50%</strong></td></tr>
+<tr><td>Language</td><td>40%</td><td>40%</td><td><strong>75%</strong></td><td>70%</td></tr>
+</table>
+<p>Bridge-V2 has 10 trials per task type. CoT-VLA is the best in motion and semantic, and slightly lower than OpenVLA in visual and language. The paper attributes the gap between visual and language categories to grasping failures caused by action chunking, rather than errors in visual reasoning itself; although SUSIE can generate higher-quality target images, it has a lower success rate in novel objects or complex language grounding scenes.</p>
+<h3>5.4 Franka-Tabletop results</h3>
+<div class="figure">
+<img alt="Franka results" src="figures/fig4_franka.png"/>
+<div class="caption">Figure 4: Comparison of six Franka-Tabletop tasks and task success rates. The paper reports that CoT-VLA has the best average performance, especially in multi-instruction scenarios, reflecting the role of OpenX pre-training and language grounding.</div>
+</div>
+<p>Franka-Tabletop is pre-trained on a new unseen robot environment and has only 10 to 150 demonstrations per task. The paper observes that Diffusion Policy is strong on some single-instruction tasks, but declines on multi-instruction tasks involving multiple objects and complex languages; OpenX pre-trained Octo, OpenVLA, and CoT-VLA adapt better in multi-instruction tasks. CoT-VLA has the highest average across tasks reported by the authors.</p>
+<h3>5.5 Ablation experiment</h3>
+<div class="figure">
+<img alt="Ablation results" src="figures/fig6_ablation.png"/>
+<div class="caption">Figure 6: Ablation action chunking, full attention, visual CoT on the left; ablation pre-training stage on the right. The trend in the figure is used to support three points: action sequence prediction is better than single-step action, full attention is further improved, and complete CoT-VLA is the best; pre-training is improved from 53.7% to 78.8%.</div>
+</div>
+<p>The author gradually adds components to LIBERO-Spatial and LIBERO-Goal: </p>
+<ol>
+<li><strong>VLA: </strong>Same VILA-U backbone, but without CoT reasoning and action chunking.</li>
+<li><strong>+ action chunking: </strong>Expand from a single step action to an action sequence of length $m$.</li>
+<li><strong>+ hybrid attention: </strong>Add full attention to action sequence prediction.</li>
+<li><strong>+ CoT: </strong>Full CoT-VLA, introducing visual sub-objective images.</li>
+</ol>
+<p>The conclusion given by the paper is that both action chunking and hybrid attention have gains, and the complete visual CoT version is the best. Pretraining ablation shows that on Franka-Tabletop, CoT-VLA with pretraining improves from 53.7% of directly fine-tuning base VILA-U to 78.8%, a relative improvement of 46.7%.</p>
+<h3>5.6 Better Visual Reasoning Helps</h3>
+<table class="compact">
+<tr><th>Conditions</th><th>Sub-task 1</th><th>Sub-task 2</th></tr>
+<tr><td>Generated Goal Images</td><td>20%</td><td>0%</td></tr>
+<tr><td>Ground-truth Goal Images</td><td><strong>60%</strong></td><td><strong>40%</strong></td></tr>
+</table>
+<p>The author designed two out-of-distribution long-range tasks and collected a demonstration for each task to obtain ground-truth goal images. Compared to using model-generated goal images, using ground-truth goal images leads to a 40% absolute success rate improvement on both tasks. The paper uses this experiment to illustrate: when visual reasoning/sub-goal generation is better, the success rate of action execution will also increase; at the same time, it also admits that the current model still has difficulties in generating sub-goals for new tasks.</p>
+<div class="figure">
+<img alt="Rollout examples" src="figures/fig5_rollout.png"/>
+<div class="caption">Figure 5: Execution examples of LIBERO, Bridge-V2, Franka-Tabletop. Each example shows the language instructions, the initial state, the generated intermediate goal state, and the final state.</div>
+</div>
+</section>
+<section id="reproducibility">
+<h2>6. Repeat audit</h2>
+<h3>6.1 Data and sampling horizon</h3>
+<p>The supplementary material gives the upper and lower bounds of the pre-training data mixture weights and the sub-target horizon. $u_l, u_u$ here corresponds to $n_l, n_u$ in the main text of the paper, that is, from which future time range the sub-target image is sampled.<span class="tag">Supplementary material 6.1</span></p>
+<table class="compact">
+<tr><th>Dataset</th><th>Weight</th><th>$u_l$</th><th>$u_u$</th></tr>
+<tr><td>Bridge</td><td>24.14%</td><td>5</td><td>10</td></tr>
+<tr><td>RT-1</td><td>6.90%</td><td>5</td><td>10</td></tr>
+<tr><td>TOTO</td><td>10.34%</td><td>20</td><td>24</td></tr>
+<tr><td>VIOLA</td><td>10.34%</td><td>15</td><td>20</td></tr>
+<tr><td>RoboTurk</td><td>10.34%</td><td>1</td><td>2</td></tr>
+<tr><td>Jaco Play</td><td>10.34%</td><td>10</td><td>15</td></tr>
+<tr><td>Berkeley Autolab UR5</td><td>10.34%</td><td>5</td><td>10</td></tr>
+<tr><td>Berkeley Fanuc Manipulation</td><td>10.34%</td><td>10</td><td>15</td></tr>
+<tr><td>Something-Something V2</td><td>3.45%</td><td>5</td><td>7</td></tr>
+<tr><td>EPIC-KITCHEN-100</td><td>3.45%</td><td>5</td><td>7</td></tr>
+</table>
+<h3>6.2 Training hyperparameters and computing power</h3>
+<table class="compact">
+<tr><th>Hyperparameter</th><th>Pre-training</th></tr>
+<tr><td>Learning Rate</td><td>1e-4</td></tr>
+<tr><td>LR Scheduler</td><td>Cosine decay</td></tr>
+<tr><td>Global Batch Size</td><td>2048</td></tr>
+<tr><td>Image Resolution</td><td>256 × 256</td></tr>
+<tr><td>Action Token Size / Chunk Size</td><td>10</td></tr>
+<tr><td>Epoch</td><td>10</td></tr>
+</table>
+<p>Fine-tuning settings: LIBERO and Franka-Tabletop use constant learning rate 1e-5, training for 150 epochs. Training resources: Pre-training uses 12 A100 GPU nodes, 8 GPUs per node, totaling about 11K A100 GPU hours; LIBERO and Franka-Tabletop fine-tuning train on a single A100 node for 10 to 24 hours, depending on the data set size.<span class="tag">Supplementary Materials 6.2-6.3</span></p>
+<h3>6.3 reproducibility checklist</h3>
+<div class="audit-card">
+<h4>Information available directly from the paper</h4>
+<p><span class="ok">Fully: </span>The overall model pipeline, core formula, action discretization rules, action chunk size, data mixture weight, sub-goal horizon, main training hyperparameters, main benchmark settings, baseline name and some training/usage methods.</p>
+<p><span class="warn">Need to add: </span>There is no explicit GitHub link for the complete code repository on the arXiv page and the project homepage; VILA-U specific checkpoint, OpenX subset filtering script, Bridge-V2 fine-tuning to 95% action prediction accuracy precise stop details, and the robot deployment controller low-level interface are not fully expanded in the text.</p>
+</div>
+<div class="audit-card">
+<h4>Reproduce the minimum path</h4>
+<ol>
+<li>Prepare VILA-U 7B generative multi-modal checkpoint, keep vision tower frozen.</li>
+<li>Processing of OpenX third-person, single-arm 7-DoF data by OpenVLA pipeline, and Bridge, RT-1, TOTO, VIOLA, RoboTurk, Jaco Play, Berkeley Autolab UR5, Berkeley Fanuc by Supplementary Material weight blend.</li>
+<li>Add Something-Something V2 and EPIC-KITCHENS-100 to sample future sub-target images according to the horizon interval of each data set.</li>
+<li>Training visual token loss and action token loss; the action dimension is discretized to 256 bins according to the 1st to 99th percentile interval.</li>
+<li>Task-specific fine-tuning on LIBERO, Bridge-V2, or Franka-Tabletop, and generate sub-target images and action chunks of length 10 each time in a closed-loop.</li>
+</ol>
+</div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Judging from the paper's own experiments and design, the most critical value lies in specifically placing the "intermediate reasoning of the robot strategy" on future image tokens, rather than additional manually defined language plans, key points or bounding boxes. This choice allows the intermediate representation to be both visual and learned from ordinary videos. The ablation experiment also breaks down the benefits to verify: action chunking, hybrid attention, visual CoT and pre-training are not isolated decorations, but components that jointly support the final result.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results of the paper are supported by three layers of evidence: first, the LIBERO table gives a quantitative comparison of multiple suites, and CoT-VLA leads in average, spatial, goal, and long; second, Bridge-V2 and Franka-Tabletop cover real robots and different embodiments, not just reported in a simulation environment; third, the ablation experiment gradually adds action chunking, full attention, and visual CoT, and separately verifies the improvement of Franka-Tabletop by pre-training. Better Visual Reasoning Helps The experiment further shows that when the sub-target image is replaced by ground truth, the execution success rate increases, supporting the mechanism explanation that "the quality of visual reasoning affects action performance".</p>
+<h3>7.3 Author's statement of limitations</h3>
+<ul>
+<li><strong>Inference overhead: </strong>Generating intermediate image tokens is slower than direct action generation. The paper states that 256 image tokens need to be generated each time, which results in an average slowdown of about $7\times$ when the action chunk size is 10.</li>
+<li><strong>Image quality: </strong>Autoregressive image generation quality is lower than state-of-the-art diffusion-based models. It was also mentioned in the Bridge-V2 discussion that SUSIE's diffusion prior can generate target images with higher visual quality.</li>
+<li><strong>Action chunking control issues: </strong>Action chunks may be discontinuous, and there is a lack of high-frequency feedback when executing chunks; the paper believes that this will cause some grasping failures.</li>
+<li><strong>Limited visual generalization to new tasks: </strong>Although pre-training utilizes action-less video data, the authors acknowledge that current computational constraints limit the model's visual-reasoning generalization to novel tasks.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>CoT-VLA is more suitable for manipulation tasks where the sub-objective images can clearly express the task progress, such as moving, placing, covering, flipping or removing objects. If task success states are primarily determined by invisible forces, touch, internal states, or long-term contact dynamics, a single future image may be insufficiently informative as an intermediate CoT.</p>
+<p>In addition, the frequency of closed-loop action chunking and chunk length will affect deployment stability: too long a chunk will reduce feedback frequency, and too short a chunk will increase inference overhead. The paper currently uses a length of 10 and clearly states that image generation is the main speed bottleneck.</p>
+</section>
+</main>
+</body>
+</html>

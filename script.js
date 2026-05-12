@@ -10,7 +10,7 @@ const FALLBACK_PAPERS = [
     links: [
       { label: "arXiv", url: "https://arxiv.org/abs/2602.15922" },
       { label: "Project", url: "https://dreamzero0.github.io/" },
-      { label: "Blog", url: "./report/2602.15922/index.html" },
+      { label: "Blog", url: "./report/2602.15922/index.en.html" },
     ],
   },
   {
@@ -24,7 +24,7 @@ const FALLBACK_PAPERS = [
     links: [
       { label: "arXiv", url: "https://arxiv.org/abs/2601.16163" },
       { label: "Project", url: "https://research.nvidia.com/labs/dir/cosmos-policy/" },
-      { label: "Blog", url: "./report/2601.16163/index.html" },
+      { label: "Blog", url: "./report/2601.16163/index.en.html" },
     ],
   },
 ];
@@ -184,12 +184,12 @@ function normalizeArxivUrl(url) {
 function normalizeLibraryUrl(url, rawLabel, arxiv) {
   const label = rawLabel.toLowerCase();
   if (label.includes("summary") && arxiv) {
-    return `./report/${arxiv}/index.html`;
+    return `./report/${arxiv}/index.en.html`;
   }
   const reportMatch = url.match(/github\.com\/OpenMOSS\/WAM-survey\/blob\/main\/Report\/([^/]+)\/index\.html/i);
   if (reportMatch) {
     const slug = decodeURIComponent(reportMatch[1]);
-    return arxiv ? `./report/${arxiv}/index.html` : `./report/${slug}/index.html`;
+    return arxiv ? `./report/${arxiv}/index.en.html` : `./report/${slug}/index.en.html`;
   }
   return url;
 }

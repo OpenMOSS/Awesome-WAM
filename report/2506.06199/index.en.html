@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>3DFlowAction: Learning Cross-Embodiment Manipulation from 3D Flow World Model</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div class="hero">
+<h1>3DFlowAction: Learning Cross-Embodiment Manipulation from 3D Flow World Model</h1>
+<div>
+<span class="tag">arXiv: 2506.06199</span>
+<span class="tag">3D optical flow</span>
+<span class="tag">cross-embodiment manipulation</span>
+<span class="tag">flow world model</span>
+<span class="tag">optimization policy</span>
+</div>
+<div class="meta">
+<div><strong>Authors: </strong>Hongyan Zhi, Peihao Chen, Siyuan Zhou, Yubo Dong, Quanxi Wu, Lei Han, Mingkui Tan</div>
+<div><strong>Organization: </strong>South China University of Technology; Tencent Robotics X; HKUST; Pazhou Laboratory</div>
+<div><strong>Code/data: </strong><a href="https://github.com/Hoyyyaard/3DFlowAction/">github.com/Hoyyyaard/3DFlowAction</a></div>
+<div><strong>Material description: </strong>The arXiv source package only contains figure PDF, and the text is extracted based on local PDF text; the report retains PDF and available PNG images.</div>
+</div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+<li><a href="#overview">Paper quick overview</a></li>
+<li><a href="#motivation">Motivation and problem definition</a></li>
+<li><a href="#related">Related work context</a></li>
+<li><a href="#method">Detailed explanation of method</a></li>
+<li><a href="#experiments">Experiments and results</a></li>
+<li><a href="#repro">Key points to reproduce</a></li>
+<li><a href="#analysis">Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">Preparation for group meeting Q&amp;A</a></li>
+</ol>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>The robot data action space is not uniform, such as joint angles, end poses, coordinate systems, and hardware forms, which makes cross-robot learning difficult. At the same time, generating future RGB states directly from videos is easily affected by background, robot arm appearance, and 2D plane limitations. The paper addresses the question of whether an object-centered, 3D, cross-embodiment motion representation can be used to learn motion cues from human and robot videos that can be used for real robot operations.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>The core gripper is 3D optical flow. The author built ManiFlow-110k to extract the motion of the manipulated object in the open source human/robot video into 3D optical flow; trained a 3D flow world model based on AnimateDiff to predict the future 3D motion of the manipulated object according to language and current scene; then formed a closed-loop planning through rendering + GPT-4o verification, and used 3D flow as an optimization constraint to solve the end effector action.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>The total success rate of the four real operation tasks reaches 70.0%, which is higher than AVDC 20.0%, ReKep 20.0%, and Im2Flow2Act* 25.0%; compared with the imitation learning method, 3DFlowAction is 70.0%, higher than PI0 50.0% and Im2Flow2Act 27.5%. Cross-platform, Franka 67.5%, XTrainer 70.0%, without hardware-specific fine-tuning.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The point is not "another world model", but whether 3D flow can really serve as a unified action interface. Pay special attention to: the difference between 2D flow and 3D flow, whether the GPT-4o rendering verification is reliable, whether the optimization policy can handle contact/occlusion/non-rigid bodies, and the experiment only has 10 trials per task, so statistical stability requires caution.</td>
+</tr>
+</tbody>
+</table>
+<div class="note">
+<strong>One sentence version: </strong>3DFlowAction does not allow the model to directly predict the robot's movements. Instead, it predicts how the manipulated object will move in 3D space, and then renders, verifies, and converts this 3D optical flow trajectory into a robot end-effector trajectory.
+ </div>
+<figure>
+<img alt="3DFlowAction teaser" src="figures/fig_2025_teaser.png"/>
+<figcaption>Teaser: 3DFlowAction learns the flow world model and uses 3D optical flow as an action guide for downstream real robot operations.</figcaption>
+</figure>
+<figure>
+<img alt="3DFlowAction pipeline" src="figures/fig_2025_flow2act.png"/>
+<figcaption>Flow-guided action generation pipeline: First generate 3D flow in a closed loop, then select task-aware grasp pose, and finally use 3D flow constraints to optimize the action.</figcaption>
+</figure>
+</section>
+<section id="motivation">
+<h2>2. Motivation and problem definition</h2>
+<h3>2.1 Why 3D flow is needed</h3>
+<p>The author starts from the intuition of human operation: before people perform "hanging the cup on the cup holder", they often first imagine how the object moves in space, rather than first thinking about how the joint angles change. This object motion trajectory is relatively common to humans and different robots. Therefore, the paper regards "the future 3D movement of the object" as an embodiment-agnostic action representation.</p>
+<p>Compared with the RGB video world model, 3D flow is more centered on the object and can reduce interference from the background and the robot's appearance. Compared with 2D optical flow, 3D flow can express 3D trajectories such as movement in the depth direction, rotation, and pouring, which is especially important for tasks such as pouring tea, inserting pens, and hanging cups.</p>
+<h3>2.2 Problem setting</h3>
+<p>The input is the current RGB observation, task language and initial object point set, and the output is a temporal 3D optical flow: </p>
+<div class="formula">$$F \in \mathbb{R}^{T\times H\times W\times4}, $$</div>
+<p>The first two channels are the 2D coordinates of the image plane, the third channel is the depth, and the fourth channel is visibility. This flow describes the 3D position changes of the surface points of the manipulated object at various times in the future.</p>
+<p>Afterwards, the system does not train a hardware-bound action head, but turns the flow into a constraint function and solves a series of end-effector poses in SE(3) through optimization.</p>
+<h3>2.3 Contribution positioning</h3>
+<ul>
+<li>3DFlowAction is proposed to use 3D optical flow as a unified, object-centric, cross-embodiment representation of robot operations.</li>
+<li>Build ManiFlow-110k to synthesize 110k 3D flow samples from multi-source human and robot videos via a moving object auto-detect pipeline.</li>
+<li>Train a 3D flow world model to learn language-conditioned object 3D motion patterns from large-scale flow demonstrations.</li>
+<li>Proposed flow-guided rendering + GPT-4o verified closed-loop planning, as well as task-aware grasp pose generation and flow-conditioned optimization policy.</li>
+<li>Validating generalization on four complex real-world tasks, across robotic platforms, OOD objects, and contexts.</li>
+</ul>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<div class="grid-2">
+<div class="mini">
+<h3>3.1 Imitation Learning / VLA</h3>
+<p>Methods such as Diffusion Policy, PI0, and OpenVLA generate actions directly from vision and language, but usually require a large number of robot demonstrations, and the action space is strongly bound to specific robot hardware. 3DFlowAction's strategy is to bypass action tags and use 3D object motion as an intermediate interface.</p>
+</div>
+<div class="mini">
+<h3>3.2 Video World Model</h3>
+<p>UniPi, AVDC, Uni-Sim, TesserAct, etc. use video prediction as the robot world model. The author believes that the RGB/video world model needs to model the background and robot appearance, has high resolution and computational costs, and the future state is prone to instability.</p>
+</div>
+<div class="mini">
+<h3>3.3 Optical Flow for Manipulation</h3>
+<p>Track2Act, Im2Flow2Act, General-Flow, and more use 2D flows or point trajectories to guide operations. The difference of 3DFlowAction is that it is promoted from 2D to 3D, trying to express depth direction, rotation and spatial trajectory.</p>
+</div>
+<div class="mini">
+<h3>3.4 Constraint Optimization Methods</h3>
+<p>ReKep, OmniManip, etc. use VLM/keypoints/code constraints to optimize actions. This article believes that the code constraints generated by GPT-4o are difficult to express complex rotations and high-quality keypoint instability, so 3D flow itself is used as a constraint instead.</p>
+</div>
+</div>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 ManiFlow-110k: Extract 3D flow from original video</h3>
+<p>The paper first requires a large amount of data on "how objects move". Open source robot/human videos often have cluttered backgrounds, similar objects, and robotic arm grippers, which are easily detected incorrectly by standard detectors. The author proposes a moving object detection pipeline: </p>
+<ol>
+<li>Segment the gripper mask at the first frame using Grounding-SAM2.</li>
+<li>Sample points in the entire image in the first frame and exclude points falling within the gripper mask.</li>
+<li>Track these points with CoTracker3 to find points of significant motion in the video.</li>
+<li>Use the maximum bounding box of these motion points to locate the manipulated object.</li>
+<li>Use CoTracker3 again to extract the object 2D optical flow.</li>
+<li>Remove camera motion flow if necessary.</li>
+<li>Use DepthAnythingV2 to predict depth and project 2D flows into 3D.</li>
+</ol>
+<p>The author verified that the moving object detection accuracy of this pipeline exceeds 80% on BridgeV2. Finally, 110k 3D flow instances were generated from open source data such as BridgeV2, RT1, AgiWorld, Libero, RH20T-Human, HOI4D, DROID, etc.</p>
+<figure>
+<img alt="3D flow generation pipeline" src="figures/fig_2025_img2flow.png"/>
+<figcaption>3D flow generation pipeline: Detect moving objects from multi-source human/robot videos, build ManiFlow-110k, and pre-train the flow world model.</figcaption>
+</figure>
+<h3>4.2 3D Flow World Model</h3>
+<p>The model goal is to generate a time-varying 3D flow $F$ based on the initial RGB observation, task prompt, and initial point $F_0$. The author follows the idea of Im2Flow2Act and uses AnimateDiff as the optical flow generator, but makes key adjustments: </p>
+<ul>
+<li>RGB observation and task prompt are encoded with CLIP encoder.</li>
+<li>The initial point $F_0$ uses sinusoidal positional encoding.</li>
+<li>The image VAE latent of 3D flow is not compressed into Stable Diffusion because the author found it difficult for VAE to encode depth information.</li>
+<li>Directly input the 3D flow into U-Net and train the motion module to model temporal dynamics.</li>
+<li>The SD body only inserts the LoRA layer to retain the pre-training generation capability; the motion module is trained from scratch.</li>
+</ul>
+<figure>
+<img alt="3D flow generation and experiments" src="figures/fig_2025_exp_setting.png"/>
+<figcaption>3D flow generation / experiment settings. The figure shows the core processes of ManiFlow-110k construction, flow world model and task settings.</figcaption>
+</figure>
+<figure>
+<img alt="3DFlowAction qualitative visualization" src="figures/fig_2025_fwm_viz.png"/>
+<figcaption>Flow world model visualization: The paper shows the prediction and execution effects of 3DFlowAction in four tasks.</figcaption>
+</figure>
+<h3>4.3 Closed-Loop Motion Planning</h3>
+<p>3D flow predictions can still be wrong. To improve stability, the author designs an object-centric target state rendering machine. Assume the flow points at the first moment are $P_1$ and the last moment are $P_2$. Use SVD to estimate the rigid body transformation between the two: </p>
+<div class="formula">$$T=\mathrm{SVD}(P_2, P_1).$$</div>
+<p>Then apply $T$ to the initial point cloud of the manipulated object to obtain the predicted target state, and then put it back into the current 3D scene point cloud and reproject it into a 2D image. Finally, input the task instructions and predicted images into GPT-4o to determine whether the flow is aligned with the task; if it fails, re-predict the flow. This mechanism changes one-time world model sampling into closed-loop planning with verification.</p>
+<h3>4.4 Task-Aware Grasp Pose Generation</h3>
+<p>If you choose the wrong grabbing pose, the target location may be unreachable or the task may not be completed. The author asked GPT-4o to output the part of the object that should be grasped according to the task, and then used AnyGrasp to generate candidate grasping poses around the part. Since AnyGrasp itself does not know the task, the system will use the previously estimated transformation matrix $T$ to transform the candidate grasping pose to the target state, and use robot IK to check the reachability, thereby selecting a task-related and reachable grasping pose.</p>
+<h3>4.5 Flow-Based Action Generation</h3>
+<p>Action generation is formulated as constrained optimization. First, select $N$ key points from the object surface through farthest point sampling, and obtain the predicted 3D flow corresponding to these points. The goal of each time step $t$ is to make the current object key point reach the position predicted by the flow world model: </p>
+<div class="formula">$$f^{(t)}(k_{\mathrm{initial}})=\min \sum_{i=1}^{N}\left\|k^i_{\mathrm{initial}}-k^i_{\mathrm{pred}}(t)\right\|_2.$$</div>
+<p>IK and collision detection are also added to the real scene. The decision variable of the single-arm robot is the end-effector pose, which is a 6-dimensional variable of position and Euler angles; the position is limited by workspace bounds, and the rotation is limited to the lower hemisphere. The optimization implementation follows the ReKep style. In the first iteration, Dual Annealing is used for global search, and then SLSQP is used for local optimization; subsequent iterations are initialized with the previous stage solution and only perform local optimization.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<p>The experiment focused on four basic but space-intensive tasks: pouring tea from the teapot into the cup, inserting the pen into the pen holder, hanging the cup on the cup holder, and opening the upper drawer. Each setting is run 10 times, with random object poses, and the success rate is reported. The real hardware uses a Dobot XTrainer, and the perception uses a Femto Bolt camera, located on the opposite side of the robot, providing a third-person perspective.</p>
+<p>In terms of fine-tuning data, the author manually collected 30 human hand demonstrations for each task, excluding robot action labels, which took about 10 minutes per task for fine-tune 3DFlowAction.</p>
+<h3>5.2 Comparison with manipulation world models</h3>
+<table>
+<thead>
+<tr><th>Task</th><th>AVDC</th><th>ReKep</th><th>Im2Flow2Act*</th><th>3DFlowAction</th></tr>
+</thead>
+<tbody>
+<tr><td>Pour tea from teapot to cup</td><td>1/10</td><td>2/10</td><td>2/10</td><td><strong>6/10</strong></td></tr>
+<tr><td>Insert pen in holder</td><td>2/10</td><td>1/10</td><td>2/10</td><td><strong>7/10</strong></td></tr>
+<tr><td>Hang cup to mug rack</td><td>0/10</td><td>3/10</td><td>0/10</td><td><strong>5/10</strong></td></tr>
+<tr><td>Open top drawer</td><td>5/10</td><td>2/10</td><td>6/10</td><td><strong>10/10</strong></td></tr>
+<tr><td><strong>Total</strong></td><td>20.0%</td><td>20.0%</td><td>25.0%</td><td><strong>70.0%</strong></td></tr>
+</tbody>
+</table>
+<p>Im2Flow2Act* replaces the learnable action policy of the original method with the 2D flow baseline after the optimization process. 3DFlowAction takes the lead in all tasks, indicating that 3D flow is more expressive for tasks involving depth and rotation such as pouring tea, inserting pens, and hanging cups.</p>
+<figure>
+<img alt="Planning and execution comparison for pouring tea" src="figures/fig_2025_l1viz.png"/>
+<figcaption>Visualization of planning and execution in the tea pouring task: Baseline 2D/code-based planning is difficult to fully express the motion of objects in 3D space.</figcaption>
+</figure>
+<h3>5.3 Cross-embodiment experiments</h3>
+<table>
+<thead>
+<tr><th>Task</th><th>Franka</th><th>XTrainer</th></tr>
+</thead>
+<tbody>
+<tr><td>Pour tea from teapot to cup</td><td>7/10</td><td>6/10</td></tr>
+<tr><td>Insert pen in holder</td><td>7/10</td><td>7/10</td></tr>
+<tr><td>Hang cup to mug rack</td><td>4/10</td><td>5/10</td></tr>
+<tr><td>Open top drawer</td><td>9/10</td><td>10/10</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>67.5%</strong></td><td><strong>70.0%</strong></td></tr>
+</tbody>
+</table>
+<p>The authors emphasize that this experiment did not involve robot-related fine-tuning. Since 3D flow describes object movement rather than robot action, in theory, as long as the new robot can achieve the object movement through IK and optimization, it can be executed across platforms.</p>
+<h3>5.4 Comparison with imitation learning methods</h3>
+<table>
+<thead>
+<tr><th>Task</th><th>PI0</th><th>Im2Flow2Act</th><th>3DFlowAction</th></tr>
+</thead>
+<tbody>
+<tr><td>Pour tea from teapot to cup</td><td>5/10</td><td>4/10</td><td><strong>6/10</strong></td></tr>
+<tr><td>Insert pen in holder</td><td>5/10</td><td>2/10</td><td><strong>7/10</strong></td></tr>
+<tr><td>Hang cup to mug rack</td><td>4/10</td><td>0/10</td><td><strong>5/10</strong></td></tr>
+<tr><td>Open top drawer</td><td>6/10</td><td>5/10</td><td><strong>10/10</strong></td></tr>
+<tr><td><strong>Total</strong></td><td>50.0%</td><td>27.5%</td><td><strong>70.0%</strong></td></tr>
+</tbody>
+</table>
+<p>PI0, as the VLA/flow action model baseline, performs well but is still lower than 3DFlowAction. The key comparison here is: 3DFlowAction does not use robot teleoperation action labels, while PI0/Im2Flow2Act class methods require action data or simulation data.</p>
+<h3>5.5 OOD Object and Background Generalization</h3>
+<table>
+<thead>
+<tr><th rowspan="2">Task</th><th colspan="3">Object Generalization</th><th colspan="3">Background Generalization</th></tr>
+<tr><th>AVDC</th><th>PI0</th><th>3DFlowAction</th><th>AVDC</th><th>PI0</th><th>3DFlowAction</th></tr>
+</thead>
+<tbody>
+<tr><td>Pour tea</td><td>0/10</td><td>3/10</td><td><strong>4/10</strong></td><td>0/10</td><td>4/10</td><td><strong>4/10</strong></td></tr>
+<tr><td>Insert pen</td><td>2/10</td><td>6/10</td><td><strong>6/10</strong></td><td>0/10</td><td>1/10</td><td><strong>4/10</strong></td></tr>
+<tr><td>Hang cup</td><td>0/10</td><td>2/10</td><td><strong>4/10</strong></td><td>0/10</td><td>3/10</td><td><strong>4/10</strong></td></tr>
+<tr><td>Open drawer</td><td>4/10</td><td>5/10</td><td><strong>8/10</strong></td><td>0/10</td><td>5/10</td><td><strong>8/10</strong></td></tr>
+<tr><td><strong>Total</strong></td><td>15.0%</td><td>40.0%</td><td><strong>55.0%</strong></td><td>0.0%</td><td>32.5%</td><td><strong>50.0%</strong></td></tr>
+</tbody>
+</table>
+<p>AVDC drops to 0 during background generalization, indicating that RGB future state generation is greatly disturbed by background changes. Although 3DFlowAction also decreased, it remained around 50%, consistent with the expectation that object center representation is more resistant to background changes.</p>
+<figure>
+<img alt="Object generalization visualization" src="figures/fig_2025_l2viz.png"/>
+<figcaption>OOD object generalization visualization: shows flow prediction and execution results under different target object conditions.</figcaption>
+</figure>
+<figure>
+<img alt="Background generalization visualization" src="figures/fig_2025_l3viz.png"/>
+<figcaption>Background generalization visualization: Shows the prediction and execution performance of 3DFlowAction under background changes.</figcaption>
+</figure>
+<h3>5.6 Ablation: Closed-loop planning and large-scale pre-training</h3>
+<table>
+<thead>
+<tr><th>Method</th><th>Large-scale Pretrain</th><th>Rendering Machine</th><th>Success Rate</th><th>Pour tea</th><th>Insert pen</th><th>Hang cup</th><th>Open drawer</th></tr>
+</thead>
+<tbody>
+<tr><td>Variant 1</td><td>Yes</td><td>No</td><td>50.0%</td><td>3/10</td><td>5/10</td><td>3/10</td><td>9/10</td></tr>
+<tr><td>Variant 2</td><td>No</td><td>Yes</td><td>30.0%</td><td>3/10</td><td>3/10</td><td>2/10</td><td>4/10</td></tr>
+<tr><td><strong>3DFlowAction</strong></td><td>Yes</td><td>Yes</td><td><strong>70.0%</strong></td><td><strong>6/10</strong></td><td><strong>7/10</strong></td><td><strong>5/10</strong></td><td><strong>10/10</strong></td></tr>
+</tbody>
+</table>
+<p>After turning off the rendering machine, the average drop is 20 points, indicating that GPT-4o verification and re-prediction are indeed useful; after removing ManiFlow-110k large-scale pre-training, the drop is 40 points, indicating that the downstream 10 to 30 human demonstrations per task are not enough to learn a stable 3D flow from scratch.</p>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Data and annotation process</h3>
+<ul>
+<li>Collection of human/robot videos from multiple sources, including BridgeV2, RT1, AgiWorld, Libero, RH20T-Human, HOI4D, DROID.</li>
+<li>Identifying grippers and filtering gripper points with Grounding-SAM2.</li>
+<li>Use CoTracker3 to find motion points and extract 2D object flow.</li>
+<li>Use DepthAnythingV2 to project 2D flow into 3D flow.</li>
+<li>The downstream tasks collect 10 to 30 human hand demonstrations per task, and the main experiment of the paper is 30 per task and takes about 10 minutes.</li>
+</ul>
+<figure>
+<img alt="ManiFlow rendering visualization" src="figures/fig_2025_render.png"/>
+<figcaption>ManiFlow-110k visualization of in-domain flow generation and target state rendering.</figcaption>
+</figure>
+<h3>6.2 Training details</h3>
+<table>
+<thead>
+<tr><th>parameters</th><th>value</th></tr>
+</thead>
+<tbody>
+<tr><td>Model base</td><td>AnimateDiff + Stable Diffusion v1.5 layers + motion module + LoRA</td></tr>
+<tr><td>Training data</td><td>ManiFlow-110k</td></tr>
+<tr><td>Learning rate</td><td>0.0001</td></tr>
+<tr><td>Batch size</td><td>512</td></tr>
+<tr><td>Epochs</td><td>500</td></tr>
+<tr><td>Optimizer</td><td>AdamW</td></tr>
+<tr><td>Weight decay</td><td>0.01</td></tr>
+<tr><td>Epsilon</td><td>1e-8</td></tr>
+<tr><td>Compute</td><td>8x8 V100, about 2 days</td></tr>
+</tbody>
+</table>
+<h3>6.3 Optimization process</h3>
+<ul>
+<li>The single-arm robot decision variable is the 6D end-effector pose, including position and Euler angles.</li>
+<li>The initial solution uses Dual Annealing global search, and then uses SLSQP local optimization.</li>
+<li>Subsequent iterations are initialized with the previous stage solution, and only local optimization is performed to increase the frequency.</li>
+<li>The optimization goal is to get the object's key points to the 3D positions predicted by the flow world model, taking into account IK and collision detection.</li>
+</ul>
+<div class="warn">
+<strong>Source code description: </strong>Completely re-unpacked LaTeX with all from arXiv source package <code>fig_2025/*.pdf</code> figure, and converted 9 paper figures into PNG images that can be opened directly in HTML.
+ </div>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable aspect of this paper is that it transforms the problem of cross-robot action learning from "unified robot action space" to "unified object 3D motion space". 3D flow is both more object-centered than RGB video and better expressive of depth and rotation than 2D flow, so it does have the potential to become a common interface between human video, robot video, and different hardware.</p>
+<p>The second value point is that the system links are relatively complete: data construction, flow world model, closed-loop flow verification, grabbing pose selection and action optimization are all connected. It does not just show flow prediction visualization, but uses flow to achieve real robot task success rates.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li>The main experiment included four tasks with different spatial requirements: pouring tea, inserting pens, hanging cups, and opening drawers, covering pouring, rotating, aligning, and pulling.</li>
+<li>At the same time, compared with video world model, VLM code constraints, 2D flow world model, VLA/imitation learning method, it is not just a single baseline.</li>
+<li>Cross-platform Franka has a similar success rate to XTrainer, supporting the claim of 3D flow as a cross-embodiment representation.</li>
+<li>OOD object and background experiments show that object-centered 3D flow is more resistant to background changes than RGB video generation.</li>
+<li>Ablation clearly shows that both the rendering machine and large-scale pretraining contribute significantly to the final success rate.</li>
+</ul>
+<h3>7.3 Main limitations</h3>
+<ul>
+<li><strong>Non-rigid bodies and severe occlusion: </strong>The author clearly points out that flexible objects, strong occlusion and complex non-rigid body deformation will make it difficult to model 3D optical flow, which will result in the inability of the action policy to output effective actions.</li>
+<li><strong>Dependence on depth estimation quality: </strong>DepthAnythingV2 estimates depth from monocular video and then projects it into 3D flow; depth deviation will directly contaminate the 3D trajectory.</li>
+<li><strong>Rely on GPT-4o verification: </strong>Closed-loop rendering uses GPT-4o to determine whether the predicted final state meets the task. The evaluation criteria are not completely transparent and will also introduce delays and external service dependencies.</li>
+<li><strong>The number of trials is small: </strong>With 10 runs per task, the difference in success rates is large, but the statistical confidence intervals should still be cautious.</li>
+<li><strong>Optimizing policy still requires engineering assumptions: </strong>Assumptions such as IK, collision, workspace bounds, grasp candidate, and rigid transform are critical to real tasks and cannot be solved end-to-end by pure learning models.</li>
+<li><strong>Mainly single-arm rigid object manipulation: </strong>Dual-arm cooperation, deformable objects, tool contact, and long-term closed-loop operation have not yet been demonstrated.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<table>
+<thead>
+<tr><th>Applicable conditions</th><th>Conditions that require caution</th></tr>
+</thead>
+<tbody>
+<tr><td>The manipulated object can be approximated as a rigid body and key surface points can be tracked.</td><td>Cloth, rope, liquid, soft object or strong non-rigid body deformation.</td></tr>
+<tr><td>Tasks can be expressed through object target poses/trajectories.</td><td>Tasks rely on force control, touch, hidden states, or complex contact patterns.</td></tr>
+<tr><td>Single-arm robots can predict object trajectories through IK.</td><td>The end is unreachable, the grab point is unstable, or re-grasp is required.</td></tr>
+<tr><td>Allow GPT-4o to do plan verification and reforecasting.</td><td>Real-time, safety-critical, offline deployments or systems that cannot call external VLM.</td></tr>
+</tbody>
+</table>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the biggest difference between 3DFlowAction and Im2Flow2Act?</h3>
+<p>Im2Flow2Act mainly uses 2D optical flow, which cannot fully express depth direction movement and 3D rotation; 3DFlowAction uses 2D coordinates, depth and visibility to form a 3D flow, and directly uses the 3D flow as an optimization constraint.</p>
+<h3>Q2: Why not use RGB video world model?</h3>
+<p>RGB video world model needs to generate background, robot appearance and irrelevant objects, which is computationally intensive and easily affected by OOD background. 3D flow only focuses on the movement trajectory of the manipulated object, which is more centered on the object and is more suitable for direct conversion into action constraints.</p>
+<h3>Q3: What does GPT-4o do in the system?</h3>
+<p>Two key uses: first, after flow-guided rendering, determine whether the predicted final state meets the task and decide whether to re-predict the flow; second, output the part of the object that should be grasped according to the task description to assist in selecting task-aware grasp pose.</p>
+<h3>Q4: Why can methods span embodiments?</h3>
+<p>Because the world model outputs the movement of objects in 3D space, not the specific actions of a certain robot. Different robots only need to implement the same object trajectory through their own IK, workspace bounds and optimizers.</p>
+<h3>Q5: What is the strongest evidence?</h3>
+<p>Cross-platform experiments and ablation are the most critical: Franka 67.5% and XTrainer 70.0% support cross-embodiment; removing large-scale pre-training drops from 70% to 30%, indicating that ManiFlow-110k is the core support.</p>
+<h3>Q6: What is the most likely place to be questioned?</h3>
+<p>Only 10 trials per task, relies on GPT-4o, relies on monocular depth and rigid/trackable object assumptions. In real deployment, these links may become sources of failure.</p>
+</section>
+</main>
+</body>
+</html>

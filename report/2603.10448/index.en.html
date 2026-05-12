@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DiT4DiT - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>DiT4DiT: Jointly Modeling Video Dynamics and Actions for Generalizable Robot Control</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Teli Ma, Jia Zheng, Zifan Wang, Chunli Jiang, Andy Cui, Junwei Liang, Shuo Yang</p>
+<p><strong>Organization: </strong>Mondo Robotics; HKUST(GZ); HKUST</p>
+<p><strong>Version: </strong>arXiv: 2603.10448v2, v1 submitted on 2026-03-11, v2 revised on 2026-03-22</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2603.10448">arXiv</a> | <a href="https://arxiv.org/pdf/2603.10448">PDF</a> | <a href="https://dit4dit.github.io/">Project</a> | <a href="https://github.com/Mondo-Robotics/DiT4DiT">Code</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Quick overview of the paper</a></li>
+<li><a href="#sec2">2. Motivation and related work</a></li>
+<li><a href="#sec3">3. Video generation as proxy scaling</a></li>
+<li><a href="#sec4">4. Detailed explanation of method</a></li>
+<li><a href="#sec5">5. Experiments, results and replication settings</a></li>
+<li><a href="#sec6">6. Diagram and ablation interpretation</a></li>
+<li><a href="#sec7">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#sec8">8. Repeat audit</a></li>
+</ul>
+</nav>
+<section id="sec1">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>DiT4DiT strings the video Diffusion Transformer and the action Diffusion Transformer into an end-to-end Video-Action Model, so that the strategy no longer relies solely on static image and text VLA representation, but reads future physical dynamics from the intermediate denoising features in the video generation process, and then uses flow matching to generate continuous robot actions.
+ </div>
+<p><strong>Difficulty rating: </strong>★★★★☆. To understand the main thread, you need to be familiar with VLA, Diffusion Transformer, flow matching, robot imitation learning and sim-to-real evaluation; the difficulties mainly lie in the tri-timestep training design and "how to generate video features into action conditions".</p>
+<p><strong>Keywords: </strong>Video-Action Model, Diffusion Transformer, flow matching, VLA, robot control, generative world modeling. </p>
+<table>
+<tr><th>Reading positioning</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>Existing VLA mostly inherits static image-text pre-training representations, and physical dynamics and temporal state transfer mainly rely on limited action data learning; the author wants to test and realize "whether video generation can be used as a stronger proxy objective for robot strategy learning."</td></tr>
+<tr><td>The author's approach</td><td>Initialize Video DiT with Cosmos-Predict2.5-2B, extract intermediate hidden features from fixed flow timestep and specified transformer layer; then let Action DiT use these features through cross-attention, and use dual flow-matching to jointly train video and action.</td></tr>
+<tr><td>most important results</td><td>DiT4DiT averages 98.6% on LIBERO and 50.8% on RoboCasa-GR1; the relative parameter matching Qwen3DiT improves by 14.6 percentage points on RoboCasa-GR1 and demonstrates 7 tasks and zero-sample out-of-distribution generalization on the real Unitree G1.</td></tr>
+<tr><td>Things to note when reading</td><td>The method is not to generate complete future frames first and then do inverse dynamics, but to extract intermediate features in the video denoising process; the data conditions of "from scratch" and "pretrained baseline" in the experiment need to be looked at separately. The real robot part also introduced 241, 450 GR1 pre-training episodes.</td></tr>
+</table>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Propose the dual-DiT architecture of Video-Action Model.</strong>The video DiT is responsible for future visual dynamic modeling, and the action DiT is responsible for continuously controlling trajectory generation. The two are coupled through intermediate denoising features.</li>
+<li><strong>Dual flow-matching and tri-timestep designs are proposed.</strong>The video training timestep, action training timestep, and feature extraction timestep are split so that generative modeling, action denoising, and stable feature reading each have appropriate noise scales.</li>
+<li><strong>System verification video generation proxy.</strong>The author first compares Grounding, FLARE-style latent modeling and Video generation, reporting that video generation has the highest data efficiency and fastest convergence on RoboCasa-GR1.</li>
+<li><strong>Evaluated on simulated and real G1 robots.</strong>Covers LIBERO, RoboCasa-GR1, real Unitree G1, zero-sample object/category/number variation, and ablation such as layer, denoising step, joint vs. decoupled training, etc.</li>
+</ul>
+</section>
+<section id="sec2">
+<h2>2. Motivation and related work</h2>
+<h3>2.1 Problems to be solved</h3>
+<p>The starting point of the paper is a very specific contradiction: VLA models can already connect vision, language and action, but their backbone mostly comes from static image-text pre-training. Such a representation is good at "what objects to recognize and what language to understand", but it is not forced to learn "how the object will move next, and how the state changes after the hand and the object come into contact" in the pre-training stage. As a result, low-level physical interactions and sequential temporal transitions are deferred to downstream robot data, and robot action-labeled data is expensive and limited.</p>
+<p>An alternative perspective proposed by the authors is that video generative models inherently learn temporal consistency, motion priors, causal structure, and implicit physical dynamics when predicting future frames. Rather than treating it as an external auxiliary model, it is better to make it one of the backbones of strategy learning.</p>
+<h3>2.2 Where are the existing methods stuck?</h3>
+<p>Related Work split the previous game into two strands. The first is VLA: RT-2, OpenVLA, UniVLA, CogVLA, GR00T and $\pi$ series migrate the semantic capabilities of VLM to control, but the common weakness is that the training target of the underlying backbone mainly comes from static image and text pairs. The second one is video generation in robotics: In the early days, video prediction was mostly used for visual foresight or model-based planning; in recent years, work has begun to put video latents and actions into a shared space, or use pre-trained video backbone with action decoder.</p>
+<p>The closest thing to this article is mimic-video: it also connects a pre-trained video backbone with a flow-matching action decoder, and conditions the action with a partially denoised video latent. But the key difference with DiT4DiT is <strong>joint training</strong>: Instead of using the video model in a fixed or staged manner, video generation and action generation are jointly adapted under the same goal, so that the action module learns to extract effective features at different video generation stages.</p>
+<h3>2.3 High-level solution ideas</h3>
+<p>The high-level idea of ​​DiT4DiT can be summarized as "predicting video dynamics - inverse dynamics". First let Video DiT model future visual dynamics under current observation and language target conditions; but what is actually used for control is not the final reconstructed future frame, but the intermediate hidden states extracted at a fixed flow timestep $\tau_f$. Action DiT then restores the action sequence through flow matching based on these temporally grounded features, robot proprioceptive state and noisy action trajectory.</p>
+</section>
+<section id="sec3">
+<h2>3. Video generation as proxy scaling</h2>
+<p>Before the formal method, the paper first conducted a verification experiment: comparing the effects of three proxy tasks on downstream robot policy learning.</p>
+<table>
+<tr><th>Proxy task</th><th>training signal</th><th>Limitations or strengths of concern to the author</th></tr>
+<tr><td>Grounding</td><td>Learn from GR00T to train the VLM's auxiliary detection head to learn what the object is and where it is.</td><td>Partial to semantics and target positioning, it cannot directly learn continuous physical dynamics.</td></tr>
+<tr><td>FLARE-style latent modeling</td><td>Use learnable queries to focus on VLM features and align future observation latent embeddings; here the query diffusion process of FLARE is removed for approximate control.</td><td>There is future representation supervision, but still latent around VLM, the authors believe that it is difficult to capture continuous pixel-level physical dynamics.</td></tr>
+<tr><td>Video generation</td><td>Predicting future visual dynamics with video backbones like Cosmos-Predict2.5-2B.</td><td>Directly using future videos as unsupervised signals forces the model to learn spatiotemporal dynamics and physical transitions.</td></tr>
+</table>
+<p>The experiment uses Qwen3-2B as the VLM backbone and Cosmos-Predict2.5-2B as the Video backbone, and controls the scale of trainable parameters. Evaluations were performed on 24 GR1 tabletop manipulation tasks in RoboCasa. In order to make the role of proxy task clearer, the author decouples proxy pre-training from downstream action expert training: VLM/Video backbone first performs self-supervised training on the target data, and then freezes it in the action expert fine-tuning stage.</p>
+<div class="figure">
+<img alt="Figure 1 proxy objectives" src="figures/x1.png"/>
+<div class="caption">Figure 1. Comparison of three types of proxy objective. The results on the right show that video generation is superior to Grounding and FLARE-style latent modeling in terms of data efficiency, convergence speed, and final success rate; the author reports that it can bring up to more than 10 times data efficiency and up to 7 times convergence acceleration.</div>
+</div>
+</section>
+<section id="sec4">
+<h2>4. Detailed explanation of method</h2>
+<div class="figure">
+<img alt="DiT4DiT overview" src="figures/x2.png"/>
+<div class="caption">Figure 2. DiT4DiT pipeline. Video DiT predicts future visual dynamics under current observation and language target conditions and exposes intermediate generative features; Action DiT uses these features to predict control trajectories.</div>
+</div>
+<h3>4.1 Flow matching prerequisites</h3>
+<p>The author uses flow matching to unify video generation and action generation. It connects the clean data $x_0$ and the Gaussian noise $z$ with a linear probability path: </p>
+<div class="formula-block">
+<p class="intuition">This formula constructs the training sample: add a certain noise level $\tau$ to the clean data, and obtain the intermediate state $x_\tau$.</p>
+ $$x_{\tau} = (1-\tau)x_0 + \tau z, \quad \tau \in [0, 1]$$
+ <table class="symbol-table">
+<tr><td>$x_0$</td><td>Clean samples from a data distribution, either latent future videos or real action sequences.</td></tr>
+<tr><td>$z$</td><td>Standard Gaussian noise, $z \sim \mathcal{N}(0, I)$.</td></tr>
+<tr><td>$\tau$</td><td>flow timestep; $\tau=0$ is clean data, and $\tau=1$ is pure noise.</td></tr>
+</table>
+</div>
+<p>Since the path is linear, the target speed is the derivative of $\tau$: </p>
+<div class="formula-block">
+<p class="intuition">What the model learns is not to directly output clean samples, but to predict "which direction to flow" at each noise location.</p>
+ $$v^*(x_\tau, \tau)=\frac{dx_\tau}{d\tau}=z-x_0$$
+ $$\mathcal{L}_{FM}=\mathbb{E}_{x_0, z, \tau}\left[\left\|v_\theta(x_\tau, \tau)-(z-x_0)\right\|^2\right]$$
+ <p>When reasoning, start from the noise and use Euler discretization to integrate along the predicted velocity field toward $\tau=0$: </p>
+ $$x_{\tau-\Delta\tau}=x_\tau-\Delta\tau\cdot v_\theta(x_\tau, \tau)$$
+ </div>
+<h3>4.2 Formalization of the problem</h3>
+<p>Common VLA direct modeling $\pi_\theta(\mathbf{a}_t\mid \mathbf{o}_t, l)$. DiT4DiT is rewritten as a paradigm of "predicting future visual dynamics first, and then deducing actions from the visual dynamics": </p>
+<div class="formula-block">
+<p class="intuition">Instead of just looking at the current frame, the action looks at the current frame and the video model's intermediate generated representation of the future state.</p>
+ $$\mathbf{o}_{t+1}\sim p_v(\cdot\mid \mathbf{o}_t, l)$$
+ $$\mathbf{a}_t\sim p_a(\cdot\mid \mathbf{o}_t, \mathcal{H}(\mathbf{o}_{t+1}^{\tau_v})), $$
+ $$\mathbf{o}_{t+1}^{\tau_v}\xrightarrow{\tau_v\to 0}\mathbf{o}_{t+1}$$
+ <table class="symbol-table">
+<tr><td>$p_v$</td><td>Video generation distribution.</td></tr>
+<tr><td>$p_a$</td><td>Action generation distribution.</td></tr>
+<tr><td>$\mathcal{H}$</td><td>Operator for hooking hidden states from Video DiT forward pass.</td></tr>
+</table>
+</div>
+<p>The training objective is equivalent to modeling the joint distribution of videos and actions: </p>
+<div class="formula-block">
+ $$\mathbf{o}_{t+1}, \mathbf{a}_t\sim p_{va}(\cdot\mid \mathbf{o}_t, l)$$
+ </div>
+<h3>4.3 Dual-DiT architecture</h3>
+<p><strong>Video DiT. </strong>The author initialized the video backbone with Cosmos-Predict2.5-2B. Its causal video VAE encodes the current observation $\mathbf{o}_t$ and the future frame $\mathbf{o}_{t+1}$ as latent $\mathbf{z}_t^0, \mathbf{z}_{t+1}^0$; DiT uses flow-prediction parameterization and is conditionalized by multi-layer language embedding of Cosmos-Reason1. The key is that DiT4DiT does not treat fully generated frames as action input, but extracts intermediate activations at specified flow timesteps and transformer blocks: </p>
+<div class="formula-block">
+<p class="intuition">This formula is saying: treat the video generation network as a "physical dynamic feature extractor" and hook its internal representation during denoising of future frames.</p>
+ $$\mathbf{h}_t^{\tau_f}=\mathcal{H}[v_\theta^{video}](\mathbf{z}_{t+1}^{\tau_f}, \tau_f\mid \mathbf{z}_t^0, l), \quad \mathbf{z}_{t+1}^{\tau_f}\xrightarrow{\tau_f\to 0}\mathbf{z}_{t+1}^0$$
+ <table class="symbol-table">
+<tr><td>$\mathbf{h}_t^{\tau_f}$</td><td>Temporally grounded hidden features for use by Action DiT.</td></tr>
+<tr><td>$\tau_f$</td><td>Fixed feature extraction timestep; choosing which noise stage will affect the action success rate.</td></tr>
+<tr><td>$v_\theta^{video}$</td><td>Velocity field prediction network for video DiT.</td></tr>
+</table>
+</div>
+<p><strong>Action DiT. </strong>The action module is modified from the action diffusion transformer of GR00T-N1. It uses the AdaLN injection action diffusion timestep and reads $\mathbf{h}_t^{\tau_f}$ with cross-attention. The input sequence is concatenated by proprioceptive state embeddings, noisy action trajectories and learnable future tokens; the output is the velocity field of the action sequence.</p>
+<h3>4.4 Tri-timestep and joint training</h3>
+<div class="figure">
+<img alt="Tri timestep" src="figures/x3.png"/>
+<div class="caption">Figure 3. Tri-timestep scheme: $\tau_v$ is used for video generation training, $\tau_a$ is used for action flow matching, and $\tau_f$ is used for stable extraction of visual conditions.</div>
+</div>
+<table>
+<tr><th>Timestep</th><th>Sampling method</th><th>Function</th></tr>
+<tr><td>$\tau_v$</td><td>$\tau_v\sim\mathcal{U}[0, 1]$</td><td>Train the video module so that it covers the complete denoised trajectory.</td></tr>
+<tr><td>$\tau_f$</td><td>Fixed deterministic timestep; the algorithm box is implemented as selecting from discrete buckets.</td><td>Extract stable visual conditions to prevent the action module from receiving drifting representations during training and inference.</td></tr>
+<tr><td>$\tau_a$</td><td>$\tau_a=1-\sigma, \ \sigma\sim\mathrm{Beta}(\alpha, \beta)$</td><td>Training movement modules put more capacity into key control phases.</td></tr>
+</table>
+<div class="formula-block">
+<p class="intuition">The total loss consists of two items: action flow matching is the main task, and video flow matching uses the coefficient $\lambda$ to maintain the video dynamic modeling capability.</p>
+ $$\mathcal{L}^{total}_t =
+ \mathbb{E}_{\tau_a, \epsilon}\left[\left\|v_\phi^{action}(\mathbf{a}_t^{\tau_a}, \tau_a\mid \mathbf{h}_t^{\tau_f}, s)-(\epsilon-\mathbf{a}_t^0)\right\|^2\right]
+ +\lambda
+ \mathbb{E}_{\tau_v, z}\left[\left\|v_\theta^{video}(\mathbf{z}_{t+1}^{\tau_v}, \tau_v\mid \mathbf{z}_t^0, l)-(z-\mathbf{z}_{t+1}^0)\right\|^2\right]$$
+ <table class="symbol-table">
+<tr><td>$s$</td><td>Robot proprioceptive state.</td></tr>
+<tr><td>$\mathbf{a}_t^0$</td><td>Real action tracks.</td></tr>
+<tr><td>$\epsilon$</td><td>Action noise.</td></tr>
+<tr><td>$\lambda$</td><td>The weight of the video loss.</td></tr>
+</table>
+</div>
+<div class="impl-note">During training, the text encoder and visual VAE are frozen, and only the Video DiT and Action DiT are updated. The default configuration given in the appendix is ​​Video DiT hidden feature dim 2048, extract layer 18; Action DiT is DiT-B, 16 layers, hidden size 2560, cross-attention dim 2048, future action window size 15, action horizon 16, training repeated diffusion steps 4, inference timesteps 4.<span class="appendix-ref">Appendix A.1</span></div>
+<h3>4.5 Training and inference process</h3>
+<div class="pseudocode">
+<span class="kw">Training step</span><br/>
+encode current and future observations with frozen VAE<br/>
+sample video timestep tau_v and noise z<br/>
+construct noisy future latent z_{t+1}^{tau_v}; predict video velocity<br/>
+sample or choose feature timestep tau_f; hook hidden states h_t^{tau_f}<br/>
+sample action timestep tau_a from Beta schedule and action noise epsilon<br/>
+construct noisy action a_t^{tau_a}; predict action velocity with h_t^{tau_f} and state s<br/>
+optimize L_action + lambda * L_video, with action mask M when computing action loss
+ </div>
+<div class="pseudocode">
+<span class="kw">Inference</span><br/>
+optionally generate future video by Euler sampling through Video DiT<br/>
+for action prediction, draw one future noise latent and run a single deterministic feature extraction at tau_f<br/>
+initialize action from Gaussian noise<br/>
+Euler integrate Action DiT for N_a steps to produce final action trajectory
+ </div>
+<p>The most easily misunderstood point here is that real control does not require the complete video generation first. The paper emphasizes that the action condition only requires a single hidden feature extraction with a fixed timestep; this is also one of the reasons why "one-step denoising is best" in the subsequent ablation.</p>
+</section>
+<section id="sec5">
+<h2>5. Experiments, results and replication settings</h2>
+<h3>5.1 Experimental setup</h3>
+<table>
+<tr><th>Evaluation scenario</th><th>Robot/Action Space</th><th>Data and Reviews</th></tr>
+<tr><td>LIBERO</td><td>Franka Emika Panda, 7-DoF</td><td>There are four suites of Spatial/Object/Goal/Long; each type of standard data contains 500 demonstrations and 10 tasks.</td></tr>
+<tr><td>RoboCasa-GR1 tabletop</td><td>Fourier GR1 humanoid: dual 7-DoF arms, dual 6-DoF dexterous hands, 3-DoF waist, 29-dimensional action space</td><td>24 household manipulation tasks; 1, 000 human-collected trajectories per task; 50 rollouts per task, maximum 720 environment steps.</td></tr>
+<tr><td>Real-world G1</td><td>Unitree G1 humanoid, dual 7-DoF arms + ALOHA2 grippers, continuous 16-DoF action space; only ego-view camera</td><td>7 real tasks, 200 teleop demonstrations per task; 20 real rollouts per task.</td></tr>
+</table>
+<p>In the simulation experiment, DiT4DiT and parameter matching baseline Qwen3DiT were trained from scratch; external baselines used official open source pre-trained weights. In the real experiment, DiT4DiT was first pre-trained on 241, 450 simulated GR1 episodes, and then fine-tune with real G1 teleop data; Qwen3DiT followed the same pipeline; GR00T-N1.5 was initialized from the official pre-training weights. The authors emphasize that the amount of pre-training data for DiT4DiT is approximately 15% of the data size used by GR00T-N1.5.</p>
+<h3>5.2 Appendix Integration: Model and Training Configuration</h3>
+<table class="small">
+<tr><th>module</th><th>Key configuration</th></tr>
+<tr><td>Video DiT</td><td>Base VGM: Cosmos-Predict2.5-2B; attention: flash_attention_2; hidden feature dim 2048; extract layer 18. </td></tr>
+<tr><td>Action DiT</td><td>DiT-B; hidden size 2560; max sequence length 1024; action dim 32; state dim 64; future action window 15; action horizon 16; cross attention dim 2048; dropout 0.2; AdaLN; 16 layers; num inference timesteps 4. </td></tr>
+<tr><td>Training</td><td>per-device batch size 8; 32 GPUs; max train steps 100, 000; warmup steps 5, 000; VGM LR $1\times10^{-5}$; Action LR $1\times10^{-4}$; cosine_with_min_lr; min LR $5\times10^{-7}$; gradient clipping 1.0; AdamW, $(\beta_1, \beta_2)=(0.9, 0.95)$; weight decay $1\times10^{-8}$. </td></tr>
+</table>
+<p class="small"><span class="appendix-ref">Appendix A.1</span> These configurations are critical to reproducibility, especially the two learning rates of extract layer 18, action inference timesteps 4, and Video/Action are 10 times different.</p>
+<table>
+<tr><th>Dataset</th><th>Episode count</th><th>Embodiment</th><th>DoF</th></tr>
+<tr><td>Fourier_GR1_Unified_1K</td><td>24, 000</td><td>GR1 humanoid</td><td>29</td></tr>
+<tr><td>Fourier_GR1_Pretrain_10K</td><td>241, 450</td><td>GR1 humanoid</td><td>29</td></tr>
+<tr><td>LIBERO</td><td>1, 693</td><td>Franka Emika Panda</td><td>7</td></tr>
+<tr><td>Real Robot</td><td>1, 400</td><td>G1 humanoid</td><td>16</td></tr>
+</table>
+<p class="small"><span class="appendix-ref">Appendix A.2</span> Data set configuration description: The simulation benchmark is trained directly with the target data; before the real robot, Fourier_GR1_Pretrain_10K is used for sim pre-training, and then 1, 400 real teleop episodes are used for fine-tune.</p>
+<h3>5.3 LIBERO Main results</h3>
+<table>
+<tr><th>Method</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Average</th></tr>
+<tr><td>Diffusion Policy</td><td>78.3</td><td>92.5</td><td>68.3</td><td>50.5</td><td>72.4</td></tr>
+<tr><td>Dita</td><td>97.4</td><td>94.8</td><td>93.2</td><td>83.6</td><td>92.3</td></tr>
+<tr><td>$\pi_0$</td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+<tr><td>UniVLA</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+<tr><td>$\pi_{0.5}$</td><td>98.8</td><td>98.2</td><td>98.0</td><td>92.4</td><td>96.9</td></tr>
+<tr><td>OpenVLA-OFT</td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+<tr><td>CogVLA</td><td>98.6</td><td>98.8</td><td>96.6</td><td>95.4</td><td>97.4</td></tr>
+<tr><td>GR00T-N1.5</td><td>96.2</td><td>94.0</td><td>96.0</td><td>90.0</td><td>94.1</td></tr>
+<tr><td>Qwen3DiT (from scratch)</td><td>98.0</td><td>98.8</td><td>96.0</td><td>93.6</td><td>96.6</td></tr>
+<tr><td><strong>DiT4DiT (from scratch)</strong></td><td>98.4</td><td><strong>99.6</strong></td><td><strong>98.6</strong></td><td><strong>97.6</strong></td><td><strong>98.6</strong></td></tr>
+</table>
+<p>The author emphasizes two points: first, DiT4DiT takes the highest value in the three suites of Object, Goal, and Long; second, 97.6% of the Long suite is used to support the argument that "explicit modeling of spatiotemporal dynamics is helpful for multi-stage long-sequence execution."</p>
+<h3>5.4 RoboCasa-GR1 Main results</h3>
+<div class="wide">
+<table class="small">
+<tr><th>Task</th><th>GR00T-N1.5</th><th>GR00T-N1.6</th><th>Qwen3DiT</th><th>DiT4DiT</th></tr>
+<tr><td>BottleToCabinetClose</td><td>40.0</td><td>36.0</td><td><strong>50.0</strong></td><td>48.0</td></tr>
+<tr><td>CanToDrawerClose</td><td>56.0</td><td>28.0</td><td>48.0</td><td><strong>74.0</strong></td></tr>
+<tr><td>CupToDrawerClose</td><td>50.0</td><td>12.0</td><td>42.0</td><td><strong>52.0</strong></td></tr>
+<tr><td>MilkToMicrowaveClose</td><td><strong>52.0</strong></td><td>20.0</td><td>38.0</td><td>50.0</td></tr>
+<tr><td>PotatoToMicrowaveClose</td><td>22.0</td><td>28.0</td><td>18.0</td><td><strong>36.0</strong></td></tr>
+<tr><td>WineToCabinetClose</td><td><strong>44.0</strong></td><td>18.0</td><td>28.0</td><td>42.0</td></tr>
+<tr><td>FromCuttingboardToBasket</td><td>46.0</td><td>42.0</td><td>42.0</td><td><strong>52.0</strong></td></tr>
+<tr><td>FromCuttingboardToCardboardbox</td><td>44.0</td><td>40.0</td><td>30.0</td><td><strong>48.0</strong></td></tr>
+<tr><td>FromCuttingboardToPan</td><td>58.0</td><td>62.0</td><td>50.0</td><td><strong>76.0</strong></td></tr>
+<tr><td>FromCuttingboardToPot</td><td>48.0</td><td>60.0</td><td>44.0</td><td><strong>62.0</strong></td></tr>
+<tr><td>FromCuttingboardToTieredbasket</td><td>28.0</td><td>48.0</td><td>36.0</td><td><strong>50.0</strong></td></tr>
+<tr><td>FromPlacematToBasket</td><td>32.0</td><td>42.0</td><td>14.0</td><td><strong>50.0</strong></td></tr>
+<tr><td>FromPlacematToBowl</td><td>52.0</td><td>34.0</td><td>28.0</td><td><strong>56.0</strong></td></tr>
+<tr><td>FromPlacematToPlate</td><td><strong>42.0</strong></td><td><strong>42.0</strong></td><td>40.0</td><td>32.0</td></tr>
+<tr><td>FromPlacematToTieredshelf</td><td>26.0</td><td>24.0</td><td><strong>30.0</strong></td><td>18.0</td></tr>
+<tr><td>FromPlateToBowl</td><td>38.0</td><td>48.0</td><td>36.0</td><td><strong>56.0</strong></td></tr>
+<tr><td>FromPlateToCardboardbox</td><td>40.0</td><td>44.0</td><td>36.0</td><td><strong>58.0</strong></td></tr>
+<tr><td>FromPlateToPan</td><td>56.0</td><td>48.0</td><td>34.0</td><td><strong>68.0</strong></td></tr>
+<tr><td>FromPlateToPlate</td><td>50.0</td><td><strong>66.0</strong></td><td>44.0</td><td>58.0</td></tr>
+<tr><td>FromTrayToCardboardbox</td><td>36.0</td><td>42.0</td><td><strong>48.0</strong></td><td>38.0</td></tr>
+<tr><td>FromTrayToPlate</td><td>54.0</td><td>52.0</td><td>44.0</td><td><strong>56.0</strong></td></tr>
+<tr><td>FromTrayToPot</td><td>36.0</td><td><strong>64.0</strong></td><td>34.0</td><td>54.0</td></tr>
+<tr><td>FromTrayToTieredbasket</td><td>34.0</td><td>42.0</td><td>36.0</td><td><strong>46.0</strong></td></tr>
+<tr><td>FromTrayToTieredshelf</td><td>22.0</td><td><strong>38.0</strong></td><td>18.0</td><td><strong>38.0</strong></td></tr>
+<tr><td><strong>Average</strong></td><td>41.8</td><td>40.8</td><td>36.2</td><td><strong>50.8</strong></td></tr>
+</table>
+</div>
+<p>DiT4DiT achieves the highest success rate in 16 out of 24 tasks, with an average of 50.8%, which is 9.0 percentage points higher than GR00T-N1.5, 10.0 percentage points higher than GR00T-N1.6, and 14.6 percentage points higher than parameter-matched Qwen3DiT. The author specifically names CanToDrawerClose, FromCuttingboardToPan, FromPlateToPan and other tasks that require high spatial coordination and physical interaction.</p>
+<h3>5.5 Real robots and generalization results</h3>
+<div class="figure">
+<img alt="Real-world suite" src="figures/real_exp.jpg"/>
+<div class="caption">Figure 4. Unitree G1 real evaluation tasks, including pick and place, arrange flower, stack cups, insert plate, box packing, move spoon, drawer interaction.</div>
+</div>
+<div class="figure">
+<img alt="Real-world task results" src="figures/x4.png"/>
+<div class="caption">Figure 5. Real G1 success rate for seven tasks. The text of the paper named Arrange Flower as 75% vs. GR00T-N1.5 25%, Stack Cup as 60% vs. 25%, Move Spoon as 40% vs. 15%; Drawer Interaction and Box Packing as 90% and 50% respectively.</div>
+</div>
+<p>The key comparison in the real experiment part is: Qwen3DiT uses the same sim pre-training + real fine-tuning pipeline, but almost collapses in real tasks, with all tasks not exceeding 10%, and Drawer Interaction, Arrange Flower, and Box Packing being 0%. DiT4DiT can still complete high-precision tasks with only a single ego camera, which the author attributes to the video generation backbone's preservation of future dynamics and fine-grained visual details.</p>
+<div class="figure">
+<img alt="Real-world generalization qualitative" src="figures/real_task_gene_exp.png"/>
+<div class="caption">Figure 6. Real zero-shot generalization tasks: category change, object substitution, number variation.</div>
+</div>
+<div class="figure">
+<img alt="Zero-shot generalization quantitative" src="figures/x5.png"/>
+<div class="caption">Figure 7. Zero-shot generalization quantitative results. In simulation, ToDrawerClose unseen objects is 54.5% vs. Qwen3DiT 32.0%; ToCabinetClose is 34.0% vs. 24.5%; ToMicrowaveClose is 30.5% vs. 17.0%. In reality, Arrange Flower(Category) is 70%, Qwen3DiT is 0%, GR00T-N1.5 is 10%; Stack Cup(Number) still remains at 50%.</div>
+</div>
+</section>
+<section id="sec6">
+<h2>6. Diagram and ablation interpretation</h2>
+<h3>6.1 Feature extraction layer</h3>
+<div class="figure">
+<img alt="Ablations" src="figures/x6.png"/>
+<div class="caption">Figure 8. Architecture ablation: (a) hidden features in different layers of video backbone; (b) denoising steps for action conditioning; (c) t-SNE representation of joint vs. decoupled training.</div>
+</div>
+<p>The author tested the hidden states of different video transformer blocks on 5 tasks of RoboCasa-GR1, including CanToDrawerClose, FromCuttingboardToBasket, FromPlacematToBowl, FromPlateToCardboardbox, and FromTrayToPot. The performance of early layers 2-8 is poor, which the author interprets as more low-level textures; the middle and deep layers gradually become better and reach a peak at layer 18; the final layers 24-28 show a significant decline, and the author believes that the end layer focuses more on video denoising and pixel reconstruction, but loses control-relevant abstraction. Therefore layer 18 is selected by default.<span class="appendix-ref">Appendix A.1</span></p>
+<h3>6.2 Denoising steps</h3>
+<p>For action conditioning, single-step denoising has the highest performance, and the success rate decreases monotonically when steps increase from 1 to 32. The explanation of the paper is that too many iterations will over-commit hidden states to a specific reconstruction of future pixel details, weakening generalizable action priors. This conclusion also has engineering significance: real control can bypass multi-step video generation and only perform a single forward feature extraction.</p>
+<h3>6.3 Joint vs. decoupled training</h3>
+<p>t-SNE visualization shows that although the features of decoupled training form task clusters, the time stages within the cluster are more fragmented; the transition of Early/Middle/Late stages after joint training is clearer, and the silhouette score increases from 0.09 to 0.17, which is about twice as much. The author uses this point to support that "joint training allows the visual backbone to embed the temporal progression of continuous, physical perception."</p>
+<h3>6.4 System and generation plan diagram</h3>
+<div class="figure">
+<img alt="Teleoperation setup" src="figures/teleop.jpg"/>
+<div class="caption">Figure 9. Real system setup. Unitree G1 humanoid with dual ALOHA2 grippers and Intel RealSense D435i; human captured teleop demonstrations via PICO VR headset and XRoboToolkit. Real-life inference was run on a single NVIDIA GeForce RTX 4090 workstation.<span class="appendix-ref">Appendix A.3</span></div>
+</div>
+<div class="figure">
+<img alt="Generated video rollouts" src="figures/x7.png"/>
+<div class="caption">Figure 10. Future video rollouts generated by DiT4DiT. It shows that the video branch can output future visual plans, but action reasoning itself does not rely on fully reconstructing these rollouts.<span class="appendix-ref">Appendix A.4</span></div>
+</div>
+<h3>6.5 Deployment efficiency</h3>
+<table>
+<tr><th>Model</th><th>Trainable params</th><th>Deployment frequency</th></tr>
+<tr><td>GR00T-N1.5</td><td>2.7B</td><td>13 Hz</td></tr>
+<tr><td>Qwen3DiT</td><td>2.3B</td><td>9 Hz</td></tr>
+<tr><td>DiT4DiT</td><td>2.2B</td><td>6 Hz</td></tr>
+</table>
+<p>DiT4DiT does not rely on a larger trainable parameter count to achieve results; instead it is the smallest of the three at 2.2B. The trade-off is that the control frequency is reduced to 6 Hz. The authors point out that for fixed tasks, LLM features can be pre-fetched and cached because DiT4DiT policy learning does not train LLM components, which can improve effective deployment frequency.</p>
+</section>
+<section id="sec7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Judging from the paper's own argument, the core value is not "making another VLA baseline", but clearly treating video generation as a scaling proxy for robot strategy learning, and using the three-layer evidence closed-loop support in the same paper: first use proxy task comparison to show that video generation is more efficient than Grounding/FLARE-style; then use dual-DiT + dual flow matching to give an end-to-end implementation; and finally use LIBERO, RoboCasa-GR1, real Unitree G1 and zero-shot generalization to verify this proxy can be converted into control performance.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The paper's results are supported by multiple complementary controls. First, Qwen3DiT is a parameter matching baseline and shares Action DiT, which makes the difference of "static VLM prior vs. video generation prior" clearer. Second, both simulations and real experiments report segmented tasks rather than just averages; the 24-task table of RoboCasa-GR1 shows that DiT4DiT does not only improve the average on a few tasks. Third, ablation covers feature extraction layer, denoising steps and joint vs. decoupled training, and provides evidence for the key designs in the method. Fourth, the appendix provides training configuration, data configuration, and real system hardware to explain the author's resources and data conditions.</p>
+<h3>7.3 Limitations of the author's statement</h3>
+<p><span class="appendix-ref">Appendix A.4</span> The authors explicitly acknowledge that real deployments rely on only a single egocentric camera. While this highlights the spatial reasoning capabilities of video representations, single-view setups are susceptible to severe occlusions, especially in complex dual-arm tasks where robot arms or large objects may temporarily block the view, thereby destroying the temporal continuity of visual features. The author proposes that wrist-mounted cameras or tactile feedback can be added in the future and integrated with the Video DiT backbone to maintain more robust state estimation under occlusion.</p>
+<p>The second boundary relates to data size. The author points out that the real zero-shot generalization only uses about 15% of the pre-training corpus of GR00T data, but the next step still needs to expand the pre-training data to more embodiments, such as different kinematics, grippers and camera parameters. In other words, the paper shows the trend of data-efficient, but larger-scale cross-embodiment foundation model is still the future direction.</p>
+<h3>7.4 Applicable boundaries</h3>
+<ul>
+<li><strong>Suitable scenarios: </strong>Robotic tasks that require continuous control, physical dynamics, temporal state transitions, and long horizon operations, especially when static semantic representations are insufficient to describe contact and motion processes.</li>
+<li><strong>Current constraints: </strong>Requires large video DiT, Action DiT and high training resources; the appendix configuration is 32 GPUs, 100k steps, which is not light for ordinary laboratory reproducibility.</li>
+<li><strong>Deployment trade-offs: </strong>The 6 Hz control frequency can be used for paper tasks, but it is slower than the 13 Hz of GR00T-N1.5 and the 9 Hz of Qwen3DiT; if the task requires higher frequency closed-loop control, additional optimization of caching, distillation or lightweighting is required.</li>
+<li><strong>Data interpretation: </strong>The real task is not completely without pre-training. DiT4DiT uses 241, 450 simulated GR1 episodes and then fine-tune 1, 400 real G1 episodes; when reading the results, it is necessary to distinguish between the simulation from scratch and the real two-stage pipeline.</li>
+</ul>
+</section>
+<section id="sec8">
+<h2>8. Repeat audit</h2>
+<div class="audit-card">
+<h4>Code and models</h4>
+<p><span class="audit-pass">Targetable: </span>The code repository is given on the paper and project pages <a href="https://github.com/Mondo-Robotics/DiT4DiT">https: //github.com/Mondo-Robotics/DiT4DiT</a>. arXiv Summary code and models will be published on the project page; the project page clearly provides a Code link.</p>
+</div>
+<div class="audit-card">
+<h4>Model initialization</h4>
+<p><span class="audit-pass">More clearly: </span>Video DiT is initialized from Cosmos-Predict2.5-2B; language conditions are from Cosmos-Reason1 embeddings; Action DiT is adapted from GR00T-N1. The appendix lists the action model dimensions, number of layers, dropout, number of timesteps and optimizer.</p>
+</div>
+<div class="audit-card">
+<h4>data</h4>
+<p><span class="audit-warn">Partially relies on external/self-collected data: </span>LIBERO and RoboCasa-GR1 related data can be found according to the public benchmark path; the real G1 data is 1, 400 teleop episodes collected by the author. Reproducing the real results requires similar hardware, VR teleoperation pipeline and data collection process.</p>
+</div>
+<div class="audit-card">
+<h4>Computing power</h4>
+<p><span class="audit-warn">Higher cost: </span>Appendix training configuration is 32 GPUs, 100, 000 steps, per-device batch size 8. Real deployment inference is run on a single RTX 4090 workstation; the deployment efficiency table also reports 6 Hz on a single A100.</p>
+</div>
+<div class="audit-card">
+<h4>Minimum Replication Experiment Recommendations</h4>
+<p>If the goal is to verify the core mechanism rather than reproduce the complete SOTA, you can first reproduce the three key settings of layer 18 / one-step feature extraction / joint training on the five ablation tasks of RoboCasa-GR1; they correspond to the main design evidence of the paper.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

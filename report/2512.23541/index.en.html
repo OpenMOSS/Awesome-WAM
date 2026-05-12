@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Act2Goal - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Act2Goal: From World Model To General Goal-conditioned Policy</h1>
+<div class="meta">
+<p><strong>Method name: </strong>Act2Goal</p>
+<p><strong>Authors: </strong>Pengfei Zhou, Liliang Chen, Shengcong Chen, Di Chen, Wenzhi Zhao, Rongjun Jin, Guanghui Ren, Jianlan Luo</p>
+<p><strong>Organization: </strong>AgiBot Research</p>
+<p><strong>arXiv: </strong>2512.23541; v1 submitted on 2025-12-29; Direction: Robotics, Artificial Intelligence</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2512.23541">arXiv summary page</a> | <a href="https://arxiv.org/pdf/2512.23541">PDF</a> | <a href="https://arxiv.org/html/2512.23541v1">HTML</a> | <a href="https://act2goal.github.io/">Project page</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents: </strong>
+<a href="#quick">1. Quick overview</a>
+<a href="#motivation">2. Motivation</a>
+<a href="#related">3. Related work</a>
+<a href="#method">4. Detailed explanation of method</a>
+<a href="#experiments">5. Experiment</a>
+<a href="#reproduce">6. Reproducible auditing</a>
+<a href="#discussion">7. Analysis, Limitations and Boundaries</a>
+</nav>
+<section id="quick">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>Act2Goal changes the visual goal condition strategy from "current image + target image to perform actions directly" to "first use goal-conditioned world model to imagine the intermediate visual state leading to the goal, and then use Multi-Scale Temporal Hashing to feed the proximal details and distal goal anchor points to the action expert together", and uses HER + LoRA for reward-free online self-improvement.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>Visual goals can express object layout and final state constraints more accurately than language. However, existing goal-conditioned policies often directly predict single-step actions and lack explicit task progress representation. Long-term tasks and OOD scenarios can easily deviate from the goal.</td></tr>
+<tr><th>The author's approach</th><td>Act2Goal introduces Goal-Conditioned World Model (GCWM) to generate an intermediate visual trajectory from the current observation to the target image; proposes Multi-Scale Temporal Hashing (MSTH) to split the trajectory into near-end dense frames and far-end sparse frames; Action DiT uses world-model features through layer-by-layer cross-attention.</td></tr>
+<tr><th>most important results</th><td>In Robotwin 2.0 and real AgiBot Genie-01 tasks, Act2Goal is significantly higher than DP-GC, $\pi_{0.5}$-GC and HyperGoalNet on most ID/OOD settings; real OOD Plug-In is improved from offline 0.30 to 0.90 through online self-improvement; MSTH is improved from near failure to whiteboard writing long words/OOD long words. 0.88-0.90.</td></tr>
+<tr><th>Things to note when reading</th><td>The key to this article is not "the video generated by the world model looks good", but how the generated visual trajectory is temporally sampled into a control-available representation: the near-end frame is used for closed-loop fine control, and the far-end frame is used to maintain long-range target consistency.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Requires understanding of visual goal-conditioned policy, flow matching, Video DiT/3D VAE world model, action expert, hintsight goal relabeling, LoRA finetuning, and real robot evaluation.</p>
+<p><strong>Keywords: </strong>Goal-conditioned policy, visual world model, Multi-Scale Temporal Hashing, flow matching, action expert, HER, LoRA, online autonomous improvement. </p>
+<div class="figure">
+<img alt="Act2Goal teaser" src="figures/x1.png"/>
+<div class="caption"><strong>Figure 1.</strong> Method overview: Input a visual goal, the goal-conditioned world model first generates a visually imagined trajectory leading to the goal, and then the strategy executes it in the real world.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 Why use visual targets instead of language targets?</h3>
+<p>Robotic operation requires task descriptions that are both flexible and precise. Language can express a variety of tasks, but it is often not specific enough in fine-grained operations: such as "arrange the dessert like this", "write this word", "put the insert in the hole", the spatial relationship, shape, orientation and final state details of the target are difficult to completely describe in natural language without ambiguity. Visual goal images directly encode object configurations, spatial relationships, and final state constraints and are therefore more suitable for goal-conditioned manipulation.</p>
+<h3>2.2 Core shortcomings of existing GCP</h3>
+<p>Many visual goal-conditioned policies map the current observation and goal image directly to actions. This works for short-term tasks, but long-term tasks require the strategy to continuously know "where am I now from my goal?" If the model has no intermediate representation of progress, it is easy to match only local state-action patterns in the training data, accumulating bias in OOD objects, layouts, or long control chains.</p>
+<p>The diagnosis of the paper is that GCP needs an explicit visual dynamics model to predict plausible intermediate states from the current state to the target state. In this way, action expert not only looks at the end point, but also gets a visual route from thick to thin.</p>
+<h3>2.3 Why is MSTH still needed?</h3>
+<p>Generating an entire future video is still not enough. If long trajectories are all intensively predicted, the calculation cost is high and the remote details may not be reliable; if you only look at the short term, the strategy will be responsive but it is easy to lose sight of the long-term goal. The role of MSTH is to split the time scale: the near end uses dense frames to provide local closed-loop control, and the far end uses logarithmic sparse frames to maintain global direction.</p>
+<div class="figure">
+<img alt="Act2Goal system overview" src="figures/x2.png"/>
+<div class="caption"><strong>Figure 2.</strong> System overview: After offline imitation learning, the model can be generalized in ID/OOD scenarios with zero samples; in the online stage, it continues to improve through the rollout-goal relabel-optimize loop.</div>
+</div>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Represent issues/methods</th><th>Act2Goal's positioning</th></tr>
+<tr><td>Goal-conditioned policy</td><td>Visual targets, tracking points, motion fields, GoalGAIL, CoA, etc., the core is to give the strategy a target representation.</td><td>Act2Goal believes that it is not enough to only give the final goal, and the model must explicitly predict the intermediate visual state leading to the goal.</td></tr>
+<tr><td>World model for control</td><td>Dreamer series, GE-Act, WorldVLA, Video Policy, etc. use world models to simulate environmental dynamics or auxiliary action generation.</td><td>This paper turns the world model into goal-conditioned: instead of predicting ordinary futures from language or actions, it generates executable visual transition trajectories from the current image to the target image.</td></tr>
+<tr><td>Online autonomous improvement</td><td>Dagger requires expert intervention; ICL does not update weights; HER uses achieved state relabel goal.</td><td>Act2Goal uses HER-style relabeling plus LoRA, only updates the low-rank adaptation layer, and attempts to self-improve without rewards and with less labor when real robots are deployed.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall process: three-stage learning</h3>
+<p>Act2Goal's learning process is divided into three stages: </p>
+<ol>
+<li><strong>Stage 1 joint training: </strong>Fine-tune the pre-trained world model to generate MSTH-distributed multi-view transition videos under the current observation and target image conditions, while jointly training the action generation task.</li>
+<li><strong>Stage 2 action adaptation: </strong>Use behavior cloning to fine-tune the complete model end-to-end, using only action flow matching loss to make the visual representation more suitable for action planning.</li>
+<li><strong>Stage 3 online autonomous improvement: </strong>After deployment, collect its own rollout, relabel the next observation that actually arrives as goal, and only update the LoRA layer.</li>
+</ol>
+<h3>4.2 Model architecture: GCWM + Action DiT</h3>
+<div class="figure">
+<img alt="Act2Goal architecture" src="figures/x3.png"/>
+<div class="caption"><strong>Figure 3.</strong> Architecture diagram: The GCWM on the left uses the VAE latents of the current multi-view image and the target image as conditions, and generates MSTH latent frames through Video DiT; the Action DiT on the right receives the robot state and world model multi-scale features, and generates MSTH-structured actions through cross-attention.</div>
+</div>
+<p>The Goal-Conditioned World Model is modified based on Genie Envisioner: it retains the video generation capability, removes language conditions, and adds visual goal conditions. The current observation latent is recorded as $z_t$, the target image latent is recorded as $z_g$, the random noise is $\epsilon$, and the world model generates intermediate latent frames: </p>
+<div class="formula-block">
+ $$z_{\mathrm{pred}} = f_{\theta}(z_t, z_g, \epsilon).$$
+ <p>Use flow matching's deterministic integral update during inference: </p>
+ $$z^{(n+1)} = z^{(n)} + \frac{1}{N}v_{\theta}(z^{(n)}, z_t, z_g).$$
+ <p><span class="intuition">Intuition: </span>GCWM learns "what intermediate states should be visually passed from the current picture to the target picture." These intermediate states are not directly performed actions, but become conditions for action experts.</p>
+</div>
+<p>Action expert is architecturally isomorphic to world model, but smaller in width. It receives the proprioceptive state $c_p$ and the hierarchical transition features $c_w=\{h_{\mathrm{world}}^1, \ldots, h_{\mathrm{world}}^L\}$ of the world model, and generates actions: </p>
+<div class="formula-block">
+ $$a_{\mathrm{pred}} = g_{\phi}(c_w, c_p, \zeta), $$
+ $$a^{(n+1)} = a^{(n)} + \frac{1}{N}u_{\phi}(a^{(n)}, c_w, c_p).$$
+ <p><span class="intuition">Intuition: </span>Actions are not decoded from the target image alone, but executable controls are "read" from multiple layers of intermediate features in the world model.</p>
+</div>
+<h3>4.3 Multi-Scale Temporal Hashing (MSTH)</h3>
+<p>MSTH is the core mechanism of this paper. Given the total imagined trajectory length $K$, the near-end horizon $P$, and the visual sampling stride $r$, MSTH splits the future visual state into two segments.</p>
+<div class="formula-block">
+<p>Near-end dense segment: </p>
+ $$\{s_{t+kr}\}_{k=1}^{P/r}.$$
+ <p>Remote sparse segment: </p>
+ $$\{s_{t+d_m}\}_{m=1}^{M}, \quad
+ d_m = P + \left\lfloor \frac{K-P}{\log(M+1)}\log(m+1)\right\rfloor.$$
+ <p><span class="intuition">Intuition: </span>The closer to the present, the more high-frequency details are needed; the closer to the distant target, the more coarse-grained target anchors are needed. Log spacing causes the remote frame interval to gradually increase.</p>
+</div>
+<p>The actions also adopt the same multi-scale structure, but there is a key difference: the near-end action is predicted at every time step, $\{a_{t+1}, \ldots, a_{t+P}\}$, for actual execution; the remote action $\{a_{t+d_m}\}_{m=1}^M$ is only used for long-range guidance and is not executed at deployment time. The appendix gives the specific implementation: the world model predicts 4 latent frames, including 2 proximal and 2 distal, which are decoded by 3D VAE into 9 proximal and 9 distal visual frames; the action expert outputs 54 proximal actions, of which 50 are executed, and the other 9 distal actions are output only for guidance <span class="appendix-ref">Appendix A.1</span>. </p>
+<div class="figure">
+<img alt="MSTH generated videos" src="figures/x8.png"/>
+<div class="caption"><strong>Figure 8.</strong> Examples of videos generated by GCWM: proximal frames are closer to local action details, while distal frames correspond to longer time spans and bear target consistency constraints.</div>
+</div>
+<h3>4.4 Two-stage offline training objectives</h3>
+<p>Stage 1 jointly optimizes visual generation and action generation. The visual part uses flow matching loss: </p>
+<div class="formula-block">
+ $$\mathcal{L}_v =
+ \mathbb{E}_{t, z_0, z_1, z_t, z_g}
+ \left[\left\|v_{\theta}(t, \phi_t(z), z_t, z_g)-(z_1-z_0)\right\|^2\right].$$
+ <p>The action part is: </p>
+ $$\mathcal{L}_a =
+ \mathbb{E}_{t, a_0, a_1, c_w, c_p}
+ \left[\left\|u_{\phi}(t, \psi_t(a), c_w, c_p)-(a_1-a_0)\right\|^2\right].$$
+ <p>Joint goals: </p>
+ $$\mathcal{L}_{\mathrm{stage1}}=\mathcal{L}_v+\lambda\mathcal{L}_a, \quad \lambda=0.1.$$
+ <p>Stage 2 only uses $\mathcal{L}_{\mathrm{stage2}}=\mathcal{L}_a$ for end-to-end behavioral cloning.</p>
+</div>
+<p>The meaning of this design is: the first stage makes the generated visual trajectory "look reasonable and useful for the action"; the second stage aligns the entire pipeline to expert actions.</p>
+<h3>4.5 Online self-improvement: HER + LoRA</h3>
+<p>The online stage does not require external rewards, nor does it require manual marking of success/failure. The robot executes the strategy and stores each transition in the replay buffer: $(o, c_p, a, o')$. Then the actually reached $o'$ is used as the new goal $g'$, and a supervision sample is constructed as "$g'$ can be reached by executing $a$ under $o$". After the buffer reaches the threshold, only the LoRA layer is fine-tuned using these relabeled transitions, and the base model is frozen.</p>
+<pre class="pseudocode">Act2Goal online autonomous improvement:
+1. initialize replay buffer B and LoRA parameters
+2. execute policy for one episode and store transitions (o, c_p, a, o')
+3. for each transition, relabel achieved observation o' as goal g'
+4. when B reaches threshold:
+   sample batches from B
+   optimize action prediction toward stored action a under relabeled goal g'
+   update only LoRA parameters
+   clear B
+5. repeat rollout -&gt; relabel -&gt; optimize until performance converges</pre>
+<p>Appendix implementation details: Deployed on AgiBot Genie-01 + NVIDIA RTX 4090; LoRA rank 64; replay buffer size 20; 10 epochs per round, including rollout, backpropagation and environment reset of about 5 minutes; inference latency of 50 executable actions is about 200 ms <span class="appendix-ref">Appendix A.1</span>. </p>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental questions</h3>
+<p>The experiment revolves around three questions: whether offline imitation training can be generalized to ID/OOD scenarios; whether online autonomous improvement is effective; and whether MSTH is a key component of long-term tasks.</p>
+<h3>5.2 Robotwin 2.0 simulation generalization</h3>
+<p>The author selects four tasks from Robotwin 2.0: Move Can Pot, Pick Dual Bottles, Place Empty Cup, Place Shoe. Easy mode is the seen/no-noise setting and Hard mode is the unseen/noisy setting. The target image is passed through a fixed environment seed, and the final state is extracted from the successful trajectory as the goal condition.</p>
+<div class="scroll">
+<table>
+<tr><th>Mode</th><th>Model</th><th>Move Can</th><th>Pick Bottles</th><th>Place Cup</th><th>Place Shoe</th></tr>
+<tr><td rowspan="4">Easy</td><td>DP-GC</td><td>0.18</td><td>0.04</td><td>0.03</td><td>0.04</td></tr>
+<tr><td>$\pi_{0.5}$-GC</td><td>0.54</td><td>0.13</td><td>0.16</td><td>0.30</td></tr>
+<tr><td>HyperGoalNet</td><td>0.11</td><td>0.08</td><td>0.08</td><td>0.01</td></tr>
+<tr><td><strong>Act2Goal</strong></td><td><strong>0.62</strong></td><td><strong>0.80</strong></td><td><strong>0.64</strong></td><td><strong>0.52</strong></td></tr>
+<tr><td rowspan="4">Hard</td><td>DP-GC</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+<tr><td>$\pi_{0.5}$-GC</td><td><strong>0.42</strong></td><td>0.06</td><td>0.04</td><td>0.06</td></tr>
+<tr><td>HyperGoalNet</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+<tr><td><strong>Act2Goal</strong></td><td>0.13</td><td><strong>0.43</strong></td><td><strong>0.13</strong></td><td><strong>0.15</strong></td></tr>
+</table>
+</div>
+<p>Act2Goal is best in all Easy tasks; best in Hard mode except Move Can. This result supports the paper's claim that world model + MSTH is helpful for OOD long-term scenarios, but it also shows that not all hard scenarios beat $\pi_{0.5}$-GC.</p>
+<h3>5.3 Generalization to real robots</h3>
+<div class="figure">
+<img alt="Real world task configurations" src="figures/x4.png"/>
+<div class="caption"><strong>Figure 4.</strong> Authentic assessment tasks: Whiteboard Word Writing, Dessert Plating, Plug-In Operation, each task has ID and OOD configuration.</div>
+</div>
+<table>
+<tr><th>Setting</th><th>Model</th><th>Whiteboard Word Writing</th><th>Dessert Plating</th><th>Plug-In Operation</th></tr>
+<tr><td rowspan="4">ID</td><td>DP-GC</td><td>0.00</td><td>0.10</td><td>0.00</td></tr>
+<tr><td>$\pi_{0.5}$-GC</td><td>0.23</td><td>0.18</td><td>0.00</td></tr>
+<tr><td>HyperGoalNet</td><td>0.00</td><td>0.08</td><td>0.00</td></tr>
+<tr><td><strong>Act2Goal</strong></td><td><strong>0.93</strong></td><td><strong>0.75</strong></td><td><strong>0.45</strong></td></tr>
+<tr><td rowspan="4">OOD</td><td>DP-GC</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+<tr><td>$\pi_{0.5}$-GC</td><td>0.20</td><td>0.05</td><td>0.00</td></tr>
+<tr><td>HyperGoalNet</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+<tr><td><strong>Act2Goal</strong></td><td><strong>0.90</strong></td><td><strong>0.48</strong></td><td><strong>0.30</strong></td></tr>
+</table>
+<p>Three types of tasks respectively test different abilities: whiteboard writing requires long-range stroke combinations, and OOD is training unseen words; dessert plate placement requires fine-grained spatial arrangement according to the target image, OOD introduces dessert types, plate styles, and background changes; Plug-In ID requires inserting metal artifacts seen in training, and OOD involves inserting cylindrical beverage bottles into cup holders.</p>
+<p>The appendix adds details of real tasks: when writing/painting, the marker is first manually placed in the clamping claw. During long writing trials, the marker will slide, so it is fixed with tape; in bearing insertion, the bearing exceeds 2 kg, the diameter of the bottom is about 1 cm, and the diameter of the hole is about 1.5 cm; the dessert plate uses silicone toy desserts to ensure repeatability <span class="appendix-ref">Appendix A.2</span>. </p>
+<h3>5.4 Online self-improvement</h3>
+<div class="figure">
+<img alt="Online improvement scenarios" src="figures/x5.png"/>
+<div class="caption"><strong>Figure 5.</strong> Four OOD hard scenarios for online self-improvement in Robotwin 2.0.</div>
+</div>
+<div class="figure">
+<img alt="Robotwin online training performance" src="figures/x6.png"/>
+<div class="caption"><strong>Figure 6.</strong> Simulation online training: The success rate continues to increase after multiple rounds of training, and converges after about 3 rounds; a comparison of data selection strategies for replay buffers shows that using all rollouts is the best, and failed-only rollouts can also bring improvement.</div>
+</div>
+<p>In the simulation, the author selected one scenario from each of the four hard-mode tasks to perform multiple rounds of online training. The text of the paper gives a qualitative conclusion: it converges after about 3 rounds, and the maximum success rate can be increased up to 8 times that of the pre-training baseline; using all rollouts is better than using only successful or failed rollouts. This result is consistent with HER logic: failure trajectories also contain learnable achieved-goal transitions.</p>
+<div class="figure">
+<img alt="Real world online drawing improvement" src="figures/x7.png"/>
+<div class="caption"><strong>Figure 7.</strong> Real whiteboard unseen pattern online training: progressive improvement from poor initial drawings. The main text also reports that the OOD Plug-In success rate improves from 0.30 to 0.90 with online training.</div>
+</div>
+<h3>5.5 MSTH ablation</h3>
+<table>
+<tr><th>Setting</th><th>Model</th><th>Short (≤3 letters)</th><th>Medium (4-6 letters)</th><th>Long (≥7 letters)</th></tr>
+<tr><td rowspan="2">ID</td><td>w/o MSTH</td><td>0.95</td><td>0.35</td><td>0.10</td></tr>
+<tr><td><strong>w/ MSTH</strong></td><td><strong>0.95</strong></td><td><strong>0.90</strong></td><td><strong>0.90</strong></td></tr>
+<tr><td rowspan="2">OOD</td><td>w/o MSTH</td><td>0.60</td><td>0.20</td><td>0.00</td></tr>
+<tr><td><strong>w/ MSTH</strong></td><td><strong>0.93</strong></td><td><strong>0.90</strong></td><td><strong>0.88</strong></td></tr>
+</table>
+<p>This table is the strongest evidence supporting MSTH: fixed horizon chunking is okay for short words, but it collapses quickly when the words become longer, especially OOD long words, which is 0.00; MSTH still maintains 0.90/0.88 for long words in ID/OOD. The explanation is that the fixed horizon is more prone to goal confusion as the sequence becomes longer, while the distal sparse anchors of MSTH maintain the goal direction.</p>
+</section>
+<section id="reproduce">
+<h2>6. Reproducible auditing</h2>
+<h3>6.1 Data, training resources and model scale</h3>
+<table>
+<tr><th>Project</th><th>Paper/Appendix Information</th><th>recurring meaning</th></tr>
+<tr><td>training data</td><td>AgiBot World dataset + small proprietary dataset. </td><td>The core real data is not fully disclosed, and it is difficult to strictly reproduce the experiment.</td></tr>
+<tr><td>world model initialization</td><td>Pre-trained 1.6B parameter Genie Envisioner.</td><td>Requires available Genie Envisioner weights or equivalent video world model.</td></tr>
+<tr><td>Stage 1</td><td>Fine-tuning pre-trained world model, 7×24 hours, 16×A800.</td><td>The amount of calculation is huge and cannot be easily reproduced with a single card.</td></tr>
+<tr><td>Stage 2</td><td>End-to-end behavioral cloning, 48 hours, 16×A800.</td><td>Offline training resources are still high.</td></tr>
+<tr><td>deploy</td><td>AgiBot Genie-01 + RTX 4090; 50 executable actions with 200 ms latency.</td><td>Inference deployment gives a clearer hardware caliber.</td></tr>
+<tr><td>online learning</td><td>LoRA rank 64, buffer size 20, 10 epochs per round, about 5 minutes.</td><td>The online stage is relatively lightweight and can be used as the first module to be reproduced.</td></tr>
+</table>
+<h3>6.2 Evaluation Caliber</h3>
+<ul>
+<li>Real-world success rates are manually annotated with 40 model rollouts per experiment.</li>
+<li>The simulation success rate is automatically calculated with 90 rollouts per experiment.</li>
+<li>In the online self-improvement experiment, the author saves the model weights after each round of training, and evaluates these checkpoints separately after the online process is completed.</li>
+</ul>
+<h3>6.3 Minimum recurrence route</h3>
+<ol>
+<li>First implement the visual goal-conditioned policy baseline in simulation: current image + goal image + proprio state → action chunk.</li>
+<li>Connect to a pre-trained video/world model, change it to current observation + goal image condition, and output transition latent frames.</li>
+<li>Implement MSTH: near-end dense frames, far-end log-spaced distal frames; action-end prediction of dense proximal actions + sparse distal guidance actions.</li>
+<li>Use Stage 1 $\mathcal{L}_v + 0.1\mathcal{L}_a$ for joint training, and then use Stage 2 $\mathcal{L}_a$ for action adaptation.</li>
+<li>First, reproduce the four tasks of Robotwin 2.0; reproducibility on a real machine requires a robot platform, target image acquisition and a safe reset pipeline.</li>
+<li>Finally, online HER + LoRA is implemented: train for 10 epochs after buffering to 20, only update LoRA, and compare all/success/failure rollout strategies.</li>
+</ol>
+<h3>6.4 Main recurring risks</h3>
+<table>
+<tr><th>risk</th><th>Reason</th><th>Suggestions</th></tr>
+<tr><td>Data not fully available</td><td>Training relies on AgiBot World and proprietary data.</td><td>First use public simulation data to verify MSTH/online adaptation instead of pursuing absolute values.</td></tr>
+<tr><td>world model cost is high</td><td>1.6B Genie Envisioner + 16×A800 training.</td><td>Use a smaller video latent diffusion/world model to reproduce the structure.</td></tr>
+<tr><td>Real machine setup details affect the results</td><td>Marker fixation, bearing size, and silicone desserts all affect experimental reproducibility.</td><td>Document end-effector/tool mounting, object material, initial position and reset strategy.</td></tr>
+<tr><td>Online learning safety</td><td>Self-collecting rollouts may cause collisions or incorrect behavior.</td><td>Deploy replay relabeling in simulation first, and then migrate to low-risk real tasks.</td></tr>
+</table>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part of this article is that it concretizes the long-term problem of visual goal strategy: instead of just letting the policy see the goal image, it first constructs a visual intermediate route that "evolves toward the goal", and then compresses this route into a control-friendly multi-scale representation. The idea of ​​MSTH is simple but effective: it should be dense near and sparse far away; proximal actions are executed, and far-end actions are only constrained.</p>
+<p>The second value point is that the online self-improvement process is sufficiently engineered. HER-style relabeling + LoRA is very practical on real robots: no reward function is required, and no manual labeling is required at each step. Failure trajectories can also be converted into training signals through achieved-goal relabeling.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li><strong>There are levels of task coverage: </strong>Simulation Robotwin 2.0, real writing, dessert plating, and insertion operations cover different difficulties.</li>
+<li><strong>OOD settings are explicit: </strong>Unseen words, visual changes to desserts/plates/backgrounds, migration from bearing insert to cup holder insert.</li>
+<li><strong>MSTH ablation is strong: </strong>Writing long words on the whiteboard w/o MSTH almost fails, while w/ MSTH maintains a high success rate, directly supporting the core of the method.</li>
+<li><strong>The evidence for online training is consistent: </strong>Simulation multi-round improvement, real unseen drawing improvement, Plug-In OOD from 0.30 to 0.90, in the same direction.</li>
+</ul>
+<h3>7.3 Limitations and points that need to be questioned</h3>
+<table>
+<tr><th>question</th><th>influence</th></tr>
+<tr><td>Insufficient training data and code availability</td><td>The paper is given to the project page, but the arXiv/project page does not show the public code; the core training data contains a proprietary dataset, making complete reproducibility difficult.</td></tr>
+<tr><td>Part of the source code still contains the author's internal comments</td><td>There are many modification comments and comments in the LaTeX source code, indicating that the paper may still be in a state of rapid iteration; readers should refer to the final PDF result.</td></tr>
+<tr><td>Real-world evaluation sample size is limited</td><td>40 rollouts per real experiment is enough to show trends, but more statistical confidence intervals are still needed for high variance real machine tasks.</td></tr>
+<tr><td>Whether the world model is truly causally controllable has not yet been fully proven.</td><td>The generated intermediate visual trajectory looks reasonable, but its specific contribution to action success is mainly reflected through overall ablation, lacking more detailed representation/attention analysis.</td></tr>
+<tr><td>Online self-improvement dependent environment reset</td><td>Each round takes about 5 minutes and includes rollout, backpass, and reset; the cost of reset may become a bottleneck in a real open environment.</td></tr>
+</table>
+<h3>7.4 Questions that can be asked in group meetings</h3>
+<ol>
+<li>How to choose MSTH's $K, P, r, M$? Do different tasks require adaptive time scales instead of fixed log spacing?</li>
+<li>Remote actions are not executed, but only serve as guidance. Where does their supervision come from, and is it possible that it may conflict with the near-end execution of actions?</li>
+<li>Stage 2 only optimizes action loss, but the gradient is also passed back to the world model. Will this reduce the realism of the video generated by the world model and only retain action-useful features? Is this an advantage or a risk?</li>
+<li>HER relabeling treats $o'$ as goal, but if the action results in a collision or meaningless state, will this relabeling reinforce bad behavior? all rollouts best illustrates that the model may be able to absorb noise, but where are the boundaries?</li>
+<li>Compared to directly using goal image + transformer memory for long context control, is the additional generation cost of GCWM necessary for all tasks?</li>
+</ol>
+</section>
+<section id="audit">
+<h2>Attachment: This report covers inspections</h2>
+<div class="audit-card">
+<p><span class="pass">Covered: </span>Abstract, Introduction, Related Works, Methods, Experiments, Conclusion, and implementation details, real task settings, and test metrics in the appendix.</p>
+<p><span class="pass">Chart processing: </span>The PNG image rendered using arXiv HTML is saved in <code>figures/</code>; Key tables have been rebuilt into HTML.</p>
+<p><span class="warn">Residual risk: </span>No official code repository was found; the training data part is proprietary, and the reproducibility route in the report is a structural-level reproducibility suggestion, which is not equivalent to a complete numerical reproducibility.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

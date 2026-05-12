@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Say, Dream, and Act - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Say, Dream, and Act: Learning Video World Models for Instruction-Driven Robot Manipulation</h1>
+<div class="meta">
+<p><strong>arXiv: </strong> 2602.10717</p>
+<p><strong>Authors: </strong> Songen Gu, Yunuo Cai, Tianyu Wang, Simo Wu, Yanwei Fu</p>
+<p><strong>Affiliations: </strong> Fudan University</p>
+<p><strong>Report positioning: </strong> A Reading Report prepared for junior PhD group meetings, focusing on explaining method details, experimental design, appendix definitions and reproducible information.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Research questions and motivations</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#repro">6. reproducibility Key Points</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+ The core idea of this paper is to turn the video-generated world model into a "future imagineer" for robot strategies: first use instructions and current observations to generate future key frames, and then let an action model use these imagined frames and real historical observations as context to output executable action blocks. The author named the system <strong>Dream4manip</strong>, corresponding to <strong>Say, Dream, and Act</strong> Three steps.
+ </div>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>Solve the problem of "language can clearly explain the goal, but the strategy is difficult to predict the evolution of the environment" in the operation of command-driven robots. The VLM/VLA model can understand task semantics, but it does not naturally have the ability to stably predict future objects, grippers, and spatial relationships; existing world models often have problems such as short field of view, slow generation, spatial inconsistency, and difficulty in receiving low-level actions.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>The starting point is to adapt the general video generation model to the robot world model and let it serve the action model. Specifically, it includes: selecting Cosmos-Predict2 that is more suitable for robot scenarios; using domain adaptation and latent adversarial distillation for fast video generation in few steps; compressing arbitrarily long trajectories into fixed key frames; training in-context conditioned action model to use generated videos as examples rather than hard constraints.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>On LIBERO, Dream4manip used a 1.22B scale model to achieve a total success rate of 98.1% reported in the table, exceeding baselines such as OpenVLA-OFT, UniVLA, pi0, GR00t N1, DreamVLA, etc.; after world model adaptation, FVD dropped from the original 571.46 of Cosmos-2B to 211.84, and DA+Dis improved in SSIM, PSNR, and LPIPS. This further improves and supports reasoning with fewer denoising steps.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>Don't just read it as "video generation plus robot control". The key is three interface designs: first, the generation model is filtered with spatial consistency indicators; second, the video is compressed into key frames to avoid strict alignment of action steps and video frames; third, the action model looks at the generated future and real historical observations at the same time, and uses real observations to correct the generation errors. Therefore, whether the results are credible depends on the quality of the world model, the conditional method from video to action, and whether the closed-loop execution can truly alleviate the generation error.</td>
+</tr>
+</tbody>
+</table>
+<div class="grid">
+<div class="audit-card">
+<h3>Contribution in one sentence</h3>
+<p>The author proposes a robot operation framework composed of a video world model and an in-context action model, which allows the strategy to "dream" the future state before execution, and then use the future state as the context to convert it into actions.</p>
+</div>
+<div class="audit-card">
+<h3>method keywords</h3>
+<p>
+<span class="pill">Video World Model</span>
+<span class="pill">Cosmos-Predict2</span>
+<span class="pill">Latent Adversarial Distillation</span>
+<span class="pill">Length-Agnostic Keyframes</span>
+<span class="pill">In-Context Action Model</span>
+</p>
+</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Research questions and motivations</h2>
+<h3>2.1 Why robots need "future imagination"</h3>
+<p>The difficulty of command-driven operations is not just parsing language into targets, but inferring "if I move like this, how will the object, gripper, and target area change" in complex scenarios. Traditional VLA or VLM-based policy tends to map images and language directly to actions, but lacks explicit future state prediction and is prone to errors in spatial relationships, object references, and long task combinations.</p>
+<p>The intuition of the world model is to predict the future as an intermediate variable: if the model can generate the future visual state during task completion, the action policy does not have to guess the action based on the current image alone, but can refer to an "expected trajectory". This paper attempts to demonstrate that high-quality video generation models, adapted to the robotics domain, can become future contexts that low-level strategies can exploit.</p>
+<h3>2.2 Gaps in the existing video world model</h3>
+<p>There are three main categories of gaps identified by the authors. First, many robot world models can only predict a short horizon or a small number of frames, making it difficult to express the complete task progress. Second, although general video generation models have high visual quality, they are prone to inconsistencies in robot embodiment, gripper morphology, camera perspective, and object interaction. Third, the video generation diffusion model is slow to infer and is not suitable for closed-loop robot control.</p>
+<p>Therefore, the technical route of this article is not to train a small world model from scratch, but to select a more usable base for robot scenes from a large-scale video model, then use domain adaptation and distillation to make it faster and more stable, and limit the generation error within a controllable range through the conditional design of the action model.</p>
+<figure>
+<img alt="Dream4manip pipeline" src="figures/figs_pipeline.png"/>
+<figcaption>Figure 1. The overall pipeline given in the paper: the left side is the domain adaptation and distillation of the world model, and the right side is the closed-loop policy. When executed, the world model generates future frames based on current observations and language instructions; the action model outputs future frames, real observations, and instructions together as context output actions.</figcaption>
+</figure>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<h3>3.1 Action model and VLA policy</h3>
+<p>In related work, the author puts ACT, Diffusion Policy, RT-2, OpenVLA, pi0, GR00T, etc. on a line: these methods can already connect vision, language and action, but in many cases still rely on predicting actions directly from current observations. For operations that require spatial reasoning or multi-step planning, language semantics alone are not enough; the model also needs to know how the environment evolves with the operation.</p>
+<p>This is also the difference between this article and pure VLA: Dream4manip does not use VLM only as an action predictor, but first introduces an explicit world model to generate a future visual state, and then conditions the action model on this future state.</p>
+<h3>3.2 Video world model for robotics</h3>
+<p>The authors discuss robot world model or video prediction work such as UniPi, Seer, GVF-TAPE, Unified Video Action Model, LaDi-WM, FLARE, etc. Together, these methods illustrate that "predicting future scenes" is valuable for robot planning, but also exposes problems such as short horizon, insufficient video quality, unstable spatial consistency, slow inference speed, or difficulty in translating into low-level actions.</p>
+<p>This paper uses general video generation models as a starting point because they have learned stronger spatiotemporal priors on large-scale video data. The real research question becomes: How to decide which model is suitable for a robot? How to adapt this to the robot embodiment? How can I generate future frames fast enough that can be used for control?</p>
+<h3>3.3 Diffusion distillation</h3>
+<p>In terms of diffusion model acceleration, the author draws on ideas such as progressive distillation, trajectory-preserving distillation, adversarial diffusion distillation, LADD, SV-F, etc., but places the discriminator on the latent video representation and uses the DiT backbone of Cosmos-Predict2 as the source of discriminator initialization. The goal of this design is to make few-step generation not only fast, but also preserve the spatial and interactive consistency that is most important in robot operation.</p>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall Framework: Say, Dream, and Act</h3>
+<p>The structure of Dream4manip can be broken down into three stages: </p>
+<ol>
+<li><strong>Say: World Model. </strong>Generate task-relevant future videos based on verbal instructions and current observations. The key here is to choose a more stable base on the robot video and do domain adaptation and distillation.</li>
+<li><strong>Dream: Length-Agnostic World Imagination. </strong>Compress any long demonstration track into a fixed number of key frames, so that the video imagination does not need to be aligned with the action execution steps one by one.</li>
+<li><strong>Act: In-Context Conditioned Action Model. </strong>The generated future frames are used as context examples, and the action blocks are output based on real historical observations. The responsibility of this action model is to transfer the "imagined state trajectory" to the actual robot action.</li>
+</ol>
+<h3>4.2 Say: Select and adapt world model</h3>
+<p>The author first compares multiple image-to-video models. The focus is not on general visual aesthetics, but on the four more critical capabilities in robot operation: emodiment consistency, referring success, interaction success and task completion. Based on these indicators, the paper selects Cosmos-Predict2 as the basic model, especially emphasizing that Cosmos-2B is stable in reference and interaction, and its computational cost is lower than the 14B model.</p>
+<p>In the adaptation phase, the diffusion transformer \(T_\theta\) of Cosmos-Predict2 receives the noisy latent \(x_t\) and the conditional \(cond\), and outputs the denoised latent \(\hat{x}_0\). The image-to-video condition is injected into \(x_t^{cond}\) by replacing the first frame with clean latent. The form of denoising used in paper writing is: </p>
+<div class="formula-block">
+ $$\hat{x}_0 = c_{\mathrm{skip}} x_t + c_{\mathrm{out}} D_\theta(c_{\mathrm{in}} x_t^{cond}, cond)$$
+ $$c_{\mathrm{skip}}=(\sigma_t+1)^{-1}, \quad c_{\mathrm{out}}=-\frac{\sigma_t}{\sigma_t+1}, \quad c_{\mathrm{in}}=c_{\mathrm{skip}}, \quad c_{\mathrm{noise}}=-c_{\mathrm{out}}$$
+ </div>
+<p>The noise schedule used by few-step distillation is: </p>
+<div class="formula-block">
+ $$\sigma_t = \left(\sigma_{\min}^{1/p} + \frac{t}{T_g}\left(\sigma_{\max}^{1/p}-\sigma_{\min}^{1/p}\right)\right)^p$$
+ </div>
+<p>The default value in the experiment is \(T_g=8\). The function of this formula is to compress the original multi-step denoising trajectory into a small number of generation steps, so that the world model can be closer to the closed-loop control requirements.</p>
+<h3>4.3 Latent adversarial distillation</h3>
+<p>The distillation of the paper is not simply to perform regression on pixels, but to introduce adversarial learning in the latent space. The discriminator \(D\) is initialized by the pretrained DiT weights of Cosmos-Predict2, and is connected to the intermediate features with lightweight 3D convolution heads to output a pixel-wise score map. Freezing the DiT backbone during training and optimizing only the convolution head is equivalent to reusing the existing video prior of the base model to determine whether the generated latent resembles the real latent.</p>
+<p>The goal of the discriminator is to judge the clean latent \(x_0\) as positive and the \(\hat{x}_0\) obtained by denoising the generator as negative. In order to avoid the discriminator only seeing artifacts that are too easy, the paper adds additional noise before inputting the discriminator: let \(\log(\sigma') \sim \mathcal{N}(0, 1)\), diffuse \(x_0\) and \(\hat{x}_0\) into \(x'\) and \(\hat{x}'\). The discriminator and generator losses are: </p>
+<div class="formula-block">
+ $$\mathcal{L}_{adv}^{D}=\mathbb{E}\left[\mathrm{ReLU}(1-D(x'))+\mathrm{ReLU}(1+D(\hat{x}'))\right]$$
+ $$\mathcal{L}_{adv}^{G}=\mathbb{E}\left[-D(\hat{x}')\right]$$
+ </div>
+<p>While retaining reconstruction loss: </p>
+<div class="formula-block">
+ $$\mathcal{L}_{rec}=\|\hat{x}_0-x_0\|_2^2 \cdot \frac{(1+\sigma_t)^2}{\sigma_t^2}, \qquad
+ \mathcal{L}_{G}=\lambda \mathcal{L}_{adv}^{G}+\mathcal{L}_{rec}$$
+ </div>
+<p>Default \(\lambda=0.1\). The paper highlights that reconstruction loss is also used for domain adaptation in the same training iteration, where \(\log(\sigma)\sim\mathcal{N}(0, 1)\). This means that domain adaptation and few-step distillation are not two completely separate training objectives, but jointly constrain video quality and domain matching in the same generator update.</p>
+<h3>4.4 Dream: Keyframe imagination for trajectories of arbitrary length</h3>
+<p>The length of the robot demonstration trajectory will vary with the task and execution strategy. If video frames and action steps are required to be strictly aligned, the world model can easily be dragged down by different task lengths. This article uses a simple but critical compression function \(S(\tau)\) to compress the trajectory \(\tau\) into a fixed number of key frames: </p>
+<div class="formula-block">
+ $$S(\tau)=\{x_{t_i}\}_{i=1}^{n}, \qquad t_i=\left\lfloor \frac{i}{n}T \right\rfloor, \qquad n\ll T$$
+ </div>
+<p>\(n=93\) was used in the experiment. The significance of this step is to let the world model learn a "visual summary of task progress" rather than the precise frames of each step under a fixed control frequency. For the action model, the generated video is more like a future example that can be referenced rather than a trajectory that must be followed frame by frame.</p>
+<h3>4.5 Act: In-context conditioned action model</h3>
+<p>The core design of the Action model is to use the generated video as an in-context example. The input includes language instructions, generated future key frames and real historical observations, and the action chunk corresponding to each observation is output. This has two benefits: first, the generated video provides high-level task progress and goal status; second, real historical observations retain the actual robot and scene geometry, which is used to correct the spatial error of the world model.</p>
+<figure>
+<img alt="In-context conditioned action model" src="figures/figs_action-model.png"/>
+<figcaption>Figure 2. Action model structure. The paper uses the transformer backbone inherited from ACT and uses separate vision encoders to process videos and observations. The model outputs an action chunk for each observation.</figcaption>
+</figure>
+<p>From the perspective of the group meeting, this design is the interface that needs to be explained most clearly in this article: the world model does not directly output actions, nor does it require future videos to be completely real; it gives the visual context of "where the task should go", and the action model then generates actions in a closed loop based on real observations.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Experimental setup</h3>
+<p>Simulation experiments are mainly conducted on the LIBERO benchmark, covering four types of tasks: Spatial, Object, Goal, and Long. The paper describes that each task suite has about 500 training samples, and uses 10 test subtask samples for each suite during testing, each executed 50 times, that is, 500 test runs per suite. The real robot experiment uses Franka 7-DoF robotic arm, Intel RealSense D435 third-view camera, and collects teleoperation data through 3Dconnexion SpaceMouse.</p>
+<p><span class="appendix-ref">[Appendix]</span> The appendix gives detailed definitions of spatial referring indicators, which are important for understanding world model screening: EC looks at whether the embodiment is consistent in all frames; RSR looks at whether the generated robot moves more than half the distance toward the correct color object; ISR looks at whether the correct target is successfully grasped, and excludes non-contact movement, failure to approach the target or serious distortion of the gripper; TCR/TSR looks at whether the target object is finally placed correctly into the wooden box.</p>
+<h3>5.2 World model quality</h3>
+<p>The author first evaluates the adapted Cosmos-2B world model on different LIBERO tasks. Indicators cover FVD, SSIM, PSNR, and LPIPS, which measure video distribution, structural similarity, pixel reconstruction quality, and perceptual difference respectively.</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>FVD ↓</th>
+<th>SSIM ↑</th>
+<th>PSNR ↑</th>
+<th>LPIPS ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>L-10</td><td>104.00</td><td>0.82 ± 0.10</td><td>21.44 ± 6.97</td><td>0.06 ± 0.05</td></tr>
+<tr><td>L-Object</td><td>177.04</td><td>0.89 ± 0.05</td><td>25.30 ± 5.47</td><td>0.04 ± 0.03</td></tr>
+<tr><td>L-Spatial</td><td>119.32</td><td>0.85 ± 0.09</td><td>25.16 ± 6.14</td><td>0.03 ± 0.03</td></tr>
+<tr><td>L-Goal</td><td>127.86</td><td>0.88 ± 0.07</td><td>26.12 ± 6.06</td><td>0.03 ± 0.02</td></tr>
+</tbody>
+</table>
+<p>More critical is the comparison with other video models and training variants: </p>
+<table>
+<thead>
+<tr>
+<th>model</th>
+<th>FVD ↓</th>
+<th>SSIM ↑</th>
+<th>PSNR ↑</th>
+<th>LPIPS ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>WAN2.2-14B</td><td>714.24</td><td>0.63 ± 0.15</td><td>21.49 ± 3.98</td><td>0.11 ± 0.05</td></tr>
+<tr><td>WAN2.2-14B-Dis</td><td>578.62</td><td>0.62 ± 0.18</td><td>21.58 ± 4.46</td><td>0.09 ± 0.06</td></tr>
+<tr><td>C-2B</td><td>571.46</td><td>0.70 ± 0.10</td><td>22.09 ± 5.78</td><td>0.11 ± 0.05</td></tr>
+<tr><td>C-14B</td><td>522.66</td><td>0.67 ± 0.11</td><td>21.56 ± 5.95</td><td>0.12 ± 0.05</td></tr>
+<tr><td>C-14B-Droid-F.T.</td><td>1098.24</td><td>0.23 ± 0.04</td><td>14.73 ± 0.67</td><td>0.26 ± 0.05</td></tr>
+<tr><td>C-2B-DA</td><td><strong>211.84</strong></td><td>0.82 ± 0.09</td><td>25.19 ± 5.48</td><td>0.05 ± 0.03</td></tr>
+<tr><td>C-2B-DA+Dis</td><td>238.09</td><td><strong>0.84 ± 0.11</strong></td><td><strong>26.82 ± 6.18</strong></td><td><strong>0.04 ± 0.04</strong></td></tr>
+</tbody>
+</table>
+<p>One detail should be noted here: the FVD of DA+Dis is slightly higher than that of DA, but SSIM, PSNR, and LPIPS are better, and it supports less-step reasoning. The authors therefore view DA+Dis as a more practical compromise between quality and speed.</p>
+<figure>
+<img alt="World model qualitative comparison" src="figures/figs_flaws-WM.png"/>
+<figcaption>Figure 3. Qualitative comparison of different video models on "Move the blue block into the wooden box". The paper uses this figure to illustrate that the general model may have gripper embodiment errors, multi-view/camera mismatches or instruction understanding failures; Cosmos-2B after domain adaptation is closer to the real embodiment.</figcaption>
+</figure>
+<h3>5.3 Spatial reference capability screening</h3>
+<p>The paper uses percentage indicators such as EC, RSR, ISR, TSR/TCR to compare image-to-video models. The purpose of this experiment is not to evaluate the final robot success rate, but to illustrate why the Cosmos series was chosen, especially why it is not simply assumed that large models or DROID fine-tuning are necessarily better.</p>
+<table>
+<thead>
+<tr>
+<th>model</th>
+<th>EC ↑</th>
+<th>RSR ↑</th>
+<th>ISR ↑</th>
+<th>TSR/TCR ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Cosmos-2B</td><td>1.58</td><td><strong>96.00</strong></td><td><strong>86.00</strong></td><td>70.00</td></tr>
+<tr><td>Cosmos-14B</td><td><strong>1.62</strong></td><td>90.00</td><td>82.00</td><td><strong>76.00</strong></td></tr>
+<tr><td>Cosmos-14B-Droid</td><td>1.58</td><td>78.00</td><td>58.00</td><td>34.00</td></tr>
+<tr><td>Wan-14B</td><td>1.56</td><td>54.00</td><td>44.00</td><td>20.00</td></tr>
+</tbody>
+</table>
+<p><span class="appendix-ref">[Appendix]</span> The paper also adds the OOD spatial referring test of the selected world model, but this part of the appendix has less details. It is mainly used to supplement the explanation that the world model has additional tests on color/spatial referencing, rather than as the main conclusion pillar.</p>
+<h3>5.4 LIBERO closed-loop strategy results</h3>
+<p>The final evaluation looks at the task success rate of Dream4manip as policy. In the table, Dream4manip uses 1.22B scale and achieves a high success rate on all four LIBERO suites.</p>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>Parameter scale</th>
+<th>Spatial</th>
+<th>Object</th>
+<th>Goal</th>
+<th>Long</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>OpenVLA</td><td>7B</td><td>84.7</td><td>88.4</td><td>79.2</td><td>53.7</td><td>76.5</td></tr>
+<tr><td>OpenVLA-OFT</td><td>7B</td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+<tr><td>CoT-VLA</td><td>7B</td><td>87.5</td><td>91.6</td><td>87.6</td><td>69.0</td><td>81.1</td></tr>
+<tr><td>UniVLA</td><td>7B</td><td>96.5</td><td>96.8</td><td>95.6</td><td>92.0</td><td>95.2</td></tr>
+<tr><td>WorldVLA</td><td>7B</td><td>87.6</td><td>85.2</td><td>75.1</td><td>54.1</td><td>74.8</td></tr>
+<tr><td>4D-VLA</td><td>4B</td><td>88.9</td><td>95.2</td><td>90.9</td><td>79.1</td><td>88.6</td></tr>
+<tr><td>SpatialVLA</td><td>4B</td><td>88.2</td><td>95.2</td><td>90.9</td><td>79.1</td><td>88.6</td></tr>
+<tr><td>pi0</td><td>3B</td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+<tr><td>pi0-FAST</td><td>3B</td><td>96.4</td><td>96.8</td><td>88.6</td><td>60.2</td><td>85.5</td></tr>
+<tr><td>SmolVLA</td><td>2.25B</td><td>93.0</td><td>94.0</td><td>91.0</td><td>77.0</td><td>88.8</td></tr>
+<tr><td>GR00t N1</td><td>2B</td><td>94.4</td><td>97.6</td><td>93.0</td><td>90.6</td><td>93.9</td></tr>
+<tr><td>DreamVLA</td><td>0.57B</td><td>97.5</td><td>94.0</td><td>89.5</td><td>89.5</td><td>92.6</td></tr>
+<tr><td><strong>Dream4manip</strong></td><td>1.22B</td><td><strong>99.4</strong></td><td><strong>99.2</strong></td><td><strong>98.2</strong></td><td><strong>95.4</strong></td><td><strong>98.1</strong></td></tr>
+</tbody>
+</table>
+<p>You can use this table as the main result in the group meeting: The advantage of Dream4manip does not come from the maximum parameter size, but from the closed-loop conditionalization of the future context of the world model and the action model. In particular, the success rate of 95.4 in the Long task shows that "future imagination" does not just provide visual decoration for long tasks, but may actually help model task progress.</p>
+<figure>
+<img alt="LIBERO generated videos" src="figures/figs_libero_gen_vis.png"/>
+<figcaption>Figure 4. LIBERO qualitative generation results. The red box represents the conditioning frame, and the rest are generated frames. This figure is used to demonstrate the visual prediction capabilities of the world model on different tasks.</figcaption>
+</figure>
+<h3>5.5 Denoising steps</h3>
+<p>The authors also studied the speed and quality of Cosmos-Predict2 2B at different denoising steps. The core conclusion is that 10 steps has reached a relatively reasonable quality-speed trade-off, and continuing to increase to 20 or 35 steps results in limited quality improvement but a significant increase in time.</p>
+<table>
+<thead>
+<tr>
+<th>D</th>
+<th>Time ↓</th>
+<th>FVD ↓</th>
+<th>SSIM ↑</th>
+<th>PSNR ↑</th>
+<th>LPIPS ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>10.72s</td><td>1128.10</td><td>0.54 ± 0.14</td><td>17.89 ± 6.95</td><td>0.20 ± 0.07</td></tr>
+<tr><td>5</td><td>19.43s</td><td>1445.19</td><td>-0.02 ± 0.29</td><td>12.43 ± 8.43</td><td>0.30 ± 0.10</td></tr>
+<tr><td>10</td><td>29.80s</td><td>579.90</td><td>0.70 ± 0.09</td><td>22.10 ± 5.78</td><td>0.11 ± 0.05</td></tr>
+<tr><td>20</td><td>52.59s</td><td>496.06</td><td>0.72 ± 0.09</td><td>22.48 ± 5.67</td><td>0.10 ± 0.04</td></tr>
+<tr><td>35</td><td>86.20s</td><td>488.06</td><td>0.72 ± 0.09</td><td>22.39 ± 5.70</td><td>0.10 ± 0.04</td></tr>
+</tbody>
+</table>
+<p>A point worth asking is: the generation time of 10 steps in the table is still close to 30 seconds, which is not low enough for real high-frequency closed-loop control. Therefore, "fast" in this article is mainly relative to the number of original diffusion generation steps, rather than fully satisfying real-time robot control.</p>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Data and evaluation</h3>
+<ul>
+<li><strong>Simulation data: </strong> LIBERO four types of suites, including Spatial, Object, Goal, and Long. The training sample size is approximately 500 per suite as described in the paper, and the test is executed 500 times per suite.</li>
+<li><strong>Real robot: </strong> Franka 7-DoF, RealSense D435 third-person perspective, SpaceMouse teleoperation acquisition.</li>
+<li><strong>World model filter: </strong> Use EC, RSR, ISR, TSR/TCR, and not just look at general video indicators such as FVD/SSIM.</li>
+<li><strong>Policy evaluation: </strong> The key is the closed-loop execution success rate, not offline action prediction loss.</li>
+</ul>
+<h3>6.2 World model training configuration</h3>
+<p>The implementation of the paper is based on Cosmos-Predict2, the optimizer is FusedAdamW, the learning rate is \(2^{-14.5}\), \(\lambda\) uses linear scheduler, warm-up is 0, single-cycle length is 1000, \(f_{\max}=0.6\), \(f_{\min}=0\), uses FSDP, context parallel size 2, and enables EMA. The world model is trained on LIBERO for 10, 000 iterations and on real-world data for 1, 000 iterations.</p>
+<h3>6.3 Action model training configuration</h3>
+<p>The Action model initializes VLM to Qwen2.5, LoRA rank to 64, uses 8 GPUs, and has a total batch size of 128. During training, future video predictions are used as context, and 8 frames of historical video are uniformly sampled as conditioning. The learning rate is \(2\times 10^{-4}\), and the training is 20, 000 steps.</p>
+<h3>6.4 Recurrence risk list</h3>
+<ul>
+<li><strong>Cosmos-Predict2 base dependencies: </strong> reproducibility requires access to equivalent base models and video VAE/DiT implementations, otherwise the world model quality will not be comparable.</li>
+<li><strong>Indicator labeling cost: </strong> EC, RSR, ISR, TSR/TCR are not simple script indicators, especially the success of referring and interaction may require manual or additional decision rules.</li>
+<li><strong>Closed loop execution details: </strong> The length of the action chunk, the observation history window, and the frequency of regenerating future frames will all affect the final success rate. The main text of the paper only gives the main training configuration.</li>
+<li><strong>Generate video error propagation: </strong> The spatial misalignment of the world model may be partially corrected by the action model, but if the generated target state is completely wrong, the policy will still be misled.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is not a single module, but a relatively complete interface design when connecting the video generation model to robot action learning. The author does not directly let the video world model output control, nor does it assume that the generated video is perfect frame by frame, but uses it as an in-context future example to input the action model together with real historical observations. This makes the world model responsible for "giving a visual prior to the progress of the task" and the action model responsible for "executing and correcting deviations in real scenes."</p>
+<p>The second value point is that the evaluation standards are closer to the robot operation needs. The paper does not only use FVD, SSIM, PSNR, and LPIPS to judge the world model, but additionally defines embodiment consistency, referring success, interaction success, and task completion. This makes the question of "what kind of video generation model is suitable for robots" more concrete.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results are relatively tenable for three reasons. First, the author first uses robot-related indicators to screen the world model, and then uses general video quality indicators to verify the benefits of domain adaptation and distillation to avoid convincing readers with only visual subjective images. Second, the policy results are compared with a large number of VLA/VLM baselines on four LIBERO suites, and the parameter scale of Dream4manip is not the largest, indicating that the improvement cannot be easily attributed to the larger model. Third, the paper provides ablation and qualitative failure comparisons of denoising steps, which can support the argument that "adaptation and distillation affect the quality/speed trade-off".</p>
+<p>However, "standing" does not mean that there are no gaps. The strongest evidence comes from LIBERO. The real robot results are more setting instructions and qualitative support in the source code text; if you want to prove the generalization to more embodiments, multiple cameras and complex dynamic environments, larger-scale real-world closed-loop evaluations are needed.</p>
+<h3>7.3 Method Boundaries</h3>
+<ul>
+<li><strong>Speed boundary: </strong> Even after distillation, the 10-step generation still takes about 29.80 seconds. For high-frequency real-time control, this is more like a low-frequency planning or periodic replanning module, rather than a model that runs every control tick.</li>
+<li><strong>Long horizon boundary: </strong> Keyframe compression reduces length alignment pressure, but the world model's future predictions may still accumulate errors in dynamic, occluded, or crowded scenes.</li>
+<li><strong>Generate dependency boundaries: </strong> The action model can correct spatial errors using real observations, but if the world model generates wrong targets, wrong object interactions, or wrong final states, the policy will inherit this misdirection.</li>
+<li><strong>embodiment generalization boundary: </strong> The authors acknowledge that scaling to diverse embodiments and complex multi-step tasks requires more extensive pre-training and stronger embodiment-conditioned representations.</li>
+</ul>
+<h3>7.4 How it can be improved</h3>
+<p>A natural direction is to turn the future imagination of the world model into a multi-candidate distribution instead of a single video: the action model can make selections or weights based on multiple possible futures, reducing the impact of a single generation error. Another direction is to add online consistency check, such as using real observations and generated key frames to estimate the deviation. When the deviation is too large, trigger regeneration or switch to a conservative strategy.</p>
+<p>From a system perspective, a more lightweight local world model can also be studied: global task progress is generated by a large video model at low frequency, and local contact and gripper control are predicted by a small model at high frequency. This may be more consistent with the speed constraints of real robot control.</p>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the biggest difference between this paper and ordinary VLA?</h3>
+<p>Most ordinary VLA predicts actions directly from the current visual language input; this article explicitly adds the video world model, first generates future task progress, and then lets the action model use future frames and real historical observations as contextual output actions. The difference lies in the introduction of visual future state intermediate variables.</p>
+<h3>Q2: Why not just generate a video and do the planning directly?</h3>
+<p>Because the generated video is not an action sequence, it is not guaranteed to be geometrically accurate. The paper treats generated videos as in-context examples rather than trajectory constraints. The action model actually outputs the action. It also looks at the real observations, so it can correct some generation errors.</p>
+<h3>Q3: Cosmos-14B is larger, why choose Cosmos-2B for the main line?</h3>
+<p>From the screening table, Cosmos-14B is slightly better on EC and TSR/TCR, but Cosmos-2B is the best on RSR and ISR, and has lower computational cost. For closed-loop robotic systems, referring, interaction, and inference costs are critical, so 2B is a more practical base choice.</p>
+<h3>Q4: Why is DA+Dis used when FVD is not the best?</h3>
+<p>DA has the lowest FVD, but DA+Dis is better on SSIM, PSNR, LPIPS, and serves fast generation with few steps. FVD measures distribution distance and is not necessarily equivalent to robot executability; this article is concerned with the trade-off between quality, speed, and spatial consistency.</p>
+<h3>Q5: What is the most questionable experimental point?</h3>
+<p>Mainly real world generalization and latency. LIBERO's success rate is very strong, but real robots, different embodiments, complex occlusions and long horizon dynamic scenes still require more complete closed-loop evaluation; at the same time, the 10-step video generation time is still long, and how to schedule the world model in the real-time system is a key engineering issue.</p>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MVISTA-4D - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>MVISTA-4D: View-Consistent 4D World Model with Test-Time Action Inference for Robotic Manipulation</h1>
+<div class="meta">
+<p><strong>arXiv: </strong> 2602.09878</p>
+<p><strong>Authors: </strong> Jiaxu Wang, Yicheng Jiang, Tianlun He, Jingkai Sun, Qiang Zhang, Junhao He, Jiahang Cao, Zesen Gan, Mingyuan Sun, Qiming Shao, Xiangyu Yue</p>
+<p><strong>Affiliations: </strong> MMLab, CUHK; HKUST; HKU; X-Humanoid Robots; Tsinghua University</p>
+<p><strong>Report positioning: </strong> A Reading Report prepared for junior PhD group meetings, covering the main text, appendix implementation details, main experiment table, ablation and failure cases.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Research questions and motivations</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#repro">6. reproducibility Key Points</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+ The core idea of MVISTA-4D is that the robot world model should not only imagine the RGB or RGB-D future from a single perspective, but should start from a single-view RGB-D input to generate a geometrically consistent multi-view RGB-D dynamic scene; then deduce the action through the test-time optimization of the trajectory latent, and then use the residual inverse dynamics model to make execution-level corrections.
+ </div>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>Solve two bottlenecks in the imagine-then-act robot framework: First, existing world models are mostly 2D or single-view RGB-D, which cannot obtain a complete, cross-view consistent 4D scene, and are geometrically unstable when encountering occlusion and contact operations; second, converting the generated future into actions usually relies on inverse dynamics, but the same visual transfer can be explained by multiple actions, gradually IDM is naturally ill-posed.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>The starting point is to change the world model and act stage at the same time. On the world model side, based on WAN2.2 TI2V 5B DiT, RGB/depth cross-modality fusion, spherical coordinate camera embedding, and epipolar-line constrained deformable cross-view attention are designed to generate multi-view RGB-D. On the action side, the entire action sequence is compressed into TCN-VAE trajectory latent/style code. During testing, backpropagation is used to optimize the latent to make the generated results match the imagined future, and then residual IDM is used for local action correction.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>In terms of 4D generation, the method is most optimal in geometric indicators such as FVD, depth, point cloud CD/EMD of RLBench, RoboTwin and real data; for example, the real data CD dropped from 17.32 in 4DGen to 13.06, and the EMD dropped from 15.61 to 14.37. In terms of operation success rate, RLBench 72.6 and RoboTwin 43.0 are both higher than P-ACT, UniPi*, 4DGen, and TesserAct; 5 of the 6 real robot tasks exceed TesserAct.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The focus is not on "another 4D generative model", but on whether the three interfaces are really closed: whether multi-view RGB-D generation improves fusion geometry; whether trajectory latent is more stable than stepwise action conditioning; whether test-time latent optimization + residual IDM alleviates the multi-solution nature of inverse dynamics. When reading tables, you should also note that the author often chooses between RGB indicators and geometric indicators, and advocates mainly based on geometric consistency and downstream manipulation success rate.</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img alt="MVISTA-4D overview" src="figures/figure_icml2026_overview.png"/>
+<figcaption>Figure 1. Main pipeline: Single-view RGB-D input and instructions enter the multi-view 4D world model, generate future multi-view RGB-D, and then merge into point cloud sequence; actions are obtained through trajectory latent optimization and residual IDM.</figcaption>
+</figure>
+<div class="grid">
+<div class="audit-card">
+<h3>Contribution in one sentence</h3>
+<p>The paper combines RGB-D 4D generation with consistent multi-view geometry and latent trajectory reversal during testing to support robot manipulation with more complete dynamic geometry.</p>
+</div>
+<div class="audit-card">
+<h3>keywords</h3>
+<p>
+<span class="pill">4D World Model</span>
+<span class="pill">Multi-view RGB-D Generation</span>
+<span class="pill">Cross-view Attention</span>
+<span class="pill">Trajectory Latent</span>
+<span class="pill">Residual IDM</span>
+</p>
+</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Research questions and motivations</h2>
+<h3>2.1 Why multi-view 4D world model is needed</h3>
+<p>World-model-based manipulation typically predicts future observations and then drives actions from future observations. The key to this imagine-then-act paradigm is that the imagined future must be close enough to the physically executable scenario. When only RGB video is generated, the image may look reasonable, but depth, occlusion, relative object position, and contact geometry may be inconsistent; this can cause subsequent action inference to be based on the wrong geometry.</p>
+<p>Methods such as TesserAct have introduced RGB-DN/RGB-D into the world model, but many of them are still single-view output. A single perspective will lead to missing hidden surfaces and occlusion areas, and the fused 3D structure will be incomplete. The goal of MVISTA-4D is to allow the model to start from a single RGB-D observation, "complementarily imagine" other perspectives, and maintain the same dynamic scene in time.</p>
+<h3>2.2 Why inverse dynamics is not enough</h3>
+<p>A common way to go from generating futures to actions is inverse dynamics: given \(\hat{o}_t, \hat{o}_{t+1}\) predict \(a_t\). However, in robot operation, the same visual change may be caused by multiple actions, and local observation may also lack contact information; therefore, stepwise IDM is easily ill-posed. The author believes that the action trajectory itself has a low-dimensional structure and strong temporal correlation, and should be expressed in trajectory-level latent, rather than hard aligning each action step to each video frame.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<h3>3.1 Video generative models</h3>
+<p>Video generation models can already produce high-quality dynamic RGB, and camera-controlled video generation can also control viewing angle changes. However, these models focus more on RGB visual quality and lack explicit RGB-D cross-modal consistency and multi-view geometric constraints, so they are not suitable for direct use in contact-rich robot manipulation.</p>
+<h3>3.2 Robotic world models</h3>
+<p>The robot world model can be used as an auxiliary module for policy learning, or as a planning module to generate task rollout and push-back actions. Existing methods include video generation + IDM, motion head sharing latent, motion mask or geometry-first pipeline based on pose estimation. This article believes that these methods either rely too much on 2D prediction or are affected by the vulnerability of pose estimation/IDM; MVISTA-4D directly embeds the action trajectory latent into the generation process and reversely optimizes the latent during testing.</p>
+<h3>3.3 4D generation</h3>
+<p>4D generation is commonly used a combination of NeRF/3DGS/SDS or video first and then novel view synthesis, but it may be slow, inconsistent in target, or drift across views. TesserAct reconstructs 4D scenes from RGB-DN, but mainly from a single perspective; 4DGen generates two-view pointmaps, but is unstable when extended to more perspectives and different source perspectives. MVISTA-4D is positioned as a feed-forward multi-view RGB-D 4D world model, serving robot action reasoning.</p>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Problem definition and diffusion basis</h3>
+<p>The input is the reference viewing angle RGB-D observation \(\mathbf{o}_0=(\mathbf{I}_0, \mathbf{D}_0)\), the reference camera external parameter \(\mathbf{T}_0\), the target viewing angle external parameter \(\{\mathbf{T}_i\}_{i=1}^{N}\) and the language command \(l\). The model outputs a future RGB-D sequence in which the reference view is synchronized with all target views. After generation, camera intrinsics/extrinsics can be back-projected and fused into a dynamic point cloud sequence.</p>
+<p>The diffusion model uses latent video diffusion / flow matching. Forward path is: </p>
+<div class="formula-block">
+ $$z_t=(1-t)z_0+t\epsilon, \qquad \epsilon\sim\mathcal{N}(0, I), \quad t\in[0, 1]$$
+ $$\mathcal{L}_{diff}=\mathbb{E}_{t, z_0, \epsilon}\left\|v_{\Theta}(z_t, t)-(\epsilon-z_0)\right\|_2^2$$
+ </div>
+<p>During inference, we start from Gaussian noise, use Euler steps to solve probability flow ODE, and obtain RGB-D video through VAE decoder.</p>
+<h3>4.2 Input format strategy</h3>
+<p>The author adopts structured tokenization: RGB and depth within the same viewing angle are placed at adjacent token positions according to width-wise concatenation to encourage appearance/geometry interaction at the same spatial position; different viewing angles are organized according to height-wise concatenation to promote structural-level cross-perspective information exchange. Because pixel-level alignment between views is affected by parallax/occlusion, the true geometric correspondence is handled by the cross-view module.</p>
+<h3>4.3 Feature Integration Across Modalities</h3>
+<p>In order to allow the shared backbone to distinguish RGB appearance tokens and depth geometry tokens, the author added learnable modality tokens to the two modalities: </p>
+<div class="formula-block">
+ $$\tilde{\mathbf{X}}^{app}=\mathbf{X}^{app}+\mathbf{1}(\mathbf{m}^{app})^\top, \qquad
+ \tilde{\mathbf{X}}^{geo}=\mathbf{X}^{geo}+\mathbf{1}(\mathbf{m}^{geo})^\top$$
+ </div>
+<p>Insert local cross-modality attention before the standard self-attention in each DiT block. For position \(i\), appearance-to-geometry attention is only performed in the local neighborhood \(\mathcal{N}_r(i)\) of the geometric token grid, and the reverse is also performed symmetrically: </p>
+<div class="formula-block">
+ $$\mathbf{y}_i^{a\leftarrow g}=\mathrm{Attn}\left(
+ \tilde{\mathbf{x}}_i^{app}\mathbf{W}_Q^{app}, \tilde{\mathbf{X}}_{\mathcal{N}_r(i)}^{geo}\mathbf{W}_K^{geo}, \tilde{\mathbf{X}}_{\mathcal{N}_r(i)}^{geo}\mathbf{W}_V^{geo}
+ \right)$$
+ $$\hat{\mathbf{x}}_i^{app}=\tilde{\mathbf{x}}_i^{app}+\gamma_{app}\mathbf{y}_i^{a\leftarrow g}, \qquad
+ \hat{\mathbf{x}}_i^{geo}=\tilde{\mathbf{x}}_i^{geo}+\gamma_{geo}\mathbf{y}_i^{g\leftarrow a}$$
+ </div>
+<p>The local window reduces the matching cost of global cross-attention and also provides local geometric priors for RGB-depth alignment; gated residual avoids forced fusion of bad information when there is noise or misalignment.</p>
+<figure>
+<img alt="Cross-modality modeling" src="figures/figure_cross_mod.png"/>
+<figcaption>Figure 2. Effect of Cross-modality modeling: explicit RGB-depth interaction improves appearance and geometry alignment, reducing cross-modal drift.</figcaption>
+</figure>
+<h3>4.4 Learning Geometric Consistency Across Views</h3>
+<p>The perspective token does not use ordinary learnable embedding, but is directly provided by camera embedding. Instead of flattening the \(3\times4\) extrinsic matrix, the authors represent the camera in spherical coordinates around the common look-at point \(\mathbf{p}\). First estimate the closest point to all camera optical axes: </p>
+<div class="formula-block">
+ $$\mathbf{p}=\arg\min_{\mathbf{x}\in\mathbb{R}^3}\sum_v\left\|
+ (\mathbf{I}_{3\times3}-\mathbf{d}_v\mathbf{d}_v^\top)(\mathbf{x}-\mathbf{c}_v)
+ \right\|_2^2$$
+ </div>
+<p>Then use \(\mathbf{r}_v=\mathbf{c}_v-\mathbf{p}\) and \(\rho_v=\|\mathbf{r}_v\|_2\) to calculate yaw, pitch, and roll, use the Fourier features of \(K=2\) for the angle, and splice \(\log(\rho_v)\) to obtain 13-D camera embedding: </p>
+<div class="formula-block">
+ $$\mathbf{e}_v=[\gamma(\psi_v), \gamma(\theta_v), \gamma(\phi_v), \log(\rho_v)]\in\mathbb{R}^{13}$$
+ </div>
+<p>Cross-view fusion uses geometry-aware deformable cross-view attention. Given the query token of view \(v\), \(K\) candidate key/values are uniformly sampled from the corresponding epipolar line on the upper edge of another view \(u\); then MLP is used to predict a small offset based on the query, initial key feature and similarity, and correct the misalignment under coarse latent resolution: </p>
+<div class="formula-block">
+ $$\Delta\mathbf{p}_{i, k}^{u}=\mathrm{clip}\left(
+ \mathrm{MLP}_{off}[\mathbf{q}_i^v, \mathbf{f}_{i, k}^{u, 0}, s_{i, k}^{u}], \mathrm{max\_offset}
+ \right), \qquad
+ \mathbf{p}_{i, k}^{u}=\mathbf{p}_{i, k}^{u, 0}+\Delta\mathbf{p}_{i, k}^{u}$$
+ </div>
+<figure>
+<img alt="Cross-view modeling" src="figures/figure_cross-view.png"/>
+<figcaption>Figure 3. The effect of Geometry-aware cross-view modeling: sparse cross-view attention along epipolar constraints to improve multi-view consistency.</figcaption>
+</figure>
+<h3>4.5 Trajectory Conditioning as a Style Code</h3>
+<p>Action trajectory is a key condition for generating robot motion. Increasingly aligning action sequences to video frames introduces fragile correspondences between control frequencies and video frame rates, and also easily exposes weakly visible high-frequency control details in pixels. The author instead uses TCN-VAE to compress the entire action into low-dimensional trajectory latent/style tokens: </p>
+<div class="formula-block">
+ $$\mathbf{z}=\mathrm{Enc}_{TCN}(\mathbf{a}_{1: L}), \qquad
+ \hat{\mathbf{a}}_{1: L}=\mathrm{Dec}_{TCN}(\mathbf{z})$$
+ $$\mathcal{L}_{VAE}=\mathbb{E}_{q_\phi(\mathbf{z}|\mathbf{a})}\|\mathbf{a}-\hat{\mathbf{a}}\|_2^2+
+ \beta\, \mathrm{KL}(q_\phi(\mathbf{z}|\mathbf{a})\Vert p(\mathbf{z}))$$
+ </div>
+<p>In the paper, \(\mathbf{z}\in\mathbb{R}^{S\times C=32}\) is injected into the generator through cross-attention as \(S\) style tokens. In order to prevent the generator from ignoring the trajectory conditions, a latent-consistency head is added during training, \(\hat{\mathbf{z}}\) is reconstructed from the last layer of hidden tokens, and constrained with \(\mathcal{L}_{traj}=\|\hat{\mathbf{z}}-\mathbf{z}\|_2^2\); this head is only used during training and discarded for inference.</p>
+<h3>4.6 Test-time Action Optimization and Residual IDM</h3>
+<p>During inference, first use text-only conditioning to generate a dynamic rollout \(\bar{\mathbf{V}}\). Then freeze the rollout, starting from the randomly initialized trajectory latent \(\mathbf{z}\), and use backpropagation to find the condition latent that best reproduces the rollout: </p>
+<div class="formula-block">
+ $$\mathbf{z}^{\star}=\arg\min_{\mathbf{z}}\ \mathcal{D}(G(l, \mathbf{z}), \bar{\mathbf{V}})+\lambda\|\mathbf{z}\|_2^2$$
+ $$\hat{\mathbf{a}}_{1: T}=\mathrm{Dec}_{TCN}(\mathbf{z}^{\star})$$
+ </div>
+<p>This is more stable than directly optimizing the full-length stepwise action because the search space is a learned low-dimensional trajectory manifold. Then the residual IDM is further modified: given the continuous point cloud \(\mathcal{P}_t, \mathcal{P}_{t+1}\) and the prior action \(\mathbf{a}_t^{prior}\), predict the residual \(\Delta\mathbf{a}_t\): </p>
+<div class="formula-block">
+ $$\mathbf{a}_t=\mathbf{a}_t^{prior}+\Delta\mathbf{a}_t$$
+ </div>
+<p>In this way, IDM no longer interprets the visual transfer from scratch, but makes local adjustments near the existing trajectory intention to alleviate the multi-solution nature of inverse dynamics.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Datasets and Evaluation</h3>
+<p>4D generation is evaluated on two synthetic datasets and one real dataset. RLBench collects more than 8, 000 trajectories and RoboTwin2 more than 10, 000 trajectories, each containing 10 tasks; each episode has 16 RGB-D camera views, known camera parameters, text instructions, and action sequences. Real data is collected by 4 RGB-D cameras and a real robotic arm platform, including 14 manipulation tasks, and the corresponding actions are recorded.</p>
+<p>Metrics are divided into appearance, depth and point cloud: PSNR, SSIM, FVD; AbsRel, RMSE, \(\delta_1\); Chamfer Distance (CD) and EMD. SSIM, AbsRel, RMSE, CD, EMD in the main table are all scaled by \(10^2\).</p>
+<h3>5.2 4D scene generation main results</h3>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Method</th>
+<th>PSNR ↑</th>
+<th>SSIM ↑</th>
+<th>FVD ↓</th>
+<th>AbsRel ↓</th>
+<th>RMSE ↓</th>
+<th>CD ↓</th>
+<th>EMD ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>RLBench</td><td>UniPi*</td><td>23.88</td><td>91.7</td><td>19.94</td><td>117.9</td><td>43.2</td><td>15.0</td><td>20.6</td></tr>
+<tr><td>RLBench</td><td>4DGen</td><td>22.25</td><td>87.1</td><td>20.51</td><td>91.8</td><td>29.3</td><td>10.9</td><td>16.0</td></tr>
+<tr><td>RLBench</td><td>TesserAct</td><td>23.86</td><td>92.8</td><td>27.77</td><td>91.8</td><td>29.4</td><td>11.0</td><td>16.3</td></tr>
+<tr><td>RLBench</td><td>Ours</td><td>23.31</td><td>90.8</td><td><strong>18.57</strong></td><td><strong>90.5</strong></td><td><strong>29.1</strong></td><td><strong>9.6</strong></td><td><strong>15.3</strong></td></tr>
+<tr><td>RoboTwin</td><td>UniPi*</td><td>22.98</td><td>89.2</td><td>22.18</td><td>5.52</td><td>18.13</td><td>9.88</td><td>20.53</td></tr>
+<tr><td>RoboTwin</td><td>4DGen</td><td>22.18</td><td>85.2</td><td>24.61</td><td>3.00</td><td>13.90</td><td>7.18</td><td>10.62</td></tr>
+<tr><td>RoboTwin</td><td>TesserAct</td><td>22.65</td><td>89.8</td><td>27.29</td><td>3.71</td><td>15.07</td><td>7.11</td><td>10.28</td></tr>
+<tr><td>RoboTwin</td><td>Ours</td><td>22.91</td><td><strong>90.2</strong></td><td><strong>21.93</strong></td><td><strong>2.60</strong></td><td><strong>12.30</strong></td><td><strong>6.51</strong></td><td><strong>9.90</strong></td></tr>
+<tr><td>Real</td><td>UniPi*</td><td>22.53</td><td>90.62</td><td>28.62</td><td>39.95</td><td>42.69</td><td>58.41</td><td>63.22</td></tr>
+<tr><td>Real</td><td>4DGen</td><td>21.34</td><td>89.75</td><td>25.60</td><td>23.36</td><td>29.61</td><td>17.32</td><td>15.61</td></tr>
+<tr><td>Real</td><td>TesserAct</td><td>22.27</td><td>91.50</td><td>50.79</td><td>30.56</td><td>33.17</td><td>38.47</td><td>34.65</td></tr>
+<tr><td>Real</td><td>Ours</td><td>21.82</td><td>89.98</td><td><strong>23.08</strong></td><td><strong>20.79</strong></td><td><strong>25.11</strong></td><td><strong>13.06</strong></td><td><strong>14.37</strong></td></tr>
+</tbody>
+</table>
+<p>The key to this table is the geometric indicator: MVISTA-4D is basically the strongest in point cloud CD/EMD and depth indicators, while RGB PSNR/SSIM is not always first. That is, the authors do not claim that it is the strongest video generation model for pure visual quality, but that geometric consistency is more suitable for manipulation.</p>
+<figure>
+<img alt="RoboTwin qualitative 4D generation" src="figures/figure_rbtwin_compare.png"/>
+<figcaption>Figure 4. RoboTwin qualitative results: red, green, and blue boxes represent different viewing angles. The figure emphasizes the consistency of multi-view generation and object placement stability.</figcaption>
+</figure>
+<figure>
+<img alt="Real generated geometries" src="figures/figure_real_pc.png"/>
+<figcaption>Figure 5. Generative geometry results on real robot data. This figure supports the usability of multi-view RGB-D fusion into point cloud in real scenes.</figcaption>
+</figure>
+<h3>5.3 Cross-view / cross-modality ablation</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>PSNR ↑</th>
+<th>SSIM ↑</th>
+<th>FVD ↓</th>
+<th>AbsRel ↓</th>
+<th>RMSE ↓</th>
+<th>CD ↓</th>
+<th>EMD ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>w/o view</td><td>21.47</td><td>88.3</td><td>24.85</td><td>3.34</td><td>14.30</td><td>8.34</td><td>17.50</td></tr>
+<tr><td>EA</td><td>22.43</td><td>89.2</td><td>23.36</td><td>3.03</td><td>12.70</td><td>7.33</td><td>12.50</td></tr>
+<tr><td>w/o mod</td><td>20.16</td><td>83.8</td><td>25.25</td><td>4.03</td><td>16.77</td><td>7.51</td><td>16.80</td></tr>
+<tr><td>Ours</td><td><strong>22.91</strong></td><td><strong>90.2</strong></td><td><strong>21.93</strong></td><td><strong>2.60</strong></td><td><strong>12.30</strong></td><td><strong>6.51</strong></td><td><strong>9.90</strong></td></tr>
+</tbody>
+</table>
+<p>Ablation shows that both modules are important: point cloud CD/EMD becomes significantly worse after cross-view is removed; RGB/depth synchronization becomes worse after cross-modality is removed, and PSNR, SSIM, FVD and depth indicators all decrease.</p>
+<h3>5.4 Embodied action planning</h3>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>P-ACT</th>
+<th>UniPi*</th>
+<th>4DGen</th>
+<th>TesserAct</th>
+<th>Act Head</th>
+<th>Full IDM</th>
+<th>w/o R-IDM</th>
+<th>Full Model</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>RLBench</td><td>60.4</td><td>34.6</td><td>47.0</td><td>67.3</td><td>72.5</td><td>68.8</td><td>69.0</td><td><strong>72.6</strong></td></tr>
+<tr><td>RoboTwin</td><td>20.5</td><td>16.3</td><td>40.2</td><td>33.9</td><td>42.5</td><td>41.7</td><td>42.8</td><td><strong>43.0</strong></td></tr>
+</tbody>
+</table>
+<p>The improvement of the Full model is more obvious than the main baseline: RLBench is 5.3 higher than TesserAct and 12.2 higher than P-ACT; RoboTwin is 2.8 higher than 4DGen and 9.1 higher than TesserAct. Action side ablation shows that Act Head is very strong, but full model is still the best; Full IDM and w/o R-IDM are lower than full model, indicating that trajectory latent optimization and residual correction both contribute.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Arrange Boxes</th>
+<th>Cap Bottle</th>
+<th>Open Drawer</th>
+<th>Place Fruits</th>
+<th>Put Orange</th>
+<th>Stack Cubes</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>TesserAct</td><td>7</td><td>27</td><td>37</td><td>17</td><td><strong>66</strong></td><td>45</td></tr>
+<tr><td>Ours</td><td><strong>15</strong></td><td><strong>33</strong></td><td><strong>56</strong></td><td><strong>23</strong></td><td>63</td><td><strong>50</strong></td></tr>
+</tbody>
+</table>
+<p>Among the 6 real robot tasks, MVISTA-4D surpassed TesserAct in 5 tasks, especially Open Drawer increased from 37 to 56. Put Orange is slightly lower than TesserAct, indicating that multi-view geometry does not necessarily improve every task.</p>
+<h3>5.5 Appendix: Multi-perspective reasoning mode and number of views</h3>
+<p><span class="appendix-ref">[Appendix Analysis of two Modes]</span> The author supports two types of multi-view generation: Mode-1 samples all views at once and connects view latents along height; Mode-2 first generates reference views, and then uses masked completion to complete additional views. The paper uses Mode-2 by default because it is more stable and of higher quality. The main experiment uses a 3-view setup because most baselines support at most two views, and 3 views already brings major benefits.</p>
+<table>
+<thead>
+<tr>
+<th>Num Views</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>RLBench success</td><td>68.6</td><td>71.5</td><td>72.6</td><td>72.9</td><td>73.1</td></tr>
+<tr><td>Time cost</td><td>0.78</td><td>0.85</td><td>1.00</td><td>1.20</td><td>1.35</td></tr>
+</tbody>
+</table>
+<p>From 1 to 3 views, the improvement is obvious. From 3 to 5 views, the marginal benefit is small but the time consumption increases. Therefore, 3 views is the default efficiency-accuracy trade-off in this article.</p>
+<div class="figgrid">
+<figure>
+<img alt="RoboTwin multiview generation" src="figures/figure_multiview_robotwin.png"/>
+<figcaption>Appendix Qualitative diagram: Mode-2 multi-view generation on RoboTwin, compared with 4DGen.</figcaption>
+</figure>
+<figure>
+<img alt="RLBench multiview generation" src="figures/figure_multiview_rlbench.png"/>
+<figcaption>Appendix Qualitative Figure: Mode-1 multi-view generation on RLBench, compared with 4DGen.</figcaption>
+</figure>
+</div>
+<h3>5.6 Appendix: per-task and failure cases</h3>
+<p><span class="appendix-ref">[Appendix Additional Task-Level Details]</span> The RLBench per-task table shows that Ours performs well on tasks such as Unplug Charger 55, Close Drawer 91, Close Microwave 75, Open Drawer 98, Pick Up Cup 62, Play Jenga 97, Push Button 89; RoboTwin performs well on Adjust Bottle 69, Beat Hammer 42, Click Bell 38, Grab Roller 68, Lift Pot 42. Place Container 72 leads the way.</p>
+<div class="figgrid">
+<figure>
+<img alt="Open drawer failure" src="figures/figure_frame_0032.png"/>
+<figcaption>Failure case 1: The drawer handle is located in Open Drawer, but the pulling direction is wrong, indicating that the action direction may still be ambiguous under occlusion and limited viewing angles.</figcaption>
+</figure>
+<figure>
+<img alt="RoboTwin failure" src="figures/figure_failure_case_robotwin.png"/>
+<figcaption>Failure case 2: RoboTwin reached near the target area during the contact-sensitive task, but the end effector was spatially misaligned with the red target block.</figcaption>
+</figure>
+</div>
+<h3>5.7 Appendix: More Qualitative Generation</h3>
+<figure>
+<img alt="RLBench qualitative generation" src="figures/figure_t1.png"/>
+<figcaption>Appendix Figure: RLBench qualitative generation results.</figcaption>
+</figure>
+<figure>
+<img alt="Real place cubes qualitative generation" src="figures/figure_real_compare.png"/>
+<figcaption>Appendix Figure: Qualitative results of real robot place cubes into cup task.</figcaption>
+</figure>
+<figure>
+<img alt="Real open drawer qualitative generation" src="figures/figure_real_compare2.png"/>
+<figcaption>Appendix Figure: Qualitative results of real robot open drawer task.</figcaption>
+</figure>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Training strategy</h3>
+<p><span class="appendix-ref">[Appendix Implementation Details]</span> The authors train separate models for each dataset. For different operating objects in the same task, keep the instruction template fixed and only replace the object noun, such as "pick up the coke bottle" and "pick up the can".</p>
+<p>Diffusion input is the noise latent of \(B\times T\times C\times h\times w\). During training, only the first frame of the first perspective is provided as a condition with a probability of 0.5; a complete video latent of the first perspective is provided with a probability of 0.5, and any number of frames are randomly masked. This allows the model to simultaneously learn to generate 4D dynamics from a single frame and complete missing timesteps.</p>
+<p>Trajectory latent is always provided in early training; later in the training process, mask trajectory latent is gradually increased and replaced with the probability of null trajectory token. In this way, the model can generate text-only dynamic scenes while retaining action-conditioned generation capabilities; null tokens can be used as optimizable variables during testing.</p>
+<h3>6.2 Model and optimized configuration</h3>
+<ul>
+<li><strong>Backbone: </strong> WAN2.2 TI2V 5B DiT. </li>
+<li><strong>Learning rate: </strong> \(10^{-5}\). </li>
+<li><strong>Scheduler: </strong> 1000-step linear warmup followed by constant schedule.</li>
+<li><strong>Optimizer: </strong> AdamW, \(\epsilon=10^{-8}\), weight decay 0.01. </li>
+<li><strong>Initialization: </strong> All original blocks are free of fine-tuning; the weights and bias of new blocks are initialized to 0 to protect WAN2.2 prior.</li>
+<li><strong>R-IDM: </strong> Point cloud clipping operation area at each step, back-project RGB-D, FPS sampling 8192 points, PointNet-style encoder + MLP predicted action residual.</li>
+</ul>
+<h3>6.3 Simulation and real platform</h3>
+<p><span class="appendix-ref">[Appendix Simulation Setup]</span> In the simulation, 12 cameras are evenly placed around the scene, with adjacent horizontal angles spaced 30 degrees apart, toward the center of the robot workbench; 3 viewpoints are randomly sampled for training, and at least one camera angle interval in the sampling perspective is required to be less than 90 degrees. All cameras have 320 × 240 resolution, RLBench FOV of 40 degrees, and RoboTwin FOVY of 37 degrees.</p>
+<div class="figgrid">
+<figure>
+<img alt="RLBench camera layout" src="figures/figure_figure_camera_frustum_rlbench.png"/>
+<figcaption>RLBench camera layout. </figcaption>
+</figure>
+<figure>
+<img alt="RoboTwin camera layout" src="figures/figure_figure_camera_frustum_robotwin.png"/>
+<figcaption>RoboTwin camera layout. </figcaption>
+</figure>
+</div>
+<p><span class="appendix-ref">[Appendix Real-World Robot Dataset]</span> The real system uses 4 Orbbec Femto Bolt RGB-D ToF cameras and 2 AgileX Piper robotic arms; the acquisition workstation is Intel i9-14900K CPU + NVIDIA RTX 4090 GPU. The camera external parameters are first roughly calibrated with ChArUco board, then RGB-D is back-projected to the point cloud and ICP refinement is performed on the overlapping area. Teleoperation uses leader-follower, and the follower directly follows the leader with joint-space mapping at 200 Hz; the camera records simultaneously at 15 FPS, 1280 × 720, and is downsampled to 320 × 180 in post-processing.</p>
+<div class="figgrid">
+<figure>
+<img alt="Real camera setup" src="figures/figure_real_cam.png"/>
+<figcaption>Real robot camera layout.</figcaption>
+</figure>
+<figure>
+<img alt="Extrinsic calibration" src="figures/figure_HW_setup1.png"/>
+<figcaption>External parameter calibration and point cloud alignment diagram.</figcaption>
+</figure>
+</div>
+<figure>
+<img alt="Real manipulation tasks" src="figures/figure_task4x4.png"/>
+<figcaption>Examples of manipulation tasks in real datasets. Each episode randomizes the target object pose and adds task-independent distractors.</figcaption>
+</figure>
+<h3>6.4 Recurrence risk list</h3>
+<ul>
+<li><strong>Multi-view data cost: </strong> It is necessary to synchronize RGB-D, multi-camera external parameters and action trajectories; the threshold for real data collection is high.</li>
+<li><strong>Camera calibration is sensitive to: </strong> The method relies on accurate extrinsics; the appendix limitation explicitly states that changes in extrinsics or robot kinematics can reduce consistency and motion quality.</li>
+<li><strong>Optimize overhead during testing: </strong> Action inference requires multi-step backpropagation to optimize trajectory latent and increase latency.</li>
+<li><strong>WAN2.2 dependencies: </strong> Using the 5B DiT backbone, replicating the experiment requires considerable computing power and available pre-trained weights.</li>
+<li><strong>Action-video alignment: </strong> While trajectory latent avoids hard alignment of frame-by-frame actions, residual IDM still requires high-quality action labels and point cloud cropping strategies.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is that "whether the 4D world model can really help the robot execute" has been made into a relatively closed system: it does not only show multi-view generated images, nor only uses IDM to guess actions from a single-view point cloud, but forms a complete chain from multi-view RGB-D generation, geometric fusion, trajectory latent inversion, to residual IDM correction and real robot execution.</p>
+<p>The second value point is action interface design. Trajectory latent as style code promotes the action from the stepwise control signal to the entire trajectory prior; optimizing the latent during testing is essentially searching for actions consistent with the imagined future on the learned action manifold. This is more structurally constrained than the stepwise multi-solution problem of traditional IDM.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results hold up mainly because the evidence covers generation quality, geometric quality, downstream success rate, and key module ablation. In the 4D generation table, the method is steadily leading in the depth/point cloud indicators of the three data sets; in the action planning table, both RLBench and RoboTwin exceed the strong baseline; the real robot shows that the improvement is not only true in simulation; ablation such as cross-view, cross-modality, camera embedding, number of views, R-IDM, etc. can all correspond to specific design choices.</p>
+<p>At the same time, the appendix failure cases do not avoid defects: open-drawer direction errors and contact-sensitive misses illustrate that although this method can generate high-level intentions and more complete geometry, fine-grained contacts, action directions, and execution closed loops will still amplify small errors.</p>
+<h3>7.3 Clear limitations of the paper</h3>
+<ul>
+<li><strong>Latency: </strong> Test-time action optimization requires multi-step iteration, which will reduce real-time response capabilities.</li>
+<li><strong>Calibration dependency: </strong> The method relies on accurate camera and robot calibration, and changes in external parameters or robot kinematics will affect cross-view consistency and action quality.</li>
+<li><strong>Contact precision: </strong> Failure cases show that generating high-level intent for future capture does not guarantee accurate contact geometry, and near-miss contacts can still cause failures.</li>
+</ul>
+<h3>7.4 The boundaries of what can be asked</h3>
+<ul>
+<li><strong>Closed loop control: </strong> The current action is launched from the generated rollout. If the execution deviates, does it need to be regenerated and re-optimized latent? The paper does not systematically provide closed-loop frequency and stability analysis.</li>
+<li><strong>Marginal benefits of more perspectives: </strong> After 3 views, the benefits become smaller, but the time consumption increases; whether 3 views is still optimal in real complex occlusion scenes requires more tasks to verify.</li>
+<li><strong>Real data size: </strong> The real robot only shows 6 task success rate tables. Although there are 14-task data sets described, a larger-scale real evaluation would be more convincing.</li>
+<li><strong>Physical variables missing: </strong> RGB-D point cloud does not explicitly model force, friction and contact states, and fine manipulation may still require contact-aware constraints or tactile/force sensing.</li>
+</ul>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the core difference between MVISTA-4D and TesserAct?</h3>
+<p>TesserAct mainly reconstructs 4D scenes from RGB-DN/RGB-D video, but prefers single-view. MVISTA-4D generates multi-view RGB-D from single-view input, and explicitly implements cross-view geometry consistency. At the same time, it also reverses actions through trajectory latent test-time optimization, rather than relying solely on traditional IDM.</p>
+<h3>Q2: Why use trajectory latent instead of gradual action conditioning?</h3>
+<p>There is a control frequency/frame rate mismatch between step actions and video frames, and high-frequency control details are not necessarily visible in the pixels. Trajectory latent compresses the entire action into a low-dimensional manifold to express trajectory rhythm, smoothness and stage structure, and is more suitable for optimization during generation and testing.</p>
+<h3>Q3: Why does Cross-view attention sample along the epipolar line?</h3>
+<p>When the camera parameters are known, points in one view should fall on the corresponding epipolar line in another view. Sampling along this line can significantly reduce candidate tokens, while adding deformable offset to correct the deviation caused by latent resolution and occlusion.</p>
+<h3>Q4: What is the strongest experimental evidence?</h3>
+<p>On the generation side, the geometric indicators on the three data sets are steadily leading, especially point cloud CD/EMD; on the action side, RLBench 72.6 and RoboTwin 43.0 are both the highest, and 5 of the 6 real robot tasks are better than TesserAct.</p>
+<h3>Q5: What is the biggest shortcoming?</h3>
+<p>Optimization during testing brings latency, the system relies on precise camera/robot calibration, and may still fail in contact-sensitive or direction-ambiguous tasks. In other words, it enhances the geometry and trajectory priors, but is not yet a complete real-time closed-loop contact control system.</p>
+</section>
+</main>
+</body>
+</html>

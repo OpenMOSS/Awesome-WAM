@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FLARE - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>FLARE: Robot Learning with Implicit World Modeling</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Ruijie Zheng, Jing Wang, Scott Reed, Johan Bjorck, Yu Fang, Fengyuan Hu, Joel Jang, Kaushil Kundalia, Zongyu Lin, Loic Magne, Avnish Narayan, You Liang Tan, Guanzhi Wang, Qi Wang, Jiannan Xiang, Yinzhen Xu, Seonghyeon Ye, Jan Kautz, Furong Huang, Yuke Zhu, Linxi Fan</p>
+<p><strong>Organization: </strong>NVIDIA, University of Maryland, College Park, Nanyang Technological University, University of Texas at Austin</p>
+<p><strong>Publishing status: </strong>arXiv v1 submitted on 2025-05-21; the paper template is CoRL 2025 preprint</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2505.15659">arXiv: 2505.15659</a> | <a href="https://arxiv.org/pdf/2505.15659">PDF</a> | <a href="https://research.nvidia.com/labs/gear/flare/">Project page</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#reproducibility">6. Repeat audit</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>FLARE adds a small amount of learnable future tokens to the flow-matching/diffusion VLA policy, allowing the future-token representation of the DiT intermediate layer to align with the visual-linguistic latent embedding of future observations, thereby injecting "predicting the future" as auxiliary supervision into the action generation network without generating future images.
+ </div>
+<table class="compact">
+<tr><th>Reading targeting item</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>Explicitly generating world models of future images/videos is computationally expensive, and pixel-level reconstruction conflicts with the compact task representation required for motion control; the authors hope to turn future modeling into a latent alignment goal that is lightweight and compatible with high-frequency control.</td></tr>
+<tr><td>The author's approach</td><td>Add $M$ learnable future tokens to the DiT policy input sequence, extract the activations of these tokens in the internal $L$ layer, and align them with the future observation embedding after MLP; the total loss is action flow-matching loss plus $\lambda$ times future latent alignment loss.</td></tr>
+<tr><td>most important results</td><td>RoboCasa 24 tasks average 70.1%, and GR1 simulation 24 tasks average 55.0%, which are higher than policy-only, UWM, GR00T N1 scratch and Diffusion Policy; real GR1 reaches a maximum of 95.1% under the 100 trajectories/task setting, which is 14% higher than the baseline on average.</td></tr>
+<tr><td>Things to note when reading</td><td>FLARE is not a "generate future images and then act" method like CoT-VLA; it predicts a control-centric latent representation of future observations. There is no need to generate future embeddings during inference, and human first-view videos without action labels can also be used during training.</td></tr>
+</table>
+<h3>difficulty rating</h3>
+<p><strong>4/5. </strong>Requires familiarity with flow matching / diffusion policy, DiT, VLA, representation alignment, Q-former and imitation learning benchmark. There are not many formulas, but to truly reproduce, you need to understand embedding target, future token stream, EMA target update and multi-data source training.</p>
+<h3>keywords</h3>
+<p>Implicit World Modeling; Future Latent Representation Alignment; Flow Matching Policy; Diffusion Transformer; Vision-Language-Action; Q-former; Human Egocentric Videos</p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Future latent alignment target.</strong>FLARE does not predict future pixels, but instead aligns the policy's internal future-token representation with future observation embeddings.</li>
+<li><strong>Light architectural changes.</strong>Just add a few future tokens and alignment heads to the standard VLA / flow-matching policy, no full future image generator is required.</li>
+<li><strong>action-aware embedding target. </strong>The author built a Q-former based vision-language embedding module and used action flow-matching for pre-training to make future targets closer to control.</li>
+<li><strong>Motionless video available.</strong>When there is human first-person video but no robot action, future alignment loss can still be used to learn latent dynamics.</li>
+<li><strong>Covers simulated and real robots.</strong>Experiments include RoboCasa, GR1 simulation, real GR1 humanoid, and novel object few-shot + human video co-training.</li>
+</ul>
+<div class="figure">
+<img alt="FLARE concept" src="figures/x1.png"/>
+<div class="caption">Figure 1: Comparison of FLARE and conventional flow-matching/diffusion policy. The conventional policy only does action flow matching; FLARE additionally introduces future latent alignment, so it can learn jointly from action-labeled robot data and video-only human ego-view demonstrations.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper starts from an intuition: When humans act, they implicitly predict the future state. For example, when reaching for a cup on the table, they will predict the path of the hand, obstacles, and the touch after grabbing. Robot policies also require similar predictive capabilities, especially in multi-step manipulation, occlusion, complex object geometry, or two-arm humanoid tasks.</p>
+<p>However, existing methods of connecting world models to policy often require predicting future images or video frames. The author believes that there are two problems with this approach: first, high-fidelity visual generation requires large models, which brings training and inference overhead; second, pixel reconstruction cares about texture and spatial details, while motion control cares about task-related abstract information, and the two requirements for model capacity are not completely consistent.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<p>Routes such as GR1, GR2, UWM, and UVA explicitly predict future image tokens or VAE latent while learning actions. They are intuitive but still deal with future visual reconstruction problems. The paper points out that control tasks do not necessarily require "predicting every pixel". For example, when grabbing a water bottle and putting it into a container, the key is the position, orientation and geometric relationship between the water bottle and the target container, rather than irrelevant details in the background.</p>
+<p>In addition, if the future prediction target is general visual embedding, it does not necessarily contain action-related information; if pixel / VAE latent is used directly, it may be too expensive. Therefore, the core compromise of FLARE is: learn a compact and action-aware embedding of future observations, and align the internal representation of the policy to this embedding.</p>
+<h3>2.3 The solution ideas of this article</h3>
+<p>FLARE places world modeling in the policy's latent space. During training, the current observation and action chunk still learn actions through flow matching; at the same time, learnable future tokens are added to the DiT input sequence, allowing these tokens to form predictions of future observation embedding in the middle layer. This prediction does not require image generation, only cosine alignment.</p>
+<p>This brings an important result: for human first-view videos without action labels, although action flow-matching loss cannot be calculated, future alignment loss can still be calculated, so they can participate in training latent dynamics.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<h3>3.1 Generative World Models for Robotics</h3>
+<p>Related work extends from model-based RL and world models to image/video generative policy learning. Methods such as UniPi, GR1/GR2, UWM, and UVA use future frames or future latent to jointly model with actions; methods such as DINO-WM use visual features to train latent dynamics models. The difference between FLARE and them is that it does not reconstruct future frames or VAE latent, but adds an auxiliary alignment target for future observation embedding to the flow-matching policy.</p>
+<h3>3.2 Vision-Language-Action Models</h3>
+<p>The VLA direction includes the autoregressive method of discrete action tokens, as well as methods such as $\pi_0$ and GR00T N1 that use diffusion/flow-matching heads to generate continuous actions. FLARE uses a GR00T N1-style flow-matching policy head, conditional visual language embedding with DiT blocks and alternating cross-attention / self-attention.</p>
+<h3>3.3 Learning from Egocentric Videos</h3>
+<p>Existing work uses human first-person video to learn affordance, trajectory, pose or latent action. FLARE eschews explicit pose estimator, point tracking, or latent action discretization in favor of future latent alignment: as long as the video provides current and future frames, the model can be trained to predict future observation embeddings.</p>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Background: Flow Matching Policy</h3>
+<p>The paper follows the flow-matching action learning of $\pi_0$ and GR00T N1. Let $o_t$ be the current observation, including image and language; $q_t$ is the proprioceptive state; $A_t=(a_t, \dots, a_{t+H})$ is the expert action chunk; $\phi_t=VL(o_t)$ is the visual language embedding.</p>
+<div class="formula-block">
+<p class="intuition">During training, the real action chunk is first mixed with Gaussian noise to obtain a noisy action; the model learns the velocity field from the noisy action to the real action.</p>
+ $$A_t^\tau = \tau A_t + (1-\tau)\epsilon, \quad \epsilon\sim\mathcal{N}(0, I)$$
+ $$\mathcal{L}_{fm}(\theta)=\mathbb{E}_{\tau}\left[\left\|V_\theta(\phi_t, A_t^\tau, q_t)-(\epsilon-A_t)\right\|^2\right]$$
+ <table class="symbol-table">
+<tr><td>$A_t$</td><td>Action chunk in expert demonstration.</td></tr>
+<tr><td>$A_t^\tau$</td><td>Noisy action chunk under flow-matching timestep $\tau$.</td></tr>
+<tr><td>$V_\theta$</td><td>DiT policy predicted denoising direction.</td></tr>
+<tr><td>$\tau$</td><td>Sampling from the Beta distribution, the paper follows the $s=0.999$ setting of GR00T N1.</td></tr>
+</table>
+</div>
+<p>During inference, starting from $A_t^0\sim\mathcal{N}(0, I)$, use $K$ step Euler integration to obtain the action chunk; $K=4$ in all experiments.</p>
+<h3>4.2 FLARE architecture</h3>
+<div class="figure">
+<img alt="FLARE architecture" src="figures/x2.png"/>
+<div class="caption">Figure 2: FLARE architecture. State tokens, noisy action tokens and future tokens are spliced ​​into DiT; the current visual language embedding is conditionalized on DiT through cross-attention; the middle layer future-token activations are used to align future observation embeddings.</div>
+</div>
+<p>The input sequence of FLARE contains three parts: </p>
+<ol>
+<li>The current proprioceptive state $q_t$ is the state token obtained by the state encoder.</li>
+<li>Noisy action chunk $A_t^\tau=\{\tau a_t+(1-\tau)\epsilon\}_{t}^{t+H}$ action tokens obtained through action encoder.</li>
+<li>$M$ learnable future token embeddings.</li>
+</ol>
+<p>In the internal layer $L$ of DiT, the model extracts the hidden states corresponding to future tokens, and after MLP projection, they are aligned with the embedding of future observation $\phi_{t+H}$.</p>
+<h3>4.3 Future Latent Representation Alignment</h3>
+<div class="formula-block">
+<p class="intuition">The meaning of FLARE loss is to make the future-token representation inside the action denoising network close to the visual language embedding of future observations.</p>
+ $$\mathcal{L}_{align}(\theta)=-\mathbb{E}_{\tau}\left[\cos\left(f_\theta(\phi_t, A_t^\tau, q_t), g(\phi_{t+H})\right)\right]$$
+ $$\mathcal{L}=\mathcal{L}_{fm}+\lambda\mathcal{L}_{align}$$
+ <table class="symbol-table">
+<tr><td>$f_\theta$</td><td>The future-token activations taken from the $L$ layer of DiT are projected and output as $B\times M\times D$ representation.</td></tr>
+<tr><td>$g$</td><td>Observe the embedding encoder in the future and output the $B\times M\times D$ target of the same shape.</td></tr>
+<tr><td>$M$</td><td>Number of future/embedding tokens; Q-former in the main design is compressed into $M=32$ tokens.</td></tr>
+<tr><td>$\lambda$</td><td>Alignment loss coefficient; in the main experiment, $\lambda=0.2$, ablation shows that this value has the best effect.</td></tr>
+</table>
+</div>
+<p>Its relationship to REPA is: REPA aligns image diffusion transformers with visual representations to accelerate image generation; FLARE aligns <em>policy</em> DiT and <em>future</em> observation embedding, for robot action learning.</p>
+<h3>4.4 Action-aware Future Embedding Model</h3>
+<p>The authors found that the choice of target embedding is important. Directly using tokens from a general vision encoder is feasible, but a better approach is to train an action-aware vision-language embedding model so that it is both compact and contains control-relevant information.</p>
+<div class="figure">
+<img alt="Q-former embedding module" src="figures/x11.png"/>
+<div class="caption">Appendix Figure: Q-former based vision-language embedding module. SigLIP2 encodes vision and language, 4-layer self-attention fusion, and then uses 32 query tokens to be compressed by Q-former.</div>
+</div>
+<p><span class="tag">Appendix A</span> The specific structure is as follows: adopt <code>siglip2-large-patch16-256</code> As a vision and language encoder; each $256\times256$ image generates 256 patch tokens; the language instructions are padded to generate 32 language tokens; the two are spliced into 288 tokens, which are fused by 4 layers of self-attention transformer; finally, the 32 learnable query tokens of Q-former are used to compress into 32 vision-language tokens.</p>
+<div class="impl-note"><strong>Implementation points: </strong>The embedding model is not a frozen universal visual model. The author connected it to 8 DiT blocks and trained it end-to-end with conventional action flow-matching objective, so that the embedding retains information useful for action prediction.</div>
+<h3>4.5 EMA Target Update</h3>
+<p>In downstream post-training, there is a distribution shift between the target embedding model and policy encoder. The paper does not completely freeze the target embedding, but uses EMA to let the target slowly follow the visual language encoder of the policy.</p>
+<div class="formula-block">
+ $$\theta_{\text{target\_vl\_embedding}}\leftarrow \rho\theta_{\text{target\_embedding}}+(1-\rho)\theta_{\text{policy\_vl\_embedding}}$$
+ <p>The author tested $\rho\in\{0.99, 0.995, 0.999, 1.0\}$ and finally used $\rho=0.995$; even if $\rho=1.0$ does not do EMA, FLARE still exceeds the policy-only baseline, but $\rho=0.995$ is the best.</p>
+</div>
+<h3>4.6 Training pseudocode</h3>
+<p><span class="tag">Appendix D</span> Gives Python-style pseudocode. The core process can be condensed into: </p>
+<div class="pseudo">future_tokens = nn.Embedding(M, hidden_dim)
+target_vl_embedding.requires_grad = False
+
+for each gradient step: obs, proprio, actions, future_obs = dataset.next()
+
+ noise = gaussian.sample()
+ timestep = beta.sample()
+ noisy_action = timestep * actions + (1 - timestep) * noise
+ velocity = actions - noise
+
+ action_tokens = action_embed(noisy_action, timestep)
+ state_token = state_embed(proprio)
+ vl_tokens = vl_embedding(obs)
+
+ sa_tokens = concat([state_token, action_tokens, future_tokens])
+ policy_outputs = dit(sa_tokens, vl_tokens)
+
+ action_outputs = action_decoder(policy_outputs[:, action_token_slice])
+ action_loss = MSE(action_outputs, velocity)
+
+ embedding_to_align = target_vl_embedding(future_obs) # no grad
+ predict_embedding = decode_embedding(policy_outputs[:, -M: ])
+ flare_loss = 1 - cosine_similarity(predict_embedding, embedding_to_align)
+
+ loss = action_loss + lambda * flare_loss
+ optimize(loss)</div>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Multitask Simulation Benchmarks</h3>
+<div class="figure">
+<img alt="Multitask simulation tasks" src="figures/x4.png"/>
+<div class="caption">Figure 4: Two multitask simulation benchmarks: 24 RoboCasa one-arm kitchen tasks, and 24 GR-1 humanoid tabletop manipulation tasks.</div>
+</div>
+<p>RoboCasa includes kitchen tasks such as pick-and-place, door manipulation, faucet operation, etc., and the observation is left/right/wrist three-way RGB. The GR-1 simulation includes 18 object rearrangement tasks and 6 articulated object tasks, and the observation is the head first-view RGB.</p>
+<p>For fair comparison, the main benchmark does not use cross-embedding pre-trained embedding models, but pre-trains embedding models on the same in-domain multitask dataset for 80, 000 gradient steps. Except for UWM, all methods train for 80k steps; UWM is still improving after 80k steps and is extended to 400k steps.</p>
+<h3>5.2 Main results table</h3>
+<table class="compact">
+<tr><th>Methods</th><th>FLARE</th><th>Policy Only</th><th>UWM</th><th>GR00T N1 Scratch</th><th>Diffusion Policy</th></tr>
+<tr><td>Pick and Place</td><td><strong>53.2%</strong></td><td>43.8%</td><td>35.6%</td><td>44.1%</td><td>29.2%</td></tr>
+<tr><td>Open &amp; Close Doors / Drawers</td><td><strong>88.8%</strong></td><td>78.7%</td><td>82.0%</td><td>80.0%</td><td>78.7%</td></tr>
+<tr><td>Others</td><td><strong>80.0%</strong></td><td>75.2%</td><td>74.2%</td><td>69.6%</td><td>61.3%</td></tr>
+<tr><td><strong>24 RoboCasa Tasks Average</strong></td><td><strong>70.1%</strong></td><td>61.9%</td><td>60.8%</td><td>60.6%</td><td>51.7%</td></tr>
+<tr><td>Pick and Place Tasks</td><td><strong>58.2%</strong></td><td>46.6%</td><td>30.1%</td><td>51.8%</td><td>40.4%</td></tr>
+<tr><td>Articulated Tasks</td><td><strong>51.3%</strong></td><td>47.4%</td><td>38.4%</td><td>42.8%</td><td>50.1%</td></tr>
+<tr><td><strong>24 GR1 Tasks Average</strong></td><td><strong>55.0%</strong></td><td>44.0%</td><td>29.5%</td><td>45.1%</td><td>40.9%</td></tr>
+</table>
+<p>The result table shows that FLARE is the highest in all summary categories for both benchmarks. Compared to policy-only, RoboCasa improves from 61.9% to 70.1% on average, and GR1 improves from 44.0% to 55.0% on average. FLARE avoids explicit future VAE latent generation and is significantly higher on both RoboCasa and GR1 compared to UWM.</p>
+<h3>5.3 Data-efficient Post-training</h3>
+<div class="figure">
+<img alt="Real GR1 task setup" src="figures/x5.png"/>
+<div class="caption">Figure 5: Four tabletop manipulation tasks of a real GR1 humanoid.</div>
+</div>
+<div class="figure">
+<img alt="Posttraining results" src="figures/x6.png"/>
+<div class="caption">Figure 6: Post-training results of RoboCasa and real GR1. The paper states that FLARE has a 10% gain when RoboCasa has 100 trajectories/task; the real GR1 reaches a maximum of 95.1%, which is 14% higher than the baseline on average.</div>
+</div>
+<p>This section evaluates the effect of cross-embodiment pretrained embedding models on unseen embodiments/tasks. policy-only baseline initializes Q-former embedding and DiT weights at the same time; FLARE only warm starts vision-language embedding, and uses pretrained embedding model as future prediction target.</p>
+<p>Paper report: Under the data-limited setting of RoboCasa 100 trajectories/task, FLARE is 10% higher than policy-only; on real GR1, FLARE has a maximum success rate of 95.1%, which is 14% higher than baseline on average. In qualitative observations, baseline often knocks over water bottles or cans when they are close to the hand, while FLARE learns to go around or over the objects before grabbing them.</p>
+<h3>5.4 Human Egocentric Videos without Action Labels</h3>
+<div class="figure">
+<img alt="Novel object setup" src="figures/x7.png"/>
+<div class="caption">Figure 7a: Five novel objects, with geometries not seen in the training set, requiring new grasping strategies.</div>
+</div>
+<div class="figure">
+<img alt="Novel object results" src="figures/x8.png"/>
+<div class="caption">Figure 7b: Novel object generalization results for human egocentric videos + few-shot real robot demos.</div>
+</div>
+<p>The author selects 5 novel objects, and each object collects 150 human first-person perspective demonstrations by using a demonstrator wearing a GoPro to perform similar tasks; each object on the robot side only collects a maximum of 10 teleoperated demonstrations. For robot demos, both action flow-matching loss and future alignment objective are used during training; for human egocentric videos, only future alignment loss is used because there are no action labels.</p>
+<p>Paper report: When there is only one teleoperated trajectory for each object, FLARE can reach a maximum success rate of 60%; when there are 10 robot trajectories for each object and combined with human videos, the success rate increases to 80%, which is approximately twice that of the action-labeled data baseline alone. The project page further gives a specific value: 1-shot without human video is 37.5%, and with human egocentric videos it is 60%.</p>
+<h3>5.5 Ablations</h3>
+<table class="compact">
+<tr><th>Target embedding model</th><th>Success Rate</th></tr>
+<tr><td>No FLARE loss</td><td>43.9%</td></tr>
+<tr><td>SigLIP2</td><td>49.6%</td></tr>
+<tr><td>SigLIP2 average pooled</td><td>50.9%</td></tr>
+<tr><td><strong>Action-aware Embedding</strong></td><td><strong>55.0%</strong></td></tr>
+</table>
+<p>This table shows that FLARE is compatible with the general vision encoder target: even using SigLIP2 is about 7% higher than no-FLARE; but action-aware embedding is the best, indicating that it is important to align the target embedding with the control task.</p>
+<div class="figure">
+<img alt="FLARE ablations" src="figures/x9.png"/>
+<div class="caption">Figure 8: Ablation of alignment layer index and loss coefficient $\lambda$. The main experiment applies FLARE loss on layer 6 of 8-layer DiT and uses $\lambda=0.2$.</div>
+</div>
+<p>The author pointed out: Layers applying FLARE loss too early, such as layer 4, will significantly decline; the reason may be that the early layer is still processing low-level action denoising representations, and premature alignment of future embedding will conflict with action prediction. Deeper layers allow more model weights to benefit from future supervision, but also avoid excessive conflicts.</p>
+<div class="figure">
+<img alt="EMA coefficient" src="figures/x10.png"/>
+<div class="caption">Figure 9: EMA coefficient $\rho$ ablation. All EMA variants outperformed the no-FLARE baseline, with $\rho=0.995$ being the best.</div>
+</div>
+</section>
+<section id="reproducibility">
+<h2>6. Repeat audit</h2>
+<h3>6.1 Pre-training data mixture</h3>
+<p><span class="tag">Appendix B</span> The statistics of action-aware vision-language embedding pretraining are given, totaling 169.5M frames and 2, 989.5 hours.</p>
+<table class="compact">
+<tr><th>Dataset</th><th>Frames</th><th>Duration</th><th>FPS</th><th>Camera View</th><th>Category</th></tr>
+<tr><td>GR-1 In-house</td><td>6.4M</td><td>88.4 hr</td><td>20</td><td>Egocentric</td><td>Real robot</td></tr>
+<tr><td>DROID (OXE)</td><td>23.1M</td><td>428.3 hr</td><td>15</td><td>Left, Right, Wrist</td><td>Real robot</td></tr>
+<tr><td>RT-1 (OXE)</td><td>3.7M</td><td>338.4 hr</td><td>3</td><td>Egocentric</td><td>Real robot</td></tr>
+<tr><td>Language Table (OXE)</td><td>7.0M</td><td>195.7 hr</td><td>10</td><td>Front-facing</td><td>Real robot</td></tr>
+<tr><td>Bridge-v2 (OXE)</td><td>2.0M</td><td>111.1 hr</td><td>5</td><td>Shoulder, left, right, wrist</td><td>Real robot</td></tr>
+<tr><td>MUTEX (OXE)</td><td>362K</td><td>5.0 hr</td><td>20</td><td>Wrist</td><td>Real robot</td></tr>
+<tr><td>Plex (OXE)</td><td>77K</td><td>1.1 hr</td><td>20</td><td>Wrist</td><td>Real robot</td></tr>
+<tr><td>RoboSet (OXE)</td><td>1.4M</td><td>78.9 hr</td><td>5</td><td>Left, Right, Wrist</td><td>Real robot</td></tr>
+<tr><td>GR-1 Simulation</td><td>125.5M</td><td>1, 742.6 hr</td><td>20</td><td>Egocentric</td><td>Simulation</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>169.5M</strong></td><td><strong>2, 989.5 hr</strong></td><td>--</td><td>--</td><td>--</td></tr>
+</table>
+<div class="figure">
+<img alt="Pretraining data mixture" src="figures/x3.png"/>
+<div class="caption">Figure 3: Pre-trained data mixture for action-aware vision-language embedding model.</div>
+</div>
+<h3>6.2 Training hyperparameters</h3>
+<table class="compact">
+<tr><th>stage</th><th>settings</th></tr>
+<tr><td>Embedding model pretraining</td><td>256 NVIDIA H100 GPUs; batch size 8192; 150, 000 gradient steps. </td></tr>
+<tr><td>Optimizer</td><td>AdamW; $\beta_1=0.95, \beta_2=0.999, \epsilon=1e-8$; weight decay 1e-5. </td></tr>
+<tr><td>Learning rate schedule</td><td>Cosine schedule; warmup ratio 0.05. </td></tr>
+<tr><td>Flow-matching timestep</td><td>$p(\tau)=\text{Beta}((s-\tau)/s; 1.5, 1)$, $s=0.999$. </td></tr>
+<tr><td>Multitask experiments</td><td>32 NVIDIA H100 GPUs; batch size 1024; 80, 000 gradient steps; the rest of the super participating pre-training are consistent.</td></tr>
+<tr><td>Inference denoising</td><td>$K=4$ Euler integration steps. </td></tr>
+<tr><td>FLARE loss</td><td>$M=32$ future/embedding tokens; main experiment layer 6 / 8; $\lambda=0.2$; EMA $\rho=0.995$.</td></tr>
+</table>
+<h3>6.3 reproducibility checklist</h3>
+<div class="audit-card">
+<h4>The paper gives relatively sufficient information</h4>
+<p><span class="ok">Fully: </span>Core formula, DiT token structure, Q-former embedding structure, main loss, main experiment benchmark, baseline, number of training steps, GPU scale, batch size, optimizer, data table, pseudo code, key hyperparameter ablation.</p>
+<p><span class="warn">Still need to add: </span>GitHub shows coming soon on the project page; the complete data preprocessing script, real GR1 control interface, task configuration file for each benchmark, precise model config, checkpoint, and human video alignment/sampling details are not fully disclosed in the source code.</p>
+</div>
+<div class="audit-card">
+<h4>Minimum recurrence path</h4>
+<ol>
+<li>Implements the action-aware VL embedding module of SigLIP2 + 4-layer fusion transformer + Q-former, outputting 32 tokens.</li>
+<li>Use mixtures such as GR-1/OXE/RoboSet for embedding model pre-training, and use action flow-matching objective to ensure action-awareness.</li>
+<li>Implement GR00T N1 style DiT flow-matching policy, input state token, noisy action tokens and future tokens.</li>
+<li>Take future-token activations on layer 6 and do cosine alignment with target future observation embedding.</li>
+<li>The total training loss is $\mathcal{L}_{fm}+0.2\mathcal{L}_{align}$, and the EMA target embedding of $\rho=0.995$ is used in post-training.</li>
+<li>Evaluated at 50 episodes/task on RoboCasa/GR1, checkpoints are evaluated every 1000 steps, and the maximum success rate of the last five checkpoints is reported.</li>
+</ol>
+</div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Judging from the paper's own problem setting and experiments, the most valuable part is to reduce the dimensionality of world modeling supervision from "predicting the visible future" to "aligning and controlling the relevant future latent". This not only retains the benefits of future prediction as an auxiliary signal, but also avoids the computational burden of pixel/frame generation. It also naturally explains why video-only human demonstrations are available: action flow matching cannot be trained on action-free data, but current/future observation pairs can be provided to train latent dynamics.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The support for the results comes from four types of evidence: first, two multitask simulation benchmarks cover single-arm and humanoid tabletop manipulation, and FLARE is the highest in all main summary indicators; second, UWM is still lower than FLARE after being trained to 400k steps, reducing the explanation of "just training for longer"; third, target embedding, loss layer, $\lambda$, and EMA are all ablated; fourth, real GR1 and novel objects + human egocentric videos The description method is not only valid in simulation. </p>
+<h3>7.3 Author's statement of limitations</h3>
+<ul>
+<li><strong>Task scope: </strong>The paper mainly focuses on imitation learning and real humanoid pick-and-place, and has not yet covered more complex fine dexterity operations.</li>
+<li><strong>Training paradigm: </strong>The author considers incorporating reinforcement learning as a future direction, and the current method is mainly imitation learning.</li>
+<li><strong>Expert data relies on: </strong>Although it can generalize to novel objects, it still relies on a small number of expert demonstrations; it limits scalability when expert demonstrations are difficult to obtain.</li>
+<li><strong>Human video source: </strong>The egocentric human videos in the paper are from a head-mounted GoPro in a controlled setting; scaling up to data from larger, more naturalistic settings remains future work.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>FLARE is suitable for manipulation tasks where latent dynamics can be learned from current observations and future observations, and future visual language embedding can express task progress. It does not directly provide explicit planning rollout, nor does it generate inspectable future images; therefore if the user needs interpretable visual prediction trajectories, FLARE's latent world model is not as intuitive as the explicit image generation method.</p>
+<p>In addition, FLARE's benefits depend on target embedding quality. The generic SigLIP2 target can bring improvements, but action-aware embedding is significantly better; this means that when reproducing in new domains, the data coverage and action-awareness of the embedding model may become a major bottleneck.</p>
+<h3>7.5 Appendix rollout information</h3>
+<div class="figure">
+<img alt="Real GR1 rollouts" src="figures/x12.png"/>
+<div class="caption">Appendix Figure: Real GR1 rollout of four pick-and-place tasks. The author qualitatively points out that the FLARE policy learns to go around or over easy-to-fall objects and then grab them.</div>
+</div>
+<div class="figure">
+<img alt="Novel object rollouts" src="figures/x13.png"/>
+<div class="caption">Appendix Figure: Rollout of five novel objects to supplement grasping generalization after human egocentric co-training.</div>
+</div>
+</section>
+</main>
+</body>
+</html>

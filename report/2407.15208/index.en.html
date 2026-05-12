@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Flow as the Cross-Domain Manipulation Interface - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Flow as the Cross-Domain Manipulation Interface</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Mengda Xu, Zhenjia Xu, Yinghao Xu, Cheng Chi, Gordon Wetzstein, Manuela Veloso, Shuran Song</p>
+<p><strong>Organization: </strong>Stanford University; Columbia University; J.P. Morgan AI Research; Carnegie Mellon University</p>
+<p><strong>Publication: </strong>Conference on Robot Learning 2024; arXiv v1 2024-07-21, v2 2024-10-04</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2407.15208">arXiv</a> | <a href="https://arxiv.org/pdf/2407.15208">PDF</a> | <a href="https://im-flow-act.github.io">Project page</a></p>
+<p><strong>Keywords: </strong>Im2Flow2Act; object flow; cross-domain manipulation; cross-embodiment learning; sim-to-real; flow-conditioned policy</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Motivation</a></li>
+<li><a href="#related">3. Summary of related work</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiment</a></li>
+<li><a href="#repro">6. Summary of recurrence information</a></li>
+<li><a href="#discussion">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper proposes Im2Flow2Act, which uses object flow as a unified interface between human video, simulation exploration data and real robot execution: first generate a complete object flow of "how the object should move" from real human hand video and task language, and then use a flow-conditioned policy trained only on simulated robot play data to convert the flow into UR5e real actions.
+ </div>
+<table class="tight">
+<tr><th>Reading targeting item</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>Real robot teleoperation data is expensive, and the human hand video and robot action space are very different; the author wants the robot to learn real operation skills from real human demonstration videos and simulation exploration data without real robot training data.</td></tr>
+<tr><td>The author's approach</td><td>Use object flow as a cross-embodiment, cross-environment interface. The flow generation network generates a complete task flow from the initial image and task description; the flow-conditioned imitation policy outputs the robot end action based on the task flow, current keypoint tracking and proprioception.</td></tr>
+<tr><td>most important results</td><td>The real-world four-task language-conditioned success rate is Pick&amp;Place 90%, Pouring 80%, Drawer 85%, and Cloth 70%, with an average of about 81%; the simulated language-conditioned success rate is 90%, 85%, 90%, and 35%; the long-horizon multi-object task reaches 85%.</td></tr>
+<tr><td>Things to note when reading</td><td>The method relies on 2D flow, Grounding DINO, SAM/motion/depth filters, TAPIR online point tracking and camera perspective calibration; 2D flow has ambiguity for 3D actions, and cloth is only 35% in the language-conditioned simulation, which is the boundary that should be focused on when reading experiments.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand point tracking / object flow representation, Latent Diffusion / AnimateDiff condition generation, transformer temporal alignment, Diffusion Policy, and sim-to-real and cross-embodiment experimental design.</p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Object flow interface: </strong>The author uses "object movement" instead of "robot action" as the intermediate variable, explicitly excludes background and embodiment motion, and reduces the difference in human hand/robot appearance.</li>
+<li><strong>Separate high-level task understanding from low-level execution: </strong>The flow generation network learns high-level task flow from cross-embodiment human videos; the flow-conditioned policy learns low-level action mapping from simulated robot exploration data.</li>
+<li><strong>Deployment of real robots without real training data: </strong>The real UR5e task does not use real robot training data, relies on human hand video + simulation exploration, and is tested on rigid body, joint object, and flexible object tasks.</li>
+<li><strong>Complete appendix verification: </strong>Appendix supplements the ATM comparison, long-horizon multi-object task, initial 3D keypoints ablation, Stable Diffusion pre-training ablation, realistic evaluation protocol and additional limitations.</li>
+</ul>
+<div class="figure">
+<img alt="Flow as the cross-domain manipulation interface" src="figures/figures_teaser.png"/>
+<div class="caption"><strong>Figure 1: </strong> Core diagram of Im2Flow2Act. Object flow simultaneously connects action-less human videos and task-less simulated robot data, ultimately forming a language-conditioned real-world manipulation system.</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>To extend robot learning to multi-task real-life scenarios, the key difficulty is not whether there are demonstrations for a single task, but that the sources of demonstration data are incompatible with each other. Real robot data is expensive, simulation data and real appearance/contact dynamics are different, human videos have no robot motion, and the embodiment of the human hand and the UR5e gripper are completely different. The author's starting point is: If you only look at "how the manipulated object should move", then this information is easier to reuse across embodiments than joint movements or human hand trajectories.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li><strong>Flow-based manipulation still often requires real robot data: </strong>ATM can do articulated/deformable operations with flow-conditioned BC, but still requires real-world robot teleportation data; Track2Act / General Flow class heuristics require 3D flow, pose estimation or manual placement of contact points.</li>
+<li><strong>Cross-embodiment methods are still difficult to cross action spaces: </strong>Many methods extract visual representations, rewards, affordances, or hand gestures from human videos, but in-domain robot data still needs to be collected to fill the implementation gap.</li>
+<li><strong>Grid flow will capture embodiment motion: </strong>Uniform grid flow such as ATM will track the human hand, spherical agent or the robot arm itself, and a visual input out-of-distribution will appear when the UR5e gripper is deployed.</li>
+<li><strong>Pure 2D representation with 3D ambiguity: </strong>2D flow does not have sufficient details for actions such as z-axis movement, out-of-plane rotation, and screwing. This is a limitation that the author acknowledges in both the main text and the appendix.</li>
+</ul>
+<h3>2.3 The solution ideas of this article</h3>
+<p>Im2Flow2Act splits the system into two modules that can be trained separately. First, the flow generation network inputs the initial RGB image, task description and initial object keypoints, and outputs the complete task flow. Second, the flow-conditioned imitation policy inputs task flow, current tracked keypoints and proprioception, and outputs the end-effector action sequence of the next 16 steps. During deployment, a complete flow is generated only once at the beginning of the task. During the execution process, the remaining flows corresponding to the current progress are found through online point tracking and temporal alignment, and then the actions are output in a closed loop.</p>
+</section>
+<section id="related">
+<h2>3. Summary of related work</h2>
+<table>
+<tr><th>Technical line</th><th>Positioning in the paper</th><th>How to connect to this article</th></tr>
+<tr><td>Flow-based manipulation</td><td>FlowBot3D, ToolFlowNet, etc. indicate that flow can be used for articulated objects or tool manipulation, but the tasks are more specialized; RoboTAP/ATM/Track2Act, etc. still require real robot data, heuristic actions or task-specific conditions.</td><td>Im2Flow2Act only generates object-centric flows and uses simulation exploration data to learn flow-to-action policy, with the goal of reducing dependence on real robot data.</td></tr>
+<tr><td>Learning from cross-embodiment data</td><td>Existing routes include visual pre-training, reward learning, affordance extraction, hand pose, domain translation and video/flow generation.</td><td>The author believes that the most transferable thing in human videos is the motion of the manipulated object; therefore, instead of directly transferring from human hand movements, it is first abstracted into object flow.</td></tr>
+<tr><td>Sim-to-real transfer</td><td>Common methods include depth observation, domain randomization, knowledge distillation, and system identification, but often require task-specific simulation or reward design.</td><td>The policy in this article does not rely on task-specific simulation rewards, but learns from task-less simulated exploration data generated by predefined primitives.</td></tr>
+</table>
+<div class="figure">
+<img alt="Im2Flow2Act overview" src="figures/figures_flow_method.png"/>
+<div class="caption"><strong>Figure 2: </strong> Method overview: flow generator generates complete task flow; closed-loop policy uses temporal alignment to estimate remaining task flow, and then uses diffusion action head to generate actions.</div>
+</div>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Overall pipeline</h3>
+<ol>
+<li><strong>Determine the target object: </strong>Use Grounding DINO to detect object bounding boxes based on manually given keywords. Real task keywords include "green cup", "yellow drawer", and "checker cloth" <span class="appendix-ref">Appendix: Grounding DINO</span>. </li>
+<li><strong>Form a rectangular flow image: </strong>Sampling keypoints evenly within the object frame to form $\mathcal{F}_0\in\mathbb{R}^{3\times H\times W}$. The three channels are the $u, v$ coordinates and visibility of image-space.</li>
+<li><strong>Generate complete task flow: </strong>Use TAPIR to get $\mathcal{F}_{1: T}\in\mathbb{R}^{3\times T\times H\times W}$ from human hand video to train the flow generator; when deployed, the AnimateDiff-style model generates future flows based on the initial frame and language.</li>
+<li><strong>Filter object-centric flows: </strong>Motion filters, SAM filters and depth filters remove background points, points on overly large segments and points with missing depth; then $N=128$ keypoints are randomly selected as policy input <span class="appendix-ref">Appendix: Motion Filters</span>. </li>
+<li><strong>Closed loop execution: </strong>Use TAPIR online to track the current keypoints at 5Hz; the policy aligns the remaining flow according to the current progress and outputs a 16-step action sequence.</li>
+</ol>
+<div class="figure">
+<img alt="Flow generation network" src="figures/figures_flow_gen.png"/>
+<div class="caption"><strong>Figure 3: </strong> Flow Generation Network. Grounding DINO detects targets, samples keypoints within the frame, AnimateDiff generates future flows, and motion filter obtains object-centric task flow.</div>
+</div>
+<h3>4.2 Flow generation network</h3>
+<p>The authors' key representation choice is to organize permutation-invariant object keypoints into a structured rectangular flow image. This allows reusing the convolution and attention structures of the image/video generation model instead of directly processing unordered point sets.</p>
+<div class="formula-block">
+<p class="intuition">Intuition: Instead of generating an RGB video, the flow generator generates "where these object points should be in the next 32 time steps."</p>
+ $$
+ \mathcal{F}_0 \in \mathbb{R}^{3\times H\times W}, \qquad
+ \mathcal{F}_{1: T}\in \mathbb{R}^{3\times T\times H\times W}.
+ $$
+ <table class="symbol-table">
+<tr><td>$H=W=32$</td><td>The flow image spatial resolution given in the appendix training details corresponds to 1024 keypoints.</td></tr>
+<tr><td>$T=32$</td><td>The number of time steps for flow generation network and task flow horizon.</td></tr>
+<tr><td>3 channels</td><td>$u$ coordinates, $v$ coordinates, and visibility of each keypoint.</td></tr>
+<tr><td>$E_\phi, D_\theta$</td><td>Stable Diffusion autoencoder's encoder/decoder; the encoder is fixed and the decoder is fine-tune to adapt to flow images.</td></tr>
+</table>
+</div>
+<p>In order to reduce the cost of high-resolution flow generation, the author compresses the flow image into the latent space of Stable Diffusion: $x_{1: T}=\{E_\phi(\mathcal{F}_i)\mid i\in[1, T]\}$, and the spatial dimension is downsampled 8 times compared to the input flow. When training AnimateDiff, insert LoRA with rank=128 into Stable Diffusion U-Net and train the motion module from scratch.</p>
+<h3>4.3 Flow-conditioned imitation policy</h3>
+<p>The conditional probability of policy is written as: </p>
+<div class="formula-block">
+ $$
+ p(\mathcal{A}_{t: t+L}\mid \mathcal{F}_{0: T}, s_t, \rho_t), \qquad
+ \mathcal{A}_{t: t+L}=\{a_t, \ldots, a_{t+L}\}.
+ $$
+ <p>Action $a_t$ contains 6-DoF end-effector Cartesian pose and 1-DoF gripper open/close. $s_t$ is encoded by the current tracked keypoint image locations $f_t$ and the initial 3D coordinates $x_0$. $\rho_t$ is the robot proprioception.</p>
+</div>
+<p>policy contains three modules: </p>
+<table>
+<tr><th>module</th><th>input/output</th><th>function</th></tr>
+<tr><td>State encoder $\phi$</td><td>Input $N=128$ current 2D keypoints and corresponding initial 3D coordinates; output 384-d state representation.</td><td>Compress the current object state into a permutation-invariant representation. Implemented as 4-layer transformer encoder + CLS token <span class="appendix-ref">Appendix: Policy training</span>. </td></tr>
+<tr><td>Temporal alignment $\psi$</td><td>Input the complete task flow, current state, proprioception; output the latent $z_t$ of the remaining task flow.</td><td>Estimate the current execution progress to avoid that the policy is always conditioned on the complete flow; it is also a key module that supports demonstration-conditioned execution.</td></tr>
+<tr><td>Diffusion action head</td><td>Input $z_t, s_t, \rho_t$; output action sequence.</td><td>Using Diffusion Policy, DDIM scheduler, 50 training diffusion steps, 16 inference steps.</td></tr>
+</table>
+<details>
+<summary>Why is Temporal alignment necessary?</summary>
+<div>
+<p>The training data comes from unstructured simulated exploration. The complete task flow only describes the target movement from the starting point to the end point, but after the policy is executed halfway, you need to know "which flow segments are left unfinished". Therefore, the author first uses encoder $\xi$ to encode the ground-truth remaining flow $f_{t: T'}$ into the supervision target $\hat{z}_t$, then trains $\psi(\mathcal{F}_{0: T}, s_t, \rho_t)$ to predict $z_t$, and uses $L_2$ loss $\|\hat{z}_t-z_t\|^2$ for supervision. Both the main article and real experiments show that the execution will be less smooth after alignment is removed, and the decrease in real Pick&amp;Place and Pouring is particularly obvious.</p>
+</div>
+</details>
+<h3>4.4 Implementation points</h3>
+<div class="impl-note"><strong>Flow generator conditional injection: </strong>The text is passed through CLIP text encoder, the initial frame is passed through CLIP image encoder, and the initial keypoints are fixed 2D sinusoidal encoding; all conditions are injected into the denoising process through cross-attention.</div>
+<div class="impl-note"><strong>Training hyperparameters: </strong>Stable Diffusion decoder fine-tune 400 epochs, learning rate $5\times10^{-5}$; AnimateDiff LoRA rank=128, motion module training 4000 epochs, learning rate $1\times10^{-4}$, AdamW weight decay $10^{-2}$.</div>
+<div class="impl-note"><strong>Policy input format: </strong>The sample is $(\rho_t, f_t, \mathcal{A}_{t: t+L}, F_{0: T})$; task flow horizon $T=32$, action sequence length=16, and $N=128$ are randomly selected from available keypoints.</div>
+<div class="impl-note"><strong>Real execution: </strong>UR5e + WSG-50 gripper, policy sends end pose command at 2.5Hz, end speed limit is $&lt;0.2$m/s, position is at least 1cm higher than the desktop; RealSense D415 720p/30Hz, online tracking input is downsampled to 256x256/5Hz.</div>
+<div class="pseudocode">Algorithm: Im2Flow2Act inference
+Input: initial RGB-D observation, task text, object keyword, calibrated camera
+1. Use Grounding DINO to detect the object of interest.
+2. Uniformly sample H x W keypoints in the object bounding box.
+3. Generate a complete task flow F_0: T with the flow generation network.
+4. Apply motion, SAM, and depth filters; keep N=128 object keypoints.
+5. During execution, track the same keypoints online with TAPIR.
+6. Encode current keypoints and initial 3D coordinates into state s_t.
+7. Temporal alignment predicts remaining-flow latent z_t.
+8. Diffusion action head outputs a 16-step end-effector action sequence.
+9. Execute in closed loop until the task success criterion is met or the episode ends.</div>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<p>The authors evaluate 4 categories of tasks: Pick&amp;Place, Pouring, Drawer Opening, Cloth Folding, covering rigid bodies, joint objects, and flexible objects. The training data is divided into two parts: robot exploration data collected using UR5e and predefined random heuristic primitives in simulation; human demonstration videos collected for each task in the real world for training flow generation model. The evaluation includes both demonstration-conditioned execution and language-conditioned execution modes.</p>
+<table>
+<tr><th>Assessment mode</th><th>meaning</th><th>What problem does it isolate?</th></tr>
+<tr><td>Demonstration-conditioned execution</td><td>The policy uses a single human demonstration video or a simulated spherical agent demonstration to extract the object flow.</td><td>It mainly tests whether the low-level flow-to-action policy can follow the given flow and try to eliminate flow generation errors.</td></tr>
+<tr><td>Language-conditioned execution</td><td>The complete system first generates a flow based on the task description and initial image, and then uses the policy to execute the action.</td><td>Test the end-to-end capabilities of flow generator + policy.</td></tr>
+</table>
+<h3>5.2 Baselines</h3>
+<table>
+<tr><th>Baseline</th><th>design purpose</th><th>Fairness/Additional Information</th></tr>
+<tr><td>ATM</td><td>Closed-loop grid flow generation only predicts the immediate next few steps.</td><td>Test whether full object-centric task flow is more suitable for cross-embodiment than grid flow.</td></tr>
+<tr><td>Heuristic</td><td>Select the contact point and use RANSAC / pose estimation to push the motion from the future object flow.</td><td>The author gives it ground-truth 3D flows and optimal grasp pose; used to test whether the learned policy is necessary.</td></tr>
+<tr><td>GridFlow</td><td>Replace Im2Flow2Act's object keypoints with uniform grid keypoints.</td><td>Examine the effect of object-centric keypoint sampling.</td></tr>
+<tr><td>No alignment</td><td>Remove temporal alignment model $\psi$ and complete task flow conditions.</td><td>Check whether alignment helps find the action corresponding to the current progress from unstructured exploration data.</td></tr>
+</table>
+<div class="figure">
+<img alt="Tasks and results" src="figures/figures_flow_experiment.png"/>
+<div class="caption"><strong>Figure 4: </strong> Four types of real tasks and execution results. Initial scene, flow generation visualization and online point tracking are from RealSense; robot execution recorded from another perspective.</div>
+</div>
+<h3>5.3 Simulation results</h3>
+<table class="tight">
+<tr><th rowspan="2">method</th><th colspan="4">Demonstration-conditioned</th><th colspan="4">Language-conditioned</th></tr>
+<tr><th>Pick&amp;Place</th><th>Pouring</th><th>Drawer</th><th>Cloth</th><th>Pick&amp;Place</th><th>Pouring</th><th>Drawer</th><th>Cloth</th></tr>
+<tr><td><strong>Im2Flow2Act</strong></td><td><strong>100</strong></td><td><strong>95</strong></td><td><strong>95</strong></td><td><strong>90</strong></td><td><strong>90</strong></td><td><strong>85</strong></td><td><strong>90</strong></td><td>35</td></tr>
+<tr><td>ATM</td><td>/</td><td>/</td><td>/</td><td>/</td><td>50</td><td>30</td><td>85</td><td>30</td></tr>
+<tr><td>Heuristic</td><td>70</td><td>50</td><td>30</td><td>0</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+<tr><td>GridFlow</td><td>30</td><td>25</td><td>35</td><td>45</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+<tr><td>No alignment</td><td>80</td><td>85</td><td>90</td><td>90</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+</table>
+<p>The author's interpretation is: object flow can connect different data sources; although Heuristic has ground-truth 3D flows and optimal grasp pose, it can still work on tasks rigid, but fails obviously on drawer / cloth, indicating that flow-to-action requires a learning policy; GridFlow is significantly lower than object flow, indicating that it is critical to exclude embodiment/background motion.</p>
+<h3>5.4 Real-world results</h3>
+<table class="tight">
+<tr><th rowspan="2">method</th><th colspan="4">Demonstration-conditioned</th><th colspan="4">Language-conditioned</th></tr>
+<tr><th>Pick&amp;Place</th><th>Pouring</th><th>Drawer</th><th>Cloth</th><th>Pick&amp;Place</th><th>Pouring</th><th>Drawer</th><th>Cloth</th></tr>
+<tr><td><strong>Im2Flow2Act</strong></td><td><strong>95</strong></td><td><strong>80</strong></td><td><strong>90</strong></td><td><strong>70</strong></td><td><strong>90</strong></td><td><strong>80</strong></td><td><strong>85</strong></td><td><strong>70</strong></td></tr>
+<tr><td>Heuristic</td><td>70</td><td>50</td><td>30</td><td>0</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+<tr><td>No alignment</td><td>55</td><td>0</td><td>80</td><td>60</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+</table>
+<p>The real world average success rate is about 81%. The author points out that the average drop from simulation to real is only 15%, and attributes the reason to the fact that flow pays more attention to motion rather than appearance, thus reducing the sim-to-real gap. No alignment drops significantly on real Pick&amp;Place/Pouring, supporting the design of temporal alignment.</p>
+<div class="figure">
+<img alt="Typical failure cases of baselines" src="figures/figures_baselines.png"/>
+<div class="caption"><strong>Figure 5: </strong> Baseline failure cases. Heuristic may push the drawer back first even with human ground-truth flow; No Alignment will cause unnecessary rotation along random behavior in exploration data.</div>
+</div>
+<h3>5.5 Appendix: ATM, long-horizon and keypoint ablation</h3>
+<table>
+<tr><th>Appendix experiment</th><th>result</th><th>Conclusion</th></tr>
+<tr><td>ATM comparison</td><td>In Pick&amp;Place/Pouring/Drawer, Im2Flow2Act language-conditioned is 90/85/90; ATM cross embodiment is 50/30/85; ATM same embodiment is 90/90/95.</td><td>ATM can be strong in the same embodiment, but cross-embodiment visual input OOD; object-centric flow is more robust to UR5 appearing in the picture.</td></tr>
+<tr><td>Long-horizon multi-object task</td><td>The task is open drawer -&gt; pick blue cube -&gt; place into drawer -&gt; close drawer. Im2Flow2Act demonstration-conditioned 90%, language-conditioned 85%; ATM language-conditioned 45%.</td><td>Complete task flow + temporal subsampling can compress long-term multi-object tasks.</td></tr>
+<tr><td>Initial 3D keypoints</td><td>Demo-conditioned without 3D is 100/90/90, full is 100/95/95; language-conditioned without 3D is 85/85/80, full is 90/85/90.</td><td>Initial 3D keypoints are helpful for identifying noisy keypoints under generated flow input, especially drawer handle positions.</td></tr>
+</table>
+<div class="two-col">
+<div class="figure">
+<img alt="ATM comparison" src="figures/figures_ATM_comparison.png"/>
+<div class="caption"><strong>Figure 6: </strong> Comparison of flow generation between ATM and Im2Flow2Act during pouring deployment.</div>
+</div>
+<div class="figure">
+<img alt="Long horizon task" src="figures/figures_Long_horizon_im2flow2act.png"/>
+<div class="caption"><strong>Figure 7: </strong> Long-horizon multi-object task. The system first generates flows for multiple objects, followed by policies.</div>
+</div>
+</div>
+<div class="figure">
+<img alt="ATM full grid comparison" src="figures/figures_rebuttal_atm_full_grid.png"/>
+<div class="caption"><strong>Figure 8: </strong> ATM full-grid supplementary comparison. The author shows that when the robot is closer to the object, ATM cross-embodiment still generates noise flow; the flow of Im2Flow2Act has been processed by motion filters, and the initial point is uniformly sampled by the bounding box rather than manually selected.</div>
+</div>
+<h3>5.6 Appendix: Pre-training, simulation flow and deformable failure</h3>
+<table>
+<tr><th>experiment</th><th>Numerical value/phenomenon</th><th>explain</th></tr>
+<tr><td>Stable Diffusion pre-training ablation</td><td>Pretrain U-Net: 90/85/90/35; U-Net from scratch: 90/90/95/30. </td><td>Pretraining has less impact on the final success rate, but LoRA + pretrained SD provides training efficiency; AE latent space may still help diffusion learning.</td></tr>
+<tr><td>Generated flow in simulation</td><td>In the simulation, a spherical agent is used instead of UR5 to collect cross-embodiment demonstrations, and a motion filter is used to visualize the high-variance flow.</td><td>Verify that the flow generator not only works on real human hand videos, but also learns from simulated cross-embodiment demonstrations.</td></tr>
+<tr><td>Deformable failure</td><td>In the cloth folding simulation, in order to allow the robot to grasp cloth, small squares of 1cm x 1cm x 9cm are attached to the corners of the cloth; the policy can often reach the corners but cannot accurately grasp the small squares.</td><td>Explain that the simulated cloth language-conditioned is only 35%; in reality, it can be grabbed anywhere along the corners of the cloth, so the success rate is more reasonable.</td></tr>
+</table>
+<div class="two-col">
+<div class="figure">
+<img alt="Pretrain versus scratch loss" src="figures/figures_no_smooth.png"/>
+<div class="caption"><strong>Figure 9: </strong> Training loss of Pretrained U-Net and scratch; the author shows that pre-training converges faster.</div>
+</div>
+<div class="figure">
+<img alt="Deformable failure" src="figures/figures_deformable_failure.png"/>
+<div class="caption"><strong>Figure 10: </strong> Deformable environment failure. The generated flow points to a reasonable grabbing point, but the small square fails to grab, causing the task to fail.</div>
+</div>
+</div>
+<div class="figure">
+<img alt="Generated flow in simulation" src="figures/figures_Sim_Flow.png"/>
+<div class="caption"><strong>Figure 11: </strong> Visualization of generated flow in simulation. The author uses motion filter to filter high-variance flow and downsamples keypoints for easy display; the real-world flow generator is trained by human demonstrations.</div>
+</div>
+</section>
+<section id="repro">
+<h2>6. Summary of recurrence information</h2>
+<h3>6.1 Data collection</h3>
+<table>
+<tr><th>data source</th><th>How to collect/use</th></tr>
+<tr><td>Simulated exploration data</td><td>Use UR5e and a set of predefined random heuristic primitives in simulations, covering rigid, articulated, and deformable objects. Train a multi-task flow-conditioned policy.</td></tr>
+<tr><td>Real-world human demonstrations</td><td>Four tasks: pick &amp; place, pouring, opening drawer, folding cloth. RealSense 30 FPS recording, training flow generation model.</td></tr>
+<tr><td>Simulation cross-embodiment demos</td><td>Use sphere agent to simulate human demonstrations, collected using the same primitive; long-horizon task collects 150 sphere trajectories and 100 UR5 demonstrations.</td></tr>
+</table>
+<h3>6.2 Authentic Assessment Protocol</h3>
+<ul>
+<li><strong>Initial state: </strong>During real evaluation, the background does not exactly match the human demonstration video and is used to test the generalization of the flow generator; the initial position of the object roughly obeys the distribution in the human demonstration.</li>
+<li><strong>Pick&amp;Place: </strong>The cup is placed firmly on the red plate, and the red plate does not move more than 5cm.</li>
+<li><strong>Pouring: </strong>The cup rotates more than 30 degrees and performs a complete pouring action, and at least half of the cup overlaps the red bowl in the world x-axis direction.</li>
+<li><strong>Drawer Opening: </strong>When the drawer is fully opened, the clamping claws cannot hit the drawer surface severely and the drawer cannot be pushed back more than 5cm.</li>
+<li><strong>Cloth Folding: </strong>Press the generate flow to fold the cloth. After completion, the distance between the two corners is lower than the threshold; due to the deformable sim-to-real gap, the threshold is set to 7cm.</li>
+</ul>
+<h3>6.3 Key hyperparameters</h3>
+<table>
+<tr><th>module</th><th>Configuration</th></tr>
+<tr><td>Flow image</td><td>$H=W=32$, $T=32$, 1024 keypoints, 3 channels: $u, v, visibility$. </td></tr>
+<tr><td>Flow generator</td><td>Stable Diffusion AE encoder is fixed; decoder fine-tune 400 epochs, lr $5e-5$; AnimateDiff U-Net inserts LoRA rank 128; motion module is trained from scratch 4000 epochs, lr $1e-4$, AdamW weight decay $1e-2$.</td></tr>
+<tr><td>CLIP conditions</td><td>CLIP text encoder for text; final ViT layer patch embeddings of CLIP image encoder for initial image; openai/clip-vit-large-patch14 weight freezing.</td></tr>
+<tr><td>Policy sample</td><td>$(\rho_t, f_t, \mathcal{A}_{t: t+L}, F_{0: T})$; task flow horizon 32; action sequence length 16; $N=128$ keypoints are randomly selected for each sample during training.</td></tr>
+<tr><td>State encoder</td><td>The initial 3D coordinate projection is 192-d, and the 2D keypoint location encoding is 192-d, which is spliced into a 384-d descriptor; 4-layer transformer encoder + CLS token.</td></tr>
+<tr><td>Temporal alignment</td><td>The remaining task flow encoder $\xi$ is a 4-layer transformer; the alignment model is an 8-layer transformer; using fixed 1D sinusoidal positional encoding and CLS token.</td></tr>
+<tr><td>Action head</td><td>Diffusion Policy; DDIM scheduler; 50 training diffusion steps, 16 inference steps; policy training 500 epochs, lr $1e-4$, AdamW weight decay $1e-2$.</td></tr>
+</table>
+<h3>6.4 Inference perception module</h3>
+<table>
+<tr><th>module</th><th>Configuration/Thresholds</th></tr>
+<tr><td>Grounding DINO</td><td>grounding-dino-base, input 480x640; keywords: green cup, yellow drawer, checker cloth.</td></tr>
+<tr><td>Moving filter</td><td>Remove points in 256x256 image space that move below the threshold; threshold 20 for Pick&amp;Place/Pouring/Drawer, threshold 10 for Cloth.</td></tr>
+<tr><td>SAM filter</td><td>The initial frame is resized to 256x256, using finest segmentation; the filter points are points whose segment area exceeds the threshold, and the threshold is 10, 000.</td></tr>
+<tr><td>Depth filter</td><td>Remove missing depth, i.e. keypoints with a depth value of 0.</td></tr>
+<tr><td>Online tracking</td><td>TAPIR online point tracking, visual observation resize to 256x256, 5Hz.</td></tr>
+</table>
+<div class="audit-card">
+<strong>Local material status: </strong>arXiv source code has been decompressed in <code>tmp/arxiv_source_2407.15208/</code>; PDF at <code>tmp/2407.15208.pdf</code>; The source compressed package is in <code>tmp/arxiv_source_2407.15208.tar.gz</code>; The report chart is in <code>Report/2407.15208/figures/</code>. These temporary materials have not yet been deleted to facilitate continued verification.
+ </div>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>According to the paper's own claims and experiments, the most valuable thing is to break down cross-domain robot learning into a relatively clear interface problem: use object flow to express task knowledge, let human demonstrations only be responsible for providing "how the object moves", and let simulation exploration only be responsible for learning "how the robot achieves this movement". This disassembly avoids migrating directly from human actions to UR5e and avoids collecting robot teleoperation for each real task.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>Experimental support mainly comes from three types of controls. First, the ground-truth 3D flow obtained by the Heuristic baseline and the optimal grasp pose are still different from drawer / cloth, indicating that flow-to-action is not sufficient for simple pose estimation. Second, the decrease of GridFlow and ATM cross-embodiment indicates that "object-centric complete flow" is more suitable for cross-embodiment than grid flow containing motion embodiment. Third, No alignment drops significantly in real tasks, indicating that temporal alignment has a practical effect on implementing the policy learned from unstructured exploration data into real human flow.</p>
+<h3>7.3 Author's statement of limitations</h3>
+<ul>
+<li><strong>3D ambiguity of 2D flow: </strong>Common failures in pouring come from the inaccurate z-axis movement of the robot camera coordinates; 2D flow is difficult to express screwing and other out-of-plane rotations. The author believes that 3D flow may alleviate this.</li>
+<li><strong>Simulation vs. real object dynamics Assumptions: </strong>The framework assumes that the object dynamics of simulation and real world are relatively consistent; deformable object simulation is still difficult, resulting in significant performance differences in folding from simulation to reality.</li>
+<li><strong>Viewing angle calibration assumptions: </strong>The appendix states that the system assumes that the simulation and test environment cameras are viewpoint calibrated, and that the action is visible from the camera perspective.</li>
+<li><strong>Action details are abstracted away by flow: </strong>The flow abstraction ignores some action details and has limitations on dexterous tasks such as in-hand manipulation.</li>
+<li><strong>Depends on object detection: </strong>Flow generation relies on accurate object detection; Grounding DINO / segmentation errors will be passed to subsequent policies.</li>
+<li><strong>Task scope restrictions: </strong>The author focuses on manipulation that "changes the state of an object through interaction"; if the target state change is not reflected in the object motion, such as a touch screen button, the method may not be applicable.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<table>
+<tr><th>Suitable for use cases</th><th>Not suitable or requires additional modules</th></tr>
+<tr><td>Target tasks can be described by object point motion, such as pick/place, pour, open drawer, fold cloth.</td><td>The critical success factors are force, tactile, hidden state or non-visual feedback rather than visible object motion.</td></tr>
+<tr><td>Target objects can be stably positioned by Grounding DINO/SAM/depth filtering and can be tracked online.</td><td>Scenes with severe occlusion, transparent/reflective objects, no depth or tracking easily lost.</td></tr>
+<tr><td>Simulation can generate exploration data that sufficiently covers the action-object motion relationship.</td><td>Real contact dynamics differ greatly from simulation, especially for deformable, granular or high-precision force control tasks.</td></tr>
+<tr><td>The camera view can see the action and target objects, and the simulated/real view can be calibrated.</td><td>Multiple viewing angles change significantly, hand-eye occlusion is strong, and actions occur in areas invisible to the camera.</td></tr>
+</table>
+</section>
+</main>
+</body>
+</html>

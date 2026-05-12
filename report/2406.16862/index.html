@@ -495,12 +495,55 @@
       }
       th, td { padding: 0.55rem; }
     }
-  </style>
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+  <link rel="alternate" hreflang="zh-CN" href="./index.html">
+  <link rel="alternate" hreflang="en" href="./index.en.html">
 </head>
 <body>
 <main>
   <header>
-    <div class="kicker">arXiv:2406.16862 · PhD 组会精读报告</div>
+        <div class="language-switch" aria-label="语言切换">
+      <span class="active" aria-current="page">中文</span>
+      <a href="./index.en.html" lang="en">EN</a>
+    </div>
+<div class="kicker">arXiv:2406.16862 · PhD 组会精读报告</div>
     <h1>Dreamitate: Real-World Visuomotor Policy Learning via Video Generation</h1>
     <p class="subtitle">这篇论文把“生成一段人类用工具完成任务的视频”作为机器人策略学习的中间层：视频模型先想象工具该怎么动，再通过 3D 工具跟踪把轨迹交给真实机械臂执行。</p>
     <div class="meta">

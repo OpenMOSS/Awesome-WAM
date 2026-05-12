@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Robotic Manipulation by Imitating Generated Videos Without Physical Demonstrations - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Robotic Manipulation by Imitating Generated Videos Without Physical Demonstrations</h1>
+<p><strong>Reading Report</strong>: RIGVid attempts to answer a very direct but bold question: Can a robot complete operating tasks in the real world without watching real human/robot demonstrations, but only by watching a task video synthesized by a video generation model?</p>
+<div>
+<span class="tag">arXiv: 2507.00990v2</span>
+<span class="tag">CVPR 2025</span>
+<span class="tag">Robot Manipulation</span>
+<span class="tag">Video Generation</span>
+<span class="tag">6D Pose Tracking</span>
+</div>
+<div class="meta">
+<div>Authors: Shivansh Patel, Shraddhaa Mohan, Hanlin Mai, Unnat Jain, Svetlana Lazebnik, Yunzhu Li</div>
+<div>Institution: UIUC, UC Irvine, Columbia University</div>
+<div>Project page: <a href="https://rigvid-robot.github.io/">https: //rigvid-robot.github.io/</a></div>
+<div>Local output: <code>Report/2507.00990/</code></div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#problem">2. Background and problem setting</a></li>
+<li><a href="#method">3. Method details</a></li>
+<li><a href="#experiments">4. Experiments and results</a></li>
+<li><a href="#appendix">5. Appendix key information</a></li>
+<li><a href="#reproduce">6. Key points of reproducibility and implementation</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>Traditional robot imitation from video methods rely on real human videos, robot demonstrations, or offline robot data. RIGVid wants to verify: given only the initial RGB-D scene and language commands, it is possible to use a generated video as the sole supervision to allow real robots to perform operational tasks such as pouring water, lifting lids, placing spatulas, and sweeping garbage.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>Convert "generate video" into "executable 6D object pose trajectory". The process is: generate task video, VLM filtering fails to generate; estimate the depth of each frame and do scale/offset alignment with the initial true depth; use FoundationPose to track the 6D pose of the active object; after grabbing the object, redirect the object pose trajectory to the end effector trajectory, and perform closed-loop tracking to recover the disturbance.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>The filtered Kling v1.6 generated videos achieve performance similar to real human videos on four real tasks; RIGVid has an average success rate of 85%, which is higher than ReKep's 50%, Gen2Act's 67.5%, AVDC's 32.5%, 4D-DPM's 35.0% and Track2Act's 7.5%.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The key to the success of the result is not that "the video generation model directly understands robots", but that the author compressed the generated video into an object-level SE(3) trajectory, and added a lot of engineering support with real RGB-D, object mesh, 6D tracking, VLM filtering and closed-loop execution. Don't interpret this article as pure prompt-to-action, and don't ignore the two main bottlenecks of depth estimation and mesh pre-construction.</td>
+</tr>
+</table>
+<figure>
+<img alt="RIGVid overview" src="figures/figures_framework.png"/>
+<figcaption>Figure 1: RIGVid overview. Language commands and initial RGB-D scenes enter the video generation model; the robot execution trajectory is then obtained by depth estimation, object 6D pose tracking and trajectory reorientation.</figcaption>
+</figure>
+</section>
+<section id="problem">
+<h2>2. Background and problem setting</h2>
+<h3>core issues</h3>
+<p>The core problem of the paper can be written as: given the initial scene image \(I_0\), the initial depth \(D_0\) and the language command \(c\), directly predict the robot 6DoF end trajectory \(\{\mathbf{T}^{WE}_t\}_{t=1}^T\) without real demonstration or training task strategy. The intermediate representation chosen by the author is not the action token or key point constraints, but the 6D pose trajectory \(\{\mathbf{T}^{WO}_t\}_{t=1}^T\) of the object in world coordinates.</p>
+<p>This changes the problem from "generating robot movements" to "recovering how objects move from generated videos". This transformation is critical because current video generation models can generate rich visual sequences but do not output executable actions; robot execution requires geometrically consistent trajectories.</p>
+<h3>Differences from existing work</h3>
+<ul>
+<li><strong>Relatively real video imitation</strong>: RIGVid does not require the collection of human demonstration videos in the target scene, nor does it require robot teleoperation.</li>
+<li><strong>Relative offline video learning</strong>: It does not learn generalization strategies from large-scale Internet videos, but generates a customized video for the current scene and current command.</li>
+<li><strong>Relative to Gen2Act / Track2Act</strong>: It does not use point trajectories as the final geometric representation, but restores the complete 6D pose of the object, making it more stable under occlusion, rotation, and depth changes.</li>
+<li><strong>Relative ReKep</strong>: ReKep generates sparse keypoint relational constraints and RIGVid preserves continuous visual and temporal details in videos.</li>
+</ul>
+</section>
+<section id="method">
+<h2>3. Method details</h2>
+<h3>3.1 Video generation and VLM filtering</h3>
+<p>The inputs are initial RGB images, corresponding depths, and free language commands. The authors use an image-to-video generative model to generate candidate task videos. Since the generated video may not execute commands, change objects, violate physics, or remain stationary, the author uses GPT-4o/o1 class VLM for automatic filtering: uniformly sample 4 frames from the video, vertically splice them into a video summary, and let the VLM determine whether there are visible hands in the video to complete a given action. If it fails, it will be regenerated, and a maximum of 5 attempts will be made; if all fails, the last generated one will be used.</p>
+<div class="callout">
+ The filtering here is not a decorative module. Experiments show that Sora fails 100% of these tasks; although Kling v1.6 is better, its pass rate for placement and garbage removal is only 55% and 45%. Without filtering, subsequent geometric tracking would "faithfully" turn the erroneous video into an erroneous trajectory.
+ </div>
+<h3>3.2 Depth estimation and scale alignment</h3>
+<p>The generated video is RGB only, and RIGVid requires depth per frame to recover the 3D pose. The author uses a monocular depth estimator to predict depth, but there are scale and translation ambiguities in monocular depth. Therefore, they fit an affine transformation to the predicted depth \(\hat{D}^{mono}_0\) using the true initial depth \(D_0\) in the active object area of the first frame: </p>
+<p>$$D_t = a \hat{D}^{mono}_t + b$$</p>
+<p>This \(a, b\) is applied to the entire video after the first frame is aligned. This design uses the real RGB-D initial observation as a "scale anchor", otherwise the three-dimensional motion in the generated video cannot fall into the real robot coordinates.</p>
+<h3>3.3 Active object recognition and 6D pose trajectory</h3>
+<p>The system needs to know "which object is being manipulated". The author first lets GPT-4o determine the active object category according to the command, then uses Grounding DINO to give the frame, and uses SAM-2 to refine it into a mask. Then use FoundationPose combined with depth tracking to track the 6D pose trajectory of the object.</p>
+<p>FoundationPose is a model-based tracker that requires object mesh. The author uses BundleSDF to pre-acquire a short RGB-D video of an object rotating to reconstruct the mesh. Appendix Note: BundleSDF can also do mesh-free joint reconstruction and tracking, but the official implementation takes about 30 minutes to process a video and is not suitable for real-time closed loop.</p>
+<h3>3.4 Trajectory redirection to robot</h3>
+<p>Scraping is done by AnyGrasp. After grasping the object, the authors assume that the rigid body transformation between the end effector and the object remains unchanged. If \(\mathbf{T}^{WO}_t\) is the pose of the object in world coordinates, and \(\mathbf{T}^{EO}\) is the fixed transformation from the end to the object after grabbing, then the target end trajectory can be understood as: </p>
+<p>$$\mathbf{T}^{WE}_t = \mathbf{T}^{WO}_t(\mathbf{T}^{EO})^{-1}$$</p>
+<p>The specific coordinate convention may vary depending on the implementation, but the core is not to predict the action, but to use a fixed grasp transform to convert the object trajectory into a terminal trajectory. This is why it can be migrated to an ALOHA or dual-arm setup: when changing robots you mainly change the end-to-object transformation.</p>
+<figure>
+<img alt="Retargeting" src="figures/figures_Retargeting.png"/>
+<figcaption>Figure 2: Reorientation of the object's 6D pose trajectory to the robot's end trajectory. Orange is the object trajectory and blue is the robot execution trajectory.</figcaption>
+</figure>
+<h3>3.5 Closed-loop execution and disturbance recovery</h3>
+<p>During execution, the system continues to track the object's 6D pose in real time. If the current object pose deviates from the precalculated trajectory by more than 3 cm or 20 degrees, the robot will return to the previous successful trajectory point and continue execution. This closed-loop mechanism allows RIGVid to handle real-life disturbances such as people pushing the robot and slipping after grabbing.</p>
+<figure>
+<img alt="Robustness" src="figures/figures_robustness.png"/>
+<figcaption>Figure 3: Example of perturbation recovery. After detecting object deviation, the robot moves back and realigns its trajectory.</figcaption>
+</figure>
+</section>
+<section id="experiments">
+<h2>4. Experiments and results</h2>
+<h3>4.1 Task settings</h3>
+<p>The experiments used an xArm7 robotic arm and a fixed Orbbec Femto Bolt RGB-D camera. The four main tasks cover different difficulties: pouring water, lifting the pot lid, putting the spatula into the pot, and sweeping the garbage into the dustpan. The evaluation is manually judged based on the task success criteria, and all baselines use the same batch to generate videos.</p>
+<figure>
+<img alt="Evaluation tasks" src="figures/figures_tasks.png"/>
+<figcaption>Figure 4: Four real-life operation tasks, with increasing difficulty ranging from smooth handling and depth changes to thin object occlusion and fine contact.</figcaption>
+</figure>
+<h3>4.2 Video generation quality and filtering</h3>
+<table>
+<tr><th>video source</th><th>Author's observation</th><th>Impact on robot execution</th></tr>
+<tr><td>Sora</td><td>The picture is beautiful but the camera, object size, object identity and scene layout are often changed; the pass rate of the four task filters is 0%.</td><td>Not suitable for direct imitation, unfiltered execution success rate is 0%.</td></tr>
+<tr><td>Kling v1.5</td><td>More consistent with language and scenes, but still with physical implausibility, such as water flowing out of the top of a pot or actions not happening.</td><td>Better than Sora, but less stable the harder the mission.</td></tr>
+<tr><td>Kling v1.6</td><td>The command following and physical rationality are the best; the filter pass rate is 83% for pouring water, 66% for lifting the lid, 55% for placing the spatula, and 45% for sweeping the garbage.</td><td>After VLM filtering, the generated video can achieve an effect close to the real demonstration video.</td></tr>
+</table>
+<figure>
+<img alt="Video generation comparison" src="figures/figures_main_qualitative_model_compare.png"/>
+<figcaption>Figure 5: Comparison of build quality between Sora, Kling v1.5, and Kling v1.6. The paper believes that Kling v1.6 is most suitable for current robot imitation tasks.</figcaption>
+</figure>
+<h3>4.3 Can generated videos replace real videos?</h3>
+<p>The authors compare unfiltered Sora, unfiltered Kling v1.5, unfiltered Kling v1.6, filtered Kling v1.6 and real human videos. Filtration significantly increases the execution success rate of Kling v1.6: pouring water from 80% to 100%, lifting lid from 60% to 80%, placing spatula from 50% to 90%, sweeping garbage from 20% to 70%. The key conclusion of the paper is that after filtering, the current strong video generation model can already be used as an effective visual demonstration source.</p>
+<figure>
+<img alt="Performance vs video quality" src="figures/figures_video_gen_results_slanted.png"/>
+<figcaption>Figure 6: The better the video quality, the better the robot performs; filtered Kling v1.6 is close to real video performance.</figcaption>
+</figure>
+<h3>4.4 Comparison with VLM keypoint/constraint method</h3>
+<p>ReKep represents the "let the VLM directly generate sparser keypoint relationship constraints" route. The average success rate is 85% for RIGVid and 50% for ReKep. The author's explanation is that although video is expensive, it retains continuous visual details during the task; compact representations such as ReKep are prone to errors in local details such as grab points, movement constraints, and dumping constraints.</p>
+<figure>
+<img alt="RIGVid vs ReKep" src="figures/figures_ours_vs_llm.png"/>
+<figcaption>Figure 7: Success rate advantage of RIGVid compared to ReKep. The appendix gives examples of key points where ReKep failed in the water pouring task.</figcaption>
+</figure>
+<h3>4.5 Comparison with trajectory extraction baseline</h3>
+<table>
+<tr><th>method</th><th>intermediate representation</th><th>average success rate</th><th>Main failure modes</th></tr>
+<tr><td>Track2Act</td><td>2D point tracks between initial image and target image</td><td>7.5%</td><td>Trajectory prediction does not follow the movement of real objects, and the initial and final images are not enough to restore the complete process.</td></tr>
+<tr><td>AVDC</td><td>optical flow of the entire video</td><td>32.5%</td><td>Frame-by-frame flow errors accumulate, causing object position drift.</td></tr>
+<tr><td>4D-DPM</td><td>3D feature field / Gaussian field</td><td>35.0%</td><td>Tracking is unstable and jittery, especially with large rotations of a single object.</td></tr>
+<tr><td>Gen2Act adapted</td><td>Generate sparse tracks + PnP on video</td><td>67.5%</td><td>Occlusion and large-angle rotation cause visible points to be lost, making PnP unstable.</td></tr>
+<tr><td>RIGVid</td><td>FoundationPose object-level 6D pose trajectory</td><td>85.0%</td><td>The main remaining failures come from monocular depth estimation and individual grasp slippage.</td></tr>
+</table>
+<figure>
+<img alt="Main baseline comparison" src="figures/figures_main_result_slanted.png"/>
+<figcaption>Figure 8: RIGVid is overall the strongest on the four tasks, and its advantage is more obvious on difficult tasks.</figcaption>
+</figure>
+<h3>4.6 Generalization and extension</h3>
+<p>The author demonstrated three categories of generalization: first, the success rate of pouring water on ALOHA is 80%, while the default xArm setting is 100%. The performance degradation mainly comes from the difficulty of ALOHA camera calibration; second, the two-arm ALOHA can put a pair of shoes into a box; third, it is extended to wipe, stir, iron, right the ketchup bottle, unplug the charger, rotate the spoon to pour beans, and more operations. These results are more qualitative or preliminary, but illustrate that object-centric retargeting does have potential across embodiments.</p>
+<figure>
+<img alt="Demos and embodiment transfer" src="figures/figures_demos.png"/>
+<figcaption>Figure 9: Examples of ALOHA, dual arms, and more open tasks. This should be regarded as a demonstration of the boundaries of capabilities, rather than a strict quantitative conclusion at the same level as the main experiment.</figcaption>
+</figure>
+</section>
+<section id="appendix">
+<h2>5. Appendix key information</h2>
+<h3>Video generation practice</h3>
+<p>The appendix summarizes the conditions for more reliable video generation: clean background, few distractors, large enough objects, perspective close to the natural human perspective, single and clear task, and concise prompts; use relevance factor 0.7, and add negative prompt "fast motion". These details illustrate that the results are not straightforward for any desktop scenario.</p>
+<h3>Filter prompts and filter indicators</h3>
+<p>The author uses GPT o1/4o to determine whether the video has completed the command on the 4-frame spliced image. Compared with VBench++'s video-text consistency and I2V subject consistency, VLM filtering has the highest correlation with human judgment: the four task correlation coefficients are 0.91, 0.91, 0.91, 0.66, with an average of 0.84. The VBench++ indicator can only roughly reflect the video quality and cannot reliably determine whether the task is actually completed.</p>
+<figure>
+<img alt="Prompting example" src="figures/figures_prompting_example.png"/>
+<figcaption>Figure 10: Example of VLM filtering prompt in the appendix. The filter inputs video frame summaries and language commands, and outputs whether they are successful.</figcaption>
+</figure>
+<h3>Depth estimation error is the main bottleneck</h3>
+<p>On filtered Kling v1.6 videos, failures mainly come from monocular depth estimation, except for one grab slip. The appendix further isolates the factors: real video + real depth is 100% successful; real video + predicted depth is 85%; Kling generated video + predicted depth is also 85%. This shows that generating the video itself is not the only bottleneck, and the depth estimation error will directly contaminate the 6D pose trajectory.</p>
+<figure>
+<img alt="Depth ablation" src="figures/figures_depth_pred_err.png"/>
+<figcaption>Figure 11: Impact of depth estimation on execution success rate. True depth is significantly more stable.</figcaption>
+</figure>
+<h3>MegaPose vs FoundationPose</h3>
+<p>The author compares pose trajectory jitter: MegaPose average translation RMS jitter is 0.0045 m and rotation RMS jitter is 37.47 degrees; FoundationPose is 0.0029 m and 14.31 degrees. FoundationPose is smoother and performs in real time, making it the primary method choice.</p>
+<h3>Why does the point trajectory method fail?</h3>
+<p>The appendix shows that even if Gen2Act uses BootsTAP or CoTracker, visible surface points will be obscured when encountering large rotations, 2D-3D correspondence is insufficient, and PnP will drift or jump. RIGVid relies on complete object models and SE(3) trajectory filtering, so it is more stable in scenes with large rotations, thin objects, and occlusions.</p>
+<figure>
+<img alt="Point tracking limitation" src="figures/figures_cotracker.png"/>
+<figcaption>Figure 12: The point trajectory loses correspondence when the object rotates greatly, causing pose estimation to fail.</figcaption>
+</figure>
+</section>
+<section id="reproduce">
+<h2>6. Key points of reproducibility and implementation</h2>
+<h3>Inputs and dependencies</h3>
+<ul>
+<li>Hardware: xArm7, fixed RGB-D camera, stable calibration workspace.</li>
+<li>Generating model: The paper compares Sora, Kling v1.5, and Kling v1.6. The main results rely on Kling v1.6 plus VLM filtering.</li>
+<li>Perception module: GPT-4o/o1 filtering and active object recognition, Grounding DINO, SAM-2, RollingDepth-like monocular depth estimation, FoundationPose, BundleSDF pre-built mesh, AnyGrasp.</li>
+<li>Control module: object-end fixed transformation after grabbing, trajectory smoothing, 3 cm / 20 degree deviation threshold trigger rollback recovery.</li>
+</ul>
+<h3>Minimum recurrence path</h3>
+<ol>
+<li>Fixed the task scene, collected the initial RGB-D image, and pre-built mesh for the active object.</li>
+<li>Use language commands and initial images to generate less than 5 candidate videos, and VLM filters out successful videos.</li>
+<li>Depth is estimated for the generated video and affine aligned with the true depth within the active object mask of the first frame.</li>
+<li>Use FoundationPose to estimate the 6D pose of the object in each frame and perform pose smoothing.</li>
+<li>AnyGrasp grabs the active object and records the fixed transformation from the end to the object at the moment of grabbing.</li>
+<li>Redirect the object trajectory to the end trajectory, track the object in real time and perform deviation recovery during execution.</li>
+</ol>
+<div class="callout warn">
+ The links with the highest risk of recurrence are video generation API/model version, object mesh quality, camera calibration, monocular depth stability and FoundationPose real-time performance. The conclusion of the paper is best understood as "in a more controlled tabletop scenario, the current strong generative model + strong geometric tracking can work in a closed loop".
+ </div>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>The most valuable part of this paper</h3>
+<p>It takes the problem of "can generated videos be used as robot supervision", which is easy to stay at the conceptual level, and falls on real robots, real tasks and multiple groups of baselines. The most valuable thing is not to prove that Kling v1.6 is good alone, but to prove an executable decomposition: the generative model is responsible for providing visual priors of the task process, VLM is responsible for filtering out obvious failure samples, 6D tracking is responsible for converting the visual process into geometric trajectories, and closed-loop control is responsible for handling real-world disturbances. This link allows the visual knowledge of the generative model to be more solidly connected to the physical execution for the first time.</p>
+<h3>Why does the result stand?</h3>
+<ul>
+<li>The comparison objects cover multiple routes: ReKep's VLM key point constraints, Track2Act's initial and final image point trajectories, AVDC's dense flow, 4D-DPM's feature field, and Gen2Act's generated video point trajectories.</li>
+<li>All baselines use the same generated video, which reduces the deviation caused by "different video sources".</li>
+<li>The paper not only reports the final success rate, but also analyzes video quality, filtering accuracy, depth estimation, point trajectory occlusion, and trajectory jitter of FoundationPose vs MegaPose.</li>
+<li>The main failure mode is consistent with the appendix analysis: when the filtered video is reasonable, the remaining problems mainly come from monocular depth and tracking, rather than a vague "generating model is not good enough".</li>
+</ul>
+<h3>Main limitations</h3>
+<ul>
+<li><strong>Requires object mesh</strong>: FoundationPose's main process relies on pre-built object models, which limits full open world deployment.</li>
+<li><strong>Rely on high-quality video generation and filtering</strong>: Sora is completely unusable in this article's setup; Kling v1.6 also requires multiple builds and VLM filtering.</li>
+<li><strong>Monocular depth is a hard bottleneck</strong>: Scale errors in predicted depth and time flickering will directly lead to trajectory errors.</li>
+<li><strong>The task is still partial to tabletop, single active object</strong>: Long-term interaction with multiple objects, flexible objects, strong contact force control, and tasks requiring heavy finger grasping have not yet been fully verified.</li>
+<li><strong>higher cost</strong>: The combination of video generation, VLM filtering, mesh pre-construction, and 6D tracking is not lightweight.</li>
+<li><strong>Assessment scale is limited</strong>: Four main tasks, 10 videos per source per task, enough to support the paper's claims, but still far from large-scale general-purpose robot operations.</li>
+</ul>
+<h3>Questions to ask during reading group meetings</h3>
+<ul>
+<li>If there is no real initial depth and only generated video and monocular depth, can the trajectory scale be stable?</li>
+<li>VLM filtering is mainly false negative, so is the computational cost and latency of retrying 5 times acceptable?</li>
+<li>Will FoundationPose's mesh pre-building become a new data collection step that's more cumbersome than a real demonstration?</li>
+<li>Most of the current task success criteria are that the final state geometry is satisfied. If the task involves forces, contact sequences or material changes, is it enough to generate video supervision?</li>
+<li>If the future video generation model can directly output depth/3D/4D scenes, which modules of RIGVid will be replaced, and which ideas will be retained?</li>
+</ul>
+</section>
+</main>
+</body>
+</html>

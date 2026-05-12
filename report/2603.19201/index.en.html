@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OmniVTA - Reading Report</title>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>OmniVTA: Visuo-Tactile World Modeling for Contact-Rich Robotic Manipulation</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Yuhang Zheng, Songen Gu, Weize Li, Yupeng Zheng, Yujie Zang, Shuai Tian, Xiang Li, Ce Hao, Chen Gao, Si Liu, Haoran Li, Yilun Chen, Shuicheng Yan, Wenchao Ding</p>
+<p><strong>Organization: </strong>TARS Robotics; National University of Singapore; Fudan University; CASIA; Tsinghua University; Zhongguancun Academy; Beihang University</p>
+<p><strong>Publication: </strong>arXiv preprint, submission date 2026-03-19, online date 2026-03-23</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2603.19201">2603.19201</a> | <a href="https://arxiv.org/pdf/2603.19201">PDF</a> | <strong>Project page: </strong><a href="https://mrsecant.github.io/OmniVTA">https: //mrsecant.github.io/OmniVTA</a></p>
+<p><strong>Appendix status: </strong><span class="warn">The source code does not contain Appendix / Supplementary tex files</span>; Therefore, there are no appendix proofs, hyperparameter tables or supplementary experiments that can be integrated into this report. All analyzes are based on text LaTeX source code, tables and image files.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#s1">1. Quick overview of the paper</a></li><li><a href="#s2">2. Motivation</a></li><li><a href="#s3">3. Summary of related work</a></li><li><a href="#s4">4. Dataset: OmniViTac</a></li><li><a href="#s5">5. Detailed explanation of method</a></li><li><a href="#s6">6. Experiment</a></li><li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li>
+</ul>
+</nav>
+<section id="s1"><h2>1. Quick overview of the paper</h2>
+<div class="tldr"><strong>One-sentence summary: </strong>The paper also proposes a large-scale visual and tactile action data set OmniViTac and a world model-based visual and tactile operation framework OmniVTA, which uses short-term tactile prediction, contact perception fusion and 60 Hz tactile reflex control to improve the success rate of real robots in contact-rich tasks such as wiping, peeling, cutting, assembly, grabbing, and in-hand adjustment.</div>
+<p><strong>Difficulty rating: </strong>★★★★☆. Requires understanding of diffusion policy / diffusion transformer, VAE/implicit neural representation, multi-modal fusion, tactile sensor data representation, and real robot imitation learning experimental design.</p>
+<p><strong>Keywords: </strong><span class="pill">Visuo-Tactile Manipulation</span><span class="pill">World Model</span><span class="pill">Contact-Rich Manipulation</span><span class="pill">TactileVAE</span><span class="pill">Reflexive Control</span></p>
+<table><tr><th>Reading targeting item</th><th>A brief answer based on the original text</th></tr>
+<tr><td>What should the paper solve?</td><td>The existing visual and tactile operation data scale and task coverage are insufficient; existing methods mostly treat haptics as passive observation and lack explicit contact dynamic modeling and high-frequency closed-loop tactile control.</td></tr>
+<tr><td>The author's approach</td><td>First, OmniViTac is used to provide aligned visual and tactile action data of 21, 879 items, 86 tasks, and 100+ objects, and then TactileVAE, two-stream VTWM, LTD+gating fusion strategy and RLTC are used to form OmniVTA.</td></tr>
+<tr><td>most important results</td><td>OmniVTA outperforms DP, DP+tactile, KineDex, ForceMimic, and RDP overall on six categories of real robotic tasks, and maintains the highest or tied highest success rate under generalization and perturbation robustness settings.</td></tr>
+<tr><td>Things to note when reading</td><td>The core is not "adding touch" per se, but turning touch into a prediction object, integrating modulation signals and high-frequency correction targets; it should also be noted that there is no appendix in the source code, and the hyperparameters are concentrated in the text of the experimental settings.</td></tr>
+</table>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>OmniViTac dataset.</strong>21, 879 synchronized trajectories, 86 tasks, 126 objects, and six types of physical contact patterns; the significance is to use data scale, task diversity, and tactile-visual-action time alignment as the basis for training the world model at the same time.</li>
+<li><strong>OmniVTA method framework.</strong>Putting tactile representation learning, visuo-tactile world model, contact perception adaptive fusion and 60 Hz closed-loop tactile control into a unified pipeline; the meaning is to allow tactile sensation to participate in both prediction and strategy generation and execution correction.</li>
+<li><strong>Real robot verification.</strong>Compare multiple imitation learning / force-conditioned / reactive baselines on six types of contact enrichment tasks; the significance is to verify that predictive contact modeling and high-frequency tactile feedback directly contribute to generalization and perturbation recovery.</li>
+</ul>
+<div class="figure"><img alt="teaser" src="figures/teaser.png"/><div class="caption">Figure 1 / Teaser: The left side is the OmniViTac data set, the middle is the OmniVTA world model visual and tactile action framework, and the right side is a representation of the real robot results.</div></div>
+</section>
+<section id="s2"><h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper focuses on tasks that are exposed to rich operations, such as wiping, assembly, peeling, cutting, etc. This type of task cannot rely solely on visual judgment, because the key states often come from tactile information such as contact force, friction changes, slippage, insertion obstruction, force mutation at the moment of cut-off, etc. Vision can tell the robot "where the object is", but it is difficult to reliably tell the robot "whether the current contact is stable, whether it is too forceful, or whether it is about to slip."</p>
+<p>The author divides the problem into two levels: the data level lacks large-scale, task-diverse and strictly time-aligned vision-tactile-action demonstrations; the method level lacks strategies for explicitly using tactile signals for contact dynamic prediction and closed-loop control.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li><strong>Data set limitations: </strong>Early tactile data are mostly static pressing or object texture collection; although newer manipulation datasets have action trajectories, the number of tasks, number of objects, sensor types and high-frequency tactile-visual synchronization are still insufficient.</li>
+<li><strong>Express limitations: </strong>Many methods use touch as an auxiliary input to compensate for occlusion or identify contact status, but do not take future contact evolution as an explicit prediction goal.</li>
+<li><strong>Control limitations: </strong>Action chunking is often executed in an open loop at a lower frequency, and cannot be corrected immediately when encountering slippage, dislocation, or external disturbance. Although reactive methods such as RDP introduce fast feedback, the author reports that it may produce too strong contact in strong contact tasks, leading to the risk of sensor damage.</li>
+</ul>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The author draws on human sensorimotor control: on the one hand, it forms feedforward anticipation for contact evolution, and on the other hand, it uses tactile feedback for rapid reflexive correction. Corresponding to the method, OmniVTA first predicts the short-term future tactile latent, then performs contact perception fusion based on the current/predicted tactile difference, and finally uses 60 Hz RLTC to correct the action based on the deviation between the predicted tactile sensation and the actual tactile sensation.</p>
+</section>
+<section id="s3"><h2>3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3>
+<table><tr><th>Technical line</th><th>Representative work and positioning</th><th>The difference in this article</th></tr>
+<tr><td>Tactile sensing and tactile representation learning</td><td>Visuo-tactile sensors such as GelSight and DIGIT provide high-resolution contact geometry; Sparsh, AnyTouch, UniT, etc. learn tactile representation through masked autoencoding, contrastive learning or VQGAN-like latent modeling.</td><td>This article not only learns static tactile representation, but uses operational data supported by four types of tactile sensors to train task-independent tactile latent and serve the world model and strategy.</td></tr>
+<tr><td>Visuo-tactile manipulation policies</td><td>See-to-Touch, RoboPack, 3D-ViTac, RDP, VLA-Touch, Tactile-VLA, TA-VLA, etc. show that haptics can complement visual occlusion and fine-grained control.</td><td>This article emphasizes the predictive use of haptics: predicting future contacts, modulating visuo-tactile weights based on contact probabilities, and using prediction/observation differences for closed-loop control.</td></tr>
+<tr><td>Visuo-tactile manipulation datasets and systems</td><td>ObjectFolder2.0, AnyTouch, Octopi-1.5, RH20T, FreeTacMan, VLA-Touch, exUMI, AgiBot World, etc. cover different levels of tactile, visual, and action data.</td><td>OmniViTac expands the number of tasks to 86, trajectories to 21, 879, and objects to 126, while retaining 30-60 Hz tactile and motion data and time synchronization.</td></tr>
+</table>
+<h3>3.2 Direct comparison with previous works</h3>
+<table><tr><th>Dimensions</th><th>DP / DP+tactile</th><th>RDP</th><th>KineDex / ForceMimic</th><th><strong>OmniVTA</strong></th></tr>
+<tr><td>Core idea</td><td>Diffusion policy generates action chunk; DP+tactile additionally stitches tactile features.</td><td>Slow diffusion planner + fast tactile reactive controller.</td><td>Jointly predict action and force based on visual observations.</td><td>The world model predicts future tactile latent, the fusion strategy generates slow motion, and RLTC high-frequency correction.</td></tr>
+<tr><td>key assumptions</td><td>Current/historical observations are sufficient to generate short-term actions.</td><td>Haptics can be used for reactive correction.</td><td>force or tactile embedding are available as kinetically relevant quantities.</td><td>Future tactile prediction can provide a priori of contact status, and the prediction-observation difference can guide correction.</td></tr>
+<tr><td>Applicable scenarios</td><td>General visual imitation learning; the tactile version is suitable for tasks involving contact observation.</td><td>Reactive operations under contact perturbations.</td><td>Diffusion strategies requiring force/contact information.</td><td>Wiping, peeling, cutting, assembling, grabbing, adjusting and other contact-rich tasks.</td></tr>
+<tr><td>Experimental performance</td><td>In Table 2, DP is set to 0 under multinomial P; DP+tactile has improved but is still lower than OmniVTA.</td><td>Stronger than normal DP, but the authors observed excessively strong contact in the strong contact task.</td><td>Some tasks are better than DP+tactile, but overall they are not as good as OmniVTA.</td><td>Most O/G/P settings in Table 2 are the highest; RLTC significantly improves perturbation performance compared to w/o RLTC.</td></tr>
+</table>
+</section>
+<section id="s4"><h2>4. Dataset: OmniViTac</h2>
+<p>OmniViTac is the training basis for this method. It contains 21, 879 synchronized trajectories, 86 tasks, 126 objects, recording RGB-D, tactile signals, motion trajectories and continuous gripper aperture. The author organized the tasks into six categories of physical contact modes: Assembly, Cutting, Adjustment, Peeling, Wiping, and Grasping.</p>
+<div class="figure"><img alt="dataset overview" src="figures/dataset_teaser_0318.png"/><div class="caption">Figure 2: Overview of the OmniViTac dataset, including cross-embodiment platforms, six categories of schemas, five categories of semantic scenarios, and data quality processes.</div></div>
+<h3>4.1 Collection system</h3>
+<ul>
+<li><strong>Robot demonstrations: </strong>UFACTORY xArm-7, includes two modes: kinesthetic teaching and GELLO teleoperation.</li>
+<li><strong>Human demonstrations: </strong>TacUMI handheld acquisition device, using RealSense T265 to output 6-DoF poses at 200 Hz; tracking drift is checked after the trajectory ends, and samples with position errors greater than 8 mm are discarded.</li>
+<li><strong>Isomorphic end effector: </strong>The robot uses the same parallel gripper as TacUMI and records the continuous gripper width normalized to $[0, 1]$.</li>
+<li><strong>Vision: </strong>wrist-view and third-person RGB-D; $640\times480$ for D435, $1280\times720$ for L515, camera 30 Hz.</li>
+<li><strong>Touch: </strong>Xense, Daimon, Tac3D-A1, GelSight Mini; Xense is the main large-scale acquisition sensor, providing $35\times20$ 3D displacement fields at 60 Hz.</li>
+</ul>
+<h3>4.2 Data processing and quality control</h3>
+<p>During acquisition, all sensory streams are recorded asynchronously at the native frequency, and post-processing is synchronized according to timestamps. For every 50 trajectories, 3 trajectories are randomly visualized for online quality inspection; the offline tool continues to check and delete abnormal samples. Before training, remove the first and last still frames, align RGB-D, haptics, and actions through timestamps with a time error of less than 10 ms, and split them into training segments.</p>
+<h3>4.3 Six types of tactile modes</h3>
+<table><tr><th>mode</th><th>contact mechanism</th><th>tactile information function</th></tr>
+<tr><td>Assembly</td><td>Contact geometry and multidirectional force coordination</td><td>Sensing tight tolerances and successful insertion.</td></tr>
+<tr><td>Cutting</td><td>The normal force gradually increases and decreases when cutting off</td><td>Determine the penetration/cutting process.</td></tr>
+<tr><td>Adjustment</td><td>torsion and shear forces</td><td>Perceiving slippage and in-hand redirection states.</td></tr>
+<tr><td>Peeling</td><td>Continuous coupling of shear and normal forces</td><td>Maintain tool-surface contact.</td></tr>
+<tr><td>Wiping</td><td>Normal pressure + plane shear</td><td>Keep surfaces snug and overcome friction.</td></tr>
+<tr><td>Grasping</td><td>Various force types covering fragile, transparent and articulated objects</td><td>Confirm stable grip and adjust normal/shear.</td></tr>
+</table>
+<div class="figure"><img alt="six patterns" src="figures/OmniVTA-6pattern.png"/><div class="caption">Figure 3: Example of six categories of visuo-tactile manipulation patterns.</div></div>
+<div class="figure"><img alt="statistics" src="figures/data_stat_family.png"/><div class="caption">Figure 4: Contact area, force intensity, task hierarchy, effective contact proportion, trajectory count, and t-SNE analysis. The author summarizes the spatial locality and contact-driven dynamics of tactile signals based on this.</div></div>
+</section>
+<section id="s5"><h2>5. Detailed explanation of method</h2>
+<h3>5.1 Method overview</h3>
+<p>OmniVTA is a hierarchical slow-fast policy. Slow Policy consists of Visuo-Tactile World Model (VTWM) and Adaptive Fusion Policy (AFP), which uses low-frequency vision, high-frequency tactile and ontology states to plan long-term action chunks; Fast Policy is the Reflexive Latent Tactile Controller (RLTC), which outputs fine-grained corrections based on observed tactile and predicted tactile sensations at 60 Hz. The final execution action is the weighted sum of the slow policy action and the fast controller output.</p>
+<div class="figure"><img alt="system" src="figures/system.png"/><div class="caption">Figure 5: OmniVTA system diagram. The slow strategy is responsible for prediction and planning, and the fast strategy is responsible for tactile closed-loop correction.</div></div>
+<div class="pseudocode">Input: visual frames v, tactile sequence X, robot state s
+1. z_t = TactileVAE.encode(X) # Compress high-frequency tactility
+2. z_v = SD-VAE.encode(v) #Visual latent
+3. z_t^pred = VTWM(z_v history, z_t history, action history)
+4. f_t = LTD(current tactile latent, predicted tactile latent)
+5. W_v, W_t = contact-aware gating(f_t)
+6. f_vt = concat(W_v * f_v, W_t * projected(f_t))
+7. A_c = diffusion_policy(f_vt, s) # slow motion chunk
+8. a_r = RLTC(current tactile, predicted tactile, delta states) at 60 Hz
+9. execute weighted_sum(A_c, a_r)</div>
+<h3>5.2 Method evolution</h3>
+<p><strong>General visual diffusion policy</strong> → Join <strong>Current tactile input</strong> → Explicit modeling <strong>Future tactile predictions</strong> → use <strong>LTD and gating</strong> Convert predictive tactile input to contact sensing strategy → use <strong>RLTC</strong> Convert prediction-observation differences into high-frequency corrective actions. Each step corresponds to a gap pointed out in the paper: vision cannot directly read the contact state; the current touch has no prior contact with the future; simple splicing does not change the modal weight with the contact state; the open-loop execution of the action chunk cannot respond quickly to disturbances.</p>
+<h3>5.3 TactileVAE</h3>
+<p>The input to TactileVAE is not a high-resolution tactile image, but a 3D marker displacement. A single frame can be expressed as $H\times W\times3$, and the three channels correspond to $x, y, z$ displacement. The author uses causal 3D convolution for spatio-temporal encoding, so that the latent at time $t$ only relies on current and past observations, ensuring that there is no future information leakage during deployment.</p>
+<div class="figure"><img alt="vae" src="figures/vae.png"/><div class="caption">Figure 6: TactileVAE uses a spatiotemporal encoder to compress marker displacement and an implicit decoder to reconstruct the continuous deformation field.</div></div>
+<div class="formula-block"><div class="intuition">Formula 1: Given spatial coordinates and local latent, predict the 3D deformation of the point.</div>
+ $$\mathbf{d}(\mathbf{x}) = \mathcal{D}_{\theta}\left(\gamma(\mathbf{x}), \Phi(\mathbf{z}_{t}, \mathbf{x})\right)$$
+ <table class="symbol-table"><tr><td>$\mathbf{x}\in\mathbb{R}^2$</td><td>2D query coordinates on tactile surfaces.</td></tr><tr><td>$\mathbf{z}_t$</td><td>The tactile latent feature map output by the encoder has sizes $H/s\times W/s\times C$ and $s=2^M$.</td></tr><tr><td>$\gamma(\mathbf{x})$</td><td>Position encoding enables MLP to express high-frequency spatial changes.</td></tr><tr><td>$\Phi(\mathbf{z}_t, \mathbf{x})$</td><td>Local features extracted from latent map through spatial interpolation.</td></tr><tr><td>$\mathcal{D}_\theta$</td><td>MLP implicit decoder. </td></tr><tr><td>$\mathbf{d}(\mathbf{x})\in\mathbb{R}^3$</td><td>The three-dimensional deformation vector of the point.</td></tr></table>
+<p class="small">Intuition: The deformation of the tactile colloid surface is a continuous field and should not be reconstructed only by pixels/marker points. The INR decoder allows querying deformations at arbitrary coordinates, thereby preserving local spatial structure in latent feature maps.</p>
+</div>
+<div class="formula-block"><div class="intuition">Formula 2: TactileVAE training objective.</div>
+ $$\mathcal{L}_{\text{TacVAE}} = \|\mathbf{d}(\mathbf{x})-\hat{\mathbf{d}}(\mathbf{x})\|_2^2 + \lambda_{\mathrm{KL}}\mathcal{L}_{\mathrm{KL}}$$
+ <p>The first one supervises the 3D deformation of reconstruction; the second one is KL regularization of VAE. $\lambda_{\text{KL}}=10^{-6}$ in experimental setup.</p>
+</div>
+<h3>5.4 Visuo-Tactile World Model (VTWM)</h3>
+<p>VTWM adopts a two-stream conditional generative framework: the visual branch uses SD-VAE to extract image latents, and the tactile branch uses pre-trained TactileVAE to compress tactile signals; the two modes each enter the spatial-temporal diffusion transformer to predict the future under shared conditions. Conditions are derived from a multi-modal observation conditioner that aggregates visual, tactile, and action sequences separately and represents actions as 2D image-plane projections of 3D end-effector positions.</p>
+<div class="figure"><img alt="slow policy" src="figures/slow-policy.png"/><div class="caption">Figure 7: Slow Policy. Left: Two-stream VTWM; Right: LTD + gating AFP.</div></div>
+<div class="formula-block"><div class="intuition">Equation 3: Basic diffusion loss only supervises future frames that need to be generated.</div>
+ $$\mathcal{L}_{\text{diffusion}}=\mathbb{E}_{\mathbf{z}_o, \boldsymbol{\epsilon}, t}\left[\sum_{i=1}^{K}(1-m_i)\odot\left\|\epsilon_i-\boldsymbol{\epsilon}_\theta(\mathbf{z}_o, t)_i\right\|_2^2\right]$$
+ <table class="symbol-table"><tr><td>$\mathbf{z}_o=\{\mathbf{z}_o^1, \dots, \mathbf{z}_o^K\}$</td><td>Observed latent sequence, including tactile latent $\mathbf{z}_t$ and visual latent $\mathbf{z}_v$.</td></tr><tr><td>$m_i$</td><td>Time mask; historical conditioning frames are not used to generate errors, and future frames participate in prediction.</td></tr><tr><td>$\epsilon_i$</td><td>Realistic noise added by the diffusion process.</td></tr><tr><td>$\boldsymbol{\epsilon}_\theta(\cdot)_i$</td><td>Noise predicted by the model at time step $i$.</td></tr></table>
+</div>
+<div class="formula-block"><div class="intuition">Equation 4: dynamic-aware versus amplitude-aware weights.</div>
+ $$w_{\text{dyn}}^i=\operatorname{resize}\left(\operatorname{clip}_{[0, 1]}\left(\|X_{i+1}-X_i\|_2\right)\right)$$
+ $$w_{\text{amp}}^i=\operatorname{resize}\left(\operatorname{clip}_{[0, 1]}\left(\|X_i\|_2\right)\right)$$
+ <p>The former highlights locations with rapid changes in time, and the latter highlights locations with large contact response amplitudes. Both are resized from raw tactile resolution to latent resolution, used to emphasize high-frequency contact dynamics and local contact intensity.</p>
+</div>
+<div class="formula-block"><div class="intuition">Equation 5: VTWM total loss.</div>
+ $$\mathcal{L}_{VTWM}=\mathcal{L}_{\text{diffusion}}+\lambda_1\mathcal{L}_{\text{dyn}}+\lambda_2\mathcal{L}_{\text{amp}}$$
+ <p>$\lambda_{\text{dyn}}=1.0$, $\lambda_{\text{amp}}=1.0$ in the experiment. This is not an additional prediction target, but a spatial-temporal reweighting of the diffusion noise prediction error.</p>
+</div>
+<h3>5.5 Adaptive Visuo-Tactile Fusion Policy (AFP)</h3>
+<p>AFP consists of three parts: LTD Encoder, contact-aware gating, and visuo-tactile diffusion policy.</p>
+<div class="formula-block"><div class="intuition">Equation 6: LTD explicitly expresses future contact changes in terms of "predicted haptic - current haptic".</div>
+ $$f_t=\text{concat}(f_t^c, f_t^p, f_t^p-f_t^c)$$
+ <table class="symbol-table"><tr><td>$f_t^c$</td><td>The global representation of the current tactile observation after 2D conv + max pooling.</td></tr><tr><td>$f_t^p$</td><td>Predict future tactile representations of multi-frame tactile latents after frame-by-frame spatial aggregation and 1D temporal conv + max pooling.</td></tr><tr><td>$f_t^p-f_t^c$</td><td>Highlights the difference between the predicted contact state and the current tactile state.</td></tr></table>
+</div>
+<div class="formula-block"><div class="intuition">Formula 7: gating blends vision and touch.</div>
+ $$f_{vt}=\text{concat}(W_v\odot f_v, \; W_t\odot\tilde{f}_t)$$
+ <p>Contact probabilities are predicted by tactile representation via MLP + sigmoid, labels are obtained by tactile deformation magnitude threshold, and trained with BCE loss. The Gating network outputs the channel-by-channel weight $W_v, W_t$, which satisfies $W_v+W_t=1$. When there is no contact, the tactile weight is close to 0; when the contact probability increases, the tactile weight increases.</p>
+</div>
+<div class="formula-block"><div class="intuition">Equation 8: Inverse denoising update of action diffusion policy.</div>
+ $$A_{c, t-1}=\alpha_t A_{c, t}-\gamma_t\epsilon_\theta(A_{c, t}, t, f_c)+\sigma_t\mathcal{N}(0, I)$$
+ <p>$A_c=(a_c^1, \dots, a_c^H)$ is a coarse action chunk; $f_c=\text{concat}(f_{vt}, s)$ is a fusion of multi-modal features and robot body state. Train to predict the target using DDPM noise: </p>
+ $$\mathcal{L}_{act}=\mathbb{E}_{t, A_{c, 0}, \epsilon_t}\left[\left\|\epsilon_t-\epsilon_\theta(\bar{\alpha}_t A_{c, 0}+\bar{\beta}_t\epsilon_t, t, f_c)\right\|_2^2\right]$$
+ <p>The overall target of AFP is $\mathcal{L}_{AFP}=\mathcal{L}_{act}+\lambda_{ct}\mathcal{L}_{bce}$, and the experiment is $\lambda_{ct}=0.2$.</p>
+</div>
+<h3>5.6 Reflexive Latent Tactile Controller (RLTC)</h3>
+<p>RLTC solves the problem of open-loop execution of action chunks. It repeats the single-frame tactile feedback $M$ times to adapt to the time compression of TactileVAE; upsamples the world model low-frequency predicted tactile latent nearest neighbor to 60 Hz, aligned with the current tactile feature; then uses LTD Encoder to encode the current/predicted tactile, and then splices the delta actions and delta gripper in the TCP coordinate system of the past $h$ steps. states, the single-step refined action $a_r$ is output through three layers of MLP.</p>
+<div class="figure"><img alt="controller" src="figures/controller.png"/><div class="caption">Figure 8: RLTC inputs observed haptics, predicted haptics and robot status at 60 Hz, and outputs single-step correction actions.</div></div>
+<div class="formula-block"><div class="intuition">Formula 9: RLTC training objective.</div>
+ $$\mathcal{L}_{RLTC}=\|a_r-\hat{a}_r\|_2^2$$
+ <p>The training data comes from abnormal contact recovery episodes. The author first estimates the mean and standard deviation of the effective tactile distribution for each type of task, identifies excessively large or small contact forces as abnormal states, and then extracts recovery segments that return from abnormality to effective distribution as a correction demonstration.</p>
+</div>
+<h3>5.7 Implementation Points</h3>
+<ul>
+<li>Tactile input uses 3D marker displacement instead of raw tactile images to reduce resolution and increase inference frequency.</li>
+<li>TactileVAE uses causal 3D convolutions to avoid deployment dependencies on future frames.</li>
+<li>VTWM does not generate visual observations during inference, but only predicts future tactile signals to increase the rollout frequency; the visual generation branch is only used for analysis in training/ablation.</li>
+<li>The action condition of the World model uses the 2D image-plane projection of the 3D end position. The author's experiments show that it is better than 3D absolute/relative actions in the unseen position.</li>
+<li>Policy uses the current and previous frames of vision, 8 frames of haptics in the same time window, and 2 ontology states; outputs chunks of 6 actions, and interpolates to 60 Hz for execution.</li>
+</ul>
+</section>
+<section id="s6"><h2>6. Experiment</h2>
+<h3>6.1 Experimental setup</h3>
+<div class="figure"><img alt="objects" src="figures/object.png"/><div class="caption">Figure 16????????????????</div></div>
+<table><tr><th>Project</th><th>settings</th></tr>
+<tr><td>Task</td><td>Wipe, Peel, Cut, Assembly, Grasp, Adjustment. </td></tr>
+<tr><td>training object</td><td>Choose 5-6 objects for each category, and 150 trajectories for each object; for example, wipe uses 4 colors/shapes of vases, plates, and whiteboards, and cut uses cucumber, Chinese yam, carrot, pepper, and banana.</td></tr>
+<tr><td>Data partition</td><td>World model training/testing is 90%/10%.</td></tr>
+<tr><td>Real robot platform</td><td>UFactory xArm7 + parallel two-finger gripper + two fingertip tactile sensors; wrote RealSense D435 RGB at 15 Hz; tactile 60 Hz; only Xense was used for real operation experiments.</td></tr>
+<tr><td>Review settings</td><td>Object diversity (O), Generalization (G: unseen heights / unseen knife), Perturbation robustness (P: Disturbance of objects in the vertical direction destroys contact).</td></tr>
+<tr><td>Evaluation index</td><td>The main indicator is success rate. Wipe/Peel/Cut is used to handle the length ratio; Assembly/Grasp is used to insert completely or grab without loss; Adjustment is used to change the attitude beyond 60°.</td></tr>
+</table>
+<h4>Training configuration table</h4>
+<table><tr><th>module</th><th>Training/Hyperparameters</th><th>Source</th></tr>
+<tr><td>TactileVAE</td><td>Using 20% manipulation trajectories + 10 additional object tactile interaction data, ~1.2M tactile samples; training 50 epochs; 8 NVIDIA A100 GPUs; $\lambda_{KL}=1e-6$.</td><td>Text §Experimental Setup</td></tr>
+<tr><td>VTWM</td><td>AdamW, lr $1\times10^{-4}$, weight decay 0, per-GPU batch size 5, 100, 000 steps, gradient norm threshold 0.1, enable gradient clipping after 20, 000 steps; $\lambda_{dyn}=1.0$, $\lambda_{amp}=1.0$.</td><td>Text §Training Details</td></tr>
+<tr><td>AFP</td><td>The same training set; OmniVTA and policy baselines are combined to train a unified model for each type of data; AFP 250k steps; other baselines 350k steps; $\lambda_{ct}=0.2$.</td><td>Text §Training Details</td></tr>
+<tr><td>Policy input/output</td><td>Vision 15 Hz, touch 60 Hz, body 60 Hz; input is the current + previous frame of vision, 8 frames of tactile in the same window, and 2 body observations; output 6 action chunks, interpolated to 60 Hz during execution.</td><td>Text §Parameter settings</td></tr>
+<tr><td>Reasoning time</td><td>Slow Policy 230 ms; Slow Policy w/ Visual Gen. 480 ms; Fast Policy 3.5 ms; Hardware RTX 4090D.</td><td>Table policy_time</td></tr>
+</table>
+<h3>6.2 Main results</h3>
+<div class="figure"><img alt="manipulation" src="figures/manipulation.png"/><div class="caption">Figure 9: Real robot execution process for six types of tasks.</div></div>
+<table><tr><th>Method</th><th>Wipe O/G/P</th><th>Peel O/G/P</th><th>Cut O/G/P</th><th>Assembly O/G/P</th><th>Grasp O</th><th>Adjustment O/G</th></tr>
+<tr><td>DP</td><td>0.12/0.05/0</td><td>0.06/0/0</td><td>0.28/0.10/0</td><td>0.10/0/0.05</td><td>0.20</td><td>0/0</td></tr>
+<tr><td>DP+tactile</td><td>0.36/0.28/0</td><td>0.32/0.20/0.08</td><td>0.33/0.15/0.13</td><td>0.30/0.10/0.10</td><td>0.48</td><td>0.25/0.15</td></tr>
+<tr><td>RDP</td><td>0.50/0.38/0.42</td><td>0.48/0.36/0.45</td><td>0.65/0.50/0.43</td><td>0.60/0.50/0.35</td><td>0.88</td><td>0.50/0.50</td></tr>
+<tr><td>OmniVTA w/o RLTC</td><td>0.66/0.40/0.25</td><td>0.40/0.30/0.20</td><td>0.50/0.50/0.20</td><td>0.40/0.35/0.20</td><td>0.70</td><td>0.40/0.30</td></tr>
+<tr><td><strong>OmniVTA</strong></td><td><strong>0.80/0.58/0.60</strong></td><td><strong>0.55/0.48/0.63</strong></td><td><strong>0.85/0.83/0.60</strong></td><td><strong>0.60/0.50/0.40</strong></td><td><strong>0.90</strong></td><td><strong>0.65/0.65</strong></td></tr>
+</table>
+<p>The most critical comparison in the table is between OmniVTA and OmniVTA w/o RLTC: the closed-loop control has Wipe P from 0.25 to 0.60, Peel P from 0.20 to 0.63, Cut P from 0.20 to 0.60, and Assembly P from 0.20 to 0.40, indicating that the main benefit of RLTC is reflected in disturbance recovery. Compared to RDP, OmniVTA reported lower tactile deformation during the strong contact task: 0.35 mean, 0.72 max, compared to RDP 0.56 mean, 1.1 max.</p>
+<h3>6.3 TactileVAE results</h3>
+<table><tr><th>Method</th><th>Wipe L2/cos</th><th>Peel</th><th>Cut</th><th>Assembly</th><th>Grasp</th><th>Adjustment</th></tr>
+<tr><td>PCA</td><td>0.091/0.810</td><td>0.085/0.430</td><td>0.109/0.400</td><td>0.071/0.720</td><td>0.036/0.600</td><td>0.069/0.560</td></tr>
+<tr><td>PointNet-AE</td><td>0.059/0.910</td><td>0.067/0.850</td><td>0.062/0.840</td><td>0.058/0.900</td><td>0.028/0.750</td><td>0.047/0.760</td></tr>
+<tr><td><strong>Ours</strong></td><td><strong>0.038/0.930</strong></td><td><strong>0.033/0.880</strong></td><td><strong>0.031/0.940</strong></td><td><strong>0.022/0.910</strong></td><td><strong>0.011</strong>/0.720</td><td><strong>0.017/0.850</strong></td></tr>
+</table>
+<p>TactileVAE has the lowest L2 in all six types of tasks, and the cosine similarity is the highest except for Grasp. The cos of PointNet-AE in Grasp is 0.750, which is higher than the 0.720 of Ours, but the L2 of Ours is 0.011, which is significantly lower than the 0.028 of PointNet-AE.</p>
+<div class="figure"><img alt="tsne" src="figures/tsne.png"/><div class="caption">Figure 10: Visualization of t-SNE represented by TactileVAE; the authors analyzed latent clusters using three force patterns and cross-sensor settings.</div></div>
+<table><tr><th>TactileVAE Design</th><th>GelSight-Mini L2</th><th>Tac3D-A1 L2</th><th>Xense-QN1 L2</th></tr><tr><td>w/o implicit decoder</td><td>0.126</td><td>0.098</td><td>0.038</td></tr><tr><td>w/ position embed.</td><td>0.102</td><td>0.085</td><td>0.035</td></tr><tr><td>w/o spatial feature map</td><td>0.107</td><td>0.084</td><td>0.071</td></tr><tr><td><strong>w/ implicit decoder</strong></td><td><strong>0.047</strong></td><td><strong>0.058</strong></td><td><strong>0.034</strong></td></tr></table>
+<h3>6.4 VTWM results and ablation</h3>
+<div class="figure"><img alt="world model" src="figures/wm.png"/><div class="caption">Figure 11: Visualization of visual and tactile generation for six types of tasks. Red is the predicted tangential deformation and blue is the ground truth.</div></div>
+<table><tr><th>Task</th><th>Ours L2avg / Cavg</th><th>Sub-optimal baseline L2avg/Cavg</th><th>Interpretation</th></tr>
+<tr><td>Wipe</td><td>0.059 / 0.93</td><td>KineDex 0.082 / 0.81</td><td>Ours simultaneously reduces error and improves directional consistency.</td></tr>
+<tr><td>Peel</td><td>0.036 / 0.87</td><td>KineDex 0.066 / 0.79</td><td>The prediction advantage is obvious in the continuous shear/normal coupling task.</td></tr>
+<tr><td>Cut</td><td>0.050 / 0.88</td><td>UVA 0.077 / exUMI 0.72</td><td>The high-force change scenario still maintains good long-term forecasts.</td></tr>
+<tr><td>Adjustment</td><td>0.025 / 0.85</td><td>KineDex 0.053 / 0.70</td><td>Torsion/shear dynamics of in-hand adjustments are better modeled.</td></tr>
+<tr><td>Assembly</td><td>0.030 / 0.89</td><td>KineDex 0.047 / 0.78</td><td>The world model is relatively stable in the local contact geometry task.</td></tr>
+<tr><td>Grasp</td><td>0.010 / 0.68</td><td>KineDex 0.017 / 0.59</td><td>Grasp L2 is the lowest, but the absolute value of cosine is lower than other tasks.</td></tr>
+</table>
+<table><tr><th>ablate</th><th>settings</th><th>L2</th><th>Cos</th><th>Conclusion</th></tr>
+<tr><td>Action representation</td><td>Unseen position: 3D absolute / 3D relative / 2D</td><td>0.075 / 0.056 / <strong>0.042</strong></td><td>0.72 / 0.88 / <strong>0.91</strong></td><td>2D image-plane action generalizes best to unseen position.</td></tr>
+<tr><td>Joint generation</td><td>Seen position: no joint gen vs joint gen</td><td>0.041 → 0.038</td><td>0.90 → 0.92</td><td>Jointly generated visual features provide global dynamic cues for tactile prediction.</td></tr>
+<tr><td>Dynamic weighting</td><td>Seen position: add dyn. weight</td><td>0.038 → <strong>0.035</strong></td><td>0.92 → <strong>0.93</strong></td><td>Emphasizing rapid changes and strong contact areas aids tactile prediction.</td></tr>
+</table>
+<div class="figure"><img alt="wm disturb" src="figures/wm_disturb.png"/><div class="caption">Figure 12: Visualization of VTWM perturbation and recovery after contact is broken.</div></div>
+<h3>6.5 AFP and RLTC ablation</h3>
+<table><tr><th>Tactile pred. length</th><th>LTD</th><th>Gating</th><th>Visual gen.</th><th>Wipe</th><th>Peel</th><th>Avg.</th></tr>
+<tr><td>0</td><td>×</td><td>×</td><td>×</td><td>0.12</td><td>0.06</td><td>0.09</td></tr>
+<tr><td>2</td><td>×</td><td>×</td><td>×</td><td>0.40</td><td>0.26</td><td>0.33</td></tr>
+<tr><td>4</td><td>×</td><td>×</td><td>×</td><td>0.45</td><td>0.30</td><td>0.38</td></tr>
+<tr><td>6</td><td>×</td><td>×</td><td>×</td><td>0.50</td><td>0.30</td><td>0.40</td></tr>
+<tr><td>6</td><td>✓</td><td>×</td><td>×</td><td>0.57</td><td>0.36</td><td>0.47</td></tr>
+<tr><td>6</td><td>✓</td><td>✓</td><td>×</td><td>0.66</td><td><strong>0.40</strong></td><td>0.53</td></tr>
+<tr><td>6</td><td>✓</td><td>✓</td><td>✓</td><td><strong>0.70</strong></td><td>0.38</td><td><strong>0.54</strong></td></tr>
+</table>
+<p>Ablation shows: predicting tactile length from 0 to 6, the average success rate rises from 0.09 to 0.40; adding LTD rises to 0.47; adding gating rises to 0.53. The average gain of adding visual generation is only 0.54, which is a small gain, while the inference time increases from 230 ms to 480 ms, so the final design does not rely on future visual generation.</p>
+<div class="figure"><img alt="gate" src="figures/gate_weight.png"/><div class="caption">Figure 13: Predicted contact probability and visual/tactile weight change over time; the tactile weight increases as the contact probability increases.</div></div>
+<div class="figure"><img alt="mp disturb" src="figures/mp_disturb.png"/><div class="caption">Figure 14: Strategic perturbation experiment, the object is suddenly lowered causing contact damage, and RLTC helps restore contact.</div></div>
+<div class="figure"><img alt="prediction" src="figures/prediction.png"/><div class="caption">Figure 15: Reduced tactile prediction accuracy corrupts contact probability estimates and modal weights, thereby reducing success rates.</div></div>
+</section>
+<section id="s7"><h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Based on the paper's own contributions and experiments, the core value is to upgrade "tactile" from a passive policy input to three trainable/verifiable objects: compressible tactile representation, predictable future contact status, and target signals that can be used for high-frequency closed-loop correction. This value is not demonstrated by a module alone, but is supported by data set statistics, VTWM predictors, AFP ablation, and real robot perturbation experiments.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li><strong>Task coverage: </strong>Six types of physical contact modes cover precision contact, surface friction, strong normal force, continuous shear, grasping and in-hand adjustment.</li>
+<li><strong>Assessment settings: </strong>Not only object diversity is reported, but also unseen heights, unseen tool, and contact perturbations are reported.</li>
+<li><strong>Module evidence chain: </strong>TactileVAE reconstruction table, VTWM prediction table, AFP ablation table, and policy success table correspond to representation, prediction, fusion, and control respectively.</li>
+<li><strong>Mechanism visualization: </strong>The gate weight changes with the contact probability, the prediction accuracy decreases, resulting in a decrease in the success rate, and the perturbation visualization shows the process from no-contact to recovery.</li>
+</ul>
+<h3>7.3 Limitations clearly stated by the author or in the source code</h3>
+<p>The text Conclusion does not formally expand limitations; there is a commented out "Limitation and future work" paragraph at the end of the source code, which reads: OmniViTac is currently a single-arm, gripper-based tactile manipulation benchmark, and has not yet covered dual-arm setting or other end-effector types, such as dexterous hands. The note also mentions that future work will explore extending the world model with larger and more diverse data, extending to dexterous hands and dual-arm manipulation, and cross-embodiment transfer. Since this paragraph is commented in the source code, this report labels it as "author's intention in source code comments", which is not equivalent to the formal text conclusion.</p>
+<h3>7.4 Applicable boundaries clearly stated in the paper</h3>
+<ul>
+<li>The real operation experiment uses xArm7, parallel two-finger gripper and Xense tactile sensor; other sensors are mainly used for TactileVAE representation validation.</li>
+<li>The task definition focuses on six contact-rich manipulation patterns and does not cover dexterous full-hand haptics, dual-arm collaboration, or non-gripper end effectors.</li>
+<li>The VTWM reasoning stage mainly uses future tactile prediction and does not use future visual generation; the author's basis is that visual generation reasoning is costly and does not significantly improve the strategy success rate.</li>
+<li>Training of RLTC relies on identifying abnormal tactile states and recovery segments from human trajectories; this process assumes that the effective tactile distribution can be estimated for each type of task.</li>
+</ul>
+<h3>7.5 Summary of Chapter Coverage and Acceptance</h3>
+<div class="card small">
+<p><span class="ok">Completed</span> Phase 2.5 internal chapter inventory: Abstract, Introduction, Related Works, The OmniViTac Dataset, Methodology, Experimental Evaluation, Conclusion, and Acknowledgments have all been mapped to the corresponding chapters of the report; there is no Appendix file.</p>
+<p><span class="ok">Covered</span> All source code image files: teaser, dataset_teaser, OmniVTA-6pattern, data_stat_family, system, vae, slow-policy, controller, object, manipulation, tsne, wm, wm_disturb, gate_weight, mp_disturb, prediction.</p>
+<p><span class="ok">Covered</span> Main tables: dataset comparison summary, object/task setup, main success rate, TactileVAE comparison, TactileVAE ablation, VTWM prediction summary, VTWM ablation, AFP ablation, policy inference time.</p>
+<p><span class="warn">Note</span> Since the arXiv source code does not have an appendix, there is no appendix reference mark in the report; this is not an omission, but is caused by the structure of the source file.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

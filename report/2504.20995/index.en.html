@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TesserAct - Intensive report reading</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>TesserAct: Learning 4D Embodied World Models</h1>
+<div class="meta">
+<p><strong>arXiv: </strong> 2504.20995</p>
+<p><strong>Authors: </strong> Haoyu Zhen, Qiao Sun, Hongxin Zhang, Junyan Li, Siyuan Zhou, Yilun Du, Chuang Gan</p>
+<p><strong>Affiliations: </strong> UMass Amherst, HKUST, Harvard University</p>
+<p><strong>Project page: </strong> <a href="https://TesserActWorld.github.io">https: //TesserActWorld.github.io</a></p>
+<p><strong>Report positioning: </strong> A Reading Report prepared for junior PhD group meeting, covering the text, tables, images and supplementary material implementation details.</p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#overview">1. Quick overview of the paper</a></li>
+<li><a href="#motivation">2. Research questions and motivations</a></li>
+<li><a href="#related">3. Related work context</a></li>
+<li><a href="#method">4. Detailed explanation of method</a></li>
+<li><a href="#experiments">5. Experiments and results</a></li>
+<li><a href="#repro">6. reproducibility Key Points</a></li>
+<li><a href="#analysis">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#qa">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="overview">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+ The core proposition of TesserAct is that the robot world model should not only generate 2D RGB videos, but should generate RGB-DN videos that include appearance, depth, and normal directions, and then reconstruct it into a spatiotemporally consistent 4D scene. This 4D representation can not only enable novel view synthesis, but also provide stronger geometric information for inverse dynamics policy.
+ </div>
+<table>
+<tbody>
+<tr>
+<th style="width: 170px;">What should the paper solve?</th>
+<td>Solve the problem of incomplete spatial relationships caused by the embodied world model only predicting the future in 2D pixel space. For tasks such as grabbing, opening drawers, and using tools, robots need depth, surface orientation, and dynamic geometry; generating only RGB videos is prone to errors in object scale, shape, pose, and time consistency.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>The author does not directly predict expensive 4D point cloud or mesh, but chooses lightweight intermediate representation RGB-DN video. The method includes: automatically constructing RGB, Depth, and Normal annotation data sets; modifying and fine-tuning CogVideoX to generate RGB-DN; using depth-normal integration, optical flow temporal consistency and regularization loss to reconstruct the video into a 4D scene; and finally using 4D point cloud to train the inverse dynamics model for action planning.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>On real/synthetic 4D scene generation, TesserAct achieves optimal results on depth, normal and reconstructed point cloud Chamfer $L_1$; among 9 tasks of RLBench action planning, 4DWM exceeds UniPi* and Image-BC on 7 tasks, such as close box 88, open drawer 80, open jar 44, sweep to dustpan 56, water plants 41.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The key to this paper is not as simple as "predict two more channels", but whether RGB-DN is sufficient as a low-dimensional interface for the 4D world: it must simultaneously retain the trainability of the video model, the availability of geometric reconstruction, and the benefits of downstream action planning. When reading, you should focus on tracking: whether the data annotation is reliable, whether the joint modeling of depth/normal and RGB really improves 4D reconstruction, when geometric information helps action planning, and when 2D information is sufficient.</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img alt="TesserAct teaser" src="figures/figures_cover.png"/>
+<figcaption>Figure 1. Overview of TesserAct: Input image and text action instructions, generate RGB, Depth, and Normal videos, further reconstruct the 4D scene, and support action prediction. Teaser displays in-domain, unseen objects/scenes and cross-domain scenes simultaneously.</figcaption>
+</figure>
+<div class="grid">
+<div class="audit-card">
+<h3>Contribution in one sentence</h3>
+<p>The paper advances the robot video world model from 2D RGB prediction to RGB-DN conditional generation, and proposes a reconstruction and downstream control pipeline from generated video to spatiotemporally consistent 4D scene.</p>
+</div>
+<div class="audit-card">
+<h3>keywords</h3>
+<p>
+<span class="pill">4D Embodied World Model</span>
+<span class="pill">RGB-DN Video</span>
+<span class="pill">CogVideoX Fine-tuning</span>
+<span class="pill">Depth-Normal Integration</span>
+<span class="pill">Inverse Dynamics</span>
+</p>
+</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Research questions and motivations</h2>
+<h3>2.1 Why 2D world model is not enough</h3>
+<p>Learned world models aim to simulate environmental dynamics and are used for policy synthesis, data simulation and long-horizon planning. Existing visual world models mostly generate future RGB videos in 2D pixel space, but the physical world is essentially three-dimensional. Looking only at RGB makes the model lack depth, 6-DoF pose, surface orientation and geometric constraints, which is insufficient for robot operation that requires precise position and attitude.</p>
+<p>The core problem cited by the author in the Introduction is that 2D models may produce object size and shape inconsistencies over time, resulting in limitations in data-driven simulation and robust policy learning. In other words, just because the generated video looks reasonable does not mean that it can support the robot's judgment of the object's geometry.</p>
+<h3>2.2 Why not just predict full 4D geometry</h3>
+<p>Generating 3D scenes directly over time is very expensive, and both training and inference are more complex than 2D video. The trade-off for TesserAct is to predict RGB-DN video: RGB represents appearance, Depth represents geometric distance, and Normal represents surface orientation. This representation is much lower-dimensional than the complete 4D scene, has more geometric information needed by the robot than RGB, and can reuse the ability of existing video diffusion models.</p>
+<h3>2.3 Data bottleneck</h3>
+<p>Training a 4D world model requires large-scale video data with depth and normal directions, but real robot data usually does not have these annotations. The author's solution is to extend the existing robot video data to RGB-DN: simulated data uses simulator depth and depth2normal, real data uses RollingDepth to estimate depth, and Temporal-Consistent Marigold-LCM-normal to estimate normal. This automatic annotation pipeline is the prerequisite for the method to be established.</p>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<h3>3.1 Embodied foundation models</h3>
+<p>The paper divides existing embodied foundation models into two categories: one is based on multi-modal language models, which use images or 3D input and output action descriptions; the other is VLA models, which directly output action tokens. TesserAct is different from their positioning: it does not construct policy directly, but constructs a 4D world model that can be used by planning or policy synthesis.</p>
+<h3>3.2 Learning world models</h3>
+<p>The low-dimensional state-space world model has high learning efficiency but is difficult to generalize across environments; the pixel-space world model is effective in simple game environments, but does not directly express three-dimensional geometry. In recent years, video foundation world models can generate rich future videos, but they still mostly work on 2D RGB. The difference of TesserAct is that it incorporates depth and normal direction into the generation target, and then reconstructs the dynamic 3D scene.</p>
+<h3>3.3 4D video generation</h3>
+<p>The field of 4D generation often relies on diffusion, NeRF, and 3D Gaussian Splatting, but many methods require slow optimization or rely on SDS loss. This article chooses RGB-DN video as a more efficient intermediate representation. It does not generate pure text to 4D objects, but is oriented to embodied agent: predicting 4D scene evolution from the current frame and text action instructions.</p>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Task form: conditional RGB-DN video diffusion</h3>
+<p>The paper writes RGB \(\mathcal{V}\), Depth \(\mathcal{D}\), and Normal \(\mathcal{N}\) video generation as conditional denoising tasks: </p>
+<div class="formula-block">
+ $$p(\mathbf{v}, \mathbf{d}, \mathbf{n}\mid \mathbf{v}^0, \mathbf{d}^0, \mathbf{n}^0, \mathcal{T})$$
+ </div>
+<p>Among them, \(\mathbf{v}, \mathbf{d}, \mathbf{n}\) is the latent sequence of RGB, depth and normal in the future, and the condition \(\mathbf{v}^0, \mathbf{d}^0, \mathbf{n}^0, \mathcal{T}\) corresponds to the initial image, initial depth/normal and text action command. For any mode latent \(\mathbf{z}\in\{\mathbf{v}, \mathbf{d}, \mathbf{n}\}\), forward diffusion is: </p>
+<div class="formula-block">
+ $$q(\mathbf{z}_t|\mathbf{z}_{t-1})=\mathcal{N}\left(\mathbf{z}_t; \sqrt{\alpha_t}\mathbf{z}_{t-1}, (1-\alpha_t)\mathbf{I}\right)$$
+ </div>
+<p>Splicing the three modalities into \(\mathbf{x}=[\mathbf{v}, \mathbf{n}, \mathbf{d}]\), the denoising network \(\epsilon_\theta(\mathbf{x}_t, t, \mathbf{x}^0, \mathcal{T})\) learns the reverse process and finally decodes it into pixel space.</p>
+<h3>4.2 RGB-DN data set construction</h3>
+<p>The 4D embodied video dataset constructed by the author comes from two types of data: synthetic and real. The simulation part selects 20 difficult tasks from RLBench. Each task generates 1000 instances, each instance has 4 perspectives, totaling 80k synthetic 4D embodied videos. RLBench provides metric depth, but not normal, so DSINE's is used <code>depth2normal</code> Estimating normal from depth; to enhance generalization, use Colosseum-style scene randomization to vary the background, desktop texture, and lighting.</p>
+<p>Real data comes from RT1 Fractal and Bridge in OpenX, plus SomethingSomethingV2 is added to increase action/command diversity. Real data lacks depth/normal. The author uses RollingDepth to mark affine-invariant depth and Temporal-Consistent Marigold-LCM-normal to mark normal.</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Domain</th>
+<th>Depth Source</th>
+<th>Normal Source</th>
+<th>Embodiment</th>
+<th># Videos</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>RLBench</td><td>Synthetic</td><td>Simulator</td><td>Depth2Normal</td><td>Franka Panda</td><td>80k</td></tr>
+<tr><td>RT1 Fractal Data</td><td>Real</td><td>RollingDepth</td><td>Marigold</td><td>Google Robot</td><td>80k</td></tr>
+<tr><td>Bridge</td><td>Real</td><td>RollingDepth</td><td>Marigold</td><td>WidowX</td><td>25k</td></tr>
+<tr><td>SomethingSomethingV2</td><td>Real</td><td>RollingDepth</td><td>Marigold</td><td>Human Hand</td><td>100k</td></tr>
+</tbody>
+</table>
+<figure>
+<img alt="Dataset examples" src="figures/figures_dataset.png"/>
+<figcaption>Supplementary Figure. Data sample showing RGB, depth, normal frames and natural language commands extracted from Bridge and RT-1. This figure corresponds to the data presentation in the supplementary material.</figcaption>
+</figure>
+<h3>4.3 Model architecture: from CogVideoX to RGB-DN predictor</h3>
+<p>Instead of training a diffusion video model from scratch, TesserAct modifies and fine-tunes CogVideoX. RGB, depth, and normal videos are encoded by CogVideoX's 3D VAE respectively, and VAE does not require additional fine-tuning. The input side introduces independent projectors for the three modes: </p>
+<div class="formula-block">
+ $$f_{\mathbf{z}}=\texttt{InputProj}(\mathbf{z}_t, \mathbf{z}^0), \qquad \mathbf{z}\in\{\mathbf{v}, \mathbf{d}, \mathbf{n}\}$$
+ $$\mathbf{h}=\texttt{DiT}\left(\sum f_{\mathbf{z}}, t, \mathcal{T}\right)$$
+ </div>
+<p>The text condition \(\mathcal{T}\) is defined as an action instruction plus the robot name, such as "pick up apple google robot", in order to distinguish different embodiments. The output side retains the original RGB output mode \(\epsilon^*_\mathbf{v}=\texttt{OutputProj}(h)\), and then adds a module for depth/normal: use Conv3D to encode the splicing of latent input and RGB denoised output, and then combine it with DiT hidden states to obtain the denoising prediction of depth/normal through DNProj.</p>
+<div class="formula-block">
+ $$\epsilon^*_{\mathbf{d}, \mathbf{n}}=\texttt{DNProj}\left(h, \texttt{Conv3D}\left(\epsilon^*_\mathbf{v}, [\mathbf{z}_t; \mathbf{z}^0]_{\mathbf{z}\in\{\mathbf{v}, \mathbf{d}, \mathbf{n}\}}\right)\right)$$
+ </div>
+<p>In order to retain the RGB generation knowledge of CogVideoX, the author initializes the backbone with CogVideoX weights, and initializes other new modules with 0, so that the RGB output in the early stage of training is consistent with CogVideoX. The training loss is the MSE of the tri-modal noise prediction: </p>
+<div class="formula-block">
+ $$L=\mathbb{E}_{\mathbf{v}_0, \mathcal{T}, t, \epsilon}\left[\left\|[\epsilon_\mathbf{v}, \epsilon_\mathbf{d}, \epsilon_\mathbf{n}]-\epsilon_\theta(\mathbf{x}_t, t, \mathbf{x}^0, \mathcal{T})\right\|^2\right]$$
+ </div>
+<figure>
+<img alt="TesserAct architecture" src="figures/figures_arch-new.png"/>
+<figcaption>Figure 2. TesserAct architecture and training process. The focus is on tri-modal latent input, DiT backbone reuse, and additional output branches of depth/normal.</figcaption>
+</figure>
+<h3>4.4 Reconstruct 4D scene from RGB-DN video</h3>
+<p>The generated depth is a relative depth and cannot directly obtain a 3D scene with the same complete scale; and only frame-by-frame depth-normal integration lacks temporal consistency. TesserAct's reconstruction algorithm first uses normal map to optimize the depth of each frame, and then uses optical flow to establish cross-frame constraints.</p>
+<p>Under the perspective camera, pixel \(\boldsymbol{u}=(u, v)^T\), depth \(d\), and normal \(\boldsymbol{n}=(n_x, n_y, n_z)\) satisfy the normal integration constraint of log-depth \(\tilde{d}=\log(d)\). The author uses iterative optimization form: </p>
+<div class="formula-block">
+ $$\tilde{d}_{t+1}=\arg\min_{\tilde{d}}(A\tilde{d}-b)^TW(\tilde{d}_t)(A\tilde{d}-b)
+ \stackrel{\mathrm{def}}{=}\arg\min_{\tilde{\mathcal{D}}}\mathcal{L}_s(\tilde{\mathcal{D}}, \mathcal{N}^i)$$
+ </div>
+<p>Then use RAFT optical flow \(\mathcal{F}\) to identify static and dynamic regions: \(\mathcal{M}_s^i=\|\mathcal{F}^i\|\le c\), \(\mathcal{M}_d^i=\neg\mathcal{M}_s^i\), and the background region is \(\mathcal{M}_b^i=\mathcal{M}_s^i\cap\mathcal{M}_s^{i-1}\). According to flow, depth warp the previous frame to the current frame position and define temporal consistency loss: </p>
+<div class="formula-block">
+ $$\mathcal{L}_c=
+ \lambda_{cd}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_d^i-\mathcal{D}^{i\rightarrow(i-1)}\circ\mathcal{M}_d^i\right\|^2+
+ \lambda_{cb}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_b^i-\mathcal{D}^{i\rightarrow(i-1)}\circ\mathcal{M}_b^i\right\|^2$$
+ </div>
+<p>At the same time, regularization loss is added to prevent the optimized depth from deviating too far from the generated depth: </p>
+<div class="formula-block">
+ $$\mathcal{L}_r=
+ \lambda_{rd}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_d^i-\mathcal{D}^{i}\circ\mathcal{M}_d^i\right\|^2+
+ \lambda_{rb}\left\|\tilde{\mathcal{D}}^i\circ\mathcal{M}_b^i-\mathcal{D}^{i}\circ\mathcal{M}_b^i\right\|^2$$
+ </div>
+<p>The overall goal is: </p>
+<div class="formula-block">
+ $$\arg\min_{\tilde{\mathcal{D}}}\ \mathcal{L}_s(\tilde{\mathcal{D}}, \mathcal{N}^i)+
+ \mathcal{L}_c(\tilde{\mathcal{D}}, \hat{\mathcal{D}}^{i-1}, \mathcal{F}^i, \mathcal{F}^{i-1})+
+ \mathcal{L}_r(\tilde{\mathcal{D}}, \mathcal{D}^i)$$
+ </div>
+<figure>
+<img alt="Consistency and regularization loss effect" src="figures/figures_bini.png"/>
+<figcaption>Figure 3. The impact of consistency loss and regularization loss on 4D scene reconstruction. The red box marks the inconsistent area; the paper uses this figure to illustrate that cross-temporal constraints and regular terms can improve the consistency and geometric accuracy of the manipulator movement.</figcaption>
+</figure>
+<h3>4.5 Use 4D scene for embodied action planning</h3>
+<p>After generating the 4D scene, the author trained the inverse dynamics model and output a 7-DoF action based on the current state \(s_i\), predicted future state \(s_{i+1}\) and instruction \(\mathcal{T}\): </p>
+<div class="formula-block">
+ $$a_i=\text{ID}(s_i, s_{i+1}, \mathcal{T})$$
+ </div>
+<p>In the specific implementation, PointNet encodes the 3D features of the 4D point cloud, then splices it with the instruction text embedding, and outputs the action through MLP. The goal of this downstream experiment is to verify that the geometric information reconstructed by RGB-DN is not only more beautiful in visualization, but can actually help the robot action decision-making.</p>
+</section>
+<section id="experiments">
+<h2>5. Experiments and results</h2>
+<h3>5.1 4D scene prediction settings</h3>
+<p>4D scene prediction is evaluated in both real and synthetic domains. Real domain uses 400 unseen samples of RT1 Fractal and Bridge, and depth/normal is estimated according to the data construction process; Synthetic domain uses 200 unseen samples of RLBench, and depth/normal can be obtained directly from the emulator. Each sample was generated 10 times and the average is reported.</p>
+<p>The indicators are divided into four categories: FVD, SSIM, and PSNR for RGB quality; AbsRel, \(\delta_1\), and \(\delta_2\) for depth; Mean, Median, and \(11.25^\circ\) for normal; and Chamfer \(L_1\) for point cloud reconstruction. Baselines include OpenSora, CogVideoX, and the author's implementation of 4D Point-E.</p>
+<h3>5.2 4D scene generation main results</h3>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Method</th>
+<th>RGB FVD ↓</th>
+<th>RGB SSIM ↑</th>
+<th>RGB PSNR ↑</th>
+<th>Depth AbsRel ↓</th>
+<th>Normal Mean ↓</th>
+<th>Chamfer L1 ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Real</td><td>4D Point-E</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.2211</td></tr>
+<tr><td>Real</td><td>OpenSora</td><td>23.67</td><td>71.31</td><td>19.25</td><td>31.41</td><td>41.82</td><td>0.3013</td></tr>
+<tr><td>Real</td><td>CogVideoX</td><td><strong>20.64</strong></td><td><strong>79.38</strong></td><td><strong>22.39</strong></td><td>26.17</td><td>19.53</td><td>0.2191</td></tr>
+<tr><td>Real</td><td>TesserAct</td><td>21.59</td><td>75.86</td><td>20.27</td><td><strong>22.07</strong></td><td><strong>15.74</strong></td><td><strong>0.2030</strong></td></tr>
+<tr><td>Synthetic</td><td>4D Point-E</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.1086</td></tr>
+<tr><td>Synthetic</td><td>OpenSora</td><td>54.11</td><td>65.90</td><td>19.28</td><td>18.40</td><td><strong>12.94</strong></td><td>0.2570</td></tr>
+<tr><td>Synthetic</td><td>CogVideoX</td><td>41.23</td><td>76.60</td><td><strong>20.87</strong></td><td>19.81</td><td>20.36</td><td>0.2884</td></tr>
+<tr><td>Synthetic</td><td>TesserAct</td><td><strong>40.01</strong></td><td><strong>77.59</strong></td><td>19.73</td><td><strong>16.02</strong></td><td>14.75</td><td><strong>0.0811</strong></td></tr>
+</tbody>
+</table>
+<p>There are two levels to distinguish when reading this table: TesserAct may not necessarily surpass CogVideoX in all RGB indicators, especially the RGB FVD/SSIM/PSNR of real domain is still the best of CogVideoX; but TesserAct is the strongest in depth, normal and final point cloud Chamfer. The proposition of the paper is exactly this: sacrificing or maintaining similar RGB quality in exchange for more reliable 4D geometry.</p>
+<figure>
+<img alt="Qualitative 4D generation results" src="figures/figures_qualitative_iccv.png"/>
+<figcaption>Figure 4. Qualitative results: in-domain 4D generation, unseen scenes/objects generalization and novel view synthesis. The figure supports the authors' claims about 4D scene quality and generalization.</figcaption>
+</figure>
+<h3>5.3 Novel view synthesis</h3>
+<p>The author further tested novel view synthesis after monocular video to 4D. On RLBench, enter the front camera monocular video and compare the overhead and left shoulder camera perspectives. Baseline is Shape of Motion, a video reconstruction method based on Gaussian Splatting.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>PSNR ↑</th>
+<th>SSIM ↑</th>
+<th>LPIPS ↓</th>
+<th>CLIP Score ↑</th>
+<th>CLIP Aesthetic ↑</th>
+<th>Time Costs ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Shape of Motion</td><td>10.94</td><td>24.02</td><td><strong>73.82</strong></td><td>66.67</td><td>3.61</td><td>about 2 hours</td></tr>
+<tr><td>TesserAct</td><td><strong>12.99</strong></td><td><strong>42.62</strong></td><td>60.51</td><td><strong>83.02</strong></td><td><strong>3.73</strong></td><td>approx. <strong>1 min</strong></td></tr>
+</tbody>
+</table>
+<p>The key point of this result is speed: TesserAct's 4D representation avoids slow per-scene optimization and is also better in PSNR, SSIM, CLIP Score and aesthetics. However, Shape of Motion is better in the LPIPS table, which shows that TesserAct's visual perception distance is not dominant in all indicators.</p>
+<h3>5.4 Embodied action planning</h3>
+<p>Action planning is evaluated on 9 challenge tasks of RLBench, with 100 episodes of average success rate reported for each task. Baselines are Image-BC and UniPi*. UniPi* was reimplemented by the author and uses fine-tuned CogVideoX as backbone for fair comparison.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>close box</th>
+<th>open drawer</th>
+<th>open jar</th>
+<th>open microwave</th>
+<th>put knife</th>
+<th>sweep to dustpan</th>
+<th>lid off</th>
+<th>weighing off</th>
+<th>water plants</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Image-BC</td><td>53</td><td>4</td><td>0</td><td>5</td><td>0</td><td>0</td><td>12</td><td>21</td><td>0</td></tr>
+<tr><td>UniPi*</td><td>81</td><td>67</td><td>38</td><td><strong>72</strong></td><td>66</td><td>49</td><td>70</td><td><strong>68</strong></td><td>35</td></tr>
+<tr><td>4DWM / TesserAct</td><td><strong>88</strong></td><td><strong>80</strong></td><td><strong>44</strong></td><td>70</td><td><strong>70</strong></td><td><strong>56</strong></td><td><strong>73</strong></td><td>62</td><td><strong>41</strong></td></tr>
+</tbody>
+</table>
+<p>The results show that geometric information is helpful for most tasks, especially close box, open jar, sweep to dustpan, water plants and other tasks that require object geometry, tool usage or precise spatial relationships. The paper also honestly points out that TesserAct is not as good as UniPi* in open microwave and weighing off, probably because the 2D front image of these tasks already provides enough information, and additional 3D processing does not necessarily bring benefits.</p>
+<h3>5.5 Supplementary material Qualitative results</h3>
+<p>The supplementary material adds data annotation, out-of-domain generation, RGB-DN video generation for each dataset, and explicit action trajectory visualization. They do not change the main conclusion, but help determine the scope of applicability and risk of failure of the method.</p>
+<figure>
+<img alt="Optimized 3D scene reconstruction" src="figures/figures_bini_works.png"/>
+<figcaption>Supplementary Figure. Optimized 3D robotic scene reconstruction on BridgeV2. The green/red boxes show enhanced detail, improved smoothness, and near vertical alignment of the wall and tabletop.</figcaption>
+</figure>
+<figure>
+<img alt="Data annotation comparison" src="figures/figures_data_exp.png"/>
+<figcaption>Supplementary Figure. Comparison with 3D-VLA data generation quality. The author believes that its point cloud is more realistic and 3D-VLA is more prone to shape distortion.</figcaption>
+</figure>
+<figure>
+<img alt="Out-of-domain 4D generation" src="figures/figures_supp_qualitative_out.png"/>
+<figcaption>Supplementary Figure. Out-of-domain 4D generation. The authors used DALL-E to generate images and let the 4D world model generate RGB, depth, normal and reconstructed point clouds to demonstrate cross-visual style robustness.</figcaption>
+</figure>
+<figure>
+<img alt="Action trajectory visualization" src="figures/figures_act_vis.png"/>
+<figcaption>Supplementary Figure. Explicit visualization of robotic arm action trajectory on the Bridge dataset. The red line represents the motion trajectory tracked from the video and lifted into 3D space.</figcaption>
+</figure>
+<figure>
+<img alt="Bridge qualitative generation" src="figures/figures_supp_qualitative_bridge.png"/>
+<figcaption>Supplementary Figure. In-domain RGB-DN video generation on the Bridge dataset.</figcaption>
+</figure>
+<figure>
+<img alt="RT1 qualitative generation" src="figures/figures_supp_qualitative_rt1.png"/>
+<figcaption>Supplementary Figure. In-domain RGB-DN video generation on RT1 dataset.</figcaption>
+</figure>
+<figure>
+<img alt="RLBench qualitative generation" src="figures/figures_supp_qualitative_rlbench.png"/>
+<figcaption>Supplementary Figure. In-domain RGB-DN video generation on the RLBench dataset.</figcaption>
+</figure>
+</section>
+<section id="repro">
+<h2>6. reproducibility Key Points</h2>
+<h3>6.1 Video diffusion model training</h3>
+<p><span class="appendix-ref">[Supplementary material Implementation Details]</span> The model is based on CogVideoX. Depth/normal projector and RGB projector use the same architecture; output side <code>Conv3DNet</code> There are 3 layers, MLP has 2 layers, and the dimensions are both 1024. The model outputs 49 frames, using gradient checkpointing, global batch size 16, and bf16 precision. Sampling uses DDPM scheduler 50 steps, classifier-free guidance scale is 7.5.</p>
+<p>Training 40, 000 iterations, initial learning rate \(1\times10^{-4}\), gradient clipping 1.0, warmup 1, 000 steps. The optimizer is Adam, \(\epsilon=1\times10^{-15}\), EMA decay 0.99.</p>
+<h3>6.2 4D scene generation hyperparameters</h3>
+<p><span class="appendix-ref">[Supplementary material 4D Scene Generation]</span> The reconstruction loss parameters are adjusted according to different data sets: </p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>\(\lambda_d\)</th>
+<th>\(\lambda_b\)</th>
+<th>\(\lambda_{g1}\)</th>
+<th>\(\lambda_{g2}\)</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>RT-1, Bridge</td><td>20</td><td>200</td><td>20</td><td>20</td></tr>
+<tr><td>RLBench</td><td>20</td><td>200</td><td>2</td><td>2</td></tr>
+</tbody>
+</table>
+<p>The author clearly stated that these \(\lambda\) will change with the scene, and the actual best performance requires parameter adjustment. This is critical when reproducing because the quality of the 4D reconstruction depends not only on the generated model but also on the post-processing optimization weights.</p>
+<h3>6.3 Robotics planning training</h3>
+<p>In RLBench planning, the main difference of the model is that it is changed to 13 frames and fine-tune, and the fixed resolution is 512 × 512. Each task collects 500 samples to train the inverse dynamics model. During inference, all future keyframes are first predicted and recorded, and then only the inverse dynamics model is queried, and actions are output based on the current state and the predicted future state.</p>
+<p><span class="appendix-ref">[Supplementary material Implementation Details for Robotics Planning]</span> The Action prediction stage first filters the background and ground, retains only point clouds related to the desktop and the operated object, and then samples 8192 points. PointNet extracts point cloud features, concatenates them with instruction language embedding, inputs 4-layer MLP, and outputs 7-DoF actions. To adapt the video diffusion model output, the author adds Gaussian noise with a relative amplitude of 20% to the image and point cloud coordinates.</p>
+<h3>6.4 Recurrence risk list</h3>
+<ul>
+<li><strong>Automatic labeling error: </strong> The depth and normal of real data come from off-the-shelf estimators, not ground truth; the estimator bias is passed into the world model.</li>
+<li><strong>Multimodal alignment: </strong> RGB, Depth, and Normal must be consistent in time, otherwise the reconstructed 4D scene will be misaligned in the dynamic area.</li>
+<li><strong>Reconstruct hyperparameters: </strong> \(\lambda\) is different for different data sets. The paper also states that parameters need to be adjusted, and these settings must be reported in replication experiments.</li>
+<li><strong>Control closed loop details: </strong> In the future, the selection of keyframes, the state correspondence method of inverse dynamics, and point cloud filtering rules will all affect the success rate of RLBench.</li>
+<li><strong>Computing power depends on: </strong> Fine-tuning CogVideoX, generating 49-frame RGB-DN video, and evaluating multiple samples all have high memory and time costs.</li>
+</ul>
+</section>
+<section id="analysis">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is that it proposes a very practical 4D world model representation: RGB-DN video. It's not the most complete 4D representation, but it's nicely stuck between "trainable by existing video models" and "enough to reconstruct the geometry needed for the robot". For embodied AI, this intermediate representation is more geometrically constrained than directly generating RGB videos, and is easier to train at scale than directly generating dynamic point clouds or meshes.</p>
+<p>The second value point is that the paper connects the quality of the world model and downstream action planning. The 4D scene generation table proves that depth/normal/Chamfer is better, and the RLBench action planning table further shows that geometry improvement can translate into success rate gains in most tasks. This is more convincing than just showing a nice 4D visualization.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results are tenable mainly because the evidence chain is relatively complete. First, the paper evaluates 4D scenes in both real and synthetic domains. Synthetic RLBench has ground-truth depth/normal, which can more objectively verify geometric quality. Second, the indicators cover RGB, depth, normal and point cloud, and do not just rely on a single visual indicator. Third, novel view synthesis and action planning verify the practicality of 4D representation from reconstruction applications and robot control applications respectively. Fourth, the supplementary material gives training hyperparameters, reconstruction weights, point cloud filtering, and action model details so that the method is not completely black box.</p>
+<p>However, caution is needed: the depth/normal annotation on real data comes from the estimator, so the "true value" of the real-domain depth/normal indicator also has an estimation chain; RLBench action planning is a simulation environment, and real robot closed-loop control has not yet formed quantitative evidence of the same strength.</p>
+<h3>7.3 Clear limitations of the paper</h3>
+<p>The authors make it clear in Limitations: RGB-DN means cheap and predictable, but only captures a single surface of the world. To build a more complete 4D world model, in the future, the generated model can generate multiple RGB-DN views and then integrate them into a more complete 4D scene.</p>
+<h3>7.4 Additional boundaries and possible improvements</h3>
+<ul>
+<li><strong>Single-view occlusion problem: </strong> It is difficult for a single RGB-DN sequence to recover the geometry behind occluded objects, and multi-view generation or active view selection would be stronger.</li>
+<li><strong>Estimator dependencies: </strong> The quality of RollingDepth and Marigold directly affects real data annotation. If the estimator fails after domain change, world model training will also be contaminated.</li>
+<li><strong>Geometry is not always necessary: </strong> The 2D baseline is stronger in open microwave and weighing off, indicating that not all tasks benefit from 4D.</li>
+<li><strong>Insufficient dynamic contact modeling: </strong> RGB-DN representation can reconstruct surfaces and motions, but physical variables such as contact forces, friction, and internal states of objects are still not explicitly modeled.</li>
+<li><strong>Engineering complexity: </strong> The method requires multiple modules such as video generation, depth/normal annotation, optical flow, depth optimization, point cloud filtering, and inverse dynamics, any of which may become a deployment bottleneck.</li>
+</ul>
+</section>
+<section id="qa">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: What is the essential difference between TesserAct and ordinary video world model?</h3>
+<p>Ordinary video world model mainly predicts RGB future frames; TesserAct simultaneously predicts RGB, depth and normal, and then reconstructs 4D point clouds. It advances the output of the world model from "looking like the future" to "containing a future that can be used for geometric reasoning".</p>
+<h3>Q2: Why choose RGB-DN instead of directly generating point cloud?</h3>
+<p>Directly generating dynamic point clouds is more expensive for training and inference, and the number of frames is limited. RGB-DN video is compatible with existing video diffusion models and has lower data dimensions while retaining the depth and surface orientation required to reconstruct 3D scenes.</p>
+<h3>Q3: Which group of formulas is the most core in this paper?</h3>
+<p>One group is RGB-DN conditional denoising objective, which explains how the model jointly generates three-modal video; the other group is \(\mathcal{L}_s+\mathcal{L}_c+\mathcal{L}_r\) of 4D scene reconstruction, which explains how to use normal, optical flow and generated depth to obtain consistent depth in space and time.</p>
+<h3>Q4: What is the most convincing result in the experiment?</h3>
+<p>In the 4D scene table, Chamfer \(L_1\) is the best in both real and synthetic, indicating that the reconstructed geometry is indeed better; in RLBench action planning, 7/9 tasks exceed UniPi*, indicating that geometric advantages can be converted into control benefits.</p>
+<h3>Q5: What should be questioned most?</h3>
+<p>The depth/normal of real data is not ground truth, but estimator annotation; in addition, downstream action planning is mainly verified in RLBench simulation. To prove that it is a universal robot world model, stronger real robot closed-loop experiments and multi-view/occlusion scene evaluation are needed.</p>
+</section>
+</main>
+</body>
+</html>

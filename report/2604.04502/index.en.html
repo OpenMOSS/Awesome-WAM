@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Veo-Act - Intensive report reading</title>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Veo-Act: How Far Can Frontier Video Models Advance Generalizable Robot Manipulation?</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Zhongru Zhang, Chenghan Yang, Qingzhou Lu, Yanjiang Guo, Jianke Zhang, Yucheng Hu, Jianyu Chen</p>
+<p><strong>Organization: </strong>Tsinghua University</p>
+<p><strong>Publication: </strong>arXiv preprint, 2026</p>
+<p><strong>arXiv: </strong><a href="https://arxiv.org/abs/2604.04502">2604.04502</a> | <strong>PDF: </strong><a href="https://arxiv.org/pdf/2604.04502">Download</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+<li>Paper quick overview</li><li>motivation</li><li>Summary of related work</li><li>Detailed explanation of method</li><li>experiment</li><li>Analysis and Discussion</li>
+</ol>
+</nav>
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr"><strong>One-sentence summary: </strong>This article studies whether cutting-edge video generation models such as Veo-3 can be used as high-level visual planners for robots, and proposes Veo-Act: use Veo-3 to generate future visual trajectories, use a multi-head inverse dynamics model to restore action and switching signals, and then switch to the VLA low-level strategy during the contact interaction stage.</div>
+<ul>
+<li><strong>Difficulty rating: </strong>★★★★☆. It is necessary to understand the video generation model, inverse dynamics model, VLA strategy, robot control closed loop and experimental evaluation indicators.</li>
+<li><strong>Keywords: </strong>Video generation model, robot manipulation, inverse dynamics model, VLA, hierarchical control, dexterous manipulation.</li>
+<li><strong>Core contribution 1: </strong>The paper examines a specific question: how far can today's cutting-edge video generation models advance robot operation in a zero-human demonstration setting. This means that the paper does not just propose an architecture, but first experimentally evaluates the upper limit of the "video model + IDM" route.</li>
+<li><strong>Core contribution 2: </strong>The paper finds that Veo-3 can generate task-level trajectories that are generally correct and follow instructions, but the low-level contact control accuracy is insufficient. This means that video models are more suitable as high-level motion priors rather than as direct replacements for control strategies.</li>
+<li><strong>Core contribution 3: </strong>The paper proposes Veo-Act, which uses the video model as a high-level planner, VLA as a low-level executor, and uses the gate signal of the multi-head IDM to decide when to switch. This means that the system attempts to retain the generalization capabilities of the video model while leveraging the reactive contact control capabilities of the VLA.</li>
+</ul>
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper focuses on generalized robot operations in open environments: robots need to grasp and place in different object geometries, semantic instructions, and distractor scenarios. Existing VLA models rely on large-scale robot data, and action modalities need to be introduced when converting from VLM to VLA; the paper points out that this will make it difficult to completely retain the generalization knowledge of the pre-trained VLM.</p>
+<p>The failure scenarios constructed in this paper include: the target object is not within the field of view of the wrist camera, there are interference objects with similar appearance, and non-target objects are located on the path of the robotic arm. These scenarios do not simply examine "whether it can be caught", but examine whether the strategy can still follow the target instructions under visual, semantic and path interference.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<ul>
+<li><strong>VLA route: </strong>Models such as RT-2, OpenVLA, $\pi_0$, and $\pi_{0.5}$ map visual language input to actions, but the introduction of action modalities may weaken the retention of VLM pre-training knowledge; the paper uses this to explain the failure of VLA under semantic confusion and distribution changes.</li>
+<li><strong>Video Model + IDM Route: </strong>This route maintains the native input and output interface of the video model and can better retain the generalization ability of the video model; however, the generated video is still not accurate enough in contact with rich low-level physical interactions, and IDM will amplify the control error after converting visual errors into actions.</li>
+<li><strong>Contradictions of a single route: </strong>VLA is good at low-level closed-loop contact but has limited semantic generalization; video models are good at generating generally correct task-level trajectories but low-level control is unstable. The motivation behind Veo-Act is to divide the work between the two.</li>
+</ul>
+<h3>2.3 The solution ideas of this article</h3>
+<p>At the high level, Veo-3 generates a video trajectory to complete the task based on the initial image and language prompt; in the middle, the multi-head IDM converts the inter-frame changes into action clips and predicts the interaction gate; during low-level execution, the system follows the video planning action by default. When the gate indicates that it has entered the contact interaction stage, it switches to the VLA strategy to perform detailed operations, and then switches back to the remaining planning queue.</p>
+<div class="figure"><img alt="三种控制管线对比" src="figures/fig_intro_teaser.png"/><div class="caption">Figure 1: Comparison of three control pipelines: VLA, Video model + IDM, and Veo-Act.</div></div>
+<h2>3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3>
+<table>
+<tr><th>Related work lines</th><th>representative work</th><th>Positioning in the paper</th></tr>
+<tr><td>Video generative models for policy learning</td><td>Sora, Veo, V-JEPA 2, Unified World Models, Vidar, VPP, AnyPos, TC-IDM</td><td>Video models contain physical priors such as object persistence, motion continuity, and coarse-grained collisions to generate visual plans; however, performance is constrained by video fidelity, especially in contact-rich dexterity operations.</td></tr>
+<tr><td>Learning from Observation / IDM</td><td>LfO, VPT, Vidar, AnyPos, TC-IDM</td><td>IDM can map state or image transitions into actions, and can even be learned from unlabeled videos or play data; this article uses self-supervised random play to train multi-head IDM.</td></tr>
+<tr><td>Vision-Language-Action Models</td><td>RT-2, OpenVLA, $\pi_0$, $\pi_{0.5}$</td><td>VLA is an important route for current general robot strategies, but transforming VLM into an action output model will bring knowledge retention issues; this article uses $\pi_{0.5}$ as the baseline and low-level executor.</td></tr>
+</table>
+<h3>3.2 Direct comparison with previous works</h3>
+<table>
+<tr><th>Dimensions</th><th>VLA / $\pi_{0.5}$</th><th>Video Model + IDM/VPP</th><th><strong>Veo-Act</strong></th></tr>
+<tr><td>Core idea</td><td>Export actions directly from images, words and states.</td><td>A future video is generated and the action is restored by IDM or inverse model.</td><td>The video model is responsible for high-level trajectories, VLA is responsible for contact interaction, and IDM outputs actions and switching gates at the same time.</td></tr>
+<tr><td>key assumptions</td><td>The trained action modality still retains the semantic generalization of VLM/VLA.</td><td>The video generated trajectories are physically consistent enough that IDM can reliably restore motion.</td><td>Video trajectories serve as task-level priors, but the exposure phase requires reactive low-level strategies.</td></tr>
+<tr><td>Applicable scenarios</td><td>Closed-loop operations with sufficient training coverage, visible targets, and weak semantic confusion.</td><td>Simple interaction or coarse-grained task planning.</td><td>Semantic or perspective confounder obvious while requiring deft pick-and-place grabbing.</td></tr>
+<tr><td>Experimental performance</td><td>The overall success of all simulation + real experiments is 102/228 = 0.45.</td><td>As the video baseline VPP in simulation, several conditions are lower than Veo-Act.</td><td>The overall success of all simulation + real experiments is 182/228 = 0.80.</td></tr>
+</table>
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Method overview</h3>
+<p>The data flow of Veo-Act is: initial observation $I_0$ and task prompt → Veo-3 generates future frame sequence $I^{*}_{0: n}$ → multi-head IDM performs inverse dynamics on adjacent frames, outputs action fragment $a^{*}_{0: n-1}$ and gate signal → smoother obtains $\bar{a}^{*}_{0: n-1}$ → gradually pops from the action queue during execution; if real-time gate $G_t$ If it continues to be higher than the threshold $\tau$, switch to the low-level VLA policy $\pi_{\mathrm{VLA}}$; after the gate is lowered, cut off the interaction interval and restore the planning queue.</p>
+<div class="figure"><img alt="Veo-Act pipeline" src="figures/fig_pipeline.png"/><div class="caption">Figure 2: Hierarchical planning and control pipeline. The original PDF image has been converted to PNG.</div></div>
+<div class="figure"><img alt="三种 inference paradigms" src="figures/fig_traj.png"/><div class="caption">Figure 3: Comparison of three execution trajectories of pure IDM, one-time switching, and complete Veo-Act.</div></div>
+<h3>4.2 Method evolution</h3>
+<div class="audit-card">
+<p><strong>VLA direct control</strong> → Input the current observation and language, and directly output the action; the problem is that it is easy to follow the wrong object or path by mistake under confounder.</p>
+<p><strong>Video model + IDM</strong> → First generate a video of the task completion, and then resume the action; the advantage is that the semantics and physical priors of the video model are retained, but the problem is that the contact control accuracy is insufficient.</p>
+<p><strong>Veo-Act</strong> → Use the video model to plan "where to go and where to pass", use VLA to complete "how to stabilize the grasp and release during contact", and use IDM gate to connect the two control modes.</p>
+</div>
+<h3>4.3 Core design and mathematical derivation</h3>
+<div class="formula-block">
+<div class="intuition">Formula 1: Video model generates future visual trajectories.</div>
+<p>$$I^{*}_{0: n}=\{I^{*}_1, I^{*}_2, \ldots, I^{*}_n\}$$</p>
+<p>Here $I_0$ is the initial observation, $I^{*}_k$ is the $k$th synthesized future frame, and $n$ is the number of sampled frames. The function of this formula is not to directly control the robot, but to convert the language target into a visuo-motor prior that can be digested by IDM.</p>
+</div>
+<div class="formula-block">
+<div class="intuition">Formula 2: Multi-head IDM predicts actions and interaction gates simultaneously.</div>
+<p>$$(a_t, G_t)=\pi_{\mathrm{IDM}}(I_{t-1}, I_t, s_t)$$</p>
+<table class="symbol-table">
+<tr><td>$I_{t-1}, I_t$</td><td>Two adjacent frames of images represent changes in visual status.</td></tr>
+<tr><td>$s_t$</td><td>Robot state characteristics; 21-dimensional single-arm state was recorded in the experiment.</td></tr>
+<tr><td>$a_t$</td><td>The recovered executable action; running the entire generated video can result in $a^{*}_{0: n-1}$.</td></tr>
+<tr><td>$G_t\in[0, 1]$</td><td>The output of the interaction detector, indicating whether the current should be handed to the lower VLA.</td></tr>
+</table>
+<p>Intuitively, the action head is responsible for "how the robot should move between these two frames", and the gate head is responsible for "whether it has entered the grabbing/contact stage that requires reactive strategies." It is divided into two MLP heads because the numerical distributions of action regression and binary classification gate are different.</p>
+</div>
+<div class="formula-block">
+<div class="intuition">Formula 3: IDM training objectives.</div>
+<p>$$\mathcal{L}=\lambda_{\text{act}}\mathcal{L}_{\text{act}}(a_t, \hat a_t)+\lambda_{\text{gate}}\mathcal{L}_{\text{gate}}(G_t, \hat g_t)$$</p>
+<p>The text states that the action head uses Huber loss and the gate head uses Binary Cross Entropy. The appendix further gives the IDM training target: $\mathcal{L}_{\mathrm{IDM}}=\lambda_{\mathrm{act}}\sum_d d(a_{t, d}, \hat a_{t, d})+\lambda_{\mathrm{gate}}\mathrm{BCE}(G_t, \hat g_t)$, where $d(\cdot)$ is the weighted Smooth L1.<span class="appendix-ref">Appendix: IDM Training</span></p>
+<details><summary>Supplementary derivation: Why weighted Smooth L1 is suitable for motion regression</summary><div>When the error is $|x-\hat{x}|&lt;\beta$, Smooth L1 uses the quadratic term $0.5w(x-\hat{x})^2/\beta$, and the gradient changes linearly with the error, which is conducive to small error refinement; when the error is large, the loss becomes $w(|x-\hat{x}|-0.5\beta)$, and the gradient amplitude is controlled, reducing the dominance of abnormal action samples on training. The appendix of the paper sets $\beta$ to 0.1, and gives a weight of 2 to dimensions 4 and 11, and a weight of 1 to the remaining dimensions.</div></details>
+</div>
+<div class="formula-block">
+<div class="intuition">Formula 4: Action smoothing and queue execution.</div>
+<p>$$\bar a^{*}_{0: n-1}=\mathrm{Smoother}(a^{*}_{0: n-1}), \qquad \mathcal Q=\{\bar a^{*}_1, \ldots, \bar a^{*}_m\}$$</p>
+<p>The default action during execution is $a_t=\bar a^{*}_{k+1}$. The appendix specifies the smoother as follows: detecting local extreme key points in key dimensions, and doing centered moving-average in the adjacent key point interval; key points remain unchanged; key point actions can be held for an additional $H$ step; and finally, lower bound clamp, $m=0.13$ is made for the specified dimension $d_c=2$.<span class="appendix-ref">Appendix: Action Smoother</span></p>
+</div>
+<div class="figure"><img alt="IDM training" src="figures/fig_train.png"/><div class="caption">Figure 4: Multi-head IDM training process.</div></div>
+<div class="figure"><img alt="smoother" src="figures/smoother.png"/><div class="caption">Appendix figure: Example of how smoother handles an action dimension.</div></div>
+<h3>4.4 Implementation Points (For reproducibility)</h3>
+<table>
+<tr><th>module</th><th>Implementation details</th><th>Source</th></tr>
+<tr><td>Video prompt</td><td>prompt clearly requires the robot to distinguish between target objects and similar objects, non-target objects to remain motionless, the target to remain in place before being grabbed, the viewing angle to remain unchanged, the movement to be smooth and natural, and the container not to move.</td><td><span class="appendix-ref">Appendix: Video-Generation Prompt Construction</span></td></tr>
+<tr><td>visual encoder</td><td>DINOv3 ViT-B/16, embedding 768, depth 12, heads 12, patch size 16, using patch token features of two frames to splice into 1536 dimensions.</td><td><span class="appendix-ref">Appendix: IDM Training</span></td></tr>
+<tr><td>IDM data</td><td>The main text contains 300k simulated frame-pairs, plus 100k simulated random-motion and 150k real samples; the appendix writes about using 550k frame-pairs for training.</td><td>Text §5.1 + Appendix</td></tr>
+<tr><td>noise enhancement</td><td>Running Stem-OB inversion on the RGB trace produces noisy stem observations: 50 denoising steps, 10 inversion steps.</td><td><span class="appendix-ref">Appendix: IDM Training</span></td></tr>
+<tr><td>switching logic</td><td>Maintain gate history $\mathcal H_G$; enable VLA after stable_high; close VLA after stable_low, and use truncate/drop operations to skip the queue segment corresponding to the high gate.</td><td><span class="appendix-ref">Appendix: Algorithmic Variants</span></td></tr>
+</table>
+<pre class="pseudocode">Hierarchical Veo-Act inference
+1. reset environment and sample task
+2. build video-generation prompt from task
+3. generate future frames I*_{0:n} with Veo-3
+4. run IDM.action over generated frames to get a*_{0:n-1}
+5. smooth actions and enqueue them into Q
+6. for each real timestep:
+   - observe current image/state
+   - compute gate G_t = IDM.gate(I_{t-1}, I_t)
+   - if gate stays low: execute next planned action from Q
+   - if gate stays high: execute low-level VLA action
+   - if gate returns low: prune high-gate queue segment and resume plan</pre>
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<table>
+<tr><th>Project</th><th>content</th></tr>
+<tr><td>platform</td><td>7-DoF robotic arm + 12-DoF dexterous hand; two RGB cameras: global camera and wrist camera. Video generation and IDM use the global camera; low-level policies can use the wrist camera after switching.</td></tr>
+<tr><td>Simulation</td><td>Use IsaacLab to build high-fidelity simulation environments that correspond to real platforms.</td></tr>
+<tr><td>Task</td><td>Grab the specified target object and put it into the specified container.</td></tr>
+<tr><td>Simulation founder</td><td>Invisible wrist camera, interference from similar objects, pass-by interaction.</td></tr>
+<tr><td>real robot cofounder</td><td>Similar object interference, pass-by interaction, and more complex semantic instructions.</td></tr>
+<tr><td>Baselines</td><td>$\pi_{0.5}$ is used as VLA baseline; the video method VPP is also compared in the simulation. Veo-Act uses $\pi_{0.5}$ as the low-level policy.</td></tr>
+<tr><td>code repository</td><td>Searching by "Veo-Act code github" and "2604.04502 github", no clear official repository was found.</td></tr>
+</table>
+<h4>training configuration</h4>
+<table>
+<tr><th>Hyperparameters/Configuration</th><th>value</th><th>Source</th></tr>
+<tr><td>IDM training sample</td><td>550k frame-pair samples</td><td><span class="appendix-ref">Appendix: IDM Training</span></td></tr>
+<tr><td>IDM training iteration</td><td>85, 000 iterations</td><td><span class="appendix-ref">Appendix: IDM Training</span></td></tr>
+<tr><td>IDM hardware</td><td>4 NVIDIA Ampere-series 80 GPUs, ~10 hours</td><td><span class="appendix-ref">Appendix: IDM Training</span></td></tr>
+<tr><td>IDM batch size</td><td>8 per GPU, total batch size 32</td><td><span class="appendix-ref">Appendix: Table IDM Training</span></td></tr>
+<tr><td>IDM optimizer</td><td>AdamW, $\beta=(0.9, 0.999)$, $\epsilon=0.01$, weight decay 0.01</td><td><span class="appendix-ref">Appendix: Table IDM Training</span></td></tr>
+<tr><td>IDM learning rate</td><td>DINO: $5\times10^{-5}$; other modules: $5\times10^{-4}$</td><td><span class="appendix-ref">Appendix: Table IDM Training</span></td></tr>
+<tr><td>IDM scheduler</td><td>Cosine scheduler, warmup 8, 500 steps</td><td><span class="appendix-ref">Appendix: Table IDM Training</span></td></tr>
+<tr><td>$\pi_{0.5}$ training</td><td>batch size 32, initial LR $2.5\times10^{-5}$, training 40K iterations, using official implementation and LR scheduler</td><td><span class="appendix-ref">Appendix: Pi0.5 Training</span></td></tr>
+</table>
+<h3>5.2 Main results</h3>
+<table>
+<tr><th>settings</th><th>Baseline overall</th><th>Veo-Act overall</th><th>The conclusion given by the paper</th></tr>
+<tr><td>Simulation: wrist-camera invisible / Experimental</td><td>10/30 = 0.33</td><td>20/30 = 0.67</td><td>Veo-Act improves to ~2x when the target is out of view of the wrist camera.</td></tr>
+<tr><td>Simulation: similar-object distractors / Experimental</td><td>12/30 = 0.40</td><td>28/30 = 0.93</td><td>Veo-Act alleviates semantic confusion of similar objects.</td></tr>
+<tr><td>Simulation: pass-by interaction / Experimental</td><td>0/30 = 0.00</td><td>14/30 = 0.47</td><td>Baseline nearly fails, Veo-Act regains partial mission capability.</td></tr>
+<tr><td>True: similar-object distractors</td><td>8/16 = 0.50</td><td>12/16 = 0.75</td><td>Improvements are also achieved on real platforms.</td></tr>
+<tr><td>True: pass-by interaction</td><td>2/13 = 0.15</td><td>11/13 = 0.85</td><td>Overall success increased by 5.7 times.</td></tr>
+<tr><td>Reality: richer semantics</td><td>2/19 = 0.11</td><td>15/19 = 0.79</td><td>The overall success under complex semantic instructions is increased by 7.2 times.</td></tr>
+</table>
+<p>Paper summary: Under the Experimental conditions of the simulation experiment, the baseline overall success is 22/90 = 0.24, and the Veo-Act is 62/90 = 0.69; the summary of all overall successes in simulation + real life, the baseline is 102/228 = 0.45, and the Veo-Act is 182/228 = 0.80.</p>
+<div class="figure"><img alt="simulation results" src="figures/sim_abc_once.png"/><div class="caption">Simulation success rate: yellow is instruction-following, green is overall.</div></div>
+<div class="figure"><img alt="real robot results" src="figures/real_ab_once.png"/><div class="caption">Real robot success rate.</div></div>
+<h3>5.3 Ablation experiment</h3>
+<table>
+<tr><th>Variants</th><th>Instruction-following</th><th>Overall</th><th>Verification purpose</th></tr>
+<tr><td>ResNet backbone</td><td>22/30 = 0.73</td><td>17/30 = 0.57</td><td>Testing whether DINOv3 visual representation is important.</td></tr>
+<tr><td>Without noise</td><td>22/30 = 0.73</td><td>16/30 = 0.53</td><td>Testing the effect of STEM-OB noise enhancement on robustness.</td></tr>
+<tr><td>Single head</td><td>25/30 = 0.83</td><td>17/30 = 0.57</td><td>Testing the impact of a single action head and not learning the interaction detector separately.</td></tr>
+<tr><td>Ours</td><td>25/30 = 0.83</td><td>20/30 = 0.67</td><td>The multi-head design improves overall success without compromising instruction-following.</td></tr>
+</table>
+<div class="figure"><img alt="ablation" src="figures/ablation_abcd_once.png"/><div class="caption">Ablation results on wrist camera invisible settings.</div></div>
+<h3>5.4 Supplementary experiments (from appendix)</h3>
+<ul>
+<li><strong>Four categories of detailed settings: </strong>The appendix gives qualitative illustrations of invisible object, pass-by, similar-object distractors, and richer semantics, and supplements these contents with experimental setup instructions.</li>
+<li><strong>Pure IDM results: </strong>The appendix reports the results of pure IDM under the same protocol for isolating the ability of video prior + IDM itself; pure IDM has been explained as a variant in the main methods section.</li>
+<li><strong>Failure analysis: </strong>The appendix lists the types of failures in the experimental setting as a source of information on the limitations and boundaries of §6.</li>
+<li><strong>Action smoother visualization: </strong>The appendix shows a single action dimension before and after smoothing, illustrating the actual effect of the smoother.</li>
+</ul>
+<div class="figure"><img alt="invisible control" src="figures/invisible_ctrl.png"/><img alt="invisible ours" src="figures/invisible.png"/><div class="caption">Appendix setting 1: control and ours for invisible object condition.</div></div>
+<div class="figure"><img alt="pass by control" src="figures/pass_by_ctrl.png"/><img alt="pass by ours" src="figures/pass_by.png"/><div class="caption">Appendix Setting 2: pass-by interaction.</div></div>
+<div class="figure"><img alt="similar control" src="figures/similar_ctrl.png"/><img alt="similar ours" src="figures/similar.png"/><div class="caption">Appendix Setting 3: similar-object distractors.</div></div>
+<h2>6. Analysis and Discussion</h2>
+<h3>6.1 Analysis and explanation of the results given in the paper</h3>
+<ul>
+<li>The paper explains that the baseline decreases systematically under Experimental conditions, indicating that the wrist camera field of view, similar object interference and pass-by interference do expose the instruction-following failure modes of VLA.</li>
+<li>The paper attributes Veo-Act's improvement to the generally correct task-level trajectories generated by the video model and the closed-loop recovery capabilities provided by level switching during the contact phase.</li>
+<li>The paper points out that multi-head design improves overall success because joint learning of action prediction and interaction detection is more conducive to stage switching and end-to-end execution.</li>
+</ul>
+<h3>6.2 Limitations of the author's statement</h3>
+<p>It is clearly pointed out in the text and conclusion of the paper that the current video model cannot accurately complete most low-level contact-rich operations: Veo-3 + IDM can generate generally correct trajectories, but the low-level control accuracy is insufficient, especially in the physical contact stage. The paper also points out that this route is constrained by the fidelity of the underlying video generation model, and the limitations are more obvious in high-dimensional action spaces and multi-point contact dynamics scenarios such as dexterous operation.</p>
+<p>The appendix failure analysis is included here: failures mainly correspond to target identification, path interference, contact execution and low-level switching in the confounded setting. Since the paper does not expand these failures into new method suggestions in the main text, this report only objectively records them as applicable boundaries.</p>
+<h3>6.3 Applicable boundaries and discussions clearly stated in the paper</h3>
+<ul>
+<li><strong>Applicable conditions: </strong>The video model can generate approximately correct task-level trajectories, the IDM can recover executable actions from inter-frame changes, and the low-level VLA can handle the contact phase.</li>
+<li><strong>Not applicable or risky scenarios: </strong>Video predictions were significantly inaccurate in contact dynamics, target/container relationships were generated incorrectly, and gate detection was unstable leading to premature or late switching.</li>
+<li><strong>Future trends: </strong>It is concluded that as video generative models continue to improve, video models can become valuable components in generalized robot learning; this is stated as a summary of the paper and not as additional recommendations of this report.</li>
+</ul>
+<h2>Self-acceptance</h2>
+<div class="audit-card">
+<p><span class="ok">Completed</span>: Analyze the title, author, abstract, text structure, methods, experiments and appendices.</p>
+<p><span class="ok">Completed</span>: The prompt, algorithm variants, pure IDM, failure analysis, smoother, IDM/$\pi_{0.5}$ training details in the appendix have been integrated into the corresponding chapters.</p>
+<p><span class="ok">Completed</span>: Standalone PNG/JPG image copied; main PDF image converted to PNG and embedded.</p>
+<p><span class="warn">Note</span>: No clear official code repository was found; the report has been marked according to the search results.</p>
+</div>
+</main>
+</body>
+</html>

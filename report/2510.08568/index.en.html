@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos - Reading Report</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<div>
+<span class="tag">arXiv: 2510.08568</span>
+<span class="tag">Robotics</span>
+<span class="tag">Video Generation</span>
+<span class="tag">Zero-shot Manipulation</span>
+</div>
+<h1>NovaFlow: Zero-Shot Manipulation via Actionable Flow from Generated Videos</h1>
+<p>This is a robotic manipulation paper that turns "generative video" into "executable 3D object flow". Its core proposition is not to train a new VLA strategy, but to distill common sense actions in the video model into object movements, and then hand them over to traditional geometry, grasping and trajectory optimization modules for execution.</p>
+<div class="meta">
+<div><strong>Author</strong>: Hongyu Li, Lingfeng Sun, Yafei Hu, Duy Ta, Jennifer Barry, George Konidaris, Jiahui Fu</div>
+<div><strong>institution</strong>: The Robotics Institute / Brown University</div>
+<div><strong>version</strong>: arXiv v1, 9 Oct 2025</div>
+<div><strong>Project page</strong>: <a href="https://novaflow.lhy.xyz/">https: //novaflow.lhy.xyz/</a></div>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#s1">1. Quick overview of the paper</a></li>
+<li><a href="#s2">2. Problem setting and motivation</a></li>
+<li><a href="#s3">3. Related job positioning</a></li>
+<li><a href="#s4">4. Intensive reading of methods</a></li>
+<li><a href="#s5">5. Experiments and results</a></li>
+<li><a href="#s6">6. reproducibility and implementation details</a></li>
+<li><a href="#s7">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#s8">8. Preparation for group meeting Q&amp;A</a></li>
+</ul>
+</nav>
+<section id="s1">
+<h2>1. Quick overview of the paper</h2>
+<table class="overview">
+<tr>
+<th>What should the paper solve?</th>
+<td>Let the robot complete real-world operation tasks, including rigid bodies, joint objects and deformable objects, based on language instructions and initial images without task demonstrations, no target robot-specific training data, and no predefined skill library.</td>
+</tr>
+<tr>
+<th>The author's approach</th>
+<td>First, a large-scale video generation model is used to generate a video of "how the task should occur from a human perspective", and then the video is distilled into actionable 3D object flow through depth estimation, 3D point tracking, object segmentation and VLM rejection sampling; then, grab proposals, Kabsch pose estimation, model planning and trajectory optimization are used to turn the object flow into robot actions.</td>
+</tr>
+<tr>
+<th>most important results</th>
+<td>NovaFlow overall outperforms the zero-sample baseline AVDC and VidBot on the real Franka desktop task, as well as Diffusion Policy and IDM trained with 10 or 30 demonstrations; in block insertion ablation, the target image increases Wan2.1's video success from 15% to 46% and task success from 40% to 80%.</td>
+</tr>
+<tr>
+<th>Things to note when reading</th>
+<td>The highlight of this paper is "representation and system combination", not end-to-end policy learning. It needs to be seen clearly: generating videos does not directly control the robot. What is truly executable is the object flow after 3D calibration, object filtering and VLM selection; the final failure mainly falls on grabbing and real execution, not entirely due to video generation.</td>
+</tr>
+</table>
+<figure>
+<img alt="NovaFlow teaser" src="figures/Figure_teaser.png"/>
+<figcaption>Figure 1: Main idea of ​​NovaFlow. Language and initial observations are first fed into the video generation model, and then executable 3D object flows are extracted from the generated video and finally mapped to robot execution.</figcaption>
+</figure>
+</section>
+<section id="s2">
+<h2>2. Problem setting and motivation</h2>
+<p>The paper targets a very realistic breakpoint: large models can already generate videos of "roughly how to do this task", but robot strategies usually require a large amount of ontology-related data. The bottleneck of the VLA model is robot-specific data, while modular approaches often require predefined primitives, handwriting skills, or real demonstrations.</p>
+<p>The author breaks the question into two levels. The first layer is "understanding how the objects in the task should move from language and images", which is handed over to the video generation model and the visual basic model. The second layer is "how the robot realizes the movement of this object", which is left to geometric control, grasping, model planning and trajectory optimization. The key to doing this is to find an intermediate representation: actionable 3D object flow.</p>
+<div class="callout">
+<strong>One sentence to understand: </strong>NovaFlow does not allow the video model to directly output actions, but allows the video model to output an "object motion script" that can be consumed by the robot control module.
+ </div>
+</section>
+<section id="s3">
+<h2>3. Related job positioning</h2>
+<h3>3.1 Video to operation</h3>
+<p>Existing video-based manipulation typically either requires robot data and inverse dynamics, or relies on learning a policy or affordance model from video. The difference of NovaFlow is that it does not train a new cross-ontology strategy, but converts the motion trajectories generated by the ready-made video model into 3D object flow, and then executes it through the downstream control module.</p>
+<h3>3.2 Object center representation and flow</h3>
+<p>6D pose or object-centric methods are natural for rigid bodies, but are not sufficient for deformable objects such as ropes and cloth. Flow representation is more general, can describe the movement of local points, and is also compatible with rigid bodies, joint objects, and deformable objects. The bet of the paper is: 3D object flow is close enough to "task intent" and close enough to "robot executable".</p>
+<h3>3.3 Relationship to VLA/Modular Planning</h3>
+<p>The difference between NovaFlow and VLA is not whether a large model is used, but where the learning signal comes from. VLA often requires robot motion data; NovaFlow borrows common sense motion from the video model and then uses traditional robot modules to supplement execution. It is similar to the modular route of LLM/VLM+planner, but replaces the "skill library" with task-specific 3D flows extracted from videos.</p>
+</section>
+<section id="s4">
+<h2>4. Intensive reading of methods</h2>
+<h3>4.1 Overall pipeline</h3>
+<p>NovaFlow has two core modules: flow generator and flow executor. The former is responsible for generating 3D object flow from language, initial images and optional target images; the latter is responsible for turning object flow into real robot actions.</p>
+<figure>
+<img alt="NovaFlow flow generator" src="figures/Figure_flow_generator.png"/>
+<figcaption>Figure 2: Flow generator. After generating the video, the system performs depth estimation, 3D point tracking, object grounding, and uses VLM for rejection sampling.</figcaption>
+</figure>
+<h3>4.2 Video generation: turning task language into candidate motion</h3>
+<p>Input consists of initial RGB image <code>I</code>, language command <code>l</code>, and optional target images in precision placement tasks <code>I_g</code>. If there is no target image, the system uses image-to-video; if there is a target image, it uses first-last-frame-to-video so that the generated video satisfies both the starting point and the end point.</p>
+<p>In terms of implementation, the author uses Wan2.1 as an open source video model and also tested Google Veo. Wan2.1 produces 41 frames, 1280x720, 16 FPS; Veo produces 8 seconds of 24 FPS video downsampled to 41 frames. appendix also stated that Wan2.1 officially recommends Chinese prompts, and the author also observed that the quality of Chinese prompts is better.</p>
+<h3>4.3 3D lifting: from video pixels to 3D object flow</h3>
+<p>The generated video itself only has pixel motion. To make it executable, NovaFlow first uses MegaSaM/MoGe to estimate the depth of each frame, and then uses the initial true depth map for scaling. The specific method is to compare the median depth of the estimated depth of the first frame with the initial real depth, obtain the scale factor and then multiply it to all estimated depths.</p>
+<p>The system then uses TAPIP3D for 3D point tracking. The parameters given by appendix are: use in the first frame <code>32 x 32</code> Uniform grid sampling query points, tracker iteration set to 6. The emphasis here is on point tracking in 3D XYZ space, rather than just tracking pixels in 2D UVD space.</p>
+<div class="cols">
+<figure>
+<img alt="Depth before scaling" src="figures/Figure_real_world_experiments_concatenated_before_scaling_yellow_block_insertion_seed_49.jpg"/>
+<figcaption>Before depth scale calibration: In the block insertion scene, the scale deviation of the monocular depth will directly affect millimeter-level insertion.</figcaption>
+</figure>
+<figure>
+<img alt="Depth after scaling" src="figures/Figure_real_world_experiments_concatenated_after_scaling_yellow_block_insertion_seed_49.jpg"/>
+<figcaption>After depth scale calibration: Use the initial real depth map for median scaling to improve depth and time consistency.</figcaption>
+</figure>
+</div>
+<h3>4.4 Object grounding: Only retain the flow of the target object</h3>
+<p>Dense 3D tracking covers the entire image, but the robot only needs the motion of the target object. The author uses the Grounded-SAM2 pipeline, which is Grounding DINO plus SAM2. The system uses the target object name as a query, extracts the object mask in the video, and then uses the mask to filter the 3D tracks, retaining only points that are always visible and belong to the target object. The thresholds given by appendix are bbox threshold 0.25, text threshold 0.3, and the box with the highest Grounding DINO score is selected as the SAM2 prompt.</p>
+<h3>4.5 VLM rejection sampling: dealing with generative model illusions</h3>
+<p>Video generation models may produce videos that are unphysical, discontinuous, object misaligned, or task-misaligned. NovaFlow does not directly trust a single generation result, but generates multiple candidate 3D object flows at once, projects the flow back to the first frame to form a numbered 2D flow image, and then gives it to Gemini 2.5 Pro to select the most reasonable candidate.</p>
+<p>VLM judgment criteria include motion continuity, natural motion, correct target object recognition, and compliance with task requirements. The paper specifically points out that flow image is more suitable for VLM selection than the original spliced ​​video because it explicitly displays "which object moves how".</p>
+<figure>
+<img alt="VLM rejection sampling" src="figures/Figure_vlm.png"/>
+<figcaption>Figure 4: Rejection sampling. The system visualizes multiple candidate flows as numbered images, and VLM selects the flow that is most natural and suitable for the task.</figcaption>
+</figure>
+<h3>4.6 Flow executor: rigid bodies, joint objects and deformable objects</h3>
+<figure>
+<img alt="NovaFlow flow executor" src="figures/Figure_flow_executor.png"/>
+<figcaption>Figure 3: Flow executor. Rigid body and joint objects are grasped, Kabsch pose estimation and trajectory optimization; deformable objects use flow as the tracking objective of model planning.</figcaption>
+</figure>
+<p>For rigid bodies and joint objects, NovaFlow first uses GraspGen to generate grasp proposals from the target object point cloud. After the object flow is given, the system uses the Kabsch algorithm to estimate the rigid body transformation at each time step based on the front and back positions of the key points. <code>(R_t, t_t)</code>. Under the assumption of "grasp and no slip", changes in the object's pose can be converted into changes in the end-effector's pose.</p>
+<p>For deformable objects, the rigid body pose no longer holds. The paper uses particle dynamics models such as PhysTwin and uses 3D object flow as the tracking objective for model-based planning. The value of flow here is to give dense, task-related target motion, rather than simplifying the rope into a rigid body pose.</p>
+<h3>4.7 Trajectory optimization</h3>
+<p>appendix gives trace optimization of the execution phase. The system is looking for a list of joint configurations <code>Q = {q_0, ..., q_{T-1}}</code>, the goal is to be smooth and close to the rest pose, and meet the start and end IK, joint limits and collision safety distance. Optimization is initialized by linear interpolation followed by nonlinear least squares solution with Levenberg-Marquardt; implemented using PyRoki and JAX.</p>
+<p>In the weight setting, the joint limit penalty is <code>w_l = 100.0</code>, smoothness is <code>w_s = 10.0</code>, collision is <code>w_c = 15.0</code>, rest position is <code>w_r = 0.1</code>. These details show that the paper does not just stop at "video understanding", but seriously adds to the robot execution layer.</p>
+</section>
+<section id="s5">
+<h2>5. Experiments and results</h2>
+<h3>5.1 Hardware and tasks</h3>
+<p>The experiment uses a Franka robotic arm plus a Robotiq-85 gripper for desktop operations, and uses a Spot quadruped mobile robot to demonstrate cross-body movement operations. Only one RealSense D455 depth camera is used for rigid body and joint object tasks; three synchronized cameras are used for deformable objects due to the requirements of PhysTwin. The author also explains that a single-view setting is theoretically feasible.</p>
+<p>Tasks include six categories: hanging a cup, inserting a yellow cube, placing the cup on a saucer, watering a plant, opening a drawer, and straightening a rope. There were 10 trials per task, with object placement randomly changing each time.</p>
+<figure>
+<img alt="Real-world experiments" src="figures/Figure_real_world_experiment_results.png"/>
+<figcaption>Figure 6: Real robot experiment. The tasks cover rigid bodies, joint objects, and deformable objects, as well as desktop manipulators and Spot mobile operations.</figcaption>
+</figure>
+<h3>5.2 Baselines</h3>
+<table>
+<tr><th>Category</th><th>method</th><th>Contrastive meaning</th></tr>
+<tr><td>Demo-free / zero-shot</td><td>AVDC</td><td>Put the 2D optical flow in the generated video directly into action and examine what is lost without a 3D actionable representation.</td></tr>
+<tr><td>Demo-free / zero-shot</td><td>VidBot</td><td>Learn affordance flow from large-scale human interaction data and examine the difference between learned affordance flow and generated video flow.</td></tr>
+<tr><td>Data-dependent</td><td>Diffusion Policy, 10 / 30 demos</td><td>An imitation learning baseline trained with a small number of demonstrations per task; this is a more conducive single-task setting for baselines.</td></tr>
+<tr><td>Data-dependent</td><td>IDM from UniPi, 30 demos</td><td>Train inverse dynamics, convert the robot task video generated by Wan2.1 into actions, and test whether the "video to action" route is resistant to domain shift.</td></tr>
+</table>
+<h3>5.3 Main results</h3>
+<p>The paper reports that NovaFlow achieves the highest success rate among zero-shot methods on all tasks, and overall outperforms data-dependent baselines trained with 10 or 30 demonstrations. AVDC is competitive in affordance tasks, but lacks 3D awareness and long-term consistency, and is weak in precise placement and rotation tasks. VidBot is good for affordance-centric tasks such as opening drawers, but is not stable enough for object-object relations and precise relative poses. The problem of DP is poor generalization under a small number of demonstrations; the problem of IDM is that it is trained on real robot videos, but it has to interpret the generated videos, and there is an obvious domain shift.</p>
+<figure>
+<img alt="Experiment results" src="figures/Figure_experiment_results_arial.jpg"/>
+<figcaption>Figure 5: Real desktop task success rate. NovaFlow leads overall in open drawer, open lid, hang mug, cup on saucer, block insertion, and water plant.</figcaption>
+</figure>
+<div class="callout good">
+<strong>How to read key results: </strong>What the paper wants to prove is not that every sub-module of NovaFlow is perfect, but that the intermediate representation route of "generating video - 3D object flow - executor" can better support zero-sample real operations than directly using 2D flow, directly learning affordance flow, or few-sample imitation.
+ </div>
+<h3>5.4 Goal image ablation</h3>
+<p>Block insertion is a millimeter-level accuracy task. The author compared whether to give a target image, and the difference between Wan2.1 and Veo. There are two indicators: Video Success indicates whether effective actionable flow can be extracted from the generated video; Task Success indicates whether the actual execution of the robot is successful after VLM selects the flow from multiple candidates.</p>
+<table>
+<tr><th>Conditions</th><th>Video Success</th><th>Task Success</th><th>Time (s)</th></tr>
+<tr><td>w/ Goal Image (Wan2.1)</td><td>46%</td><td>80%</td><td>612</td></tr>
+<tr><td>w/o Goal Image (Wan2.1)</td><td>15%</td><td>40%</td><td>612</td></tr>
+<tr><td>w/o Goal Image (Veo)</td><td>75%</td><td>80%</td><td>20</td></tr>
+</table>
+<p>This table has two pieces of information. First, for open source Wan2.1, target images significantly improve precision task controllability. Second, closed-source Veo can achieve high video success without the need for target images, but the cost and controllability are determined by external services.</p>
+<h3>5.5 Running time</h3>
+<table>
+<tr><th>module</th><th>MegaSaM</th><th>TAPIP3D</th><th>SAM2</th><th>Total (Veo)</th><th>Total (Wan)</th></tr>
+<tr><td>Time (s)</td><td>100</td><td>5</td><td>8</td><td>133</td><td>725</td></tr>
+</table>
+<p>On a single NVIDIA H100, the full flow generation of the Veo version takes about 2 minutes. The main time consuming comes from video generation and 3D lifting. Wan2.1 is much slower, but it is open source, controllable, and has no closed source API cost.</p>
+<h3>5.6 Failure Analysis</h3>
+<p>The author divides failures into four categories: video failure, tracking failure, grasp failure, and execution failure. Video failure comes from the fact that the generated video is not physical, inconsistent with 3D or violates the task; tracking failure is mostly caused by few textures, heavy occlusion, and inconsistent video models; grasp failure is approaching direction, missed grasp, slippage, etc.; execution failure includes collision, joint limitation, or trajectory tracking failure.</p>
+<figure>
+<img alt="Failure analysis" src="figures/Figure_failures_1.png"/>
+<figcaption>Figure 7: Failure analysis. The paper emphasizes that a large number of failures occur in the last mile of fetching and execution, indicating that upstream flow estimation is relatively available, but real physical interaction is still a bottleneck.</figcaption>
+</figure>
+</section>
+<section id="s6">
+<h2>6. reproducibility and implementation details</h2>
+<div class="cols">
+<div class="mini">
+<h3>video model</h3>
+<p>Wan2.1 uses I2V and FLF2V modes, 41 frames, 1280x720, 16 FPS; the sampler is UniPC, 40 steps, noise shift 5.0, guidance scale 5.0. Veo uses <code>veo-3.0-generate-001</code>, 8 seconds, 1280x720, 24 FPS, downsampled to 41 frames.</p>
+</div>
+<div class="mini">
+<h3>Prompt project</h3>
+<p>Wan2.1 uses the official prompt extension template and uses Gemini 2.5 Pro to extend it into Chinese prompt. Veo uses Vertex AI's native prompt enhancement.</p>
+</div>
+<div class="mini">
+<h3>Depth and Tracking</h3>
+<p>MegaSaM/MoGe estimates depth, and the initial real depth map is median scaling. TAPIP3D tracks in XYZ space, the query grid is <code>32 x 32</code>, iteration is 6.</p>
+</div>
+<div class="mini">
+<h3>object segmentation</h3>
+<p>Grounding DINO plus SAM2. bbox threshold 0.25, text threshold 0.3; take the highest score bounding box as the input prompt of SAM2.</p>
+</div>
+<div class="mini">
+<h3>execution module</h3>
+<p>Rigid body tasks use GraspGen, Kabsch pose estimation and PyRoki / JAX trajectory optimization; deformable tasks use PhysTwin, using object flow as the tracking objective.</p>
+</div>
+<div class="mini">
+<h3>Calculate budget</h3>
+<p>Eight candidate flows can be generated in parallel at a time and then selected by VLM. appendix mentioned that 8 candidates can be generated in parallel using 8 H100 sheets.</p>
+</div>
+</div>
+<figure>
+<img alt="Appendix real-world experiments" src="figures/Figure_real_world_experiment_results_appendix.png"/>
+<figcaption>A more complete sequence of real experiments in appendix, including block insertion, rope straightening, cup on saucer, open drawer, hang mug, open lid, water plant and Spot operations.</figcaption>
+</figure>
+<div class="callout warn">
+<strong>Source code description: </strong>The arXiv source package mainly provides appendix LaTeX and image resources, and the text LaTeX does not appear completely with the source package. Therefore, the main text of this report is based on PDF text analysis, and the appendix implementation details are checked against the source package LaTeX.
+ </div>
+</section>
+<section id="s7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>The most valuable part is that a very clear intermediate representation is proposed and verified: actionable 3D object flow. It fills in the missing interface between the world knowledge of the video generation model and the robot execution module. This interface is closer to geometric execution than language planning, less dependent on specific robots than low-level actions, and can handle occlusion, depth and relative pose better than 2D flow.</p>
+<p>Another value is that the system combination is pragmatic. The author does not claim that the video model can directly control the robot, but admits that the video model will have hallucinations, depth will have scale problems, tracking will drift, and grasping will fail, and then use depth calibration, object grounding, VLM rejection sampling and trajectory optimization to narrow the problem layer by layer.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The results are convincing for four reasons. First, the experiments are on real robots rather than pure simulations, and cover rigid bodies, joint objects, deformable objects, and movement operations. Second, the baseline includes zero-shot methods and few-sample data-dependent methods, which can answer the question "Is it just not comparable to the training strategy?" Third, the paper puts key designs into ablation, such as the impact of target images on block insertion. Fourth, failure analysis does not push all errors to downstream, but clearly separates the four types of bottlenecks: video, tracking, Grasp, and execution.</p>
+<p>However, it should also be noted that the main experiment has 10 tasks per task and is not large in scale; many modules use powerful off-the-shelf basic models and H100-level computing resources. The results are tenable mainly at the level of "proving that the route is feasible and superior to these comparisons", rather than proving that it can be deployed in a low-cost, long-term, closed-loop manner.</p>
+<h3>7.3 Limitations</h3>
+<ul>
+<li><strong>Open loop execution: </strong>The system mainly executes from the flow plan generated once, and lacks online re-planning when encountering slippage, collision, and object state deviation.</li>
+<li><strong>Depends on generated video quality: </strong>If the video model cannot generate physically reasonable and goal-consistent task videos, there will be no source available for the subsequent 3D flow, no matter how sophisticated it is.</li>
+<li><strong>Dependency aware stack: </strong>Depth estimation, 3D tracking, and SAM2 grounding may all fail, especially in transparent, reflective, low-texture, and strongly occlusion scenes.</li>
+<li><strong>The crawl hypothesis is strong: </strong>Rigid bodies perform a default grasp and do not slip. Once the object rotates in the gripper or the contact dynamics are complex, Kabsch's mapping to the end pose will be distorted.</li>
+<li><strong>Cost and delay: </strong>The Veo version is fast but closed source and charged; the Wan2.1 version is open source but slow. Parallel 8-candidate rejection sampling is friendly to laboratory resources, but may not be economical for practical deployment.</li>
+</ul>
+<h3>7. 4 Boundary conditions</h3>
+<p>NovaFlow is most suitable for scenarios where the target object can be stably recognized by the visual model, the task can be described by object motion, there is not much difference between the initial scene and the generated video, and the robot has sufficiently reliable grasping and trajectory execution modules. It is not suitable for tasks requiring high-frequency tactile feedback, strong contact dynamics, long-term closed-loop error correction, or implicit state estimation.</p>
+</section>
+<section id="s8">
+<h2>8. Preparation for group meeting Q&amp;A</h2>
+<h3>Q1: Why not directly train inverse dynamics without generating videos?</h3>
+<p>The IDM baseline of the paper is compared in this direction. The problem is that inverse dynamics is trained on real robot demonstrations, but it has to interpret the generated video. The actions of the generated video are not necessarily consistent with the robot's kinematics, and the domain shift is large. NovaFlow chooses to convert the video into a 3D object flow, and then execute it using the robot's own geometric control.</p>
+<h3>Q2: Why is flow more suitable than 6D pose?</h3>
+<p>6D pose is good for rigid bodies, but unnatural for deformable objects such as ropes; flow can describe the motion of multiple points, which can be degenerated into rigid body poses through Kabsch and can also be used as a tracking objective for deformable planning.</p>
+<h3>Q3: Is VLM rejection sampling just picking pictures instead of truly understanding physics?</h3>
+<p>It's really not a physical validator, but more like an execution-time candidate filter. It can filter out flows that are obviously in the wrong direction, in the wrong direction, and discontinuous, but it cannot guarantee that real contact is possible. Therefore, trajectory optimization, crawling inspection and real execution are still needed later.</p>
+<h3>Q4: What is the biggest next step for the paper?</h3>
+<p>Closed loop. The current system demonstrates an open-loop route from generating video to executable flow, but failure analysis has shown that last-mile grasp and execution are the main bottlenecks. Taking the execution feedback and updating the flow, reselecting candidates or online replanning is the most natural next step.</p>
+<h3>Q5: Do this paper and the VLA route compete or complement each other?</h3>
+<p>More like complementary. VLA pursues action learning from large-scale robot data; NovaFlow pursues the ability to combine video models and robot modules to achieve zero-sample capabilities. In the future, actionable flows can be used as auxiliary supervision of VLA, planning intermediate states, or as explainable fallback when VLA fails.</p>
+</section>
+</main>
+</body>
+</html>

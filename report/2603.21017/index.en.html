@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dreaming the Unseen - Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Dreaming the Unseen: World Model-regularized Diffusion Policy for Out-of-Distribution Robustness</h1>
+<div class="meta">
+<p><strong>Authors: </strong>Ziou Hu, Xiangtong Yao, Yuan Meng, Zhenshan Bing, Alois Knoll</p>
+<p><strong>Organization: </strong>Technical University of Munich; Nanjing University (Suzhou Campus)</p>
+<p><strong>Version: </strong>arXiv: 2603.21017, submitted on 2026-03-22; Topic: Robotics</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2603.21017">arXiv</a> | <a href="https://arxiv.org/pdf/2603.21017">PDF</a> | <a href="https://arxiv.org/html/2603.21017">HTML</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents</strong>
+<ul>
+<li><a href="#sec1">1. Quick overview of the paper</a></li>
+<li><a href="#sec2">2. Motivation</a></li>
+<li><a href="#sec3">3. Summary of related work</a></li>
+<li><a href="#sec4">4. Detailed explanation of method</a></li>
+<li><a href="#sec5">5. Experiment</a></li>
+<li><a href="#sec6">6. Result analysis and discussion</a></li>
+<li><a href="#sec7">7. Analysis, Limitations and Boundaries</a></li>
+<li><a href="#sec8">8. Repeat audit</a></li>
+</ul>
+</nav>
+<section id="sec1">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>This paper proposes Dream Diffusion Policy (DDP), which jointly trains the diffusion policy and diffusion world model through a shared 3D encoder, and uses real-imagination discrepancy to trigger the internal latent imagination when OOD visual disturbance occurs, thereby bypassing the contaminated visual stream and completing local recovery.
+ </div>
+<p><strong>Difficulty rating: </strong>★★★★☆. To understand the main thread, you need to be familiar with diffusion policy, 3D point-cloud policy, latent world model, OOD detection, robot closed-loop control and real system delay constraints.</p>
+<p><strong>Keywords: </strong>Diffusion Policy, World Model, Out-of-Distribution Robustness, Predictive Imagination, 3D Visuomotor Control. </p>
+<table>
+<tr><th>Reading positioning</th><th>content</th></tr>
+<tr><td>What should the paper solve?</td><td>The standard visual motion imitation policy relies on continuous and uncorrupted visual input; when the target object is suddenly displaced, the camera is occluded, or the observation enters a severe OOD state, the policy will generate accumulated errors due to covariate shift and fail.</td></tr>
+<tr><td>The author's approach</td><td>Use a shared 3D encoder to serve both the diffusion action policy and the diffusion world model, allowing the world model to regularize representations during training and predict future latent during inference; once the difference between the real latent and the predicted latent exceeds the threshold, switch to the internal imagination loop.</td></tr>
+<tr><td>most important results</td><td>DDP on MetaWorld OOD reaches an average success rate of 73.8%, while DP3 with the same tracking is 23.9%; DDP under severe spatial displacement of the real robot is 83.3%, and DP3 tracking ablation is 3.3%; the real robot's complete open-loop imagination is still 76.7%.</td></tr>
+<tr><td>Things to note when reading</td><td>The improvement of DDP does not come from tracking alone: the author specifically uses DP3/FlowPolicy tracking ablation for comparison. The simulation OOD evaluation also uses oracle tracking/state transition to isolate the role of world model imagination, unlike the FoundationPose++ detection and tracking setup in real robots.</td></tr>
+</table>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>World-model-regularized training pipeline. </strong>DDP jointly optimizes behavioral cloning loss and world-model prediction loss with a shared 3D encoder, allowing future latent prediction to enter the same representation learning process.</li>
+<li><strong>Robust inference via predictive imagination. </strong>Use $\mathcal{D}_{R-I}$ to detect the deviation between real observations and imagined trajectories during reasoning, triggering tracking, autoregressive latent imagination and target-specific recovery.</li>
+<li><strong>OOD robustness evaluation. </strong>The paper reports ID/OOD, tracking ablation, imagination intervention, and visual occlusion results on 10 MetaWorld tasks, 3 Adroit tasks, and 3 Franka Panda real-world tasks.</li>
+</ul>
+<div class="figure">
+<img alt="DDP overview" src="figures/model_p1.png"/>
+<div class="caption">Figure 1. Overview of the DDP framework: the shared 3D encoder generates historical latent, which conditions the action denoising of the diffusion policy and the future latent forecasting of the diffusion world model respectively; after detecting OOD during inference, it enters the imagination loop.</div>
+</div>
+</section>
+<section id="sec2">
+<h2>2. Motivation</h2>
+<h3>2.1 What problem should be solved?</h3>
+<p>The paper focuses on the scenario where the robot manipulation policy encounters visual states outside the training distribution during deployment. Typical examples include the target object being suddenly pushed outside the training area, the camera screen being blocked, or the environment changing dynamically in the middle of the task. For diffusion policies that rely on visual flow, this type of input will cause the policy to continue to receive incorrect or unseen visual evidence, causing action errors to gradually amplify.</p>
+<p>The authors frame the problem as "visual dependency vulnerability under severe OOD". Ordinary diffusion policy can be robust to minor disturbances through receding-horizon action chunking and random sampling, but the paper emphasizes that severe object displacement and complete visual occlusion will cause the model to lose reliable spatial positioning basis.</p>
+<h3>2.2 Limitations of existing methods</h3>
+<p>The paper lists several types of mitigation methods in the Introduction and Related Works: domain randomization, test-time adaptation, synthetic spatial perturbation data amplification, large pretrained visual model, enhanced representational/physical priors, inverse recovery policy and RL fine-tuning. The author pointed out that the common problems of these methods are: they either rely on continuously available visual streams, or introduce complex online pipelines, or significantly change expert actions during adaptation, thus deviating from the high-fidelity expert skill that imitation learning wants to retain.</p>
+<p>There are existing world models or diffusion world models that can predict future states, but in the author's position, they are usually used as weakly coupled auxiliary modules, and there is no mechanism to dynamically replace the corrupted visual stream during reasoning. Therefore, the world model cannot just do passive regularization, but needs to become an active predictive intuition that can provide latent context when the sensor fails.</p>
+<h3>2.3 The solution ideas of this article</h3>
+<p>The high-level idea of DDP is: during training, let the policy representation have the ability to predict the future; during inference, if the real vision becomes untrustworthy, temporarily "close your eyes", use the latent predicted autoregressively by the world model as the policy condition, continue to generate action chunks, and restore the physical environment back to the ID state at the appropriate subtask boundary.</p>
+</section>
+<section id="sec3">
+<h2>3. Summary of related work</h2>
+<h3>3.1 Related work of the thesis self-description</h3>
+<table>
+<tr><th>Technical line</th><th>How to describe the paper</th><th>Relationship with DDP</th></tr>
+<tr><td>Diffusion Policy for Robotic Manipulation</td><td>Diffusion policy writes action generation as conditional denoising, which can model complex multimodal action distribution in high-dimensional continuous control; DP3 uses 3D representation to extend to point cloud visuomotor policy.</td><td>DDP is directly based on the DP3 architecture, sharing the visual encoder of action denoising with world-model latent prediction.</td></tr>
+<tr><td>World Models for Decision Making and Robotics</td><td>The Dreamer series demonstrates the power of latent imagination for continuous control and sample-efficient learning; recent diffusion world models predict complex physical dynamics.</td><td>DDP does not use the world model only for planning or auxiliary prediction, but allows it to take over visual conditions during OOD reasoning.</td></tr>
+<tr><td>OOD Challenges and Mitigation Strategies</td><td>Domain randomization, synthetic trajectories, RL, online visual pipelines and video-diffusion reward models all try to improve OOD, but are still limited under severe sensor dropout.</td><td>The positioning of DDP is to use a lightweight tightly coupled world model to generate missing visual context when the sensor is unreliable, avoiding expensive online retraining.</td></tr>
+</table>
+<h3>3.2 Direct comparison with previous works</h3>
+<table>
+<tr><th>Dimensions</th><th>DP3</th><th>FlowPolicy</th><th>Diffusion World Model</th><th>DDP</th></tr>
+<tr><td>Core idea</td><td>3D encoder + diffusion action policy. </td><td>Use consistency flow matching to make fast 3D flow-based policy.</td><td>Use diffusion models to predict future states or latent.</td><td>Share 3D encoder to train action denoising and future latent denoising simultaneously.</td></tr>
+<tr><td>key assumptions</td><td>Visual observations continuously provide valid states during inference.</td><td>Also depends on current observing conditions.</td><td>Can predict the future but is usually not a direct replacement for policy conditions.</td><td>When the real vision is not credible, the predicted latent can be used as a conditional input of the policy for a short period of time.</td></tr>
+<tr><td>OOD processing</td><td>Used as base policy and tracking ablation in the paper.</td><td>Used as base policy and tracking ablation in the paper.</td><td>Weakly coupled auxiliary modules cannot actively take over corrupted observations.</td><td>Detect $\mathcal{D}_{R-I}$ and enter the tracking + imagination + recovery closed loop.</td></tr>
+<tr><td>Paper experimental performance</td><td>MetaWorld tracking OOD averages 23.9%; real robot tracking OOD averages 3.3%.</td><td>MetaWorld tracking OOD averages 5.4%.</td><td>Not reported as an independent baseline.</td><td>MetaWorld tracking OOD averages 73.8%; real robot tracking OOD averages 83.3%.</td></tr>
+</table>
+</section>
+<section id="sec4">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Method overview</h3>
+<p>The training inputs of DDP are point clouds, proprioceptions and action sequences in expert demonstrations. Shared 3D encoder $E_\psi$ extracts latent $O_{0\dots M-1}$ from historical observation $X_{0\dots M-1}$. On the one hand, these latents serve as the global condition of the diffusion policy $\pi_\theta$ to help denoise the action horizon; on the other hand, they train the diffusion world model $\mathcal{W}_\phi$ together with the future latent target to predict the future latent of the $N$ step.</p>
+<p>When reasoning, the system starts from the ID real observation; if the difference between the world model's prediction of the current latent and the real encoder latent is too large, it is considered that the vision has entered OOD. The system then tracks the moved objects, uses predicted latent instead of corrupted real latent to condition the policy, and continues to generate future latent in a sliding window style using the world model until target-related recovery is triggered.</p>
+<div class="figure">
+<img alt="DDP inference workflow" src="figures/inference_p1.png"/>
+<div class="caption">Figure 2. DDP closed-loop reasoning: switching between ID physical reality and OOD internal imagination; each subtask includes detection, tracking, imagination execution, and partial recovery.</div>
+</div>
+<h3>4.2 Method evolution</h3>
+<p><strong>Diffusion Policy / DP3 → DDP: </strong>DP3 has used 3D point cloud encoder to support action chunk denoising; DDP retains this action policy body, but uses the encoder for future latent prediction at the same time, so that representation learning carries dynamics regularization.</p>
+<p><strong>Diffusion World Model → DDP: </strong>The original diffusion world model is more biased towards the prediction or planning module; DDP is changed to feature-level integration, which repeats the historical latent to the horizon and concatenates it with the noisy future latent channel-wise to avoid relying solely on prefix-fixing conditions.</p>
+<p><strong>OOD adaptation/recovery → DDP: </strong>Existing methods often deal with OOD through online adaptation, amplification or recovery strategies; the change of DDP is to merge "when vision is untrustworthy" and "how to continue to control when vision is untrustworthy" into real-imagination discrepancy and latent imagination.</p>
+<h3>4.3 Core design and mathematical derivation</h3>
+<h4>Action and latent chunking</h4>
+<p>The paper uses two time scales to connect the policy and the world model: the policy predicts the actions of the complete horizon $H$, but only executes the chunk length $N$ each time; the world model predicts $N$ future latents on the same chunk, and uses the last $M$ predicted latents as the next round of historical conditions in the continuous OOD rollout.</p>
+<table>
+<tr><th>symbol</th><th>meaning</th></tr>
+<tr><td>$M$</td><td>Historical observation steps; both paper simulation and real robot use $M=2$.</td></tr>
+<tr><td>$H$</td><td>Policy is a denoise action horizon; the paper is set to $H=16$.</td></tr>
+<tr><td>$N$</td><td>The chunk length predicted by each actual execution and world model; the paper is set to $N=8$.</td></tr>
+</table>
+<h4>Diffusion policy loss</h4>
+<div class="formula-block">
+<p class="intuition">This formula trains the policy to recover noise from a noisy action sequence; the condition is that the historical observations extracted by the shared encoder are latent.</p>
+ $$\mathcal{L}_{BC}=\mathbb{E}_{\mathbf{a}, \mathbf{X}, \epsilon_p, k_p}\left[\left\|\epsilon_p-\pi_\theta\left(\mathbf{a}^{k_p}_{0\dots H-1}, k_p, \mathrm{FiLM}(\mathbf{O}_{0\dots M-1})\right)\right\|_2^2\right]$$
+ <table class="symbol-table">
+<tr><td>$\mathbf{a}_{0\dots H-1}$</td><td>Expert action horizon, length $H$.</td></tr>
+<tr><td>$k_p$</td><td>policy diffusion timestep, randomly sampled from $\mathcal{U}(1, K)$.</td></tr>
+<tr><td>$\epsilon_p$</td><td>Gaussian noise added to the action.</td></tr>
+<tr><td>$\mathbf{O}_{0\dots M-1}$</td><td>Historical latent obtained by $E_\psi(X_{0\dots M-1})$; injected into 1D Conditional U-Net via FiLM.</td></tr>
+</table>
+<p>Intuitively, this is still standard DDPM noise matching. The key change in DDP is not in the action loss itself, but in $\mathbf{O}$ from the shared encoder; this encoder is also constrained by the future prediction task of the world model.</p>
+</div>
+<h4>Diffusion world model conditioning</h4>
+<div class="formula-block">
+<p class="intuition">This formula illustrates how the world model can provide the historical latent fixedly for each future time step, rather than only conditional on the sample prefix.</p>
+ $$\mathbf{X}_{in}=\mathrm{Repeat}(\mathbf{x}_{obs}, N)\oplus\mathbf{X}_{sample}$$
+ <table class="symbol-table">
+<tr><td>$\mathbf{x}_{obs}$</td><td>Historical observations latent can be understood as the structural context of the world model.</td></tr>
+<tr><td>$\mathrm{Repeat}(\mathbf{x}_{obs}, N)$</td><td>Copy the historical conditions to $N$ future locations, allowing each layer of 1D U-Net to access the historical structure.</td></tr>
+<tr><td>$\mathbf{X}_{sample}$</td><td>Noised future latent samples.</td></tr>
+<tr><td>$\oplus$</td><td>channel-wise concatenation. </td></tr>
+</table>
+<p>The author believes that observation is a high-dimensional point cloud geometry latent, and action is a directional control. The two attributes are different; therefore, integrating historical latent directly at the feature level is more suitable for maintaining persistent grounding than prefix-fixing.</p>
+</div>
+<div class="formula-block">
+<p class="intuition">World model loss is symmetrical to policy loss: instead of recovering action noise, it recovers noise on future observation latents.</p>
+ $$\mathcal{L}_{WM}=\mathbb{E}_{\mathbf{O}, \mathbf{a}, \epsilon_w, k_w}\left[\left\|\epsilon_w-\mathcal{W}_\phi\left(\mathbf{C}_{wm}, k_w, \mathrm{FiLM}(\mathbf{a}_{M-1\dots M+N-2})\right)\right\|_2^2\right]$$
+ <table class="symbol-table">
+<tr><td>$\mathcal{W}_\phi$</td><td>Diffusion World Model, using independent but same parameter scale 1D U-Net.</td></tr>
+<tr><td>$\mathbf{C}_{wm}$</td><td>World model input obtained by combining historical latent and noisy future latent.</td></tr>
+<tr><td>$\mathbf{a}_{M-1\dots M+N-2}$</td><td>Action sequence aligned to future latent, via FiLM as global condition.</td></tr>
+</table>
+</div>
+<h4>joint training objectives</h4>
+<div class="formula-block">
+<p class="intuition">The total loss puts imitation learning's action noise matching and future latent prediction in the same end-to-end update.</p>
+ $$\mathcal{L}_{total}=\mathcal{L}_{BC}+\lambda\mathcal{L}_{WM}$$
+ <table class="symbol-table">
+<tr><td>$\lambda$</td><td>World model loss weight; both paper simulation and real robot are set to 1.</td></tr>
+<tr><td>$(\psi, \theta, \phi)$</td><td>The encoder, policy and world model parameters are shared and updated simultaneously via gradient descent.</td></tr>
+<tr><td>EMA</td><td>The authors use Exponential Moving Average for model weights to stabilize training and inference.</td></tr>
+</table>
+</div>
+<h4>OOD detection and recovery</h4>
+<div class="formula-block">
+<p class="intuition">If the actual observed latent is too far from the predicted latent of the world model, the system will judge the current visual stream as untrustworthy.</p>
+ $$\mathcal{D}_{R-I}(t)=\left\|\mathbf{O}_{real}^{t}-\mathbf{O}_{pred}^{t}\right\|_2^2$$
+ <table class="symbol-table">
+<tr><td>$\mathbf{O}_{real}^{t}$</td><td>The latent of the current real observation encoded by $E_\psi$.</td></tr>
+<tr><td>$\mathbf{O}_{pred}^{t}$</td><td>The current latent predicted by the world model based on the previous latent and the previous action.</td></tr>
+<tr><td>$\tau_{diff}$</td><td>OOD threshold; in real robots, Stack Blocks is 0.0002, Pour Tea is 0.0004, and Press Button is 0.0012.</td></tr>
+</table>
+</div>
+<div class="formula-block">
+<p class="intuition">After detecting which target object has moved, DDP does not try to relearn online, but uses the pose difference as a tracking and recovery action.</p>
+ $$\Delta\mathbf{p}_{C_j}=\mathbf{p}_{C_j}-\mathbf{p}_{C_j}^{exp}, \qquad \mathbf{a}^{track}_j=\Delta\mathbf{p}_{C_j}, \qquad \mathbf{a}^{rec}_j=-\Delta\mathbf{p}_{C_j}$$
+ <table class="symbol-table">
+<tr><td>$C_j$</td><td>The target object of the current subtask $S_j$.</td></tr>
+<tr><td>$\mathbf{p}_{C_j}$</td><td>The current resting pose of the object obtained by the 6D pose estimator.</td></tr>
+<tr><td>$\mathbf{p}_{C_j}^{exp}$</td><td>The desired pose of the object in the ID state.</td></tr>
+</table>
+<p>There is a clear assumption here: the moved object will eventually stabilize in a static posture, and the system only needs to estimate a single static spatial displacement, rather than continuously tracking in chaotic motion.</p>
+</div>
+<details>
+<summary>DDP inference pseudocode integrated version</summary>
+<pre class="pseudocode">Input: E_psi, pi_theta, W_phi, pose estimator, subtasks S, expected poses p_exp, threshold tau_diff
+OOD_Mode = False
+C_disp = empty set
+O_curr = E_psi(X_real^0)
+
+for subtask S_j targeting object C_j:
+  while T_end(S_j) is False:
+    O_real = E_psi(X_real^t)
+
+    if not OOD_Mode:
+      O_pred = W_phi(O_real^{t-1}, a_{t-1})
+      D_RI = ||O_real - O_pred||_2^2
+      if D_RI &gt; tau_diff:
+        OOD_Mode = True
+        C_disp = identify displaced objects by pose estimator
+        if C_j in C_disp:
+          execute a_track = p_Cj - p_Cj_exp
+        O_curr = O_pred
+      else:
+        O_curr = O_real
+
+    a_t = pi_theta(. | O_curr)
+    execute action chunk a_t
+    if OOD_Mode:
+      O_curr = W_phi(O_curr, a_t)
+
+  if OOD_Mode and C_j in C_disp:
+    execute recovery action a_rec = -Delta p_Cj
+    remove C_j from C_disp
+    re-evaluate D_RI
+    if D_RI &lt;= tau_diff:
+      OOD_Mode = False</pre>
+<p class="small">Source: Text Inference Stage and Appendix "Pseudocode for Closed-Loop Inference". Note that the recovery action line in the source code pseudocode is written as $\mathbf{p}_{C_j}-\mathbf{p}_{C_j}^{exp}$, and the text definition is $\mathbf{a}^{rec}_j=-\Delta\mathbf{p}_{C_j}$; this report is interpreted according to the mathematical definition of the text.</p>
+</details>
+<h3>4.4 Implementation points</h3>
+<table>
+<tr><th>module</th><th>Implementation details</th><th>Source</th></tr>
+<tr><td>3D encoder</td><td>Point cloud obtains 64-dimensional features through PointNet, and proprioception obtains 64-dimensional features through MLP, which are spliced into 128-dimensional unified latent embedding.</td><td>Text Methods / Simulation Model Setup</td></tr>
+<tr><td>Policy U-Net</td><td>1D Conditional U-Net; simulated down-sampling channels are [256, 512, 1024], diffusion step embedding is 128.</td><td>Text Simulation Model Setup</td></tr>
+<tr><td>World Model U-Net</td><td>Standalone 1D U-Net with the same parameter size as policy U-Net; predicts $N=8$ future latents.</td><td>Text Simulation Model Setup</td></tr>
+<tr><td>Real Robot Simple DDP</td><td>Lightweight U-Net: policy is [128, 256, 384], world model is [128, 256, 512]; $M=2, H=16, N=8, \lambda=1$ is retained.</td><td>Text Real World Experiments</td></tr>
+<tr><td>Fast sampling</td><td>Use DDIM when deploying, and reduce the policy and world model denoising steps to $K=10$.</td><td><span class="appendix-ref">Appendix B</span></td></tr>
+<tr><td>control frequency</td><td>After dual diffusion, 3D encoding, 6D tracking and OOD detection are run simultaneously, the system control frequency constraint is $2\text{ Hz}$, which is consistent with the manual teleoperation acquisition frequency.</td><td><span class="appendix-ref">Appendix B1</span></td></tr>
+<tr><td>point cloud processing</td><td>The original depth frame of RealSense L515 is about 240, 000 points, which is first randomly cropped to 10, 000 points, and then PyTorch3D is used to accelerate the FPS to 2, 048 points, which takes about 15 ms.</td><td><span class="appendix-ref">Appendix B2</span></td></tr>
+</table>
+<div class="impl-note">When reproducing, it is necessary to distinguish between simulation and real-world OOD mechanisms: In the simulation, in order to isolate the imagination ability, the author bypasses the automatic $\mathcal{D}_{R-I}$ detection and heuristic trigger, and uses MuJoCo oracle timing and backend state manipulation; in the real robot, FoundationPose++, threshold detection and real control frequency are used.</div>
+</section>
+<section id="sec5">
+<h2>5. Experiment</h2>
+<h3>5.1 Experimental setup</h3>
+<h4>Simulation benchmark</h4>
+<p>The paper uses 10 MetaWorld tasks to test general manipulation and OOD spatial shift robustness, and uses 3 Adroit tasks to test world model predictive stability in high-degree-of-freedom continuous control. The training data is 50 demonstrations for each task; all models are trained for 500 epochs and 3 seeds (0, 1, 2). During evaluation, each task and each seed were run for 100 episodes, and the average success rate was reported.</p>
+<div class="figure">
+<img alt="MetaWorld OOD disturbances" src="figures/metaworld_task_p1.png"/>
+<div class="caption">Figure 3. MetaWorld OOD spatial perturbation: the target object is moved outside the training boundary; for specific displacement vectors, see the OOD parameter table in the Appendix.</div>
+</div>
+<table>
+<tr><th>Task</th><th>moved object</th><th>Trigger time</th><th>Displacement vector $\Delta\mathbf{P}$</th><th>tracking logic</th></tr>
+<tr><td>Assembly</td><td>Peg</td><td>Chunk 6</td><td>[-0.25, 0.0, 0.0]</td><td>Single-Stage</td></tr>
+<tr><td>Button Press</td><td>Box &amp; Button</td><td>Chunk 3</td><td>[-0.25, 0.0, 0.0]</td><td>Single-Stage</td></tr>
+<tr><td>Drawer Open</td><td>Drawer</td><td>Chunk 2</td><td>[0.0, 0.0, +0.10]</td><td>Single-Stage</td></tr>
+<tr><td>Hammer</td><td>Box &amp; Nail</td><td>Chunk 5</td><td>[0.0, +0.10, 0.0]</td><td>Single-Stage</td></tr>
+<tr><td>Door Unlock</td><td>Door</td><td>Chunk 2</td><td>[0.0, +0.10, 0.0]</td><td>Single-Stage</td></tr>
+<tr><td>Soccer</td><td>Goal Net</td><td>Chunk 2</td><td>[-0.20, +0.10, 0.0]</td><td>Single-Stage</td></tr>
+<tr><td>Pick Place</td><td>Puck</td><td>Chunk 2</td><td>[-0.20, -0.10, 0.0]</td><td>Two-Stage + Safe Lift</td></tr>
+<tr><td>Push</td><td>Puck</td><td>Chunk 2</td><td>[-0.25, 0.0, 0.0]</td><td>Two-Stage</td></tr>
+<tr><td>Sweep</td><td>Puck</td><td>Chunk 2</td><td>[+0.20, +0.10, 0.0]</td><td>Two-Stage</td></tr>
+<tr><td>Coffee Pull</td><td>Mug &amp; Machine</td><td>Chunk 2</td><td>[-0.20, 0.0, 0.0]</td><td>Two-Stage</td></tr>
+</table>
+<h4>real robot benchmark</h4>
+<p>Real platform is Franka Emika Panda + Robotiq 2F-85 gripper. Vision is provided by Intel RealSense L515, D455 is used for object tracking; the action space is 7-DoF relative commands $(\Delta x, \Delta y, \Delta z, \mathrm{roll}, \mathrm{pitch}, \mathrm{yaw})$ plus binary gripper state, passed <code>franky</code> inverse kinematics execution. Each task collects 25 expert demonstrations using a scripted kinematic oracle, and the initial target positions are uniformly randomized within a 10 cm linear range during training.</p>
+<table>
+<tr><th>Task</th><th>Difficulty/subtask</th><th>success criteria</th></tr>
+<tr><td>Press Button</td><td>Easy / 1 subtask / 1 OOD target</td><td>Buttons are pressed precisely to their activation threshold, avoiding under-press or over-press.</td></tr>
+<tr><td>Pour Tea</td><td>Medium / 2 subtasks / 1 OOD target</td><td>Grab the teapot, move it to the cup, pour tea, and put it back; align the spout with the center of the cup during pouring.</td></tr>
+<tr><td>Stack Blocks</td><td>Hard / 2 subtasks / 2 OOD targets</td><td>The pink block is placed steadily on the green base and remains balanced after releasing the claws.</td></tr>
+</table>
+<div class="figure">
+<img alt="robot setup" src="figures/env_p1.png"/>
+<div class="caption">Figure 5. Real robot hardware and object tracking: Franka Panda, gripper, L515 vision and D455 tracking configuration.</div>
+</div>
+<h4>Training and evaluation configuration</h4>
+<table>
+<tr><th>Project</th><th>Simulation</th><th>real robot</th></tr>
+<tr><td>historical step / horizon / chunk</td><td>$M=2, H=16, N=8$</td><td>$M=2, H=16, N=8$</td></tr>
+<tr><td>loss weight</td><td>$\lambda=1$</td><td>$\lambda=1$</td></tr>
+<tr><td>training epochs</td><td>500</td><td>2000</td></tr>
+<tr><td>demonstrations</td><td>50 per task</td><td>25 per task</td></tr>
+<tr><td>seeds / trials</td><td>3 seeds; 100 episodes/task/seed</td><td>10 trials/task per setting</td></tr>
+<tr><td>training hardware</td><td>Not explicitly stated in the source code</td><td>NVIDIA 4090</td></tr>
+<tr><td>Deploy hardware</td><td>Not explicitly stated in the source code</td><td>NVIDIA 4070; policy 40 ms, world model 70 ms</td></tr>
+</table>
+<h3>5.2 Main results</h3>
+<h4>MetaWorld / Adroit table results</h4>
+<table>
+<tr><th>settings</th><th>DP3</th><th>FlowPolicy</th><th>DDP</th><th>Interpretation</th></tr>
+<tr><td>Base Policy ID Total Avg</td><td>89.8</td><td>89.3</td><td>89.5</td><td>DDP does not sacrifice base imitation performance under ID; the overall average of the three is close.</td></tr>
+<tr><td>Base Policy OOD MetaWorld Avg</td><td>0.8</td><td>6.7</td><td>1.3</td><td>Without tracking/imagination, severe OOD shifts almost make base policies fail.</td></tr>
+<tr><td>Tracking-Augmented OOD MetaWorld Avg</td><td>23.9</td><td>5.4</td><td>73.8</td><td>After adding tracking, DDP is significantly higher than DP3/FlowPolicy, indicating that world model latent imagination is the core difference.</td></tr>
+<tr><td>DDP 10% Imagined ID Total Avg</td><td>-</td><td>-</td><td>93.0</td><td>A small amount of imagined latent replacement did not break the control, improving from 77.8 to 95.2 on Adroit.</td></tr>
+<tr><td>DDP 50% Imagined ID Total Avg</td><td>-</td><td>-</td><td>90.5</td><td>Half of the real observations are still close to the ID baseline after being replaced.</td></tr>
+<tr><td>DDP Open-loop ID Total Avg</td><td>-</td><td>-</td><td>68.7</td><td>After full open-loop, MetaWorld dropped to 61.4, but Adroit was still 93.2; indicating that latent rollout is available but the task dependency difference is obvious.</td></tr>
+</table>
+<div class="figure">
+<img alt="MetaWorld qualitative results" src="figures/metaworld_ood_p1.png"/>
+<div class="caption">Figure 4. MetaWorld Assembly and Push qualitative sequence: green is ID base policy, yellow is OOD tracking, pink is imagined Dream Policy, and green dotted line is recovery.</div>
+</div>
+<h4>Real robot results</h4>
+<table>
+<tr><th>settings</th><th>Press Button</th><th>Pour Tea</th><th>Stack Blocks</th><th>average</th><th>Interpretation</th></tr>
+<tr><td>DP3 Base ID</td><td>100</td><td>90</td><td>90</td><td>93.3</td><td>DP3 is very strong in the standard ID setting.</td></tr>
+<tr><td>DDP Base ID</td><td>100</td><td>90</td><td>80</td><td>90.0</td><td>DDP ID performance is close to DP3, Stack Blocks is slightly lower.</td></tr>
+<tr><td>DP3 Tracking OOD</td><td>10</td><td>0</td><td>0</td><td>3.3</td><td>Just adding tracking rarely solves real severe OOD.</td></tr>
+<tr><td>DDP Tracking OOD</td><td>100</td><td>90</td><td>60</td><td>83.3</td><td>DDP maintains significant resilience in all three missions, with Stack Blocks being the most difficult due to its two targets and fine stacking.</td></tr>
+<tr><td>DDP Open-loop Imagination</td><td>100</td><td>80</td><td>50</td><td>76.7</td><td>After the initial chunk, most tasks can still be completed by relying entirely on imagined latent.</td></tr>
+</table>
+<div class="figure">
+<img alt="OOD detection loss" src="figures/loss.png"/>
+<div class="caption">Figure 6. Real robot OOD detection: When the object is moved, $\mathcal{D}_{R-I}$ exceeds the task threshold; the thresholds are Stack Blocks 0.0002, Pour Tea 0.0004, and Press Button 0.0012.</div>
+</div>
+<div class="figure">
+<img alt="Real robot qualitative results" src="figures/task_realworld_pressed_p1.png"/>
+<div class="caption">Figure 7. Real robot OOD execution: DDP completes the task through tracking, imagined policy, and recovery; DP3 tracking ablation fails on grabbing, pouring tea, or pressing.</div>
+</div>
+<h3>5.3 Ablation experiment</h3>
+<p><strong>Tracking ablation. </strong>The author adds the same tracking intervention to DP3 and FlowPolicy. In MetaWorld OOD, DP3 tracking is only 23.9%, FlowPolicy tracking is only 5.4%, and DDP is 73.8%. In real robots, DP3 tracking ablation is 3.3% and DDP is 83.3%. This ablation directly corresponds to the question of "is tracking itself sufficient?"</p>
+<p><strong>Imagination intervention. </strong>The author randomly replaces real observations with imagined latent in the ID setting, with proportions of 10%, 50%, and 100%. MetaWorld maintains 92.3%/89.4% at 10%/50% and 61.4% at open-loop; Adroit maintains 95.2%/94.0%/93.2% at 10%/50%/open-loop respectively. This shows that the latent generated by the world model can be used as a stable alternative condition for some tasks.</p>
+<p><strong>Visual occlusion stress test.</strong>In the real robot, the author covers the camera with his hand to create an obvious $\mathcal{D}_{R-I}$. DP3 baseline fails, while DDP gets the job done with autoregressive imagination on Stack Blocks and Pour Tea.</p>
+<div class="figure">
+<img alt="Visual occlusion results" src="figures/occlusion_pressed_p1.png"/>
+<div class="caption">Figure 8. Qualitative results of visual occlusion: after the camera is blocked, DDP triggers OOD mode and uses internal imagination to complete Stack Blocks and Pour Tea.</div>
+</div>
+<h3>5.4 Supplementary experiments and appendix details</h3>
+<p><span class="appendix-ref">Appendix A</span> The complete DDP inference pseudocode is given, clarifying OOD_Mode, displaced object set, completion trigger of each subtask, world model autoregressive forecast and re-evaluation after recovery.</p>
+<p><span class="appendix-ref">Appendix B</span> Gives MetaWorld OOD evaluation implementation details. In the simulation, the author intentionally skips the automatic OOD detector and heuristic recovery trigger and uses oracle state transitions instead: directly moving the MuJoCo object body and robot mocap in the specified chunk to ensure that the evaluation focuses on whether the policy can continue to complete the operation under imagined latent rather than detecting delays or tracking errors.</p>
+<div class="figure">
+<img alt="Supplementary MetaWorld qualitative results" src="figures/sumplementary_metaworld_p1.png"/>
+<div class="caption">Figure 9. DDP OOD execution sequence for the remaining eight MetaWorld tasks in Appendix.</div>
+</div>
+<p><span class="appendix-ref">Appendix C</span> Real robot deployment supplements are given: ID execution sequence, DP3 tracking ablation failure modes, 2 Hz control frequency, DDIM $K=10$ fast sampling, two-stage downsampling of point cloud from 240k to 10k to 2048 points.</p>
+<div class="figure">
+<img alt="Real world ID scenarios" src="figures/sumplementary_id_p1.png"/>
+<div class="caption">Figure 10. Real robot ID scenario execution sequence: Stack Blocks, Pour Tea, Press Button.</div>
+</div>
+<div class="figure">
+<img alt="DP3 failure modes" src="figures/sumplementary_ood_ablation_p1.png"/>
+<div class="caption">Figure 11. Failure modes of DP3 tracking ablation: missed grabs, dropped objects, inaccurate pressing positions, etc.</div>
+</div>
+</section>
+<section id="sec6">
+<h2>6. Result analysis and discussion</h2>
+<h3>6.1 Interpretation of the results given in the paper</h3>
+<p>The author's explanation of the MetaWorld results is that severe OOD spatial displacement makes base policies nearly ineffective; tracking-only baselines are still insufficient because they fail to maintain the prediction latent of action generation under corrupted observation. DDP's coupled latents enable the robot to perform actions using imagined latents during the OOD phase and return the ID visual stream after the target is restored.</p>
+<p>Regarding imagination intervention, the author believes that DDP's world model not only fills the visual gap, but also acts as a temporal smoother. Especially in Adroit high-degree-of-freedom control, 10% imagined substitution actually increases the average success rate. The paper explains this as the stabilizing effect of imagined representation on continuous control.</p>
+<p>For real robots, the author takes the $\mathcal{D}_{R-I}$ curve as evidence of OOD detection: a sudden displacement of the object will cause the real latent to deviate significantly from the imagined projection, and trigger the OOD mode after exceeding the threshold. In the qualitative diagram, DDP tracks and recovers object-by-object in Stack Blocks, continues to imagine pouring tea on the displaced cup in Pour Tea, and presses to the appropriate position in Press Button.</p>
+<h3>6.2 The future direction clearly stated in the paper</h3>
+<p>In Conclusion, the author proposed that in the future, meta-reinforcement learning can be used to online adapt fine-tune world model, lifelong learning can be used to retain and combine prior knowledge, or low-level tactile feedback can be added to improve the robustness of real deployment. The authors also plan to expand to more complex multi-object manipulations and explore combinations with language-conditioned methods or LLM high-level inference planning.</p>
+</section>
+<section id="sec7">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>Judging from the paper's own problem setting and experimental chain, the core value of DDP is to advance the world model from "auxiliary prediction/regular terms during training" to "latent conditions that can actively replace corrupted observation during inference." This enables OOD robustness not to rely solely on larger training distributions or online adaptation, but rather through real-imagination discrepancy in explicitly deciding when to abandon real vision and when to use an internal latent forecast.</p>
+<h3>7.2 Why the results hold up</h3>
+<p>The evidence chain of the paper contains three levels of comparison. First, the ID results show that DDP does not significantly harm base policy performance. Second, tracking-augmented DP3 and FlowPolicy show that "knowing where the object moved" is not enough in itself to restore success, and DDP's world model imagination is the source of the difference. Third, imagination intervention and open-loop stress test directly test whether imagined latent can be used as a policy condition; real robot experiments supplement physical deployment evidence with $\mathcal{D}_{R-I}$ curves, visual occlusion and failure-mode diagrams.</p>
+<h3>7.3 Limitations of the author's statement</h3>
+<ul>
+<li><strong>Depends on external tracking module.</strong>DDP is highly dependent on external tracking/pose estimation such as FoundationPose++; tracking drift may accumulate in multi-stage subtasks.</li>
+<li><strong>The task must start from the ID state.</strong>The initial observation needs to be strictly in the In-Distribution region to anchor subsequent real-imagination comparison and imagined rollout.</li>
+<li><strong>Intractable composite OOD or low-level action perturbations.</strong>When OOD events are continuously superimposed, or low-level action disruptions such as gripper slippage occur, the current reasoning mechanism will become difficult.</li>
+</ul>
+<h3>7.4 Applicable boundaries</h3>
+<p>DDP is suitable for manipulation settings where the task can be decomposed into object-related subtasks, the target object can be positioned through a 6D pose estimator, and the OOD mainly manifests itself as spatial displacement or visual occlusion. The real system currently operates at a 2 Hz control frequency, and the authors explicitly placed the design goal on accurate recovery of severe OOD, rather than high-speed dynamic manipulation.</p>
+<p>The simulation OOD results need to be understood according to the author's experimental settings: MetaWorld uses oracle timing, oracle state transition and MuJoCo backend operations to isolate imagination capabilities; this cannot be directly equivalent to a real tracking scenario without oracle. The real robot part supplements the verification of the detection/tracking pipeline during deployment.</p>
+</section>
+<section id="sec8">
+<h2>8. Repeat audit</h2>
+<div class="audit-card">
+<p><span class="audit-pass">The source code can be parsed: </span>arXiv e-print contains a single master file <code>arxiv.tex</code>, <code>main.bib</code> and 10 image resources; the main text and Appendix are in main TeX.</p>
+<p><span class="audit-pass">Charts are localized: </span>The report references 11 local PNGs, 10 of which are from arXiv HTML rendering of source PDF images, <code>loss.png</code> Original PNG from source.</p>
+<p><span class="audit-warn">Code repository: </span>The source code of the paper and the arXiv page do not provide the DDP official code repository; only links to dependent projects such as FoundationPose++ and franky appear in the references.</p>
+<p><span class="audit-warn">Several training details are missing: </span>The paper gives the model structure, epochs, number of demos, chunk parameters, real robot GPU and inference delay, but does not clearly list the optimizer, learning rate, batch size, all data preprocessing scripts and random seed implementation methods in the source code.</p>
+<p><span class="audit-warn">reproducibility experiment threshold: </span>Real robot reproducibility requires Franka Panda, Robotiq 2F-85, L515, D455, FoundationPose++, franky IK, PyTorch3D FPS and scripted kinematic oracle; MetaWorld OOD needs to implement the oracle chunk timing and MuJoCo state manipulation in the Appendix.</p>
+</div>
+</section>
+</main>
+</body>
+</html>

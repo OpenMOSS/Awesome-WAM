@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DUST - Paper Reading Report</title>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --paper: #f6f7f3;
+      --paper-deep: #e8ede7;
+      --surface: #fffefb;
+      --surface-raised: rgba(255, 254, 251, 0.9);
+      --surface-2: #f0f4ee;
+      --ink: #20241f;
+      --ink-soft: #3a4038;
+      --muted: #697166;
+      --muted-2: #838a7f;
+      --line: rgba(32, 29, 25, 0.12);
+      --line-strong: rgba(32, 29, 25, 0.22);
+      --state: #2f766f;
+      --state-soft: #e6f0ed;
+      --action: #a45f38;
+      --action-soft: #f3e8dd;
+      --planning: #4f6542;
+      --planning-soft: #e7eddf;
+      --warn: #9a6a21;
+      --warn-soft: #f3ead8;
+      --font-body: "Sora", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "Geist Mono", "SFMono-Regular", Menlo, monospace;
+      --sidebar-w: 188px;
+      --content-max: 1080px;
+      --desktop-gutter: 2.6rem;
+    }
+    *,
+    *::before,
+    *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(32, 29, 25, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(32, 29, 25, 0.03) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    main {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 2.4rem 1.15rem 5.6rem;
+      min-height: 100vh;
+    }
+    h1 {
+      max-width: 900px;
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.75rem, 3.6vw, 3.7rem);
+      font-weight: 650;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 1rem;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 3vw, 2.7rem);
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 1.8rem 0 0.55rem;
+      color: var(--ink);
+      font-size: 1.08rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    h4 {
+      margin: 1.35rem 0 0.45rem;
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    p { margin: 0.65rem 0; }
+    a {
+      color: var(--state);
+      text-decoration: none;
+      text-underline-offset: 0.18em;
+    }
+    a:hover { text-decoration: underline; }
+    code {
+      padding: 0.12rem 0.32rem;
+      background: rgba(47, 118, 111, 0.08);
+      border: 1px solid rgba(47, 118, 111, 0.12);
+      border-radius: 4px;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.86em;
+    }
+    header {
+      padding: 1rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.2rem;
+    }
+    header::before {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.68);
+      color: var(--state);
+      content: "paper report";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .meta {
+      display: grid;
+      gap: 0.35rem;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--surface-raised), rgba(255, 254, 251, 0.72));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 55px rgba(55, 63, 48, 0.08);
+      padding: 1rem 1.05rem;
+      color: var(--muted);
+    }
+    .meta p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.62;
+    }
+    .meta strong {
+      color: var(--ink);
+      font-weight: 650;
+    }
+    .title-wrap {
+      display: grid;
+      gap: 0.75rem;
+      max-width: 900px;
+    }
+    .subtitle,
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .lead {
+      padding: 1rem 1.05rem;
+      background: linear-gradient(180deg, var(--state-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(47, 118, 111, 0.2);
+      border-radius: 8px;
+      color: var(--ink-soft);
+    }
+    .title-wrap .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      box-shadow: none;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.7rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid rgba(32, 29, 25, 0.13);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .toc {
+      background: rgba(255, 254, 251, 0.84);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.95rem;
+      margin: 1.2rem 0 1.6rem;
+      backdrop-filter: blur(12px);
+    }
+    .toc strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .toc ul,
+    ul.toc,
+    ol.toc {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.12rem 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .toc li { min-width: 0; }
+    .toc a {
+      display: block;
+      padding: 0.42rem 0.52rem;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+    .toc a:hover {
+      background: rgba(47, 118, 111, 0.08);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .tldr {
+      background: linear-gradient(180deg, var(--action-soft), rgba(255, 254, 251, 0.74));
+      border: 1px solid rgba(164, 95, 56, 0.22);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0 1.1rem;
+      color: var(--ink-soft);
+      font-size: 0.98rem;
+      line-height: 1.72;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .note, .audit-card, .formula-block, .card, .danger {
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.055);
+      padding: 0.95rem 1rem;
+      margin: 0.85rem 0;
+    }
+    .card {
+      margin: 0;
+    }
+    .danger {
+      background: linear-gradient(180deg, var(--warn-soft), rgba(255, 254, 251, 0.78));
+      border-color: rgba(154, 106, 33, 0.22);
+    }
+    .kpi {
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-label {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .note strong { color: var(--ink); }
+    .appendix-ref {
+      color: var(--planning);
+      background: var(--planning-soft);
+      border: 1px solid rgba(79, 101, 66, 0.18);
+      border-radius: 999px;
+      padding: 0.08rem 0.38rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .formula-block .intuition {
+      font-weight: 650;
+      color: var(--state);
+      margin-bottom: 8px;
+    }
+    .symbol-table td:first-child {
+      width: 26%;
+      color: var(--state);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    section {
+      padding: 3rem 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 1.4rem;
+    }
+    section:last-child { border-bottom: none; }
+    section > h2 {
+      max-width: 760px;
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+    section > h2::before {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: var(--state);
+      content: "section";
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    figure,
+    .figure {
+      margin: 1.35rem auto;
+      text-align: center;
+    }
+    figure img,
+    .figure img,
+    .pdf-frame {
+      display: block;
+      max-width: 100%;
+      max-height: min(72vh, 760px);
+      margin: 0 auto;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(55, 63, 48, 0.08);
+    }
+    .pdf-frame {
+      width: auto;
+      height: auto;
+    }
+    figcaption,
+    .caption {
+      max-width: 920px;
+      margin: 0.65rem auto 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0 1.25rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 42px rgba(55, 63, 48, 0.045);
+      font-size: 0.88rem;
+    }
+    th, td {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 0.62rem 0.68rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child { border-right: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) td { background: rgba(240, 244, 238, 0.45); }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .best { font-weight: 650; color: var(--state); }
+    .warn { color: var(--warn); font-weight: 650; }
+    .pseudocode {
+      background: #20241f;
+      color: #eef2e7;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      padding: 1rem 1.05rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+      margin: 0.9rem 0;
+    }
+    pre {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0.9rem 0;
+      padding: 1rem 1.05rem;
+      background: #20241f;
+      border: 1px solid rgba(255, 254, 251, 0.12);
+      border-radius: 8px;
+      color: #eef2e7;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.58;
+    }
+    pre code {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      font: inherit;
+    }
+    article {
+      display: block;
+    }
+    .small {
+      color: var(--muted-2);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .checklist li { margin: 5px 0; }
+    @media (min-width: 980px) {
+      main {
+        width: min(100%, calc(var(--content-max) + var(--sidebar-w) + var(--desktop-gutter)));
+        margin: 0;
+        padding: 3.2rem var(--desktop-gutter) 6rem calc(var(--sidebar-w) + var(--desktop-gutter));
+      }
+      .toc {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: var(--sidebar-w);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2.25rem 1.25rem;
+        border-width: 0 1px 0 0;
+        border-radius: 0;
+        background: rgba(246, 247, 243, 0.9);
+        box-shadow: none;
+      }
+      .toc strong::before {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.55rem;
+        border-radius: 7px;
+        background: var(--ink);
+        color: var(--paper);
+        content: "R";
+        font-family: var(--font-body);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      .toc ul,
+      ul.toc,
+      ol.toc {
+        grid-template-columns: 1fr;
+        margin-top: 1.35rem;
+      }
+      .toc a {
+        padding: 0.62rem 0.7rem;
+        font-size: 0.84rem;
+      }
+    }
+    @media (max-width: 760px) {
+      main { padding: 1.35rem 0.9rem 4rem; }
+      h1 { font-size: 1.85rem; }
+      section { padding: 2.2rem 0; }
+      .toc ul, ul.toc, ol.toc { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: 1fr; }
+      table {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.82rem;
+      }
+      th, td { padding: 0.55rem; }
+    }
+
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.18rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 254, 251, 0.74);
+      box-shadow: 0 10px 28px rgba(55, 63, 48, 0.08);
+    }
+    .language-switch a,
+    .language-switch span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .language-switch a:hover {
+      background: var(--state-soft);
+      color: var(--state);
+      text-decoration: none;
+    }
+    .language-switch .active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+</style>
+<link href="./index.en.html" hreflang="en" rel="alternate"/>
+<link href="./index.html" hreflang="zh-CN" rel="alternate"/>
+</head>
+<body>
+<main>
+<header>
+<div aria-label="Language switch" class="language-switch">
+<span aria-current="page" class="active">EN</span>
+<a href="./index.html" lang="zh-CN">中文</a>
+</div>
+<h1>Dual-Stream Diffusion for World-Model Augmented Vision-Language-Action Model</h1>
+<div class="meta">
+<p><strong>Method name: </strong>DUST, DUal-STream diffusion</p>
+<p><strong>Authors: </strong>John Won, Kyungmin Lee, Huiwon Jang, Dongyoung Kim, Jinwoo Shin</p>
+<p><strong>Organization: </strong>KAIST</p>
+<p><strong>arXiv: </strong>2510.27607; v1 submitted on 2025-10-31, v2 updated on 2025-11-04; 20 pages, 10 figures</p>
+<p><strong>Links: </strong><a href="https://arxiv.org/abs/2510.27607">arXiv summary page</a> | <a href="https://arxiv.org/pdf/2510.27607">PDF</a> | <a href="https://arxiv.org/html/2510.27607v2">HTML</a></p>
+</div>
+</header>
+<nav class="toc">
+<strong>Contents: </strong>
+<a href="#quick">1. Quick overview</a>
+<a href="#motivation">2. Motivation</a>
+<a href="#related">3. Related work</a>
+<a href="#method">4. Detailed explanation of method</a>
+<a href="#experiments">5. Experiment</a>
+<a href="#reproduce">6. Reproducible auditing</a>
+<a href="#discussion">7. Analysis, Limitations and Boundaries</a>
+</nav>
+<section id="quick">
+<h2>1. Quick overview of the paper</h2>
+<div class="tldr">
+<strong>One-sentence summary: </strong>DUST puts VLA's action generation and future visual state prediction into the same diffusion/flow-matching framework, but instead of using a single latent space to combine the two modalities, it uses the action stream and the vision stream to separately denoise, share attention and exchange information, and allows more denoising steps for visual tokens during inference, thereby using the world model as an explicit auxiliary target that can feed back actions.
+ </div>
+<table>
+<tr><th>What should the paper solve?</th><td>World model augmentation VLA often requires simultaneous prediction of action sequences and next-state visual representations. Actions are low-dimensional, time-smooth control sequences; future visual states are high-dimensional, spatially structured visual tokens. Unified diffusion is prone to modal conflicts, while pure causal separation limits the two-way information flow.</td></tr>
+<tr><th>The author's approach</th><td>Proposed DUST: MMDiT dual-stream architecture, independently sampling noise time step $(\tau_A, \tau_o)$ by mode, decoupled flow matching loss, and action/vision asynchronous sampling during inference.</td></tr>
+<tr><th>most important results</th><td>There is a stable gain on RoboCasa and GR-1 relative to FLARE/GR00T-N1.5; the real Franka Research 3 average success rate is 0.677, which is higher than GR00T-N1.5's 0.547 and FLARE's 0.557; after BridgeV2 action-free video pre-training, the average success rate of RoboCasa 100 demos has increased from 0.501 to 0.585.</td></tr>
+<tr><th>Things to note when reading</th><td>The core of this article is not to "add a future image prediction head", but to use dual time steps and dual stream structures to constrain actions and future observations during training, while avoiding pressing two variables with very different statistical structures into a shared latent space.</td></tr>
+</table>
+<p><strong>Difficulty rating: </strong>★★★★☆. Need to understand diffusion policy, flow matching, VLA, VLM feature conditioning, world modeling, MMDiT/AdaLN, and success rate evaluation of robot benchmarks.</p>
+<p><strong>Keywords: </strong>Vision-Language-Action, world model, multimodal diffusion transformer, decoupled flow matching, asynchronous sampling, RoboCasa, GR-1, BridgeV2. </p>
+<h3>Core contribution list</h3>
+<ul>
+<li><strong>Dual stream MMDiT: </strong>Action tokens and future observation tokens maintain their own channels during most calculations, exchanging information only in shared attention.</li>
+<li><strong>Noise independently by mode: </strong>During training, $\tau_A$ and $\tau_o$ are sampled respectively, allowing the model to see combinations such as "clean action + noisy future state" and "noisy action + clean future state", and explicitly learn the forward and reverse cross-modal dependencies.</li>
+<li><strong>Decoupled flow matching loss: </strong>Write the goal of joint diffusion as a weighted sum of action loss and world-modeling loss to avoid designing a unified velocity field for both modes.</li>
+<li><strong>Asynchronous test-time scaling: </strong>During inference, fixing $N_A$ and increasing $N_o$ only allows the visual token to be denoised in a more fine-grained manner; the appendix shows that increasing both simultaneously will harm performance.</li>
+</ul>
+<div class="figure">
+<img alt="Unified Joint Diffusion" src="figures/x1.png"/>
+<img alt="Causal Diffusion" src="figures/x2.png"/>
+<img alt="Dual-Stream Diffusion" src="figures/x3.png"/>
+<div class="caption"><strong>Figure 1.</strong> The original article compares three world models to enhance the VLA architecture: unified joint diffusion, one-way causal diffusion, and DUST's two-flow diffusion. The key trade-off of DUST is "stream separation, attention sharing".</div>
+</div>
+</section>
+<section id="motivation">
+<h2>2. Motivation</h2>
+<h3>2.1 Why VLA needs world model</h3>
+<p>Standard VLA usually encodes the current image, robot status and language instructions into semantic conditions, and then the action expert directly generates action chunks. They make good use of the visual and language understanding capabilities of VLMs, but their weakness is that they do not explicitly model how actions change the environment. For robot control, this gap is very important: whether the grasp is aligned, where the gripper will go in the future, and whether the target may be pushed away, these are not problems that can be solved stably by just looking at the current frame.</p>
+<p>The idea of world model augmented VLA is to simultaneously predict actions and future visual states. In this way, the model not only fits the distribution of expert actions, but also explains the visual consequences corresponding to the actions. The paper formulates this goal as learning the joint distribution of actions $A_t$ and future observation embeddings $\tilde{o}_{t+k}$.</p>
+<h3>2.2 Why "direct joint diffusion" is not enough</h3>
+<p>There is unified joint diffusion that puts action tokens and future visual tokens together and generates them uniformly using the same diffusion model. This design implies a strong assumption: actions and vision can be co-hosted by a shared latent space. The paper points out that this will cause modal conflicts: actions are low-dimensional, continuous, and smooth control trajectories; future visual embeddings are high-dimensional, semantic objects with spatial structure. They require different noise schedules, different denoising granularity, and different normalization conditions.</p>
+<p>Another type of causal design divides the two modes into different models and connects them with one-way conditions. For example, predict future vision first and then generate actions, or generate actions first and then predict future states. This preserves modal expertise but sacrifices two-way knowledge transfer. It is this trade-off that DUST wants to solve: while retaining their respective structures, they must also allow two-way interaction.</p>
+<h3>2.3 The core hypothesis of this paper</h3>
+<div class="note">
+<p><strong>Core assumptions: </strong>Actions and future visual states should not share the same denoising path, but should share the same cross-modal attention interface. During training, if actions and vision are independently noisy, the model will be forced to learn "what future state the action causes" and "what action can explain this future state" under different noise combinations.</p>
+</div>
+</section>
+<section id="related">
+<h2>3. Related work context</h2>
+<table>
+<tr><th>Technical line</th><th>Representation in the paper</th><th>Positioning of DUST</th></tr>
+<tr><td>Vision-Language-Action models</td><td>RT-2, OpenVLA, GR-1, $\pi_0$, GR00T-N1.5, etc.; some autoregressive generation actions, and some use diffusion action expert.</td><td>DUST inherits the settings of diffusion-based VLA: freezing the VLM backbone, using motion experts to generate continuous actions, but adding future state prediction.</td></tr>
+<tr><td>World model augments robot strategy</td><td>PAD, EnerVerse, UWM, FLARE, UVA, Video Policy, Video Prediction Policy. </td><td>Compared with unified models, DUST does not combine action and vision into one stream; compared with causal/disjoint models, DUST allows two-way information exchange in shared attention.</td></tr>
+<tr><td>future state representation</td><td>PAD/PIDM/This&amp;That predicts RGB; DINO-WM, FLARE, etc. predict pretrained encoder embedding.</td><td>DUST chooses to predict future image embeddings produced by Eagle-2/SIGLIP-2 to avoid pixel-level reconstruction wasting capacity on controlling irrelevant details.</td></tr>
+<tr><td>Diffusion/flow matching training</td><td>Diffusion Policy, DiT, flow matching, diffusion forcing, Diffuse Everything. </td><td>DUST changes the independent noise idea of diffusion forcing from "token level" to "modal level" and uses two flow matching losses to approximate the joint objective.</td></tr>
+</table>
+</section>
+<section id="method">
+<h2>4. Detailed explanation of method</h2>
+<h3>4.1 Problem setting and baseline VLA</h3>
+<p>The dataset consists of expert trajectories: $\mathcal{D}=\{T_1, T_2, \ldots\}$. Each track contains task instructions $I$, observation $O_t=(o_t^v, o_t^s)$ and action chunk $A_t=(a_t, \ldots, a_{t+k-1})$. The goal is to predict action chunks under the current visual observation, robot body state and language instructions.</p>
+<div class="formula-block">
+<p>The standard diffusion action expert first constructs the noisy action: </p>
+ $$A_t^\tau = \tau A_t + (1-\tau)\epsilon, \qquad \epsilon\sim\mathcal{N}(0, I).$$
+ <p>The velocity network is then trained to predict the velocity of a linear path: </p>
+ $$\mathcal{L}_{\mathrm{FM}}(\theta)=\mathbb{E}\left[\left\|V_\theta(\Phi_t, A_t^\tau, o_t^s)-(A_t-\epsilon)\right\|^2\right].$$
+ <p><span class="intuition">Intuition: </span>When $\tau=0$, it is pure noise, and when $\tau=1$, it is a real action; the network learns the direction of "moving from the current noisy action to the real action".</p>
+</div>
+<p>The goal of the world model is not to predict pixels, but to predict the future image embedding $\tilde{o}_{t+k}$ after executing the action chunk. This embedding comes from the visual encoder in VLM, and the Eagle-2 related SIGLIP-2 representation is used in the paper experiments.</p>
+<h3>4.2 DUST architecture: dual streams but shared attention</h3>
+<div class="figure">
+<img alt="DUST architecture" src="figures/x4.png"/>
+<div class="caption"><strong>Figure 2.</strong> DUST main architecture: frozen VLM generates semantic conditions $\Phi_t$ from current observation and instruction; diffusion model $\pi_\theta$ simultaneously handles robot state, noisy action sequence and noisy future observation embedding.</div>
+</div>
+<p>The core input of DUST is the triple $(o_t^s, A_t^\tau, \tilde{o}_{t+k}^\tau)$. After the action token and future vision token enter the MMDiT block, most operations retain two independent channels; they are only temporarily merged in the shared cross-modal attention layer so that the action stream and vision stream can exchange information, and then immediately separated back to their respective streams.</p>
+<p>Each stream has its own timestep embedding, injected via AdaLN. This is very critical: if action and vision use the same timestep condition, there is no way to express training samples such as "the action is very clean but the vision is still very noisy". The appendix further explains that the implementation of the paper is to make light modifications to the original MMDiT block, allowing AdaLN of each modal stream to accept independent time step embedding. <span class="appendix-ref">Appendix A.2/Figure 6</span>. </p>
+<div class="figure">
+<img alt="MMDiT block with modality-specific timestep embeddings" src="figures/mmdit.png"/>
+<div class="caption"><strong>Figure 6.</strong> MMDiT details in the appendix: AdaLN conditions for both streams come from their respective timestep embeddings, rather than sharing a global timestep.</div>
+</div>
+<p>After several shared MMDiT blocks, DUST then sends the two streams into modality-specific DiT blocks respectively. The main experiment of the paper uses 12 MMDiT blocks, followed by 4 action-side DiT blocks and 4 vision-side DiT blocks. The meaning of this design is: try to learn cross-modal dependencies in the front stage, and let each modality complete fine denoising in the later stage.</p>
+<h3>4.3 Decoupling noise and flow matching loss</h3>
+<p>DUST does not only sample one $\tau$ during training, but samples the action time step $\tau_A$ and the visual time step $\tau_o$ separately: </p>
+<div class="formula-block">
+ $$A_t^{\tau_A}=\tau_A A_t+(1-\tau_A)\epsilon_A, $$
+ $$\tilde{o}_{t+k}^{\tau_o}=\tau_o\tilde{o}_{t+k}+(1-\tau_o)\epsilon_o.$$
+ <p>The model outputs two velocity fields: </p>
+ $$V_\theta(\Phi_t, A_t^{\tau_A}, \tilde{o}_{t+k}^{\tau_o}, o_t^s)=[V_\theta^A, V_\theta^o].$$
+ <p>Corresponding to two flow matching losses: </p>
+ $$\mathcal{L}_{A}=\mathbb{E}\left[\|V_\theta^A-(A_t-\epsilon_A)\|^2\right], $$
+ $$\mathcal{L}_{\mathrm{WM}}=\mathbb{E}\left[\|V_\theta^o-(\tilde{o}_{t+k}-\epsilon_o)\|^2\right].$$
+ <p>The total loss is: </p>
+ $$\mathcal{L}_{\mathrm{Joint}}=\mathcal{L}_{A}+\lambda_{\mathrm{WM}}\mathcal{L}_{\mathrm{WM}}.$$
+ <p><span class="intuition">Intuition: </span>Action and future vision each learn their own "denoising direction", but the network sees each other's current noisy/clean state in shared attention, so the joint relationship is still learned.</p>
+</div>
+<p>This design allows training samples to cover a variety of cross-modal conditions. For example, when $\tau_A\approx1, \tau_o\approx0$, the model needs to infer future vision based on cleaner actions; when $\tau_A\approx0, \tau_o\approx1$, the model needs to infer its actions based on cleaner future vision. This is the basis of the mechanism that DUST claims to be able to learn bidirectional joint distribution.</p>
+<h3>4.4 Reasoning: asynchronous vision-action joint sampling</h3>
+<div class="figure">
+<img alt="Asynchronous joint sampling" src="figures/x5.png"/>
+<div class="caption"><strong>Figure 3.</strong> Asynchronous sampling: the visual token is updated every small step, and the action token is updated every $q$ small steps. The default is $q=1$, and $q$ is increased during test-time scaling, that is, $N_o$ is increased and $N_A$ is fixed.</div>
+</div>
+<p>The inference phase starts with two noise variables: $A_t^0\sim\mathcal{N}(0, I_A)$, $\tilde{o}_{t+k}^0\sim\mathcal{N}(0, I_v)$. Let action diffusion steps be $N_A$ and vision diffusion steps be $N_o=qN_A$. The global small step size is $\Delta\tau_o=1/N_o$, and the vision is updated every step; the action is updated every $q$ step, corresponding to $\Delta\tau_A=1/N_A=q\Delta\tau_o$.</p>
+<div class="formula-block">
+ $$\tilde{o}_{t+k}^{\tau_o+\Delta\tau_o}=\tilde{o}_{t+k}^{\tau_o}+V_\theta^o\Delta\tau_o, $$
+ $$A_t^{\tau_A+\Delta\tau_A}=
+ \begin{cases}
+ A_t^{\tau_A}+V_\theta^A\Delta\tau_A, &amp; \text{if update step}\\
+ A_t^{\tau_A}, &amp; \text{otherwise}
+ \end{cases}.$$
+ <p><span class="intuition">Intuition: </span>The action is low-dimensional, and too many steps may over-integrate or introduce errors; in the future, visual embedding is high-dimensional, and more denoising steps are usually beneficial. The structure of DUST exposes this asymmetry as an inference-time knob.</p>
+</div>
+<h3>4.5 Training and inference pseudocode compressed version</h3>
+<pre class="pseudocode">训练 DUST:
+1. sample batch (o_t^v, o_t^s, I, A_t, o_{t+k}^v)
+2. Phi_t = frozen VLM(o_t^v, I)
+3. future embedding tilde{o}_{t+k} = VLM_img(o_{t+k}^v)
+4. independently sample tau_A, tau_o and Gaussian noises
+5. construct noisy action and noisy future embedding
+6. encode action/state tokens and vision tokens separately
+7. run MMDiT blocks with shared attention and modality-specific AdaLN
+8. run modality-specific DiT blocks
+9. decode V_theta^A and V_theta^o
+10. optimize L_A + lambda_WM L_WM with AdamW
+
+异步采样:
+1. initialize action and vision tokens from Gaussian noise
+2. choose N_A and N_o = q N_A
+3. update vision every small step
+4. update action only every q small steps
+5. return final denoised action chunk and future observation embedding</pre>
+</section>
+<section id="experiments">
+<h2>5. Experiment</h2>
+<h3>5.1 Unified experimental settings</h3>
+<ul>
+<li><strong>VLM backbone: </strong>Freeze Eagle-2, using layer 12 semantic features as diffusion module conditions.</li>
+<li><strong>World model goals: </strong>The future image is represented by SIGLIP-2/Eagle-2 visual representation to obtain 256 tokens, which is then reduced to 64 future image tokens by $2\times2$ average pooling.</li>
+<li><strong>diffusion token consists of: </strong>1 state token, 16 action tokens, 64 future image tokens.</li>
+<li><strong>Main model structure: </strong>12 MMDiT blocks + 4 modality-specific DiT blocks. </li>
+<li><strong>loss weight: </strong>$\lambda_{\mathrm{WM}}=1.0$, from ablation experiments.</li>
+<li><strong>baselines: </strong>GR00T-N1.5; and the GR00T-N1.5 + FLARE loss reproduced by the author. FLARE has no official code or checkpoint. The author uses the same VLM backbone and the same SIGLIP-2 future embedding target to reproduce FLARE loss. <span class="appendix-ref">Appendix A.2</span>. </li>
+</ul>
+<h3>5.2 Main results: RoboCasa, GR-1, real Franka</h3>
+<div class="scroll">
+<table>
+<tr><th>RoboCasa</th><th colspan="4">100 demos</th><th colspan="4">300 demos</th><th colspan="4">1000 demos</th></tr>
+<tr><th>Method</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th></tr>
+<tr><td>GR00T-N1.5</td><td>0.215</td><td>0.603</td><td>0.468</td><td>0.417</td><td>0.272</td><td>0.660</td><td>0.466</td><td>0.450</td><td>0.323</td><td>0.757</td><td>0.508</td><td>0.508</td></tr>
+<tr><td>+ FLARE</td><td>0.230</td><td>0.648</td><td>0.498</td><td>0.446</td><td>0.380</td><td>0.767</td><td>0.562</td><td>0.553</td><td>0.459</td><td>0.837</td><td>0.682</td><td>0.646</td></tr>
+<tr><td><strong>+ DUST</strong></td><td><strong>0.295</strong></td><td><strong>0.760</strong></td><td><strong>0.510</strong></td><td><strong>0.501</strong></td><td><strong>0.423</strong></td><td><strong>0.807</strong></td><td><strong>0.581</strong></td><td><strong>0.585</strong></td><td><strong>0.483</strong></td><td><strong>0.863</strong></td><td><strong>0.686</strong></td><td><strong>0.663</strong></td></tr>
+</table>
+</div>
+<p>RoboCasa results show that DUST is higher than FLARE on three data scales: 100/300/1000 demos. Especially in the 100 demos scenario, the average success rate of DUST is 0.501, which is 0.084 higher than GR00T-N1.5's 0.417, and 0.055 higher than FLARE's 0.446, indicating that explicit dual-stream world modeling is more helpful for low data volumes.</p>
+<div class="scroll">
+<table>
+<tr><th>GR-1</th><th colspan="3">300 demos</th><th colspan="3">1000 demos</th></tr>
+<tr><th>Method</th><th>PnP</th><th>Art.</th><th>Avg.</th><th>PnP</th><th>Art.</th><th>Avg.</th></tr>
+<tr><td>GR00T-N1.5</td><td>0.176</td><td>0.283</td><td>0.203</td><td>0.307</td><td>0.310</td><td>0.308</td></tr>
+<tr><td>+ FLARE</td><td>0.340</td><td>0.330</td><td>0.337</td><td>0.393</td><td>0.324</td><td>0.363</td></tr>
+<tr><td><strong>+ DUST</strong></td><td><strong>0.358</strong></td><td><strong>0.367</strong></td><td><strong>0.360</strong></td><td><strong>0.422</strong></td><td><strong>0.413</strong></td><td><strong>0.420</strong></td></tr>
+</table>
+</div>
+<p>GR-1 is a higher-dimensional humanoid manipulation scenario with an action space of 29 DoF. DUST has an average success rate of 0.420 in 1000 demos, which is higher than FLARE's 0.363. The paper emphasizes that GR-1 training is sensitive to batch size and requires larger-scale training. <span class="appendix-ref">Appendix A.2/A.3</span>. </p>
+<div class="figure">
+<img alt="Real-world task 1" src="figures/x6.png"/>
+<img alt="Real-world task 2" src="figures/x7.png"/>
+<img alt="Real-world task 3" src="figures/x8.png"/>
+<img alt="Real-world task 4" src="figures/x9.png"/>
+<div class="caption"><strong>Figure 4.</strong> Four pick-and-place tasks from real Franka Research 3. Each task has four types of objects: cup, doll, cube, and sponge.</div>
+</div>
+<table>
+<tr><th>Real Franka</th><th>Task 1</th><th>Task 2</th><th>Task 3</th><th>Task 4</th><th>Avg.</th></tr>
+<tr><td>GR00T-N1.5</td><td>0.583</td><td>0.750</td><td>0.500</td><td>0.354</td><td>0.547</td></tr>
+<tr><td>+ FLARE</td><td>0.625</td><td>0.729</td><td>0.500</td><td>0.375</td><td>0.557</td></tr>
+<tr><td><strong>+ DUST</strong></td><td><strong>0.833</strong></td><td><strong>0.792</strong></td><td><strong>0.625</strong></td><td><strong>0.458</strong></td><td><strong>0.677</strong></td></tr>
+</table>
+<p>The real machine experiment uses 7-DoF Franka Research 3, two ZED cameras, one wrist camera and one side-view camera <span class="appendix-ref">Appendix A.4/Figure 7</span>. The training data is 60 teleoperation demonstrations for each task. Each object-task configuration is evaluated 6 times, with a total of 24 trials per task; if the object partially enters the target container but the center of gravity is outside, 0.5 success is counted.</p>
+<div class="figure">
+<img alt="Qualitative rollout comparison" src="figures/x10.png"/>
+<div class="caption"><strong>Figure 5.</strong> Qualitative comparison of real pick-and-place: GR00T-N1.5 can get closer to the cup but fails to align the grippers; DUST adjusts the gripper position through internal future state prediction.</div>
+</div>
+<h3>5.3 BridgeV2 action-free video pre-training</h3>
+<p>DUST's dual-stream structure naturally supports training the world-modeling stream using only video. In the pre-training stage, the video part of BridgeV2 is used, only $\mathcal{L}_{\mathrm{WM}}$ is optimized, and action tokens are randomly initialized; then finetune is performed on RoboCasa 100 demos.</p>
+<table>
+<tr><th>Method</th><th>Video Pretrain</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th></tr>
+<tr><td>GR00T-N1.5</td><td>No</td><td>0.215</td><td>0.603</td><td>0.468</td><td>0.417</td></tr>
+<tr><td>DUST</td><td>No</td><td>0.295</td><td>0.760</td><td>0.510</td><td>0.501</td></tr>
+<tr><td><strong>DUST</strong></td><td><strong>Yes</strong></td><td><strong>0.423</strong></td><td><strong>0.807</strong></td><td><strong>0.581</strong></td><td><strong>0.585</strong></td></tr>
+</table>
+<p>This experiment is the most scalable part of the paper: if action-free human/robot videos can only train future visual modeling and then migrate to a small number of robot demos with actions, then DUST is not only a strategic transformation, but also can be used as an interface for large-scale VLA pre-training.</p>
+<h3>5.4 Test-time scaling: only give vision more steps</h3>
+<table>
+<tr><th>$N_o$</th><th>RoboCasa 100 Avg.</th><th>RoboCasa 1000 Avg.</th><th>GR-1 1000 Avg.</th></tr>
+<tr><td>4</td><td>0.501</td><td>0.663</td><td>0.420</td></tr>
+<tr><td>16</td><td>0.504</td><td>0.668</td><td>0.451</td></tr>
+<tr><td>32</td><td>0.508</td><td>0.686</td><td><strong>0.471</strong></td></tr>
+<tr><td>64</td><td><strong>0.518</strong></td><td><strong>0.697</strong></td><td>0.450</td></tr>
+</table>
+<p>Asynchronous sampling is effective overall: RoboCasa 100 demos from 0.501 to 0.518, RoboCasa 1000 demos from 0.663 to 0.697, and GR-1 1000 demos reaching 0.471 at $N_o=32$. The paper explains that the high-dimensional structure of visual embedding requires fine-grained refinement.</p>
+<p>The appendix makes a key comparison: if $N_A=N_o$ is added simultaneously, performance will decrease. For example, the average success rate of RoboCasa 100 demos dropped from 0.501 to 0.425/0.424/0.397; GR-1 also dropped from 0.420 to 0.416/0.406/0.401 <span class="appendix-ref">Appendix A.1/Table 7</span>. This illustrates that the benefit is not "more diffusion steps" per se, but "more steps for modes that require more steps".</p>
+<h3>5.5 Ablation experiment: both structure and training are indispensable</h3>
+<table>
+<tr><th>Arch.</th><th>Noise</th><th>PnP</th><th>OP/CL</th><th>Other</th><th>Avg.</th></tr>
+<tr><td>DiT</td><td>Joint</td><td>0.240</td><td>0.633</td><td>0.340</td><td>0.380</td></tr>
+<tr><td>DiT</td><td>Decoupled</td><td>0.248</td><td>0.613</td><td>0.454</td><td>0.425</td></tr>
+<tr><td>MMDiT</td><td>Joint</td><td>0.160</td><td>0.677</td><td>0.382</td><td>0.382</td></tr>
+<tr><td><strong>MMDiT</strong></td><td><strong>Decoupled</strong></td><td><strong>0.295</strong></td><td><strong>0.760</strong></td><td><strong>0.510</strong></td><td><strong>0.501</strong></td></tr>
+</table>
+<p>The ablation conclusion is very clean: only doing decoupled noising but without dual-stream MMDiT, the average success rate is 0.425; doing only MMDiT but using joint noise, the average success rate is 0.382; the two together only reach 0.501.</p>
+<div class="grid">
+<div class="mini">
+<h4>MMDiT depth</h4>
+<p>The total number of layers is fixed at 16, and when the number of MMDiT layers is 6/10/12/14, the average success rate is 0.474/0.483/0.501/0.493 respectively. 12 MMDiT + 4 DiT is optimal.</p>
+</div>
+<div class="mini">
+<h4>$\lambda_{\mathrm{WM}}$</h4>
+<p>The average success rate for $\lambda_{\mathrm{WM}}=0.2/0.5/1.0/2.0$ is 0.343/0.489/0.501/0.496. Action and world model goals need to be relatively balanced.</p>
+</div>
+</div>
+</section>
+<section id="reproduce">
+<h2>6. Reproducible auditing</h2>
+<h3>6.1 Data and evaluation tasks</h3>
+<table>
+<tr><th>Benchmark</th><th>Tasks and data</th><th>observation/action space</th><th>Training scale</th></tr>
+<tr><td>RoboCasa</td><td>24 kitchen manipulation tasks: 8 pick-and-place, 6 open/close, 10 miscellaneous; data generated in MuJoCo by MimicGen.</td><td>3 views: left, right, wrist; Franka Panda 7 DoF including end position/rotation and binary gripper.</td><td>100, 300, 1000 demos per task; global batch size 32, 2 A100; 60k/420k/600k steps.</td></tr>
+<tr><td>GR-1</td><td>24 tabletop tasks: 16 pick-and-place, 8 articulated tasks; data from GR00T-N1.5/DexMimicGen.</td><td>Single head egocentric view; GR-1 humanoid + Fourier dexterous hands, total 29 DoF.</td><td>300, 1000 demos per task; global batch size 960, 8 H200, 60k steps.</td></tr>
+<tr><td>Real Franka</td><td>4 pick-and-place command templates, each containing Teddy Bear, Blue Cube, Blue Cup, and Sponge.</td><td>7-DoF Franka Research 3, joint position + binary gripper; two ZED cameras.</td><td>60 teleop demos per task; global batch size 32, 2 A100, 60k steps.</td></tr>
+<tr><td>BridgeV2 transfer</td><td>Only the action-free video component of BridgeV2 is used for pre-training.</td><td>Only optimize the world-modeling loss of future observation embedding.</td><td>2 A100, batch size 32, 120k pretrain steps; then finetune 60k steps on RoboCasa 100 demos.</td></tr>
+</table>
+<h3>6.2 Optimization and model details</h3>
+<ul>
+<li>AdamW, base learning rate $1e-4$, $\beta_1=0.95$, $\beta_2=0.999$, $\epsilon=1e-8$. </li>
+<li>Weight decay $1e-5$, except bias and LayerNorm weights.</li>
+<li>cosine decay schedule, 5% warmup. </li>
+<li>vision token encoder: 3-layer MLP + 2D sinusoidal positional encoding + SiLU; vision decoder: 2-layer MLP + ReLU. </li>
+<li>The action token uses the linear encoder-decoder pair in the GR00T-N1.5 original code, plus 1D sinusoidal positional encoding.</li>
+<li>Since FLARE baseline has no official code/checkpoint, the author reproduces FLARE loss and uses the same SIGLIP-2 future embedding target as DUST.</li>
+</ul>
+<h3>6.3 Recurrence risk points</h3>
+<table>
+<tr><th>Risk point</th><th>Why is it important</th><th>Mitigation information given in the paper</th></tr>
+<tr><td>GR-1 batch size sensitive</td><td>The author clearly stated that GR-1 requires large-scale training to have meaningful results; small batch reproducibility may drop a lot.</td><td>global batch size 960, 8 H200, 60k steps. </td></tr>
+<tr><td>FLARE baseline unofficial implementation</td><td>The results depend on the alignment module and target choice reproduced by the author and cannot be equivalent to the official FLARE.</td><td>The author explains that the same VLM backbone and future embedding target are used, and the alignment module is small MLP.</td></tr>
+<tr><td>Real machine evaluation of randomness</td><td>The initial position, orientation and contact dynamics of objects in real desktop scenes have a great impact.</td><td>The authors fixed varied configurations in advance; each object-task was configured 6 times, with a half-success score of 0.5.</td></tr>
+<tr><td>Code availability</td><td>The source code of the paper contains LaTeX and charts, but the official GitHub is not marked on the arXiv page.</td><td>To reproduce, you need to rely on the GR00T-N1.5 codebase and the super-parameters in the appendix of the paper to implement DUST by yourself.</td></tr>
+</table>
+<h3>6.4 Minimum recurrence route</h3>
+<ol>
+<li>Boot from the GR00T-N1.5 codebase, freeze the Eagle-2 VLM, and confirm that the original diffusion action expert can be trained.</li>
+<li>Add future image embedding target: extract the SIGLIP-2/Eagle-2 image tokens of $o_{t+k}^v$, and do $2\times2$ average pooling to 64 tokens.</li>
+<li>Implement the encoder/decoder of action stream and vision stream, as well as dual AdaLN timestep conditioning in MMDiT block.</li>
+<li>During training, $\tau_A, \tau_o$ is independently sampled to construct noisy action and noisy future embedding respectively.</li>
+<li>To optimize $\mathcal{L}_A+\lambda_{\mathrm{WM}}\mathcal{L}_{\mathrm{WM}}$, use $\lambda_{\mathrm{WM}}=1.0$ first, and the main experiment defaults to $N_A=N_o=4$.</li>
+<li>For replication experiments, run RoboCasa 100 demos first: the cost is the lowest, and the ablation and main results are the most distinguishable here.</li>
+<li>Finally evaluate asynchronous sampling, fix $N_A$ to 4, try $N_o=16, 32, 64$; do not increase $N_A$ synchronously.</li>
+</ol>
+</section>
+<section id="discussion">
+<h2>7. Analysis, Limitations and Boundaries</h2>
+<h3>7.1 The most valuable part of this paper</h3>
+<p>What I think is most valuable is that it breaks down "world model assisted action generation" into a very clear engineering and modeling problem: action and future vision should indeed constrain each other, but they should not be forced to use the same diffusion timeline. The four things of DUST's dual-stream structure, independent noise, decoupling loss and asynchronous reasoning interlock with each other to form a more complete design than "adding auxiliary loss".</p>
+<p>Another highlight is the BridgeV2 action-free video pre-training experiment. Although the scale is not huge, it shows an attractive path: future vision streams can learn environmental dynamics from motionless videos and then transfer them into policies on a small amount of robot action data.</p>
+<h3>7.2 Why the results hold up</h3>
+<ul>
+<li><strong>Across three settings: </strong>One-arm kitchen RoboCasa, humanoid GR-1, real Franka, all have buffs.</li>
+<li><strong>baseline is reasonable: </strong>GR00T-N1.5 is a strong diffusion VLA baseline; FLARE stands for implicit world-modeling baseline, and the author tries to use the same VLM and target alignment.</li>
+<li><strong>Ablation points clearly: </strong>MMDiT/decoupled noising alone is not enough, the combination of the two is the best; $\lambda_{\mathrm{WM}}$ and MMDiT depth also give evidence of stability.</li>
+<li><strong>Appendix to verify asynchronous sampling: </strong>The number of steps will decrease when the two modalities are increased simultaneously, supporting the explanation that "vision requires more steps but movement does not".</li>
+</ul>
+<h3>7.3 Limitations and questions that readers should retain</h3>
+<table>
+<tr><th>question</th><th>specific impact</th></tr>
+<tr><td>The future visual goal is still embedding, not explainable physical state</td><td>SIGLIP-2/Eagle-2 embedding is closer to semantics than pixels, but whether it truly captures controllable physical variables still requires more detailed analysis.</td></tr>
+<tr><td>Real machine tasks have a narrow scope</td><td>The four pick-and-place templates demonstrate effectiveness beyond sim-to-real, but are insufficient to demonstrate robustness on long-term, multi-stage, complex tasks.</td></tr>
+<tr><td>Computational cost is higher</td><td>GR-1 uses 8 H200, batch size 960; RoboCasa 1000 demos requires 600k steps. DUST is not a lightweight small model modification.</td></tr>
+<tr><td>No official code link seen</td><td>The appendix gives pseudo code and super parameters, but the real reproducibility still needs to deal with the GR00T-N1.5/Eagle-2 interface, MMDiT modification, and data pipeline.</td></tr>
+<tr><td>Asynchronous sampling increases inference overhead</td><td>The success rate is higher when $N_o=64$ is used, but the inference time will be increased; the actual robot closed-loop frequency may limit the number of available steps.</td></tr>
+</table>
+<h3>7.4 Questions that can be asked in group meetings</h3>
+<ol>
+<li>Why is MMDiT + joint noise worse than DiT + decoupled noise? Is it because the two-stream structure is more difficult to optimize without independent time steps?</li>
+<li>Is it optimal to choose SIGLIP-2/Eagle-2 as future embedding target? What happens if I switch to DINOv2, V-JEPA or robot-specific encoder?</li>
+<li>BridgeV2 pre-training only optimizes $\mathcal{L}_{\mathrm{WM}}$, and action tokens are randomly initialized; can additional latent action or inverse dynamics proxy be added?</li>
+<li>In asynchronous sampling, the action token remains unchanged in the inner loop, but the advancement of $\tau_A$ has little room for implementation details in the paper formula and pseudocode expression; you need to be careful how to synchronize the condition timestep in the actual code.</li>
+<li>Future state prediction is an auxiliary training goal, but does the final execution of inference only rely on the action chunk or does it also use future embedding for closed-loop checking? The paper mainly focuses on the former, and the latter may be the next expansion.</li>
+</ol>
+</section>
+<section id="audit">
+<h2>Attachment: This report covers inspections</h2>
+<div class="audit-card">
+<p><span class="pass">Covered: </span>Abstract, Introduction, Related Works, Preliminaries, Methods, Experiments, Conclusion, and appendices describing synchronous sampling ablation, implementation details, training hyperparameters, benchmark details, real machine settings, pseudocode, and rollout diagrams.</p>
+<p><span class="pass">Chart processing: </span>The PNG image rendered using arXiv HTML is saved in <code>figures/</code>; The key quantification table has been rebuilt as an HTML table.</p>
+<p><span class="warn">Residual risk: </span>The arXiv page is not marked with the official code repository; the reproducibility route in the report is based on the paper appendix and source code, and is not equivalent to verified code operation.</p>
+</div>
+</section>
+</main>
+</body>
+</html>
