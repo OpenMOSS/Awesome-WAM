@@ -413,7 +413,7 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 | Paper | Released | Links |
 |-------|----------|-------|
-| **QT-Opt** - *QT-Opt: Scalable Deep Reinforcement Learning for Vision-Based Robotic Manipulation* | 2018-06 | [📄 Paper](https://arxiv.org/pdf/1806.10293) · [🌍&nbsp;Web](https://sites.google.com/view/qtopt) |
+| **QT-Opt** - *QT-Opt: Scalable Deep Reinforcement Learning for Vision-Based Robotic Manipulation* | 2018-06 | [📄 Paper](https://arxiv.org/pdf/1806.10293) · [🌍&nbsp;Web](https://sites.google.com/view/qtopt)  · [📦&nbsp;Dataset](https://huggingface.co/datasets/jxu124/OpenX-Embodiment/tree/main/kuka) |
 | **MIME** - *Multiple Interactions Made Easy (MIME): Large Scale Demonstrations Data for Imitation* | 2018-10 | [📄 Paper](https://arxiv.org/pdf/1810.07121) · [🌍&nbsp;Web](https://sites.google.com/view/mimedataset) · [📦&nbsp;Dataset](https://sites.google.com/view/mimedataset/dataset) |
 | **RoboNet** - *RoboNet: Large-Scale Multi-Robot Learning* | 2019-10 | [📄 Paper](https://arxiv.org/pdf/1910.11215) · [🌍&nbsp;Web](https://www.robonet.wiki/) · [📦&nbsp;Dataset](https://github.com/SudeepDasari/RoboNet/wiki/Getting-Started) · [💻&nbsp;Code](https://github.com/SudeepDasari/RoboNet) |
 | **RoboTurk** - *Scaling Robot Supervision to Hundreds of Hours with RoboTurk: Robotic Manipulation Dataset through Human Reasoning and Dexterity* | 2019-11 | [📄 Paper](https://arxiv.org/pdf/1911.04052) · [🌍&nbsp;Web](https://roboturk.stanford.edu/realrobotdataset.html) · [📦&nbsp;Dataset](https://roboturk.stanford.edu/) |
