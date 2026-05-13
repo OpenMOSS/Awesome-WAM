@@ -2,7 +2,7 @@
 
 # World Action Models: The Next Frontier in Embodied AI
 
-[![arXiv](https://img.shields.io/badge/arXiv-2605.12090-b31b1b.svg)](https://arxiv.org/abs/2605.12090) [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Model-FFD21E)](https://huggingface.co/papers/2605.12090) [![ProjectPage](https://img.shields.io/badge/Website-Link-blue)](https://openmoss.github.io/Awesome-WAM/)
+[![arXiv](https://img.shields.io/badge/arXiv-2605.12090-b31b1b.svg)](https://arxiv.org/abs/2605.12090) [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-Paper-FFD21E)](https://huggingface.co/papers/2605.12090) [![ProjectPage](https://img.shields.io/badge/Website-Link-blue)](https://openmoss.github.io/Awesome-WAM/)
 
 <p align="center">
   <a href="https://sinwang20.github.io/">Siyin Wang</a></strong><sup>1,2,*,‡</sup>,  
