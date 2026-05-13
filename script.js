@@ -162,15 +162,25 @@ function cleanPaperName(name) {
 
 function labelFromLink(rawLabel, url) {
   const label = rawLabel.toLowerCase();
-  if (label.includes("summary")) return "Blog";
+  if (label.includes("summary") || url.includes("htmlpreview.github.io") || /\/report\//i.test(url)) return "Blog";
   if (label.includes("code") || url.includes("github.com")) return "Code";
   if (label.includes("model") || url.includes("huggingface.co")) return "Model";
   if (label.includes("webpage") || label.includes("website")) return "Project";
   if (url.includes("arxiv.org")) return "arXiv";
+  if (
+    url.includes("openreview.net") ||
+    url.includes("ieeexplore.ieee.org") ||
+    url.includes("openaccess.thecvf.com") ||
+    url.includes("proceedings.mlr.press") ||
+    url.includes("roboticsproceedings.org")
+  ) {
+    return "Paper";
+  }
   return stripMarkdown(rawLabel) || "Link";
 }
 
-function inferCategory(branch, lane, tags) {
+function inferCategory(branch, lane, tags, categoryHint = "") {
+  if (categoryHint === "cascaded" || categoryHint === "joint") return categoryHint;
   const haystack = `${branch} ${lane} ${tags.join(" ")}`.toLowerCase();
   if (haystack.includes("joint world-action-model")) return "joint";
   if (haystack.includes("cascaded world-action-model")) return "cascaded";
@@ -183,13 +193,10 @@ function normalizeArxivUrl(url) {
 
 function normalizeLibraryUrl(url, rawLabel, arxiv) {
   const label = rawLabel.toLowerCase();
-  if (label.includes("summary") && arxiv) {
-    return `./report/${arxiv}/index.en.html`;
-  }
-  const reportMatch = url.match(/github\.com\/OpenMOSS\/WAM-survey\/blob\/main\/Report\/([^/]+)\/index\.html/i);
+  const reportMatch = url.match(/github\.com\/OpenMOSS\/Awesome-WAM\/blob\/main\/Report\/([^/]+)\/index\.html/i);
   if (reportMatch) {
     const slug = decodeURIComponent(reportMatch[1]);
-    return arxiv ? `./report/${arxiv}/index.en.html` : `./report/${slug}/index.en.html`;
+    return `./report/${slug}/index.en.html`;
   }
   return url;
 }
@@ -198,7 +205,51 @@ function keepLibraryPaper(paper) {
   return paper.category === "cascaded" || paper.category === "joint";
 }
 
-function parsePaperBlock(block, branch, lane) {
+function isReadmeBlogLink(rawLabel, url) {
+  const label = rawLabel.toLowerCase();
+  return (
+    label.includes("blog") ||
+    label.includes("summary") ||
+    url.includes("htmlpreview.github.io") ||
+    /github\.com\/OpenMOSS\/Awesome-WAM\/blob\/main\/(?:Report|report|temp-check)\//i.test(url)
+  );
+}
+
+function extractTags(block) {
+  const tagsLine = block.match(/\*\*Tags:\*\*\s*(.+)/);
+  const tags = tagsLine
+    ? tagsLine[1].split(/\s+-\s+/).map((tag) => tag.trim()).filter(Boolean)
+    : [];
+
+  [...block.matchAll(/img\.shields\.io\/badge\/([^-)\s]+(?:--[^-)\s]+)*)-[0-9a-f]{3,6}/gi)].forEach((match) => {
+    const tag = decodeURIComponent(match[1]).replace(/--/g, " ").trim();
+    if (tag && !tags.includes(tag)) tags.push(tag);
+  });
+
+  return tags;
+}
+
+function extractLinks(block, arxiv) {
+  const links = [];
+  if (arxiv) {
+    links.push({ label: "arXiv", url: `https://arxiv.org/abs/${arxiv}` });
+  }
+
+  [...block.matchAll(/\[\[([^\]]+)]\((https?:\/\/[^)]+)\)\s*]/g)].forEach((match) => {
+    if (isReadmeBlogLink(match[1], match[2])) return;
+    const url = normalizeLibraryUrl(normalizeArxivUrl(match[2].trim()), match[1], arxiv);
+    if (links.some((link) => link.url === url)) return;
+    links.push({ label: labelFromLink(match[1], url), url });
+  });
+
+  if (arxiv) {
+    links.push({ label: "Blog", url: `./report/${arxiv}/index.en.html` });
+  }
+
+  return links;
+}
+
+function parsePaperBlock(block, branch, lane, categoryHint = "") {
   const heading = block.match(/^####\s+(.+)$/m)?.[1]?.trim();
   if (!heading) return null;
 
@@ -208,21 +259,8 @@ function parsePaperBlock(block, branch, lane) {
   const name = cleanPaperName(stripMarkdown(rawName));
   const arxivMatch = block.match(/https:\/\/arxiv\.org\/(?:pdf|abs)\/([0-9.]+(?:v\d+)?)/i);
   const arxiv = arxivMatch?.[1] ?? "";
-  const tagsLine = block.match(/\*\*Tags:\*\*\s*(.+)/);
-  const tags = tagsLine
-    ? tagsLine[1].split(/\s+-\s+/).map((tag) => tag.trim()).filter(Boolean)
-    : [];
-
-  const links = [];
-  if (arxiv) {
-    links.push({ label: "arXiv", url: `https://arxiv.org/abs/${arxiv}` });
-  }
-
-  [...block.matchAll(/\[\[([^\]]+)]\((https?:\/\/[^)]+)\)\s*]/g)].forEach((match) => {
-    const url = normalizeLibraryUrl(normalizeArxivUrl(match[2].trim()), match[1], arxiv);
-    if (links.some((link) => link.url === url)) return;
-    links.push({ label: labelFromLink(match[1], url), url });
-  });
+  const tags = extractTags(block);
+  const links = extractLinks(block, arxiv);
 
   return {
     name,
@@ -231,7 +269,33 @@ function parsePaperBlock(block, branch, lane) {
     lane,
     tags,
     arxiv,
-    category: inferCategory(branch, lane, tags),
+    category: inferCategory(branch, lane, tags, categoryHint),
+    links,
+  };
+}
+
+function parseListPaperBlock(block, branch, lane, categoryHint = "") {
+  const firstLine = block.split(/\r?\n/).find((line) => line.trim()) || "";
+  const itemMatch = firstLine.match(/^-\s+\*\*([^*]+)\*\*:\s*(.+)$/);
+  if (!itemMatch) return null;
+
+  const name = cleanPaperName(stripMarkdown(itemMatch[1]));
+  const rest = itemMatch[2].trim();
+  const titleMatch = rest.match(/["“]([^"”]+)["”]/);
+  const title = titleMatch ? titleMatch[1].trim() : stripMarkdown(rest.split(/!\[]|\[\[/)[0]).replace(/[,.]\s*$/, "");
+  const arxivMatch = block.match(/https:\/\/arxiv\.org\/(?:pdf|abs)\/([0-9.]+(?:v\d+)?)/i);
+  const arxiv = arxivMatch?.[1] ?? "";
+  const tags = extractTags(block);
+  const links = extractLinks(block, arxiv);
+
+  return {
+    name,
+    title,
+    branch,
+    lane,
+    tags,
+    arxiv,
+    category: inferCategory(branch, lane, tags, categoryHint),
     links,
   };
 }
@@ -241,29 +305,54 @@ function parseReadme(markdown) {
   const papers = [];
   let branch = "";
   let lane = "";
+  let categoryHint = "";
 
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
     if (/^##\s+/.test(line) && !/^###/.test(line)) {
       branch = cleanHeading(line);
       lane = "";
+      categoryHint = "";
       continue;
     }
     if (/^###\s+/.test(line) && !/^####/.test(line)) {
-      lane = cleanHeading(line);
+      const heading = cleanHeading(line);
+      if (/cascaded world-action-model/i.test(heading)) {
+        categoryHint = "cascaded";
+        lane = heading;
+      } else if (/joint world-action-model/i.test(heading)) {
+        categoryHint = "joint";
+        lane = heading;
+      } else {
+        lane = categoryHint ? `${categoryHint === "joint" ? "Joint World-Action-Model" : "Cascaded World-Action-Model"} / ${heading}` : heading;
+      }
       continue;
     }
-    if (!/^####\s+/.test(line)) continue;
 
-    const block = [line];
-    let j = i + 1;
-    while (j < lines.length && !/^#{2,4}\s+/.test(lines[j])) {
-      block.push(lines[j]);
-      j += 1;
+    if (/^####\s+/.test(line)) {
+      const block = [line];
+      let j = i + 1;
+      while (j < lines.length && !/^#{2,4}\s+/.test(lines[j])) {
+        block.push(lines[j]);
+        j += 1;
+      }
+      const paper = parsePaperBlock(block.join("\n"), branch, lane, categoryHint);
+      if (paper) papers.push(paper);
+      i = j - 1;
+      continue;
     }
-    const paper = parsePaperBlock(block.join("\n"), branch, lane);
-    if (paper) papers.push(paper);
-    i = j - 1;
+
+    if (/^-\s+\*\*[^*]+\*\*:\s+/.test(line)) {
+      const block = [line];
+      let j = i + 1;
+      while (j < lines.length && !/^#{2,4}\s+/.test(lines[j]) && !/^-\s+\*\*[^*]+\*\*:\s+/.test(lines[j])) {
+        block.push(lines[j]);
+        j += 1;
+      }
+      const paper = parseListPaperBlock(block.join("\n"), branch, lane, categoryHint);
+      if (paper) papers.push(paper);
+      i = j - 1;
+    }
   }
 
   return papers;
