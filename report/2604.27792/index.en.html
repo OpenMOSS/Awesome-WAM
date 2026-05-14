@@ -8,7 +8,10 @@
     window.MathJax = {
       tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        macros: {
+          bm: ['\\boldsymbol{#1}', 1]
+        }
       },
       svg: { fontCache: 'global' }
     };
