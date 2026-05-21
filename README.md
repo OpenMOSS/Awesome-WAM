@@ -38,7 +38,7 @@
 This repository accompanies our survey on **World Action Models (WAMs)** — the emerging paradigm that unifies predictive world modeling with action generation for embodied AI. We will keep this repo continuously updated as the field evolves.
 
 - 📄 The **first systematic WAM survey**, covering architecture taxonomy (Cascaded & Joint WAMs), training data, evaluation protocols, and world models for VLA learning.
-- 📖 **Reading blogs included**: we also provide a concise, structured summary blog for each paper to help you quickly grasp the key ideas, architecture, and contributions. The summarization skill used to generate them is also open-sourced in this repository.
+- 📖 **Reading blogs included**: we also provide a concise, structured summary blog for each paper to help you quickly grasp the key ideas, architecture, and contributions. The summarization skill used to generate them is also open-sourced in this repository (Check [Paper2Blog](https://github.com/279object/phd-paper-reading-skill)). 
 - 🤝 Community-driven: found a missing paper or have a suggestion? Feel free to open an issue or submit a pull request!
 
 
@@ -48,6 +48,8 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 
 ## 🔔 News
+
+- **[2026-05-21]**  Updated the link to the paper-reading skill.
 
 - **[2026-05-13]**  Initial release of the survey paper and repository.
 
