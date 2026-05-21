@@ -187,10 +187,8 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **MWM**: "Mask World Model: Predicting What Matters for Robust Robot Policy Learning", arXiv 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
   [[📄 Paper](https://arxiv.org/pdf/2604.19683)] [[💻 Code](https://github.com/LYFCLOUDFAN/mask-world-model)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2604.19683/index.html)]
 
-
-
-
-
+- **[NEW 26/05/21] WEMFL**: "World-Ego Modeling for Long-Horizon Evolution in Hybrid Embodied Tasks", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
+  [[📄 Paper](https://arxiv.org/pdf/2605.19957)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2605.19957/index.html)]
 
 ### Joint World-Action-Model
 ### Autoregressive Generation
