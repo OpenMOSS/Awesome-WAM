@@ -67,6 +67,7 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
   - [Evaluation](#evaluation)
 - [Training Data](#training-data)
 - [Evaluation](#evaluation)
+- [Safety](#safety)
 
 ## Tag Legend
 ### World Action Model tags
@@ -627,6 +628,17 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 | **RoboArena** - *RoboArena: Distributed Real-World Evaluation of Generalist Robot Policies* | 2025-06 | [📄 Paper](https://arxiv.org/pdf/2506.18123) · [🌍&nbsp;Web](https://robo-arena.github.io/) · [💻&nbsp;Code](https://github.com/robo-arena/roboarena) |
 | **RoboChallenge** - *RoboChallenge: Large-Scale Real-Robot Evaluation of Embodied Policies* | 2025-10 | [📄 Paper](https://arxiv.org/pdf/2510.17950) · [🌍&nbsp;Web](https://robochallenge.ai/)· [💻&nbsp;Code](https://github.com/RoboChallenge) |
 | **ManipArena** - *ManipArena: Comprehensive Real-World Evaluation of Reasoning-Oriented Generalist Robot Manipulation* | 2026-03 | [📄 Paper](https://arxiv.org/pdf/2603.28545) · [🌍&nbsp;Web](https://maniparena.x2robot.com/) · [💻&nbsp;Code](https://github.com/maniparena/maniparena-repo) |
+
+
+
+## Safety
+
+Safety considerations across the embodied AI pipeline that World Action Models inherit: perception robustness, cognitive jailbreak, planning manipulation, action-level adversarial control, and agentic cascading risks.
+
+- **Embodied AI Safety Survey**: "Safety in Embodied AI: A Survey of Risks, Attacks, and Defenses", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2605.02900)] [[🌍 Webpage](https://x-zheng16.github.io/Awesome-Embodied-AI-Safety/)] [[💻 Code](https://github.com/x-zheng16/Awesome-Embodied-AI-Safety)] [[🌟 Blog](https://github.com/x-zheng16/Awesome-Embodied-AI-Safety#-news)]
+
+  First unified safety framework for embodied AI, covering 500+ papers across 5 layers (Perception, Cognition, Planning, Action and Interaction, Agentic) and 18 subcategories. Capability-Risk Duality: each layer of the embodied pipeline represents a capability expansion that introduces corresponding new vulnerabilities; inner-layer vulnerabilities cascade to outer layers. Relevant to WAM design as it characterizes the threat surface that joint video-action generators, autoregressive predictors, and diffusion planners inherit at every layer they integrate.
 
 
 
