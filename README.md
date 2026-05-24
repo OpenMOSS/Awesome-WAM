@@ -635,7 +635,7 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 ## 🙏 Acknowledgements
 
-We thank the [AllenAI VLA Evaluation Harness](https://allenai.github.io/vla-evaluation-harness/) team for curating and maintaining the VLA leaderboard data that supports our leaderboard. 
+We thank the [AllenAI VLA Evaluation Harness](https://github.com/allenai/vla-evaluation-harness) team for curating and maintaining the VLA leaderboard data that supports our leaderboard. 
 
 
 ## 👋 Citation
