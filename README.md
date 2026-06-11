@@ -599,6 +599,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 ---
 
+- **SIMPLE**: "SIMPLE: Simulation-Based Policy Learning and Evaluation for Humanoid Loco-manipulation", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2606.08278)]
+
 #### 🤖 Action Policy — Mobile Manipulation
 
 | Paper | Released | Links |
