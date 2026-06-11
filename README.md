@@ -407,6 +407,8 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **dWorldEval**: "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model", arXiv 2026.
   [[📄 Paper](https://arxiv.org/pdf/2604.22152)] [[🌍 Webpage](https://dworldeval.github.io/)]
 
+- **iMaC**: "iMaC: Translating Actions into Motion and Contact Images for Embodied World Models", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2606.09813)]
 
 ### Training Data
 
