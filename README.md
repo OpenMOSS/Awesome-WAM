@@ -410,6 +410,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **WoVR**: "WoVR: World Models as Reliable Simulators for Post-Training VLA Policies with RL", arXiv 2026.
   [[📄 Paper](https://arxiv.org/pdf/2602.13977)] [[💻 Code](https://github.com/RLinf/RLinf)] [[🤗 Model](https://huggingface.co/collections/RLinf/wovr)]
 
+- **RAAAF**: "Reward as An Agent for Embodied World Models", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2606.19990)]
+
 ### World Model for Evaluation
 
 - **WorldEval**: "WorldEval: World Model as Real-World Robot Policies Evaluator", arXiv 2025.
