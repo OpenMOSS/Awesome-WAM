@@ -236,6 +236,8 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **VLA-JEPA**: "VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model", arXiv 2026. ![](https://img.shields.io/badge/Predictive--Latent-c026d3)
   [[📄 Paper](https://arxiv.org/pdf/2602.10098)] [[🌍 Webpage](https://ginwind.github.io/VLA-JEPA/)] [[💻 Code](https://github.com/ginwind/VLA-JEPA)] [[🤗 Model](https://huggingface.co/ginwind/VLA-JEPA)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2602.10098/index.html)]
 
+- **FutureNav**: "FutureNav: Unified World-Action Modeling for Vision-and-Language Navigation", arXiv 2026. ![](https://img.shields.io/badge/Predictive--Latent-c026d3)
+  [[📄 Paper](https://arxiv.org/pdf/2606.30367)]
 
 ### Diffusion-based Generation
 
