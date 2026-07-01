@@ -106,6 +106,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **C$^3$ache**: "C$^3$ache: Accelerating World Action Models with Cross Inference Chunk Cache", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
   [[📄 Paper](https://arxiv.org/pdf/2606.08962)]
 
+- **DVG-WM**: "DVG-WM: Disentangled Video Generation Enables Efficient Embodied World Model for Robotic Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
+  [[📄 Paper](https://arxiv.org/pdf/2606.32028)]
+
 ## World Action Model
 ### Cascaded World-Action-Model
 
