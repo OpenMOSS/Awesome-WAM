@@ -211,6 +211,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **World Pilot**: "World Pilot: Steering Vision-Language-Action Models with World-Action Priors", arXiv 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
   [[📄 Paper](https://arxiv.org/pdf/2606.12403)]
 
+- **Bridge-WA**: "Bridge-WA: Predicting Where and How the World Changes for Robotic Action", arXiv 2026. ![](https://img.shields.io/badge/Implicit-ea580c)
+  [[📄 Paper](https://arxiv.org/pdf/2607.02195)]
+
 ### Joint World-Action-Model
 ### Autoregressive Generation
 
