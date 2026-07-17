@@ -343,6 +343,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **MemoryWAM**: "MemoryWAM: Efficient World Action Modeling with Persistent Memory", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
   [[📄 Paper](https://arxiv.org/pdf/2606.20562)]
 
+- **AeroAct**: "AeroAct: Action-Centered World-Action Models for Language-Conditioned Quadrotor Flight", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+  [[📄 Paper](https://arxiv.org/pdf/2607.14997)]
+
 ## World Model for VLA
 
 ### World Model for Imitation Learning
