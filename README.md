@@ -481,6 +481,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 ---
 
+- **RoboInter1.5**: "RoboInter1.5: A Holistic Intermediate Representation Suite for Embodied World Modeling and Robotic Manipulation", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2607.18709)]
+
 #### 🖐️ UMI
 
 | Paper | Released | Links |
