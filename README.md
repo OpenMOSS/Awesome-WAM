@@ -581,6 +581,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 ---
 
+- **TTSFW**: "Test-Time Scaling for World Action Models via Zero-Shot Geometric Evaluation", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2607.17454)]
+
 #### 🌐 World Model — Action Plausibility
 
 | Paper | Released | Links |
