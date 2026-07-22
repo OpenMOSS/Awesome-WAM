@@ -343,6 +343,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **MemoryWAM**: "MemoryWAM: Efficient World Action Modeling with Persistent Memory", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
   [[📄 Paper](https://arxiv.org/pdf/2606.20562)]
 
+- **FlowWAM**: "FlowWAM: Optical Flow as a Unified Action Representation for World Action Models", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
+  [[📄 Paper](https://arxiv.org/pdf/2607.13017)]
+
 ## World Model for VLA
 
 ### World Model for Imitation Learning
