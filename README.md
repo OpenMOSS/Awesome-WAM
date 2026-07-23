@@ -590,6 +590,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 ---
 
+- **KineBench**: "KineBench: Benchmarking Embodied World Models via IDM-Free Kinematic Grounding", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2607.19876)]
+
 #### 🤖 Action Policy — General
 
 | Paper | Released | Links |
