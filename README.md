@@ -356,6 +356,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **Ctrl-World**: "Ctrl-World: A Controllable Generative World Model for Robot", ICLR 2026.
   [[📄 Paper](https://openreview.net/forum?id=748bHL2BAv)] [[🌍 Webpage](https://ctrl-world.github.io/)] [[💻 Code](https://github.com/Robert-gyj/Ctrl-World)]
 
+- **WAMEC**: "World Action Models Enable Continual Imitation Learning with Recurrent Generative Replays", arXiv 2026.
+  [[📄 Paper](https://arxiv.org/pdf/2606.27374)]
+
 ### World Model for Reinforcement Learning 
 
 - **PlaNet**: "Learning Latent Dynamics for Planning from Pixels", ICML 2019.
