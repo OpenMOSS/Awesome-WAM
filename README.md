@@ -343,6 +343,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **MemoryWAM**: "MemoryWAM: Efficient World Action Modeling with Persistent Memory", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Cross--Attention-f97316)
   [[📄 Paper](https://arxiv.org/pdf/2606.20562)]
 
+- **LeapBot-WA**: "LeapBot-WA: World-Anchor Action Models via Predictive Latent Alignments", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
+  [[📄 Paper](https://arxiv.org/pdf/2607.23969)]
+
 ## World Model for VLA
 
 ### World Model for Imitation Learning
