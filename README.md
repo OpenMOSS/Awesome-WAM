@@ -310,6 +310,7 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **DiT4DiT**: "DiT4DiT: Jointly Modeling Video Dynamics and Actions for Generalizable Robot Control", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
   [[📄 Paper](https://arxiv.org/pdf/2603.10448)] [[🌍 Webpage](https://dit4dit.github.io/)] [[💻 Code](https://github.com/Mondo-Robotics/DiT4DiT)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2603.10448/index.html)]
 
+- **ST-WAM**: "ST-WAM: Semantic-Temporal World Action Model for Robust Manipulation under Visual Distribution Shifts", arXiv 2026. ![](https://img.shields.io/badge/Multi--DiT-9f1239) ![](https://img.shields.io/badge/Semantic--Temporal-fb7185)`n  [[📄 Paper](https://arxiv.org/abs/2607.28993)] [[💻 Code](https://github.com/Thu-WangMX/ST-WAM-Semantic-Temporal-World-Action-Model)] [[🌟 Project](https://thu-wangmx.github.io/st-wam/)]
 - **Fast-WAM**: "Fast-WAM: Do World Action Models Need Test-time Future Imagination?", arXiv 2026. ![](https://img.shields.io/badge/Multi--Dit-9f1239) ![](https://img.shields.io/badge/Hidden--State-fb7185)
   [[📄 Paper](https://arxiv.org/pdf/2603.16666)] [[🌍 Webpage](https://yuantianyuan01.github.io/FastWAM/)] [[💻 Code](https://github.com/yuantianyuan01/FastWAM)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2603.16666/index.html)]
 
