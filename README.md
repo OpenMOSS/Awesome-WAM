@@ -108,6 +108,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **C$^3$ache**: "C$^3$ache: Accelerating World Action Models with Cross Inference Chunk Cache", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
   [[📄 Paper](https://arxiv.org/pdf/2606.08962)]
 
+- **RoboPhys-3D**: "RoboPhys-3D: A Comprehensive Embodied World Model Evaluation via 3D Reconstruction", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
+  [[📄 Paper](https://arxiv.org/pdf/2608.28718)]
+
 ## World Action Model
 ### Cascaded World-Action-Model
 
