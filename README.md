@@ -42,6 +42,8 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - 🤝 Community-driven: found a missing paper or have a suggestion? Feel free to open an issue or submit a pull request!
 
 
+**Start here:** [Read the survey](https://arxiv.org/abs/2605.12090) · [Browse papers](#contents) · [Compare benchmarks](https://openmoss.ai/Awesome-WAM/leaderboard/) · [Train WAMs with EasyWAM](https://github.com/OpenMOSS/EasyWAM)
+
 <p align="center">
   <img src="figs/roadmap.svg" alt="Temporal evolution and taxonomy of representative works on World Action Models (WAMs). " width="100%">
 </p>
