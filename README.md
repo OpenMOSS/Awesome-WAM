@@ -110,6 +110,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **C$^3$ache**: "C$^3$ache: Accelerating World Action Models with Cross Inference Chunk Cache", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
   [[📄 Paper](https://arxiv.org/pdf/2606.08962)]
 
+- **TacPAC**: "TacPAC: Tactile Prediction and Real-Time Action Correction in World-Action Models for Contact-Rich Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Needs--Taxonomy--Review-64748b)
+  [[📄 Paper](https://arxiv.org/pdf/2609.05266)]
+
 ## World Action Model
 ### Cascaded World-Action-Model
 
