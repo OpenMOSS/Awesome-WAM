@@ -258,6 +258,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **DreamZero**: "World Action Models are Zero-shot Policies", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
   [[📄 Paper](https://arxiv.org/pdf/2602.15922)] [[🌍 Webpage](https://dreamzero0.github.io/)] [[💻 Code](https://github.com/dreamzero0/dreamzero)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2602.15922/index.html)]
 
+- **DriveVA**: "DriveVA: Video Action Models are Zero-Shot Drivers", ECCV 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
+  [[📄 Paper](https://link.springer.com/chapter/10.1007/978-3-032-37718-0_19)] [[💻 Code](https://github.com/xiaomi-mlab/DriveVA)]
+
 - **GigaWorld-Policy**: "GigaWorld-Policy: An Efficient Action-Centered World-Action Model", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
   [[📄 Paper](https://arxiv.org/pdf/2603.17240)] [[🌍 Webpage](https://gigaai-research.github.io/GigaWorld-Policy/)] [[💻 Code](https://github.com/open-gigaai/giga-world-policy)] [[🤗 Model](https://huggingface.co/open-gigaai)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2603.17240/index.html)]
 
