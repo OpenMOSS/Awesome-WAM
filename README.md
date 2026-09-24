@@ -267,6 +267,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - [NEW] **HiMem-WAM**: "HiMem-WAM: Hierarchical Memory-Gated World Action Models for Robotic Manipulation", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Explicit-f43f5e)
   [[📄 Paper](https://arxiv.org/pdf/2606.10363)]
 
+- [NEW] **LeWAM**: "Latent evolving World Action Model", arXiv 2026. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
+  [[📄 Paper](https://arxiv.org/pdf/2609.27455)] [[💻 Code](https://github.com/XuejiFang/LeWAM)] [[🤗 Model](https://huggingface.co/XuejiFang/LeWAM)]
+
 - **FLARE**: "FLARE: Robot Learning with Implicit World Modeling", CoRL 2025. ![](https://img.shields.io/badge/Unified--DiT-be123c) ![](https://img.shields.io/badge/Implicit-fda4af)
   [[📄 Paper](https://arxiv.org/pdf/2505.15659)] [[🌍 Webpage](https://research.nvidia.com/labs/gear/flare/)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2505.15659/index.html)]
 
