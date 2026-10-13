@@ -645,6 +645,7 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 | **ManipulaTHOR** - *ManipulaTHOR: A Framework for Visual Object Manipulation* | 2021-04 | [📄 Paper](https://arxiv.org/pdf/2104.11213) · [🌍&nbsp;Web](https://ai2thor.allenai.org/manipulathor/) · [💻&nbsp;Code](https://github.com/allenai/manipulathor) |
 | **HomeRobot** - *HomeRobot: Open-Vocabulary Mobile Manipulation* | 2023-06 | [📄 Paper](https://arxiv.org/pdf/2306.11565) · [🌍&nbsp;Web](https://ovmm.github.io/) · [💻&nbsp;Code](https://github.com/facebookresearch/home-robot) |
 | **BEHAVIOR-1K** - *BEHAVIOR-1K: A Benchmark for Embodied AI with 1,000 Everyday Activities and Realistic Simulation* | 2024-03 | [📄 Paper](https://arxiv.org/pdf/2403.09227) · [🌍&nbsp;Web](https://behavior.stanford.edu/) · [💻&nbsp;Code](https://github.com/StanfordVL/OmniGibson) |
+| **RoboQuest** - *RoboQuest: Generalist Physical Agents that Search, Inspect and Test* | 2026-10 | [📄 Paper](https://arxiv.org/pdf/2610.10388) · [🌍&nbsp;Web](https://declare-lab.github.io/RoboQuest/) · [💻&nbsp;Code](https://github.com/declare-lab/RoboQuest) · [📦&nbsp;Dataset](https://huggingface.co/datasets/declare-lab/RoboQuest) |
 
 ---
 
