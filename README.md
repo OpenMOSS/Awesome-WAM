@@ -120,6 +120,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **VLP**: "Video Language Planning", ICLR 2024. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
   [[📄 Paper](https://arxiv.org/pdf/2310.10625)] [[🌍 Webpage](https://video-language-planning.github.io/)] [[💻 Code](https://github.com/video-language-planning/vlp_code)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2310.10625/index.html)]
 
+- **UniSim**: "Learning Interactive Real-World Simulators", ICLR 2024. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
+  [[📄 Paper](https://arxiv.org/abs/2310.06114)] [[🌍 Webpage](https://universal-simulator.github.io)]
+
 - **RoboEnvision**: "RoboEnvision: A Long-Horizon Video Generation Model for Multi-Task Robot Manipulation", IROS 2025. ![](https://img.shields.io/badge/Explicit-d97706) ![](https://img.shields.io/badge/Learned-b45309)
   [[📄 Paper](https://arxiv.org/pdf/2506.22007)] [[🌟 Blog](https://openmoss.github.io/Awesome-WAM/report/2506.22007/index.html)]
 
@@ -355,6 +358,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 - **RoboScape**: "RoboScape: Physics-informed Embodied World Model", arXiv 2025.
   [[📄 Paper](https://openreview.net/forum?id=wbZCBBrq3W)]
 
+- **DreamGen**: "DreamGen: Unlocking Generalization in Robot Learning through Video World Models", arXiv 2025.
+  [[📄 Paper](https://arxiv.org/abs/2505.12705)] [[🌍 Webpage](https://research.nvidia.com/labs/gear/dreamgen)] [[💻 Code](https://github.com/NVIDIA/GR00T-Dreams)]
+
 - **Ctrl-World**: "Ctrl-World: A Controllable Generative World Model for Robot", ICLR 2026.
   [[📄 Paper](https://openreview.net/forum?id=748bHL2BAv)] [[🌍 Webpage](https://ctrl-world.github.io/)] [[💻 Code](https://github.com/Robert-gyj/Ctrl-World)]
 
@@ -383,6 +389,9 @@ This repository accompanies our survey on **World Action Models (WAMs)** — the
 
 - **Diffusion Reward**: "Diffusion Reward: Learning Rewards via Conditional Video Diffusion", ECCV 2024.
   [[📄 Paper](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/05914.pdf)] [[🌍 Webpage](https://diffusion-reward.github.io/)] [[💻 Code](https://github.com/TEA-Lab/diffusion_reward)] [[🤗 Model](https://huggingface.co/tauhuang/diffusion_reward/tree/main)]
+
+- **iVideoGPT**: "iVideoGPT: Interactive VideoGPTs are Scalable World Models", NeurIPS 2024.
+  [[📄 Paper](https://arxiv.org/abs/2405.15223)] [[🌍 Webpage](https://thuml.github.io/iVideoGPT)] [[💻 Code](https://github.com/thuml/iVideoGPT)]
 
 - **RWM‑U**: "Uncertainty-Aware Robotic World Model Makes Offline Model-Based Reinforcement Learning Work on Real Robots", arXiv 2025.
   [[📄 Paper](https://arxiv.org/pdf/2504.16680)] [[🌍 Webpage](https://sites.google.com/view/uncertainty-aware-rwm)] [[💻 Code](https://github.com/leggedrobotics/robotic_world_model)]
